@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using SQLite;
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
+using System.Collections.ObjectModel;
 
 namespace RayvMobileApp.iOS
 {
@@ -15,16 +17,20 @@ namespace RayvMobileApp.iOS
 		private static string DbPath;
 		private static SQLiteConnection Db;
 		public List<Vote> Votes;
-		public List<Place> Places;
+
+		public List<Place> Places { get; set; }
+
 		public List<SearchHistory> SearchHistory;
 		private List<string> _categories;
 
 		void LoadCategories ()
 		{
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
-			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
-			JObject obj = JObject.Parse (result);
-			_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+			lock (restConnection.Instance.Lock) {
+				Dictionary<string, string> parameters = new Dictionary<string, string> ();
+				string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
+				JObject obj = JObject.Parse (result);
+				_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+			}
 		}
 
 		public List<string> Categories {
@@ -85,10 +91,7 @@ namespace RayvMobileApp.iOS
 				p.distance_from_place ();
 				Db.InsertOrReplace (p);
 			}
-			Places.Sort (delegate(Place x, Place y) {
-				return x.distance_double > y.distance_double ? 
-					1 : (y.distance_double > x.distance_double ? -1 : 0);
-			});
+			Places.Sort ();
 		}
 
 		void StorePlace (Place place, Place removePlace = null)
@@ -159,8 +162,8 @@ namespace RayvMobileApp.iOS
 		public void onWebGetItems (string data)
 		{
 			JObject jResult = JObject.Parse (data);
-			List<Place> new_places = jResult ["items"].ToObject<List<Place>> ();
-			Places.AddRange (new_places);
+			Places = jResult ["items"].ToObject<List<Place>> ();
+			updatePlaces ();
 
 		}
 
@@ -182,7 +185,7 @@ namespace RayvMobileApp.iOS
 				                          select s).First ();
 				Console.WriteLine ("GetConfig: {0}=[{1}]", key, ConfItem.Value);
 				return ConfItem.Value;
-			} catch (Exception e) {
+			} catch (Exception) {
 				Console.WriteLine ("GetConfig: {0} not found", key);
 				return "";
 			}
@@ -198,10 +201,10 @@ namespace RayvMobileApp.iOS
 			//load the data from the db
 			Console.WriteLine ("Persist.LoadFromDb loading");
 
+			// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 			Places.Clear ();
 			var place_q = Db.Table<Place> ();
-			foreach (var place in place_q)
-				Places.Add (place);
+			Places.AddRange (place_q);
 			Votes.Clear ();
 			var votes_q = Db.Table<Vote> ();
 			foreach (var vote in votes_q)

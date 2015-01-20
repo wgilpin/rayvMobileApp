@@ -148,7 +148,7 @@ namespace RayvMobileApp.iOS
 				Content = absoluteLayout,
 			};
 			ToolbarItems.Add (new ToolbarItem {
-				Name = "Edit",
+				Text = "Edit",
 				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => Navigation.PushAsync (new EditPage (DisplayPlace)))

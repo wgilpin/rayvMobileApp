@@ -2,58 +2,153 @@
 using SQLite;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
+using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace RayvMobileApp.iOS
 {
-	public class Place
+	public class Place: INotifyPropertyChanged, IComparable<Place>
 	{
+		private string _key;
+		private double _lat;
+		private double _lng;
+		private string _website;
+		private string _address;
+		private string _place_name;
+		private string _place_id;
+		private string _category;
+		private string _telephone;
+		private bool _untried;
+		private string _vote;
+		private string _descr;
+		private string _img;
+		private Int64 _edited;
+		private string _thumbnail;
+		private int _up;
+		private int _down;
+		private string _owner;
+		private bool _is_map;
+		private bool _adjusted;
+		private double _distance_double;
+		private string _postcode;
+		private string _pretty_dist;
+
 		[PrimaryKey]
-		public string key { get; set; }
+		public string key { 
+			get { return _key; } 
+			set { SetField (ref _key, value, "key"); } 
+		}
 
-		public double lat { get; set; }
+		public double lat { 
+			get { return _lat; } 
+			set { SetField (ref _lat, value, "lat"); } 
+		}
 
-		public double lng { get; set; }
+		public double lng { 
+			get { return _lng; } 
+			set { SetField (ref _lng, value, "lng"); } 
+		}
 
-		public string website { get; set; }
+		public string website { 
+			get { return _website; } 
+			set { SetField (ref _website, value, "website"); } 
+		}
 
-		public string address { get; set; }
+		public string address { 
+			get { return _address; } 
+			set { SetField (ref _address, value, "address"); } 
+		}
 
 		[MaxLength (50)]
-		public string place_name { get; set; }
+		public string place_name { 
+			get { return _place_name; } 
+			set { SetField (ref _place_name, value, "place_name"); } 
+		}
 
-		public string place_id { get; set; }
+		public string place_id { 
+			get { return _place_id; } 
+			set { SetField (ref _place_id, value, "place_id"); } 
+		}
 
-		public string category { get; set; }
+		public string category { 
+			get { return _category; } 
+			set { SetField (ref _category, value, "category"); } 
+		}
 
-		public string telephone { get; set; }
+		public string telephone { 
+			get { return _telephone; } 
+			set { SetField (ref _telephone, value, "telephone"); } 
+		}
 
-		public bool untried { get; set; }
+		public bool untried { 
+			get { return _untried; } 
+			set { SetField (ref _untried, value, "untried"); } 
+		}
 
-		public string vote { get; set; }
+		public string vote { 
+			get { return _vote; } 
+			set { SetField (ref _vote, value, "vote"); } 
+		}
 
-		public string descr { get; set; }
+		public string descr { 
+			get { return _descr; } 
+			set { SetField (ref _descr, value, "descr"); } 
+		}
 
-		public string img { get; set; }
+		public string img { 
+			get { return _img; } 
+			set { SetField (ref _img, value, "img"); } 
+		}
 
-		public Int64 edited { get; set; }
+		public Int64 edited { 
+			get { return _edited; } 
+			set { SetField (ref _edited, value, "edited"); } 
+		}
 
-		public string thumbnail { get ; set; }
+		public string thumbnail { 
+			get { return _thumbnail; } 
+			set { SetField (ref _thumbnail, value, "thumbnail"); } 
+		}
 
-		public int up { get; set; }
+		public int up { 
+			get { return _up; } 
+			set { SetField (ref _up, value, "up"); } 
+		}
 
-		public int down { get; set; }
+		public int down { 
+			get { return _down; } 
+			set { SetField (ref _down, value, "down"); } 
+		}
 
-		public string owner { get; set; }
+		public string owner { 
+			get { return _owner; } 
+			set { SetField (ref _owner, value, "owner"); } 
+		}
 
-		public bool is_map { get; set; }
+		public bool is_map { 
+			get { return _is_map; } 
+			set { SetField (ref _is_map, value, "is_map"); } 
+		}
 
-		public bool adjusted { get; set; }
+		public bool adjusted { 
+			get { return _adjusted; } 
+			set { SetField (ref _adjusted, value, "adjusted"); } 
+		}
 
-		public double distance_double { get; set; }
+		public double distance_double { 
+			get { return _distance_double; } 
+			set { SetField (ref _distance_double, value, "distance_double"); } 
+		}
 
-		public string postcode { get; set; }
+		public string postcode { 
+			get { return _postcode; } 
+			set { SetField (ref _postcode, value, "postcode"); } 
+		}
 
-		public string pretty_dist { get; set; }
+		public string pretty_dist { 
+			get { return _pretty_dist; } 
+			set { SetField (ref _pretty_dist, value, "key"); } 
+		}
 
 		public string distance {
 			get { 
@@ -112,6 +207,35 @@ namespace RayvMobileApp.iOS
 			get { 
 				return UriImageSource.FromUri (new Uri (this.img));
 			}
+		}
+
+		// boiler-plate
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged (string propertyName)
+		{
+			PropertyChangedEventHandler handler = PropertyChanged;
+			if (handler != null)
+				handler (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		protected bool SetField<T> (ref T field, T value, string propertyName)
+		{
+			if (EqualityComparer<T>.Default.Equals (field, value))
+				return false;
+			field = value;
+			OnPropertyChanged (propertyName);
+			return true;
+		}
+
+		// Default comparer for Part type.
+		public int CompareTo (Place comparePlace)
+		{
+			// A null value means that this object is greater. 
+			if (comparePlace == null)
+				return 1;
+			else
+				return this.distance_double.CompareTo (comparePlace.distance_double);
 		}
 	}
 

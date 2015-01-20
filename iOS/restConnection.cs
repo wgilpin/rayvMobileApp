@@ -8,6 +8,8 @@ namespace RayvMobileApp.iOS
 	public class restConnection
 	{
 
+		public Object Lock = new Object ();
+
 		private static restConnection instance;
 		RestClient client;
 
@@ -33,23 +35,27 @@ namespace RayvMobileApp.iOS
 
 		public bool loggedIn { 
 			get { 
-				string ping = this.get ("/ping").Content;
-				return ping == "OK";
+				lock (Lock) {
+					string ping = this.get ("/ping").Content;
+					return ping == "OK";
+				}
 			} 
 		}
 
 		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET)
 		{
-			//TODO: retries & exception handling
-			var request = new RestRequest (url);
-			request.Method = method;
-			if (parameters != null) {
-				foreach (KeyValuePair<string, string> kvp in parameters) {
-					request.AddParameter (kvp.Key, kvp.Value, ParameterType.GetOrPost);
-				}
-			}
-			Console.WriteLine (String.Format ("get: {0}{1}", client.BaseUrl, request.Resource));
+
+			//TODO: retries
 			try {
+				var request = new RestRequest (url);
+				request.Method = method;
+				if (parameters != null) {
+					foreach (KeyValuePair<string, string> kvp in parameters) {
+						request.AddParameter (kvp.Key, kvp.Value, ParameterType.GetOrPost);
+					}
+				}
+				Console.WriteLine (String.Format ("get: {0}{1}", client.BaseUrl, request.Resource));
+
 				IRestResponse response = client.Execute (request);
 				Console.WriteLine (String.Format ("get: response: {0}", response.Content));
 				return response;
@@ -57,7 +63,6 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine (String.Format ("get: exception {0}", E));
 				return null;
 			}
-
 		}
 
 		public string post (string url, Dictionary<string,string> parameters = null)

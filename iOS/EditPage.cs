@@ -202,43 +202,46 @@ namespace RayvMobileApp.iOS
 
 		async private void DoSave (object sender, EventArgs e)
 		{
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
-			if (Category.SelectedIndex == -1) {
-				await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
-				return;
+			lock (restConnection.Instance.Lock) {
+				Dictionary<string, string> parameters = new Dictionary<string, string> ();
+				if (Category.SelectedIndex == -1) {
+					DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+					return;
+				}
+				parameters ["key"] = EditPlace.key;
+				parameters ["lat"] = EditPlace.lat.ToString ();
+				parameters ["lng"] = EditPlace.lng.ToString ();
+				parameters ["addr"] = Address.Text;
+				parameters ["place_name"] = Place_name.Text;
+				parameters ["myComment"] = Comment.Text;
+				parameters ["category"] = Category.Items [Category.SelectedIndex];
+				parameters ["descr"] = "";
+				switch (EditPlace.vote) {
+				case "-1":
+					parameters ["vote"] = "dislike";
+					break;
+				case "1":
+					parameters ["voteScore"] = "like";
+					break;
+				default:
+					parameters ["untried"] = "true";
+					break;
+				}
+				try {
+					string result = restConnection.Instance.post ("/item", parameters);
+					//			JObject obj = JObject.Parse (result);
+					Place place = JsonConvert.DeserializeObject<Place> (result);
+					Console.WriteLine ("DoSave: read distance as {0}", place.distance);
+					Persist.Instance.UpdatePlace (place);
+					Console.WriteLine ("Saved");
+					this.Navigation.PopAsync ();
+					
+				} catch (Exception ex) {
+					Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
+					DisplayAlert ("Error", "Save Failed", "OK");
+				}
 			}
-			parameters ["key"] = EditPlace.key;
-			parameters ["lat"] = EditPlace.lat.ToString ();
-			parameters ["lng"] = EditPlace.lng.ToString ();
-			parameters ["addr"] = Address.Text;
-			parameters ["place_name"] = Place_name.Text;
-			parameters ["myComment"] = Comment.Text;
-			parameters ["category"] = Category.Items [Category.SelectedIndex];
-			parameters ["descr"] = "";
-			switch (EditPlace.vote) {
-			case "-1":
-				parameters ["vote"] = "dislike";
-				break;
-			case "1":
-				parameters ["voteScore"] = "like";
-				break;
-			default:
-				parameters ["untried"] = "true";
-				break;
-			}
-			try {
-				string result = restConnection.Instance.post ("/item", parameters);
-				//			JObject obj = JObject.Parse (result);
-				Place place = JsonConvert.DeserializeObject<Place> (result);
-				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
-				Persist.Instance.UpdatePlace (place);
-				Console.WriteLine ("Saved");
-				await this.Navigation.PopAsync ();
-			
-			} catch (Exception ex) {
-				Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
-				await DisplayAlert ("Error", "Save Failed", "OK");
-			}
+
 		}
 	}
 }

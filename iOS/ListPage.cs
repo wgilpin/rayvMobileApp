@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using CoreLocation;
 using RestSharp;
+using System.Linq;
 
 namespace RayvMobileApp.iOS
 {
@@ -47,11 +48,15 @@ namespace RayvMobileApp.iOS
 			};
 
 			ToolbarItems.Add (new ToolbarItem {
-				Name = "Refresh",
+				Text = "Refresh",
 				Icon = "01-refresh@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => Setup (this))
 			});
+
+			this.Appearing += (object sender, EventArgs e) => {
+				SetList (Persist.Instance.Places);
+			};
 			System.Diagnostics.Debug.WriteLine ("fillListPage");
 		}
 
@@ -93,39 +98,42 @@ namespace RayvMobileApp.iOS
 			} else {
 				webReq.setBaseUrl (server);
 				webReq.setCredentials (Persist.Instance.GetConfig ("username"), Persist.Instance.GetConfig ("pwd"), "");
-				IRestResponse resp = webReq.get ("/api/login", null);
-				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-					//TODO: This doesn't work
-					Device.BeginInvokeOnMainThread (() => {
-						Console.WriteLine ("GetFullData: Need to login");
-						caller.Navigation.PushModalAsync (new LoginPage ());
-					});
-					return;
-				}
-				resp = webReq.get ("/getFullUserRecord");
-				try {
-					Persist data = Persist.Instance;
-					JObject obj = JObject.Parse (resp.Content);
-					string placeStr = obj ["places"].ToString ();
-					Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
-					data.Places.Clear ();
-					data.Places.AddRange (place_list.Values);
-
-					data.Votes.Clear ();
-					foreach (JObject fr in obj["friendsData"]) {
-						string fr_id = fr ["id"].ToString ();
-						string name = fr ["name"].ToString ();
-						data.Friends [fr_id] = name;
-						Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-						data.Votes.AddRange (vote_list.Values);
+				IRestResponse resp;
+				lock (webReq.Lock) {
+					resp = webReq.get ("/api/login", null);
+					if (resp.StatusCode == HttpStatusCode.Unauthorized) {
+						//TODO: This doesn't work
+						Device.BeginInvokeOnMainThread (() => {
+							Console.WriteLine ("GetFullData: Need to login");
+							caller.Navigation.PushModalAsync (new LoginPage ());
+						});
+						return;
 					}
-					//sort
-					data.updatePlaces ();
-					Console.WriteLine ("ListPage.Setup loaded");
-
-				} catch (Exception ex) {
-					System.Diagnostics.Debug.Write ("ListPage.Setup: ");
-					System.Diagnostics.Debug.WriteLine (ex.Message);
+				}
+				lock (webReq.Lock) {
+					resp = webReq.get ("/getFullUserRecord");
+					try {
+						Persist data = Persist.Instance;
+						JObject obj = JObject.Parse (resp.Content);
+						string placeStr = obj ["places"].ToString ();
+						Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+						data.Places.Sort ();
+						
+						data.Votes.Clear ();
+						foreach (JObject fr in obj["friendsData"]) {
+							string fr_id = fr ["id"].ToString ();
+							string name = fr ["name"].ToString ();
+							data.Friends [fr_id] = name;
+							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
+							data.Votes.AddRange (vote_list.Values);
+						}
+						//sort
+						data.updatePlaces ();
+						Console.WriteLine ("ListPage.Setup loaded");	
+					} catch (Exception ex) {
+						System.Diagnostics.Debug.Write ("ListPage.Setup: ");
+						System.Diagnostics.Debug.WriteLine (ex.Message);
+					}
 				}
 			}
 		}
@@ -142,6 +150,11 @@ namespace RayvMobileApp.iOS
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
 		}
 
+		public void SetList (List<Place> list)
+		{
+			ItemsSource = null;
+			ItemsSource = list;
+		}
 	}
 
 }

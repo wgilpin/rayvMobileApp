@@ -64,6 +64,6 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 </dict>
 </plist>

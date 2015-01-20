@@ -19,10 +19,10 @@ namespace RayvMobileApp.iOS
 			Persist.Instance.GpsPosition = new Xamarin.Forms.Maps.Position (
 				e.Location.Coordinate.Latitude,
 				e.Location.Coordinate.Longitude);
-			Console.WriteLine (String.Format (
-				"GPS: {0:0.0000},{1:0.0000}",
-				Persist.Instance.GpsPosition.Latitude, 
-				Persist.Instance.GpsPosition.Longitude));
+//			Console.WriteLine (String.Format (
+//				"GPS: {0:0.0000},{1:0.0000}",
+//				Persist.Instance.GpsPosition.Latitude, 
+//				Persist.Instance.GpsPosition.Longitude));
 			return;
 			// Handle foreground updates
 			//			CLLocation location = e.Location;
