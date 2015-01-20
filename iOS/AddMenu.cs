@@ -59,18 +59,16 @@ namespace RayvMobileApp.iOS
 			try {
 				string result = restConnection.Instance.get ("/getAddresses_ajax", parameters).Content;
 				JObject obj = JObject.Parse (result);
-				Position search_center = new Position (
-					                         (double)obj.SelectToken ("search.lat"), 
-					                         (double)obj.SelectToken ("search.lng")
-				                         );
+				//search results hsould show distance from me, not from the search location
+//				Position search_center = new Position (
+//					                         (double)obj.SelectToken ("search.lat"), 
+//					                         (double)obj.SelectToken ("search.lng")
+//				                         );
 				List<Place> points = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
 				foreach (Place point in points) {
-					point.distance_from_place (search_center);
+					point.distance_from_place ();
 				}
-				points.Sort (delegate(Place a, Place b) {
-					double delta = a.distance_double - b.distance_double;
-					return delta < 0.0 ? -1 : (delta > 0.0 ? 1 : 0);
-				});
+				points.Sort ();
 				Spinner.IsRunning = false;
 				Console.WriteLine ("DoSearch: Activity Over");
 				this.Navigation.PushModalAsync (AddResultsPage.Instance);
@@ -80,6 +78,11 @@ namespace RayvMobileApp.iOS
 				DisplayAlert ("Oops", "Unable to search as an error occurred", "Close");
 			}
 		}
+
+
+		#endregion
+
+		#region Events
 
 		async void SearchHere (object sender, EventArgs e)
 		{
@@ -101,10 +104,6 @@ namespace RayvMobileApp.iOS
 			searchPosition = positions.First ();
 			DoSearch ();
 		}
-
-		#endregion
-
-		#region Events
 
 		void ShowPlaceHistory (object sender, EventArgs e)
 		{
@@ -141,12 +140,12 @@ namespace RayvMobileApp.iOS
 			var HistoryList = Persist.Instance.SearchHistory;
 			if (HistoryList.Count > 0 && HistoryList [0] != null && HistoryList [0].PlaceName.Length > 0) {
 				PlaceHistoryBtn.Text = Persist.Instance.SearchHistory [0].PlaceName;
-				PlaceHistoryBtn.Clicked += SearchSomewhere;
 				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
+				PlaceHistoryBtn.Clicked += SearchSomewhere;
 			} else {
 				PlaceHistoryBtn.Text = " Choose Where... ";
-				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
 				PlaceHistoryBtn.Clicked -= SearchSomewhere;
+				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
 			}
 			PlaceHistoryBox = new Entry {
 				Placeholder = "Where to search near...",
