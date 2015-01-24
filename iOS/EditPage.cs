@@ -236,8 +236,7 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("DoSave: read distance as {0}", place.distance);
 					Persist.Instance.UpdatePlace (place);
 					Console.WriteLine ("Saved");
-					this.Navigation.PopAsync ();
-					
+					this.Navigation.PopToRootAsync ();
 				} catch (Exception ex) {
 					Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
 					DisplayAlert ("Error", "Save Failed", "OK");

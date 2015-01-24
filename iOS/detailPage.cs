@@ -74,14 +74,17 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public void DoLoadPage (object sender, EventArgs e)
+		{
+			Console.WriteLine ("DetailPage: Pre-Appearing distance is {0}", DisplayPlace.distance);
+			LoadPage (DisplayPlace.key);
+			Console.WriteLine ("DetailPage: Post-Appearing distance is {0}", DisplayPlace.distance);
+		}
+
 		public DetailPage (Place place)
 		{
 			DisplayPlace = place;
-			this.Appearing += (object sender, EventArgs e) => {
-				Console.WriteLine ("DetailPage: Pre-Appearing distance is {0}", DisplayPlace.distance);
-				LoadPage (DisplayPlace.key);
-				Console.WriteLine ("DetailPage: Post-Appearing distance is {0}", DisplayPlace.distance);
-			};
+			this.Appearing += DoLoadPage;
 			var absoluteLayout = new AbsoluteLayout ();
 
 			place_name = new LabelWide ();
