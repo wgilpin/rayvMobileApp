@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using Foundation;
 
 namespace RayvMobileApp.iOS
 {
@@ -24,6 +25,12 @@ namespace RayvMobileApp.iOS
 			Content = new StackLayout {
 				Children = {
 					LogoutBtn,
+					new Label {
+						Text = String.Format (
+							"Version {0}-{1}", 
+							NSBundle.MainBundle.InfoDictionary ["CFBundleShortVersionString"],
+							NSBundle.MainBundle.InfoDictionary ["CFBundleVersion"]),
+					},
 					new Label {
 						Text = String.Format (
 							"{0:0.0000},{1:0.0000}",

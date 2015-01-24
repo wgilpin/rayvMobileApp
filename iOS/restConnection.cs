@@ -57,7 +57,9 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine (String.Format ("get: {0}{1}", client.BaseUrl, request.Resource));
 
 				IRestResponse response = client.Execute (request);
-				Console.WriteLine (String.Format ("get: response: {0}", response.Content));
+				Console.WriteLine (String.Format (
+					"get: response: {0}", 
+					response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 				return response;
 			} catch (Exception E) {
 				Console.WriteLine (String.Format ("get: exception {0}", E));

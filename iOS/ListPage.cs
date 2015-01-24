@@ -31,8 +31,8 @@ namespace RayvMobileApp.iOS
 			listView = new PlacesListView {
 				ItemsSource = Persist.Instance.Places,
 			};
-			listView.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => {
-				this.Navigation.PushAsync (new DetailPage (e.SelectedItem as Place));
+			listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
+				this.Navigation.PushAsync (new DetailPage (e.Item as Place));
 			};
 			StackLayout tools = new toolbar (this);
 			StackLayout inner = new StackLayout {
@@ -100,23 +100,31 @@ namespace RayvMobileApp.iOS
 				webReq.setCredentials (Persist.Instance.GetConfig ("username"), Persist.Instance.GetConfig ("pwd"), "");
 				IRestResponse resp;
 				lock (webReq.Lock) {
+					Console.WriteLine ("GetFullData Login");
 					resp = webReq.get ("/api/login", null);
+					if (resp == null) {
+						Console.WriteLine ("GetFullData: Response NULL");
+						return;
+					}
 					if (resp.StatusCode == HttpStatusCode.Unauthorized) {
 						//TODO: This doesn't work
 						Device.BeginInvokeOnMainThread (() => {
 							Console.WriteLine ("GetFullData: Need to login");
 							caller.Navigation.PushModalAsync (new LoginPage ());
 						});
+						Console.WriteLine ("GetFullData: No login");
 						return;
 					}
 				}
 				lock (webReq.Lock) {
 					resp = webReq.get ("/getFullUserRecord");
 					try {
+						Console.WriteLine ("GetFullData: lock get full");
 						Persist data = Persist.Instance;
 						JObject obj = JObject.Parse (resp.Content);
 						string placeStr = obj ["places"].ToString ();
 						Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+						data.Places = place_list.Values.ToList ();
 						data.Places.Sort ();
 						
 						data.Votes.Clear ();
@@ -131,6 +139,7 @@ namespace RayvMobileApp.iOS
 						data.updatePlaces ();
 						Console.WriteLine ("ListPage.Setup loaded");	
 					} catch (Exception ex) {
+						Console.WriteLine ("GetFullData Exception {0}", ex);
 						System.Diagnostics.Debug.Write ("ListPage.Setup: ");
 						System.Diagnostics.Debug.WriteLine (ex.Message);
 					}
@@ -152,6 +161,7 @@ namespace RayvMobileApp.iOS
 
 		public void SetList (List<Place> list)
 		{
+			Console.WriteLine ("SetList");
 			ItemsSource = null;
 			ItemsSource = list;
 		}

@@ -9,12 +9,15 @@ namespace RayvMobileApp.iOS
 		{
 			BorderWidth = 2;
 			BorderColor = Color.FromHex ("#4444AA");
-			;
 			BackgroundColor = Color.FromHex ("#ddddff");
 			Font = Font.SystemFontOfSize (NamedSize.Large);
 //			HorizontalOptions = LayoutOptions.FillAndExpand;
 //			HorizontalOptions = LayoutOptions.CenterAndExpand;
+		}
 
+		public RayvButton (string text) : this ()
+		{
+			Text = text;
 		}
 	}
 

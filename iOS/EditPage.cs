@@ -181,11 +181,13 @@ namespace RayvMobileApp.iOS
 			};
 		}
 
-		public EditPage (Position position) : this ()
+		public EditPage (Position position, String address) : this ()
 		{
 			EditPlace = new Place ();
 			EditPlace.lat = position.Latitude;
 			EditPlace.lng = position.Longitude;
+			EditPlace.address = address;
+			Address.Text = address;
 		}
 
 		void SetVoteButton (Button voteBtn)

@@ -6,8 +6,6 @@
 	<string>RayvMobileApp.iOS</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.your-company.RayvMobileApp.iOS</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -63,7 +61,9 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
 	<key>CFBundleVersion</key>
-	<string>8</string>
+	<string>a</string>
 </dict>
 </plist>
