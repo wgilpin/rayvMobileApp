@@ -10,6 +10,7 @@ using System.Collections;
 using CoreLocation;
 using RestSharp;
 using System.Linq;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -57,6 +58,8 @@ namespace RayvMobileApp.iOS
 			this.Appearing += (object sender, EventArgs e) => {
 				SetList (Persist.Instance.Places);
 			};
+			StartTimerIfNoGPS ();
+
 			System.Diagnostics.Debug.WriteLine ("fillListPage");
 		}
 
@@ -137,6 +140,7 @@ namespace RayvMobileApp.iOS
 						}
 						//sort
 						data.updatePlaces ();
+						Persist.Instance.DataIsLive = true;
 						Console.WriteLine ("ListPage.Setup loaded");	
 					} catch (Exception ex) {
 						Console.WriteLine ("GetFullData Exception {0}", ex);
@@ -153,7 +157,6 @@ namespace RayvMobileApp.iOS
 			// fire off a thread to get the data
 			System.Threading.ThreadPool.QueueUserWorkItem (delegate {
 				GetFullData (caller);
-
 			}, null);
 
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
@@ -163,8 +166,38 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("SetList");
 			ItemsSource = null;
+			list.Sort ();
 			ItemsSource = list;
 		}
+
+		#region timer
+
+		private System.Timers.Timer _timer;
+
+		void StartTimerIfNoGPS ()
+		{
+			if (Persist.Instance.DataIsLive)
+				return;
+			_timer = new System.Timers.Timer ();
+			//Trigger event every second
+			_timer.Interval = 2000;
+			_timer.Elapsed += OnTimerTrigger;
+			_timer.Enabled = true;
+		}
+
+		private void OnTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if (!Persist.Instance.DataIsLive) {
+				// not ready yet
+				Debug.WriteLine ("OnTimerTrigger - not live");
+				return;
+			}
+			Debug.WriteLine ("OnTimerTrigger - Live");
+			SetList (Persist.Instance.Places);
+			_timer.Close ();
+		}
+
+		#endregion
 	}
 
 }

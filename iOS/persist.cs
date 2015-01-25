@@ -20,6 +20,8 @@ namespace RayvMobileApp.iOS
 
 		public List<Place> Places { get; set; }
 
+		public bool DataIsLive;
+
 		public List<SearchHistory> SearchHistory;
 		private List<string> _categories;
 
@@ -50,6 +52,7 @@ namespace RayvMobileApp.iOS
 			Votes = new List<Vote> ();
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, string> ();
+			DataIsLive = false;
 			GpsPosition = new Position (51.5797, -0.1237);
 			DbPath = Path.Combine (
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
@@ -205,6 +208,9 @@ namespace RayvMobileApp.iOS
 			Places.Clear ();
 			var place_q = Db.Table<Place> ();
 			Places.AddRange (place_q);
+			foreach (var p in Places)
+				p.distance_from_place ();
+			Places.Sort ();
 			Votes.Clear ();
 			var votes_q = Db.Table<Vote> ();
 			foreach (var vote in votes_q)

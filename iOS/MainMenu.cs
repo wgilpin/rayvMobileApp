@@ -1,11 +1,11 @@
 ﻿using System;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 
 namespace RayvMobileApp.iOS
 {
 	public class MainMenu: ContentPage
 	{
-		//		LocationManager Manager;
 
 		void loadDataFromServer (ContentPage caller)
 		{
@@ -16,27 +16,16 @@ namespace RayvMobileApp.iOS
 
 		public void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
 		{
-			Persist.Instance.GpsPosition = new Xamarin.Forms.Maps.Position (
-				e.Location.Coordinate.Latitude,
-				e.Location.Coordinate.Longitude);
+			Position NewPosition = new Position (
+				                       e.Location.Coordinate.Latitude,
+				                       e.Location.Coordinate.Longitude);
+			Persist.Instance.GpsPosition = NewPosition;
 //			Console.WriteLine (String.Format (
 //				"GPS: {0:0.0000},{1:0.0000}",
 //				Persist.Instance.GpsPosition.Latitude, 
 //				Persist.Instance.GpsPosition.Longitude));
-			return;
-			// Handle foreground updates
-			//			CLLocation location = e.Location;
-			//
-			//			Persist.Instance.gpsPosition = new Position (location.Coordinate.Latitude, location.Coordinate.Longitude);
-			//			map.MoveToRegion (new MapSpan (
-			//				Persist.Instance.gpsPosition, 
-			//				map.VisibleRegion.LatitudeDegrees, 
-			//				map.VisibleRegion.LongitudeDegrees));
-			//
-			//			Console.WriteLine ("position updated");
-
-
 		}
+
 
 		public MainMenu ()
 		{
