@@ -12,7 +12,7 @@ namespace RayvMobileApp.iOS
 		#region Private Fields
 
 		Map map;
-		Entry AddressBox;
+		Label AddressBox;
 		RayvButton addHereBtn;
 
 		#endregion
@@ -88,11 +88,11 @@ namespace RayvMobileApp.iOS
 			};
 			addHereBtn = new RayvButton (" Add Here ");
 			addHereBtn.Clicked += DoGetAddress;
-			AddressBox = new Entry {
-				Placeholder = "Address",
+			AddressBox = new Label {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
+				XAlign = TextAlignment.Start,
+				LineBreakMode = LineBreakMode.TailTruncation,
 			};
-			AddressBox.TextChanged += CheckBottomButton;
 
 			AbsoluteLayout mapLayout = new AbsoluteLayout {
 				BackgroundColor = Color.Blue.WithLuminosity (0.9),

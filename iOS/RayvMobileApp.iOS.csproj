@@ -156,6 +156,7 @@
     <BundleResource Include="Resources\RayvTopSplash.png" />
     <BundleResource Include="Resources\right32x32.png" />
     <BundleResource Include="Resources\ShareBigBtn.png" />
+    <BundleResource Include="Resources\icon-map.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -193,6 +194,7 @@
     <Compile Include="toolbar.cs" />
     <Compile Include="Vote.cs" />
     <Compile Include="Friend.cs" />
+    <Compile Include="MapPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

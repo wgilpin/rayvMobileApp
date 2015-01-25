@@ -164,6 +164,11 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public Position GetPosition ()
+		{
+			return new Position (lat, lng);
+		}
+
 		/**
          * one in 60 rule distance calc
          * @param point {LatLng}

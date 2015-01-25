@@ -151,11 +151,18 @@ namespace RayvMobileApp.iOS
 				Content = absoluteLayout,
 			};
 			ToolbarItems.Add (new ToolbarItem {
+				Text = "Map",
+				Icon = "icon-map.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new MapPage (DisplayPlace)))
+			});
+			ToolbarItems.Add (new ToolbarItem {
 				Text = "Edit",
 				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => Navigation.PushAsync (new EditPage (DisplayPlace)))
 			});
+
 		}
 	}
 }
