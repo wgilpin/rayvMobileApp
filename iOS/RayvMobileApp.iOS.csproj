@@ -195,6 +195,7 @@
     <Compile Include="Vote.cs" />
     <Compile Include="Friend.cs" />
     <Compile Include="MapPage.cs" />
+    <Compile Include="WebPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

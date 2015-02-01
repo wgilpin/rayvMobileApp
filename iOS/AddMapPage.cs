@@ -64,6 +64,13 @@ namespace RayvMobileApp.iOS
 
 		public AddMapPage ()
 		{
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Map",
+				Icon = "01-refresh@2x.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => SetupPage ())
+			});
+
 			Xamarin.FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
@@ -92,12 +99,10 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				XAlign = TextAlignment.Start,
 				LineBreakMode = LineBreakMode.TailTruncation,
+				BackgroundColor = Color.White,
 			};
-
 			AbsoluteLayout mapLayout = new AbsoluteLayout {
 				BackgroundColor = Color.Blue.WithLuminosity (0.9),
-//				VerticalOptions = LayoutOptions.FillAndExpand,
-
 			};
 			mapLayout.Children.Add (map);
 			AbsoluteLayout.SetLayoutFlags (map,
@@ -136,9 +141,15 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region Public Methods
+		#region private Methods
 
-
+		void SetupPage ()
+		{
+			AddressBox.Text = "";
+			addHereBtn.Text = " Add Here ";
+			addHereBtn.Clicked -= DoAdd;
+			addHereBtn.Clicked += DoGetAddress;
+		}
 
 		#endregion
 	}

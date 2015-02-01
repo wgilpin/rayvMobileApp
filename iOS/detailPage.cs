@@ -23,7 +23,7 @@ namespace RayvMobileApp.iOS
 		ButtonWide voteDislike;
 		Button voteWishlist;
 		ButtonWide callBtn;
-		ButtonWide webBtn;
+		RayvButton webBtn;
 		Label distance;
 		Label address;
 		Label descr;
@@ -51,6 +51,7 @@ namespace RayvMobileApp.iOS
 			descr.Text = DisplayPlace.descr;
 			distance.Text = DisplayPlace.distance;
 			webBtn.Text = DisplayPlace.website;
+			webBtn.Clicked += GotoWebPage;
 			callBtn.Text = DisplayPlace.telephone;
 			voteLike.TextColor = Color.Black;
 			voteDislike.TextColor = Color.Black;
@@ -81,6 +82,13 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("DetailPage: Post-Appearing distance is {0}", DisplayPlace.distance);
 		}
 
+		public void GotoWebPage (object sender, EventArgs e)
+		{
+			Navigation.PushAsync (new WebPage (
+				DisplayPlace.place_name,
+				DisplayPlace.website));
+		}
+
 		public DetailPage (Place place)
 		{
 			DisplayPlace = place;
@@ -102,11 +110,13 @@ namespace RayvMobileApp.iOS
 			address = new LabelWide ();
 			descr = new LabelWide ();
 			distance = new LabelWide ();
-			webBtn = new ButtonWide ();
+			webBtn = new RayvButton ();
+
 			callBtn = new ButtonWide ();
 			voteLike = new ButtonWide {
 				Text = "Like",
 			};
+			voteLike.Clicked += (object sender, EventArgs e) => DisplayAlert ("Voting", "Not Implemented", "OK");
 			voteDislike = new ButtonWide {
 				Text = "Dislike",
 			};
