@@ -136,6 +136,7 @@ namespace RayvMobileApp.iOS
 			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
 				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 			Content = mapLayout;
+			SetupMapList (Persist.Instance.GpsPosition);
 		}
 
 		public MapPage (Place place) : this ()
@@ -149,6 +150,7 @@ namespace RayvMobileApp.iOS
 				Label = place.place_name,
 				Address = place.address,
 			};
+			map.Pins.Clear ();
 			map.Pins.Add (pin);
 
 		}

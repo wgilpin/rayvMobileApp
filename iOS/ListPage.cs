@@ -49,10 +49,10 @@ namespace RayvMobileApp.iOS
 			};
 
 			ToolbarItems.Add (new ToolbarItem {
-				Text = "Refresh",
-				Icon = "01-refresh@2x.png",
+				Text = "Map",
+				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => Setup (this))
+				Command = new Command (() => Navigation.PushAsync (new MapPage ()))
 			});
 
 			this.Appearing += (object sender, EventArgs e) => {
@@ -118,8 +118,6 @@ namespace RayvMobileApp.iOS
 						Console.WriteLine ("GetFullData: No login");
 						return;
 					}
-				}
-				lock (webReq.Lock) {
 					resp = webReq.get ("/getFullUserRecord");
 					try {
 						Console.WriteLine ("GetFullData: lock get full");
@@ -164,10 +162,12 @@ namespace RayvMobileApp.iOS
 
 		public void SetList (List<Place> list)
 		{
-			Console.WriteLine ("SetList");
-			ItemsSource = null;
-			list.Sort ();
-			ItemsSource = list;
+			lock (restConnection.Instance.Lock) {
+				Console.WriteLine ("SetList");
+				ItemsSource = null;
+				list.Sort ();
+				ItemsSource = list;
+			}
 		}
 
 		#region timer
@@ -193,7 +193,9 @@ namespace RayvMobileApp.iOS
 				return;
 			}
 			Debug.WriteLine ("OnTimerTrigger - Live");
-			SetList (Persist.Instance.Places);
+			lock (restConnection.Instance.Lock) {
+				SetList (Persist.Instance.Places);
+			}
 			_timer.Close ();
 		}
 

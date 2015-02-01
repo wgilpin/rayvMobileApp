@@ -7,6 +7,7 @@ using SQLite;
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -53,7 +54,6 @@ namespace RayvMobileApp.iOS
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, string> ();
 			DataIsLive = false;
-			GpsPosition = new Position (51.5797, -0.1237);
 			DbPath = Path.Combine (
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
 				"database.db3");
@@ -63,8 +63,9 @@ namespace RayvMobileApp.iOS
 				Db = new SQLiteConnection (DbPath);
 			}
 			SearchHistory = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
-
-
+			Double Lat = GetConfigDouble ("LastLat");
+			Double Lng = GetConfigDouble ("LastLng");
+			GpsPosition = new Position (Lat, Lng);
 		}
 
 		private static Persist _instance;
@@ -112,6 +113,7 @@ namespace RayvMobileApp.iOS
 
 		public void  UpdatePlace (Place place)
 		{
+			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
 			place.distance_from_place ();
 			foreach (Place p in Places) {
@@ -162,13 +164,13 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public void onWebGetItems (string data)
-		{
-			JObject jResult = JObject.Parse (data);
-			Places = jResult ["items"].ToObject<List<Place>> ();
-			updatePlaces ();
-
-		}
+		//		public void onWebGetItems (string data)
+		//		{
+		//			JObject jResult = JObject.Parse (data);
+		//			Places = jResult ["items"].ToObject<List<Place>> ();
+		//			updatePlaces ();
+		//
+		//		}
 
 		public Place get_place (string key)
 		{
@@ -194,9 +196,24 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public Double GetConfigDouble (string key)
+		{
+			string StringValue = GetConfig (key);
+			try {
+				return Convert.ToDouble (StringValue);
+			} catch {
+				return 0.0;
+			}
+		}
+
 		public void SetConfig (string key, string value)
 		{
 			Db.InsertOrReplace (new Configuration (key, value));
+		}
+
+		public void SetConfigDouble (string key, Double value)
+		{
+			SetConfig (key, Convert.ToString (value));
 		}
 
 		public void LoadFromDb ()

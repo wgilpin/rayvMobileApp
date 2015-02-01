@@ -20,6 +20,8 @@ namespace RayvMobileApp.iOS
 				                       e.Location.Coordinate.Latitude,
 				                       e.Location.Coordinate.Longitude);
 			Persist.Instance.GpsPosition = NewPosition;
+			Persist.Instance.SetConfigDouble ("LastLat", e.Location.Coordinate.Latitude);
+			Persist.Instance.SetConfigDouble ("LastLng", e.Location.Coordinate.Longitude);
 //			Console.WriteLine (String.Format (
 //				"GPS: {0:0.0000},{1:0.0000}",
 //				Persist.Instance.GpsPosition.Latitude, 
