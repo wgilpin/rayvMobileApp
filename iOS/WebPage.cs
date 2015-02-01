@@ -16,8 +16,8 @@ namespace RayvMobileApp.iOS
 			Debug.WriteLine ("WebPage");
 			Label header = new Label {
 				Text = placeName,
-				Font = Font.BoldSystemFontOfSize (40),
-				HorizontalOptions = LayoutOptions.Center
+				Font = Font.SystemFontOfSize (24, FontAttributes.Bold),
+				HorizontalOptions = LayoutOptions.Center,
 			};
 
 			WebView webView = new WebView {

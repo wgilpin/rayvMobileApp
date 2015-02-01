@@ -1,5 +1,8 @@
 ﻿using System;
 using Xamarin.Forms;
+using Foundation;
+using UIKit;
+using System.Text.RegularExpressions;
 
 namespace RayvMobileApp.iOS
 {
@@ -16,16 +19,16 @@ namespace RayvMobileApp.iOS
 	public class DetailPage : ContentPage
 	{
 		Place DisplayPlace;
-		Label place_name;
-		Image img;
-		Label category;
-		ButtonWide voteLike;
-		ButtonWide voteDislike;
-		Button voteWishlist;
-		ButtonWide callBtn;
-		RayvButton webBtn;
+		Label Place_name;
+		Image Img;
+		Label Category;
+		ButtonWide VoteLike;
+		ButtonWide VoteDislike;
+		Button VoteWishlist;
+		ButtonWide CallBtn;
+		ButtonWide WebBtn;
 		Label distance;
-		Label address;
+		Label Address;
 		Label descr;
 
 		void LoadPage (string key)
@@ -42,38 +45,49 @@ namespace RayvMobileApp.iOS
 			}
 			Console.WriteLine ("DetailsPage.LoadPage: dist is {0}", DisplayPlace.distance);
 
-			place_name.Text = DisplayPlace.place_name;
-			address.Text = DisplayPlace.address;
+			Place_name.Text = DisplayPlace.place_name;
+			Address.Text = DisplayPlace.address;
 			if (DisplayPlace.img.Length > 0) {
-				img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
+				Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
+				Img.HorizontalOptions = LayoutOptions.FillAndExpand;
+				//Img.VerticalOptions = LayoutOptions.Start;
+				Img.Aspect = Aspect.AspectFill;
+				Img.WidthRequest = this.Width;
+				Img.HeightRequest = this.Height / 3;
 			}
-			category.Text = DisplayPlace.category;
+			Category.Text = DisplayPlace.category;
 			descr.Text = DisplayPlace.descr;
 			distance.Text = DisplayPlace.distance;
-			webBtn.Text = DisplayPlace.website;
-			webBtn.Clicked += GotoWebPage;
-			callBtn.Text = DisplayPlace.telephone;
-			voteLike.TextColor = Color.Black;
-			voteDislike.TextColor = Color.Black;
-			voteWishlist.TextColor = Color.Black;
-			voteLike.BackgroundColor = Color.FromHex ("#444111111");
-			voteDislike.BackgroundColor = Color.FromHex ("#444111111");
-			voteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+			if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
+				WebBtn.Text = "Go To Website";
+			else
+				WebBtn.Text = "";
+			WebBtn.Clicked -= GotoWebPage;
+			WebBtn.Clicked += GotoWebPage;
+			CallBtn.Text = DisplayPlace.telephone;
+			VoteLike.TextColor = Color.Black;
+			VoteDislike.TextColor = Color.Black;
+			VoteWishlist.TextColor = Color.Black;
+			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
+			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
+			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
 			switch (DisplayPlace.vote) {
 			case "-1":
-				voteDislike.BackgroundColor = Color.Olive;
-				voteDislike.TextColor = Color.White;
+				VoteDislike.BackgroundColor = Color.Olive;
+				VoteDislike.TextColor = Color.White;
 				break;
 			case "1":
-				voteLike.BackgroundColor = Color.Olive;
-				voteLike.TextColor = Color.White;
+				VoteLike.BackgroundColor = Color.Olive;
+				VoteLike.TextColor = Color.White;
 				break;
 			default:
-				voteWishlist.BackgroundColor = Color.Olive;
-				voteWishlist.TextColor = Color.White;
+				VoteWishlist.BackgroundColor = Color.Olive;
+				VoteWishlist.TextColor = Color.White;
 				break;
 			}
 		}
+
+		#region Events
 
 		public void DoLoadPage (object sender, EventArgs e)
 		{
@@ -89,42 +103,45 @@ namespace RayvMobileApp.iOS
 				DisplayPlace.website));
 		}
 
+		void DoMakeCall (object sender, EventArgs e)
+		{
+			String EscapedNo = "";
+			EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
+			var urlToSend = new NSUrl ("tel:" + EscapedNo); // phonenum is in the format 1231231234
+
+			if (UIApplication.SharedApplication.CanOpenUrl (urlToSend)) {
+				Console.WriteLine ("DoMakeCall: calling {0}", EscapedNo);
+				UIApplication.SharedApplication.OpenUrl (urlToSend);
+			} else {
+				// Url is not able to be opened.
+				DisplayAlert ("Error", "Unable to call", "OK");
+			}
+		}
+
+		#endregion
+
 		public DetailPage (Place place)
 		{
-			DisplayPlace = place;
-			this.Appearing += DoLoadPage;
-			var absoluteLayout = new AbsoluteLayout ();
+			const int IMAGE_HEIGHT = 0;
 
-			place_name = new LabelWide ();
-			img = new Image ();
-			try {
-				img.HorizontalOptions = LayoutOptions.CenterAndExpand;
-				img.VerticalOptions = LayoutOptions.Start;
-				img.Aspect = Aspect.AspectFill;
-			} catch {
-				img.Source = null;
-			}
-			category = new LabelWide {
-				TextColor = Color.Red,
-			};
-			address = new LabelWide ();
-			descr = new LabelWide ();
-			distance = new LabelWide ();
-			webBtn = new RayvButton ();
-
-			callBtn = new ButtonWide ();
-			voteLike = new ButtonWide {
-				Text = "Like",
-			};
-			voteLike.Clicked += (object sender, EventArgs e) => DisplayAlert ("Voting", "Not Implemented", "OK");
-			voteDislike = new ButtonWide {
-				Text = "Dislike",
-			};
-			voteWishlist = new ButtonWide {
-				Text = "Wish",
-			};
-			Grid voteGrid = new Grid {
+			var MainGrid = new Grid {
 				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+
+					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 				},
 				ColumnDefinitions = {
@@ -134,31 +151,72 @@ namespace RayvMobileApp.iOS
 				}
 			};
 
-			voteGrid.Children.Add (voteLike, 0, 0);
-			voteGrid.Children.Add (voteWishlist, 1, 0);
-			voteGrid.Children.Add (voteDislike, 2, 0);
+			DisplayPlace = place;
+			this.Appearing += DoLoadPage;
+
+			Img = new Image ();
+			try {
+				Img.HorizontalOptions = LayoutOptions.FillAndExpand;
+				//Img.VerticalOptions = LayoutOptions.Start;
+				Img.Aspect = Aspect.AspectFill;
+				Img.WidthRequest = this.Width;
+			} catch {
+				Img.Source = null;
+			}
+			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
+			Place_name = new LabelWide ();
+			MainGrid.Children.Add (Place_name, 0, 3, IMAGE_HEIGHT, IMAGE_HEIGHT + 1);
+			Category = new LabelWide {
+				TextColor = Color.Red,
+			};
+			MainGrid.Children.Add (Category, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
+			Address = new LabelWide ();
+			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
+			descr = new LabelWide ();
+			distance = new LabelWide ();
+			WebBtn = new ButtonWide ();
+			MainGrid.Children.Add (WebBtn, 0, 3, IMAGE_HEIGHT + 3, IMAGE_HEIGHT + 4);
+
+			CallBtn = new ButtonWide ();
+			CallBtn.Clicked += DoMakeCall;
+			MainGrid.Children.Add (CallBtn, 0, 3, IMAGE_HEIGHT + 4, IMAGE_HEIGHT + 5);
+			VoteLike = new ButtonWide {
+				Text = "Like",
+			};
+			VoteLike.Clicked += (object sender, EventArgs e) => DisplayAlert ("Voting", "Not Implemented", "OK");
+			VoteDislike = new ButtonWide {
+				Text = "Dislike",
+			};
+			VoteWishlist = new ButtonWide {
+				Text = "Wish",
+			};
+			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 6);
+//			Grid voteGrid = new Grid {
+//				RowDefinitions = {
+//					new RowDefinition { Height = GridLength.Auto },
+//				},
+//				ColumnDefinitions = {
+//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+//				}
+//			};
+
+//			voteGrid.Children.Add (VoteLike, 0, 0);
+//			voteGrid.Children.Add (VoteWishlist, 1, 0);
+//			voteGrid.Children.Add (VoteDislike, 2, 0);
 
 			LoadPage (DisplayPlace.key);
 
-			var stackLayout = new StackLayout {
-				Children = {
-					place_name,
-					category,
-					distance,
-					address,
-					descr,
-					voteGrid,
-					webBtn,
-					callBtn,
-				}
-			};
-			absoluteLayout.Children.Add (img, new Rectangle (0, 0, 1, 0.4), AbsoluteLayoutFlags.All);
-			absoluteLayout.Children.Add (
-				stackLayout, 
-				new Rectangle (0, 0.4, 1, 1), 
-				AbsoluteLayoutFlags.YProportional | AbsoluteLayoutFlags.WidthProportional);
 			this.Content = new ScrollView {
-				Content = absoluteLayout,
+				Content = new StackLayout {
+					Children = {
+						Img,
+						MainGrid,
+					}
+				},
 			};
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
