@@ -167,6 +167,8 @@ namespace RayvMobileApp.iOS
 			Comment = new Entry {
 				Placeholder = "Comment",
 			};
+			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck);
+
 			MainGrid.Children.Add (Comment, 0, 3, 12, 13);
 			SaveBtn = new ButtonWide {
 				Text = "Save",
