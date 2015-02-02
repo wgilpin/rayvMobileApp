@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using Foundation;
 using UIKit;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -18,6 +19,8 @@ namespace RayvMobileApp.iOS
 
 	public class DetailPage : ContentPage
 	{
+		#region Fields
+
 		Place DisplayPlace;
 		Label Place_name;
 		Image Img;
@@ -30,6 +33,10 @@ namespace RayvMobileApp.iOS
 		Label distance;
 		Label Address;
 		Label descr;
+
+		#endregion
+
+		#region Logic
 
 		void LoadPage (string key)
 		{
@@ -87,6 +94,8 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		#endregion
+
 		#region Events
 
 		public void DoLoadPage (object sender, EventArgs e)
@@ -98,6 +107,7 @@ namespace RayvMobileApp.iOS
 
 		public void GotoWebPage (object sender, EventArgs e)
 		{
+			Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
 			Navigation.PushAsync (new WebPage (
 				DisplayPlace.place_name,
 				DisplayPlace.website));
@@ -222,13 +232,19 @@ namespace RayvMobileApp.iOS
 				Text = "Map",
 				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => Navigation.PushAsync (new MapPage (DisplayPlace)))
+				Command = new Command (() => {
+					Debug.WriteLine ("detailPage Map Toolbar: Push MapPage");
+					Navigation.PushAsync (new MapPage (DisplayPlace));
+				})
 			});
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Edit",
 				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => Navigation.PushAsync (new EditPage (DisplayPlace)))
+				Command = new Command (() => { 
+					Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
+					Navigation.PushAsync (new EditPage (DisplayPlace));
+				})
 			});
 
 		}

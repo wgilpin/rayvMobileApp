@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using System.Linq;
 using Xamarin.Forms.Maps;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -61,6 +62,7 @@ namespace RayvMobileApp.iOS
 			Persist.Instance.AddSearchHistoryItem (locationName.Text);
 			// save and return
 			_caller.searchPosition = positions.First ();
+			Debug.WriteLine ("ChoosePlacePage.SearchHere: Pop");
 			await this.Navigation.PopAsync ();
 		}
 	}

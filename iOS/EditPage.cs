@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
 	public class EditPage : ContentPage
 	{
+		#region Fields
+
 		Entry Place_name;
 		Image Img;
 		Picker Category;
@@ -24,6 +27,10 @@ namespace RayvMobileApp.iOS
 		Image ImgRotR;
 		Place EditPlace;
 		Entry Comment;
+
+		#endregion
+
+		#region Constructors
 
 		public EditPage (Place place) : this ()
 		{
@@ -192,6 +199,10 @@ namespace RayvMobileApp.iOS
 			Address.Text = address;
 		}
 
+		#endregion
+
+		#region Logic
+
 		void SetVoteButton (Button voteBtn)
 		{
 			VoteLike.TextColor = Color.Black;
@@ -204,48 +215,54 @@ namespace RayvMobileApp.iOS
 			voteBtn.TextColor = Color.White;
 		}
 
+		#endregion
+
+		#region Events
+
 		async private void DoSave (object sender, EventArgs e)
 		{
-			lock (restConnection.Instance.Lock) {
-				Dictionary<string, string> parameters = new Dictionary<string, string> ();
-				if (Category.SelectedIndex == -1) {
-					DisplayAlert ("Warning", "You must pick a cuisine", "OK");
-					return;
-				}
-				parameters ["key"] = EditPlace.key;
-				parameters ["lat"] = EditPlace.lat.ToString ();
-				parameters ["lng"] = EditPlace.lng.ToString ();
-				parameters ["addr"] = Address.Text;
-				parameters ["place_name"] = Place_name.Text;
-				parameters ["myComment"] = Comment.Text;
-				parameters ["category"] = Category.Items [Category.SelectedIndex];
-				parameters ["descr"] = "";
-				switch (EditPlace.vote) {
-				case "-1":
-					parameters ["vote"] = "dislike";
-					break;
-				case "1":
-					parameters ["voteScore"] = "like";
-					break;
-				default:
-					parameters ["untried"] = "true";
-					break;
-				}
-				try {
-					string result = restConnection.Instance.post ("/item", parameters);
-					//			JObject obj = JObject.Parse (result);
-					Place place = JsonConvert.DeserializeObject<Place> (result);
-					Console.WriteLine ("DoSave: read distance as {0}", place.distance);
-					Persist.Instance.UpdatePlace (place);
-					Console.WriteLine ("Saved");
-					this.Navigation.PopToRootAsync ();
-				} catch (Exception ex) {
-					Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
-					DisplayAlert ("Error", "Save Failed", "OK");
-				}
-			}
 
+			Dictionary<string, string> parameters = new Dictionary<string, string> ();
+			if (Category.SelectedIndex == -1) {
+				DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+				return;
+			}
+			parameters ["key"] = EditPlace.key;
+			parameters ["lat"] = EditPlace.lat.ToString ();
+			parameters ["lng"] = EditPlace.lng.ToString ();
+			parameters ["addr"] = Address.Text;
+			parameters ["place_name"] = Place_name.Text;
+			parameters ["myComment"] = Comment.Text;
+			parameters ["category"] = Category.Items [Category.SelectedIndex];
+			parameters ["descr"] = "";
+			switch (EditPlace.vote) {
+			case "-1":
+				parameters ["vote"] = "dislike";
+				break;
+			case "1":
+				parameters ["voteScore"] = "like";
+				break;
+			default:
+				parameters ["untried"] = "true";
+				break;
+			}
+			try {
+				string result = restConnection.Instance.post ("/item", parameters);
+				//			JObject obj = JObject.Parse (result);
+				Place place = JsonConvert.DeserializeObject<Place> (result);
+				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
+				lock (restConnection.Instance.Lock) {
+					Persist.Instance.UpdatePlace (place);
+				}
+				Console.WriteLine ("Saved - PopToRootAsync");
+				this.Navigation.PopToRootAsync ();
+			} catch (Exception ex) {
+				Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
+				await DisplayAlert ("Error", "Save Failed", "OK");
+			}
 		}
+
+		#endregion
 	}
 }
 

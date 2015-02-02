@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Linq;
 using Xamarin.Forms.Maps;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -24,6 +25,7 @@ namespace RayvMobileApp.iOS
 		Frame PlaceHistoryFrame;
 		RayvButton HereBtn;
 		ActivityIndicator Spinner;
+		bool FirstTime;
 
 		#endregion
 
@@ -70,8 +72,8 @@ namespace RayvMobileApp.iOS
 				}
 				points.Sort ();
 				Spinner.IsRunning = false;
-				Console.WriteLine ("DoSearch: Activity Over");
-				this.Navigation.PushModalAsync (AddResultsPage.Instance);
+				Console.WriteLine ("DoSearch: Activity Over - push AddResultsPage");
+				this.Navigation.PushAsync (new AddResultsPage ());
 				AddResultsPage.ItemsSource = points;
 			} catch (Exception e) {
 				Console.WriteLine ("DoSearch: Excaption {0}", e);
@@ -118,6 +120,7 @@ namespace RayvMobileApp.iOS
 
 		async void SearchMap (object sender, EventArgs e)
 		{
+			Debug.WriteLine ("AddMenu.SearchMap: Push AddMapPage");
 			await Navigation.PushAsync (new AddMapPage ());
 		}
 
@@ -126,6 +129,7 @@ namespace RayvMobileApp.iOS
 			HereBtn.IsVisible = PlaceHistoryBox.Text.Length > 0;
 		}
 
+
 		#endregion
 
 		#region Constructors
@@ -133,6 +137,7 @@ namespace RayvMobileApp.iOS
 		public AddMenu ()
 		{
 			Console.WriteLine ("AddMenu()");
+			FirstTime = true;
 			SearchBox = new Entry {
 				Placeholder = "Name to find"
 			};
@@ -246,6 +251,12 @@ namespace RayvMobileApp.iOS
 					menu,
 					tools
 				}
+			};
+			this.Appearing += (object sender, EventArgs e) => {
+				if (!FirstTime)
+					this.Navigation.PushAsync (new ListPage ());
+				else
+					FirstTime = false;
 			};
 		}
 

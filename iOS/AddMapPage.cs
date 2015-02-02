@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 
 		public void DoAdd (object sender, EventArgs e)
 		{
-			Console.WriteLine ("AddMapPage.DoAdd");
+			Console.WriteLine ("AddMapPage.DoAdd Push EditPage");
 			MapSpan span = map.VisibleRegion;
 			this.Navigation.PushAsync (new EditPage (span.Center, AddressBox.Text));
 		}
@@ -141,7 +141,7 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region private Methods
+		#region Logic
 
 		void SetupPage ()
 		{

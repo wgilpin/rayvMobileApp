@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using Foundation;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -11,6 +12,7 @@ namespace RayvMobileApp.iOS
 		void DoLogout (object sender, EventArgs e)
 		{
 			Persist.Instance.SetConfig ("pwd", "");
+			Debug.WriteLine ("SettingsPage.DoLogout: Push LoginPage");
 			this.Navigation.PushModalAsync (new LoginPage ());
 		}
 

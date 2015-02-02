@@ -4,6 +4,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -17,6 +18,7 @@ namespace RayvMobileApp.iOS
 			Persist.Instance.SetConfig ("username", UserName.Text);
 			Persist.Instance.SetConfig ("pwd", Password.Text);
 			restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
+			Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 			this.Navigation.PushModalAsync (new MainMenu ());
 		}
 

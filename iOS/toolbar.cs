@@ -19,7 +19,7 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.CenterAndExpand
 			};
 			listBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: list button");
+				Console.WriteLine ("Toolbar: list button push ListPage");
 				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
 			};
 			Button addBtn = new Button {
@@ -27,7 +27,7 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.CenterAndExpand
 			};
 			addBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: add button");
+				Console.WriteLine ("Toolbar: add button - push AddMenu");
 				this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
 			};
 			Button friendsBtn = new Button {
@@ -39,7 +39,7 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.CenterAndExpand
 			};
 			settingsBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: settings button");
+				Console.WriteLine ("Toolbar: settings button push Settingspage");
 				this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
 			};
 			Children.Add (recentBtn);

@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -14,16 +15,19 @@ namespace RayvMobileApp.iOS
 	public class AddResultsPage : ContentPage
 	{
 		static ListView listView;
+		bool FirstTime;
 
 		void DoEdit (object sender, SelectedItemChangedEventArgs e)
 		{
 			Place p = (Place)e.SelectedItem;
+			Debug.WriteLine ("AddResultsPage.DoEdit Push EditPage");
 			this.Navigation.PushAsync (new EditPage (p));
 		}
 
 		public AddResultsPage ()
 		{
 			Console.WriteLine ("ListView()");
+			FirstTime = true;
 			this.Title = "List";
 			this.Icon = "bars-black.png";
 
@@ -55,6 +59,12 @@ namespace RayvMobileApp.iOS
 					inner
 				}
 			};
+			this.Appearing += (object sender, EventArgs e) => {
+				if (!FirstTime)
+					this.Navigation.PopToRootAsync ();
+				else
+					FirstTime = false;
+			};
 			System.Diagnostics.Debug.WriteLine ("fillListPage");
 		}
 
@@ -68,16 +78,7 @@ namespace RayvMobileApp.iOS
 
 		}
 
-		private static NavigationPage _instance;
 
-		public static NavigationPage Instance {
-			get {
-				if (_instance == null) {
-					_instance = new NavigationPage (new AddResultsPage ());
-				}
-				return _instance;
-			}
-		}
 
 		public static IEnumerable ItemsSource {
 			set {

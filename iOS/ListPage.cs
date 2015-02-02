@@ -17,7 +17,19 @@ namespace RayvMobileApp.iOS
 
 	public class ListPage : ContentPage
 	{
+		#region Fields
+
 		static ListView listView;
+
+		public static IEnumerable ItemsSource {
+			set {
+				listView.ItemsSource = value;
+			}
+		}
+
+		#endregion
+
+		#region Constructors
 
 		public ListPage ()
 		{
@@ -33,6 +45,7 @@ namespace RayvMobileApp.iOS
 				ItemsSource = Persist.Instance.Places,
 			};
 			listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
+				Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
 				this.Navigation.PushAsync (new DetailPage (e.Item as Place));
 			};
 			StackLayout tools = new toolbar (this);
@@ -52,7 +65,10 @@ namespace RayvMobileApp.iOS
 				Text = "Map",
 				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => Navigation.PushAsync (new MapPage ()))
+				Command = new Command (() => {
+					Debug.WriteLine ("ListPage Toolbar Map: Push MapPage");
+					Navigation.PushAsync (new MapPage ());
+				})
 			});
 
 			this.Appearing += (object sender, EventArgs e) => {
@@ -84,12 +100,9 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public static IEnumerable ItemsSource {
-			set {
-				listView.ItemsSource = value;
-			}
-		}
+		#endregion
 
+		#region Logic
 
 		static void GetFullData (Page caller)
 		{
@@ -112,7 +125,7 @@ namespace RayvMobileApp.iOS
 					if (resp.StatusCode == HttpStatusCode.Unauthorized) {
 						//TODO: This doesn't work
 						Device.BeginInvokeOnMainThread (() => {
-							Console.WriteLine ("GetFullData: Need to login");
+							Console.WriteLine ("GetFullData: Need to login - push LoginPage");
 							caller.Navigation.PushModalAsync (new LoginPage ());
 						});
 						Console.WriteLine ("GetFullData: No login");
@@ -169,6 +182,8 @@ namespace RayvMobileApp.iOS
 				ItemsSource = list;
 			}
 		}
+
+		#endregion
 
 		#region timer
 

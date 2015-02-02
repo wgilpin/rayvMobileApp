@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 			};
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: Add button");
+				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
@@ -74,7 +74,7 @@ namespace RayvMobileApp.iOS
 			};
 			var clickList = new TapGestureRecognizer ();
 			clickList.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: list button");
+				Console.WriteLine ("MainMenu: list button - push ListPage");
 				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
 			};
 			placesImg.GestureRecognizers.Add (clickList);
