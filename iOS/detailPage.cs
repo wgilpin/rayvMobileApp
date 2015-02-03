@@ -63,7 +63,12 @@ namespace RayvMobileApp.iOS
 				Img.HeightRequest = this.Height / 3;
 			}
 			Category.Text = DisplayPlace.category;
-			descr.Text = '"' + DisplayPlace.Comment + '"';
+			var comment = DisplayPlace.Comment;
+			if (comment != null && comment.Length > 0)
+				descr.Text = '"' + DisplayPlace.Comment + '"';
+			else {
+				descr.Text = null;
+			}
 			distance.Text = DisplayPlace.distance;
 			if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
 				WebBtn.Text = "Go To Website";
@@ -175,10 +180,9 @@ namespace RayvMobileApp.iOS
 			}
 			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
 			Place_name = new LabelWide ();
+			Place_name.FontAttributes = FontAttributes.Bold;
 			MainGrid.Children.Add (Place_name, 0, 3, IMAGE_HEIGHT, IMAGE_HEIGHT + 1);
-			Category = new LabelWide {
-				TextColor = Color.Red,
-			};
+			Category = new LabelWide { };
 			MainGrid.Children.Add (Category, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
 			Address = new LabelWide ();
 			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
