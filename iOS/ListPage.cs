@@ -115,29 +115,29 @@ namespace RayvMobileApp.iOS
 				webReq.setBaseUrl (server);
 				webReq.setCredentials (Persist.Instance.GetConfig ("username"), Persist.Instance.GetConfig ("pwd"), "");
 				IRestResponse resp;
-				lock (webReq.Lock) {
-					Console.WriteLine ("GetFullData Login");
-					resp = webReq.get ("/api/login", null);
-					if (resp == null) {
-						Console.WriteLine ("GetFullData: Response NULL");
-						return;
-					}
-					if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-						//TODO: This doesn't work
-						Device.BeginInvokeOnMainThread (() => {
-							Console.WriteLine ("GetFullData: Need to login - push LoginPage");
-							caller.Navigation.PushModalAsync (new LoginPage ());
-						});
-						Console.WriteLine ("GetFullData: No login");
-						return;
-					}
-					resp = webReq.get ("/getFullUserRecord");
-					try {
-						Console.WriteLine ("GetFullData: lock get full");
-						Persist data = Persist.Instance;
-						JObject obj = JObject.Parse (resp.Content);
-						string placeStr = obj ["places"].ToString ();
-						Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+				Console.WriteLine ("GetFullData Login");
+				resp = webReq.get ("/api/login", null);
+				if (resp == null) {
+					Console.WriteLine ("GetFullData: Response NULL");
+					return;
+				}
+				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
+					//TODO: This doesn't work
+					Device.BeginInvokeOnMainThread (() => {
+						Console.WriteLine ("GetFullData: Need to login - push LoginPage");
+						caller.Navigation.PushModalAsync (new LoginPage ());
+					});
+					Console.WriteLine ("GetFullData: No login");
+					return;
+				}
+				resp = webReq.get ("/getFullUserRecord");
+				try {
+					Console.WriteLine ("GetFullData: lock get full");
+					Persist data = Persist.Instance;
+					JObject obj = JObject.Parse (resp.Content);
+					string placeStr = obj ["places"].ToString ();
+					Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+					lock (webReq.Lock) {
 						data.Places = place_list.Values.ToList ();
 						data.Places.Sort ();
 						
@@ -151,13 +151,13 @@ namespace RayvMobileApp.iOS
 						}
 						//sort
 						data.updatePlaces ();
-						Persist.Instance.DataIsLive = true;
-						Console.WriteLine ("ListPage.Setup loaded");	
-					} catch (Exception ex) {
-						Console.WriteLine ("GetFullData Exception {0}", ex);
-						System.Diagnostics.Debug.Write ("ListPage.Setup: ");
-						System.Diagnostics.Debug.WriteLine (ex.Message);
 					}
+					Persist.Instance.DataIsLive = true;
+					Console.WriteLine ("ListPage.Setup loaded");	
+				} catch (Exception ex) {
+					Console.WriteLine ("GetFullData Exception {0}", ex);
+					System.Diagnostics.Debug.Write ("ListPage.Setup: ");
+					System.Diagnostics.Debug.WriteLine (ex.Message);
 				}
 			}
 		}

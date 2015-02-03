@@ -38,13 +38,16 @@ namespace RayvMobileApp.iOS
 
 
 				Label upVotes = new Label ();
-				upVotes.SetBinding (Label.IsVisibleProperty, "untried");
+				upVotes.SetBinding (Label.IsVisibleProperty, "noVote");
 				upVotes.SetBinding (Label.TextProperty, "up");
+				upVotes.TextColor = Color.FromHex ("#4E4785");
+				upVotes.XAlign = TextAlignment.End;
 
 				Label downVotes = new Label ();
 				downVotes.TextColor = Color.Red;
-				downVotes.SetBinding (Label.IsVisibleProperty, "untried");
+				downVotes.SetBinding (Label.IsVisibleProperty, "noVote");
 				downVotes.SetBinding (Label.TextProperty, "down");
+				downVotes.XAlign = TextAlignment.End;
 
 
 				Label myVote = new Label ();
@@ -55,31 +58,44 @@ namespace RayvMobileApp.iOS
 				Image myVoteImg = new Image { 
 					Aspect = Aspect.AspectFit,
 					WidthRequest = 28, 
-					HeightRequest = 28
+					HeightRequest = 28,
+					TranslationX = -6,
 				};
 				myVoteImg.SetBinding (Image.SourceProperty, "voteImage");
+				myVoteImg.SetBinding (Label.IsVisibleProperty, "iVoted");
+
+
+				Image smileysImg = new Image { 
+					Aspect = Aspect.AspectFit,
+					WidthRequest = 20, 
+					HeightRequest = 32,
+					Source = "two-smileys-lg.png",
+					TranslationX = -6,
+				};
+				smileysImg.SetBinding (Label.IsVisibleProperty, "noVote");
 
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
 					RowDefinitions = {
-						new RowDefinition { Height = new GridLength (16, GridUnitType.Absolute)  },
-						new RowDefinition { Height = new GridLength (16, GridUnitType.Absolute)  },
-						new RowDefinition { Height = new GridLength (16, GridUnitType.Absolute)  },
+						new RowDefinition { Height = new GridLength (19, GridUnitType.Absolute)  },
+						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
+						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
 					},
 					ColumnDefinitions = {
 						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
 						new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-						new ColumnDefinition { Width = new GridLength (14, GridUnitType.Absolute) },
-						new ColumnDefinition { Width = new GridLength (20, GridUnitType.Absolute) }
+						new ColumnDefinition { Width = new GridLength (12, GridUnitType.Absolute) },
+						new ColumnDefinition { Width = new GridLength (24, GridUnitType.Absolute) }
 					}
 				};
 				grid.Children.Add (webImage, 0, 1, 0, 3);
-				grid.Children.Add (nameLabel, 1, 2, 0, 1);
+				grid.Children.Add (nameLabel, 1, 4, 0, 1);
 				grid.Children.Add (catLabel, 1, 2, 1, 2);
 				grid.Children.Add (distLabel, 1, 2, 2, 3);
-				grid.Children.Add (upVotes, 2, 3, 0, 1);
+				grid.Children.Add (upVotes, 2, 3, 1, 2);
 				grid.Children.Add (downVotes, 2, 3, 2, 3);
 				grid.Children.Add (myVoteImg, 3, 4, 0, 3);
+				grid.Children.Add (smileysImg, 3, 4, 1, 3);
 
 
 

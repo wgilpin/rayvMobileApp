@@ -167,11 +167,14 @@ namespace RayvMobileApp.iOS
 		// iVoted ; true if I voted - for the template
 		public bool iVoted {
 			get {
-				return untried == false;
+				// vote +1 or -1 is a vote, untried is a vote
+				return (_vote == "1" || _vote == "-1" || untried == true);
 			}
 		}
 
-
+		public bool noVote {
+			get { return !iVoted; }
+		}
 
 		public string voteImage {
 			get {
@@ -179,8 +182,9 @@ namespace RayvMobileApp.iOS
 					return "heart-lg.png";
 				if (_vote == "-1")
 					return "no-entry-lg.png";
-
-				return "star-lg.png";
+				if (_untried)
+					return "star-lg.png";
+				return "two-smileys-lg.png";
 			}
 		}
 
