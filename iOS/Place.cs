@@ -164,6 +164,26 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		// iVoted ; true if I voted - for the template
+		public bool iVoted {
+			get {
+				return untried == false;
+			}
+		}
+
+
+
+		public string voteImage {
+			get {
+				if (_vote == "1")
+					return "heart-lg.png";
+				if (_vote == "-1")
+					return "no-entry-lg.png";
+
+				return "star-lg.png";
+			}
+		}
+
 		public Position GetPosition ()
 		{
 			return new Position (lat, lng);

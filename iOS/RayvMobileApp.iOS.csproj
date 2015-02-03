@@ -157,6 +157,9 @@
     <BundleResource Include="Resources\right32x32.png" />
     <BundleResource Include="Resources\ShareBigBtn.png" />
     <BundleResource Include="Resources\icon-map.png" />
+    <BundleResource Include="Resources\heart-lg.png" />
+    <BundleResource Include="Resources\no-entry-lg.png" />
+    <BundleResource Include="Resources\star-lg.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
