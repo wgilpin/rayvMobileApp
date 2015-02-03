@@ -63,7 +63,7 @@ namespace RayvMobileApp.iOS
 				Img.HeightRequest = this.Height / 3;
 			}
 			Category.Text = DisplayPlace.category;
-			descr.Text = DisplayPlace.descr;
+			descr.Text = '"' + DisplayPlace.Comment + '"';
 			distance.Text = DisplayPlace.distance;
 			if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
 				WebBtn.Text = "Go To Website";
@@ -182,7 +182,7 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (Category, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
 			Address = new LabelWide ();
 			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
-			descr = new LabelWide ();
+
 			distance = new LabelWide ();
 			WebBtn = new ButtonWide ();
 			MainGrid.Children.Add (WebBtn, 0, 3, IMAGE_HEIGHT + 3, IMAGE_HEIGHT + 4);
@@ -190,6 +190,9 @@ namespace RayvMobileApp.iOS
 			CallBtn = new ButtonWide ();
 			CallBtn.Clicked += DoMakeCall;
 			MainGrid.Children.Add (CallBtn, 0, 3, IMAGE_HEIGHT + 4, IMAGE_HEIGHT + 5);
+
+			descr = new LabelWide ();
+			MainGrid.Children.Add (descr, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
 			VoteLike = new ButtonWide {
 				Text = "Like",
 			};
@@ -200,9 +203,9 @@ namespace RayvMobileApp.iOS
 			VoteWishlist = new ButtonWide {
 				Text = "Wish",
 			};
-			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 6);
-			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 6);
-			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
+			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);
+			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 7);
 //			Grid voteGrid = new Grid {
 //				RowDefinitions = {
 //					new RowDefinition { Height = GridLength.Auto },

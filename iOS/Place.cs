@@ -188,6 +188,18 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public string Comment {
+			get {
+				for (int i = 0; i <= Persist.Instance.Votes.Count; i++) {
+					Vote v = Persist.Instance.Votes [i];
+					if (v.key == _key) {
+						return v.comment;
+					}
+				}
+				return null;
+			}
+		}
+
 		public Position GetPosition ()
 		{
 			return new Position (lat, lng);
