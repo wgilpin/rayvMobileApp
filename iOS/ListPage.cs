@@ -204,7 +204,7 @@ namespace RayvMobileApp.iOS
 		{
 			if (!Persist.Instance.DataIsLive) {
 				// not ready yet
-				Debug.WriteLine ("OnTimerTrigger - not live");
+				//Debug.WriteLine ("OnTimerTrigger - not live");
 				return;
 			}
 			Debug.WriteLine ("OnTimerTrigger - Live");

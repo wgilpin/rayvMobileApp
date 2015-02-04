@@ -19,6 +19,11 @@ namespace RayvMobileApp.iOS
 
 	public class DetailPage : ContentPage
 	{
+		// these are consts as they are used in the switch in SetVote
+		const string LIKE_TEXT = "Like";
+		const string DISLIKE_TEXT = "Dislike";
+		const string WISH_TEXT = "Wishlist";
+
 		#region Fields
 
 		Place DisplayPlace;
@@ -37,6 +42,39 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Logic
+
+		void SetVote (object sender, EventArgs e)
+		{
+			switch ((sender as ButtonWide).Text) {
+			case LIKE_TEXT:
+				DisplayPlace.vote = "1";
+				DisplayPlace.untried = false;
+				break;
+			case DISLIKE_TEXT:
+				DisplayPlace.vote = "-1";
+				DisplayPlace.untried = false;
+				break;
+			case WISH_TEXT:
+				DisplayPlace.vote = "0";
+				DisplayPlace.untried = true;
+				break;
+			}
+			if (DisplayPlace.Save ())
+				SetVoteButton (sender as ButtonWide);
+		}
+
+		void SetVoteButton (Button voteBtn)
+		{
+			VoteLike.TextColor = Color.Black;
+			VoteDislike.TextColor = Color.Black;
+			VoteWishlist.TextColor = Color.Black;
+			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
+			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
+			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+			voteBtn.BackgroundColor = Color.Olive;
+			voteBtn.TextColor = Color.White;
+		}
+
 
 		void LoadPage (string key)
 		{
@@ -63,9 +101,9 @@ namespace RayvMobileApp.iOS
 				Img.HeightRequest = this.Height / 3;
 			}
 			Category.Text = DisplayPlace.category;
-			var comment = DisplayPlace.Comment;
+			var comment = DisplayPlace.Comment ();
 			if (comment != null && comment.Length > 0)
-				descr.Text = '"' + DisplayPlace.Comment + '"';
+				descr.Text = '"' + DisplayPlace.Comment () + '"';
 			else {
 				descr.Text = null;
 			}
@@ -85,16 +123,13 @@ namespace RayvMobileApp.iOS
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
 			switch (DisplayPlace.vote) {
 			case "-1":
-				VoteDislike.BackgroundColor = Color.Olive;
-				VoteDislike.TextColor = Color.White;
+				SetVoteButton (VoteDislike);
 				break;
 			case "1":
-				VoteLike.BackgroundColor = Color.Olive;
-				VoteLike.TextColor = Color.White;
+				SetVoteButton (VoteLike);
 				break;
 			default:
-				VoteWishlist.BackgroundColor = Color.Olive;
-				VoteWishlist.TextColor = Color.White;
+				SetVoteButton (VoteWishlist);
 				break;
 			}
 		}
@@ -198,14 +233,14 @@ namespace RayvMobileApp.iOS
 			descr = new LabelWide ();
 			MainGrid.Children.Add (descr, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
 			VoteLike = new ButtonWide {
-				Text = "Like",
+				Text = LIKE_TEXT,
 			};
-			VoteLike.Clicked += (object sender, EventArgs e) => DisplayAlert ("Voting", "Not Implemented", "OK");
+			VoteLike.Clicked += SetVote;
 			VoteDislike = new ButtonWide {
-				Text = "Dislike",
+				Text = DISLIKE_TEXT,
 			};
 			VoteWishlist = new ButtonWide {
-				Text = "Wish",
+				Text = WISH_TEXT,
 			};
 			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);

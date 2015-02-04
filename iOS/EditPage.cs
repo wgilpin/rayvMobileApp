@@ -221,43 +221,18 @@ namespace RayvMobileApp.iOS
 
 		async private void DoSave (object sender, EventArgs e)
 		{
-
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
 			if (Category.SelectedIndex == -1) {
 				DisplayAlert ("Warning", "You must pick a cuisine", "OK");
 				return;
 			}
-			parameters ["key"] = EditPlace.key;
-			parameters ["lat"] = EditPlace.lat.ToString ();
-			parameters ["lng"] = EditPlace.lng.ToString ();
-			parameters ["addr"] = Address.Text;
-			parameters ["place_name"] = Place_name.Text;
-			parameters ["myComment"] = Comment.Text;
-			parameters ["category"] = Category.Items [Category.SelectedIndex];
-			parameters ["descr"] = "";
-			switch (EditPlace.vote) {
-			case "-1":
-				parameters ["vote"] = "dislike";
-				break;
-			case "1":
-				parameters ["voteScore"] = "like";
-				break;
-			default:
-				parameters ["untried"] = "true";
-				break;
-			}
-			try {
-				string result = restConnection.Instance.post ("/item", parameters);
-				//			JObject obj = JObject.Parse (result);
-				Place place = JsonConvert.DeserializeObject<Place> (result);
-				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
-				lock (restConnection.Instance.Lock) {
-					Persist.Instance.UpdatePlace (place);
-				}
+			EditPlace.category = Category.Items [Category.SelectedIndex];
+			EditPlace.setComment (Comment.Text);
+			EditPlace.address = Address.Text;
+			EditPlace.place_name = Place_name.Text;
+			if (EditPlace.Save ()) {
 				Console.WriteLine ("Saved - PopToRootAsync");
 				this.Navigation.PopToRootAsync ();
-			} catch (Exception ex) {
-				Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
+			} else {
 				await DisplayAlert ("Error", "Save Failed", "OK");
 			}
 		}

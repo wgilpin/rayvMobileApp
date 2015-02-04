@@ -4,11 +4,14 @@ using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using System.ComponentModel;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RayvMobileApp.iOS
 {
 	public class Place: INotifyPropertyChanged, IComparable<Place>
 	{
+		#region Fields
+
 		private string _key;
 		private double _lat;
 		private double _lng;
@@ -32,6 +35,11 @@ namespace RayvMobileApp.iOS
 		private double _distance_double;
 		private string _postcode;
 		private string _pretty_dist;
+		private string _commentSet;
+
+		#endregion
+
+		#region Properties
 
 		[PrimaryKey]
 		public string key { 
@@ -188,17 +196,44 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public string Comment {
-			get {
-				for (int i = 0; i <= Persist.Instance.Votes.Count; i++) {
-					Vote v = Persist.Instance.Votes [i];
-					if (v.key == _key) {
-						return v.comment;
-					}
+		public string Comment ()
+		{
+
+			if (_commentSet != null)
+				return _commentSet;
+			for (int i = 0; i <= Persist.Instance.Votes.Count; i++) {
+				Vote v = Persist.Instance.Votes [i];
+				if (v.key == _key) {
+					return v.comment;
 				}
+			}
+			return null;
+		}
+
+		// for updating the comment
+		public void setComment (string value)
+		{ 
+			_commentSet = value; 
+		}
+
+
+		public ImageSource thumb_url {
+			get { 
+				if (this.thumbnail.Length > 0)
+					return UriImageSource.FromUri (new Uri (this.thumbnail));
 				return null;
 			}
 		}
+
+		public ImageSource img_url {
+			get { 
+				return UriImageSource.FromUri (new Uri (this.img));
+			}
+		}
+
+		#endregion
+
+		#region Methods
 
 		public Position GetPosition ()
 		{
@@ -236,19 +271,47 @@ namespace RayvMobileApp.iOS
 			return this.distance;
 		}
 
-		public ImageSource thumb_url {
-			get { 
-				if (this.thumbnail.Length > 0)
-					return UriImageSource.FromUri (new Uri (this.thumbnail));
-				return null;
+		public bool Save ()
+		{
+			Dictionary<string, string> parameters = new Dictionary<string, string> ();
+
+			parameters ["key"] = key;
+			parameters ["lat"] = lat.ToString ();
+			parameters ["lng"] = lng.ToString ();
+			parameters ["addr"] = address;
+			parameters ["place_name"] = place_name;
+			parameters ["myComment"] = Comment ();
+			parameters ["category"] = category;
+			parameters ["descr"] = "";
+			switch (vote) {
+			case "-1":
+				parameters ["voteScore"] = "dislike";
+				break;
+			case "1":
+				parameters ["voteScore"] = "like";
+				break;
+			default:
+				parameters ["untried"] = "true";
+				break;
+			}
+			try {
+				string result = restConnection.Instance.post ("/item", parameters);
+				//			JObject obj = JObject.Parse (result);
+				Place place = JsonConvert.DeserializeObject<Place> (result);
+				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
+				lock (restConnection.Instance.Lock) {
+					Persist.Instance.UpdatePlace (place);
+				}
+				return true;
+
+			} catch (Exception ex) {
+				Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
+				return false;
 			}
 		}
 
-		public ImageSource img_url {
-			get { 
-				return UriImageSource.FromUri (new Uri (this.img));
-			}
-		}
+		#endregion
+
 
 		// boiler-plate
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -278,6 +341,8 @@ namespace RayvMobileApp.iOS
 			else
 				return this.distance_double.CompareTo (comparePlace.distance_double);
 		}
+
+
 	}
 
 }
