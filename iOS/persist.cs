@@ -15,6 +15,8 @@ namespace RayvMobileApp.iOS
 
 	public class Persist
 	{
+		#region Fields
+
 		private static string DbPath;
 		private static SQLiteConnection Db;
 		public List<Vote> Votes;
@@ -25,16 +27,15 @@ namespace RayvMobileApp.iOS
 
 		public List<SearchHistory> SearchHistory;
 		private List<string> _categories;
+		public Dictionary<string,string> Friends;
+		public Position GpsPosition;
+		private static Persist _instance;
 
-		void LoadCategories ()
-		{
-			lock (restConnection.Instance.Lock) {
-				Dictionary<string, string> parameters = new Dictionary<string, string> ();
-				string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
-				JObject obj = JObject.Parse (result);
-				_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
-			}
-		}
+		public Object Lock = new Object ();
+
+		#endregion
+
+		#region Properties
 
 		public List<string> Categories {
 			get {
@@ -43,32 +44,6 @@ namespace RayvMobileApp.iOS
 				return _categories;
 			}
 		}
-		// key => name
-		public Dictionary<string,string> Friends;
-		public Position GpsPosition;
-
-		public Persist ()
-		{
-			Console.WriteLine ("Persist()");
-			Votes = new List<Vote> ();
-			Places = new List<Place> ();
-			Friends = new Dictionary<string, string> ();
-			DataIsLive = false;
-			DbPath = Path.Combine (
-				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
-				"database.db3");
-			if (!File.Exists (DbPath)) {
-				createDb ();
-			} else {
-				Db = new SQLiteConnection (DbPath);
-			}
-			SearchHistory = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
-			Double Lat = GetConfigDouble ("LastLat");
-			Double Lng = GetConfigDouble ("LastLng");
-			GpsPosition = new Position (Lat, Lng);
-		}
-
-		private static Persist _instance;
 
 		public static Persist Instance {
 			get {
@@ -76,6 +51,37 @@ namespace RayvMobileApp.iOS
 					_instance = new Persist ();
 				}
 				return _instance;
+			}
+		}
+
+		public Int64 MyId {
+			get;
+			set;
+		}
+
+		#endregion
+
+		#region Methods
+
+		public void Wipe ()
+		{
+			Db.BeginTransaction ();
+			Places.Clear ();
+			Db.DeleteAll<Place> ();
+			Votes.Clear ();
+			Db.DeleteAll<Vote> ();
+			Friends.Clear ();
+			Db.DeleteAll<Friend> ();
+			Db.Commit ();
+		}
+
+		void LoadCategories ()
+		{
+			Dictionary<string, string> parameters = new Dictionary<string, string> ();
+			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
+			lock (Lock) {
+				JObject obj = JObject.Parse (result);
+				_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
 			}
 		}
 
@@ -89,11 +95,25 @@ namespace RayvMobileApp.iOS
 			Db.CreateTable<Configuration> ();
 		}
 
+		/**
+		 * Sort Places by Distance from me and update DB
+		 */
 		public void updatePlaces ()
 		{
 			foreach (Place p in Places) {
 				p.distance_from_place ();
 				Db.InsertOrReplace (p);
+			}
+			Places.Sort ();
+		}
+
+		/**
+		 * Sort Place by Distance from me
+		 */
+		public void SortPlaces ()
+		{
+			foreach (Place p in Places) {
+				p.distance_from_place ();
 			}
 			Places.Sort ();
 		}
@@ -111,7 +131,7 @@ namespace RayvMobileApp.iOS
 			Places.Add (place);
 		}
 
-		public void  UpdatePlace (Place place)
+		public void UpdatePlace (Place place)
 		{
 			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
@@ -216,7 +236,7 @@ namespace RayvMobileApp.iOS
 			SetConfig (key, Convert.ToString (value));
 		}
 
-		public void LoadFromDb ()
+		public void LoadFromDb (String onlyWithCuisineType = null)
 		{
 			//load the data from the db
 			Console.WriteLine ("Persist.LoadFromDb loading");
@@ -224,9 +244,19 @@ namespace RayvMobileApp.iOS
 			// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 			Places.Clear ();
 			var place_q = Db.Table<Place> ();
-			Places.AddRange (place_q);
-			foreach (var p in Places)
-				p.distance_from_place ();
+			if (onlyWithCuisineType == null) {
+				// all cuisine types
+				Places.AddRange (place_q);
+				foreach (var p in Places)
+					p.distance_from_place ();
+			} else
+				//TODO: LINQ
+				foreach (Place p in place_q) {
+					if (p.category == onlyWithCuisineType) {
+						Places.Add (p);
+						p.distance_from_place ();
+					}
+				}
 			Places.Sort ();
 			Votes.Clear ();
 			var votes_q = Db.Table<Vote> ();
@@ -249,6 +279,28 @@ namespace RayvMobileApp.iOS
 
 		}
 
+		#endregion
+
+		public Persist ()
+		{
+			Console.WriteLine ("Persist()");
+			Votes = new List<Vote> ();
+			Places = new List<Place> ();
+			Friends = new Dictionary<string, string> ();
+			DataIsLive = false;
+			DbPath = Path.Combine (
+				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
+				"database.db3");
+			if (!File.Exists (DbPath)) {
+				createDb ();
+			} else {
+				Db = new SQLiteConnection (DbPath);
+			}
+			SearchHistory = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
+			Double Lat = GetConfigDouble ("LastLat");
+			Double Lng = GetConfigDouble ("LastLng");
+			GpsPosition = new Position (Lat, Lng);
+		}
 	}
 }
 

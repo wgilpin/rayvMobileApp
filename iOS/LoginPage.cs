@@ -18,6 +18,7 @@ namespace RayvMobileApp.iOS
 			Persist.Instance.SetConfig ("username", UserName.Text);
 			Persist.Instance.SetConfig ("pwd", Password.Text);
 			restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
+			Persist.Instance.Wipe ();
 			Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 			this.Navigation.PushModalAsync (new MainMenu ());
 		}
@@ -37,22 +38,28 @@ namespace RayvMobileApp.iOS
 			};
 
 			picker.Items.Add ("Local");
+			picker.Items.Add ("Dev");
 			picker.Items.Add ("Pre-Prod");
 			picker.Items.Add ("Prod V2");
 			picker.SelectedIndexChanged += (sender, args) => {
 				string server_url = "";
 				switch (picker.SelectedIndex) {
 				case 0:
-					server_url = "http://192.168.1.9:8080/";
+					server_url = "http://localhost:8080/";
 					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 					restConnection.Instance.setBaseUrl (server_url);
 					break;
 				case 1:
-					server_url = "https://shout-about.appspot.com/";
+					server_url = "http://192.168.1.9:8080/";
 					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 					restConnection.Instance.setBaseUrl (server_url);
 					break;
 				case 2:
+					server_url = "https://shout-about.appspot.com/";
+					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+					restConnection.Instance.setBaseUrl (server_url);
+					break;
+				case 3:
 					server_url = "https://2-test.rayv-app.appspot.com/";
 					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 					restConnection.Instance.setBaseUrl (server_url);
@@ -62,7 +69,7 @@ namespace RayvMobileApp.iOS
 
 
 			};
-			picker.SelectedIndex = 1;
+			picker.SelectedIndex = 2;
 
 			RayvButton loginButton = new RayvButton {
 

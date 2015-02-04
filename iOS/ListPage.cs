@@ -15,11 +15,23 @@ using System.Diagnostics;
 namespace RayvMobileApp.iOS
 {
 
+	enum FilterKind: short
+	{
+		Mine,
+		All,
+		Cuisine
+
+	}
+
 	public class ListPage : ContentPage
 	{
 		#region Fields
 
 		static ListView listView;
+		static FilterKind MainFilter = FilterKind.Mine;
+		static String FilterCuisineKind;
+
+		StackLayout filters;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -41,6 +53,48 @@ namespace RayvMobileApp.iOS
 			// (Argument of DataTemplate constructor is called for 
 			//      each item; it must return a Cell derivative.)
 
+			var FilterMineBtn = new ButtonWide { Text = "Show Mine" };
+			FilterMineBtn.Clicked += (sender, e) => { 
+				MainFilter = FilterKind.Mine;
+				FilterList ();
+				filters.IsVisible = false;
+			};
+			var FilterAllBtn = new ButtonWide { Text = "Show All" };
+			FilterAllBtn.Clicked += (sender, e) => { 
+				MainFilter = FilterKind.All;
+				FilterList ();
+				filters.IsVisible = false;
+			};
+			Picker FilterCuisinePicker = new Picker {
+				Title = "Filter by Cuisine",
+			};
+			foreach (string cat in Persist.Instance.Categories) {
+				FilterCuisinePicker.Items.Add (cat);
+			}
+			FilterCuisinePicker.SelectedIndex = FilterCuisinePicker.Items.IndexOf (FilterCuisineKind);
+			FilterCuisinePicker.SelectedIndexChanged += (sender, e) => {
+				MainFilter = FilterKind.Cuisine;
+				if (FilterCuisinePicker.SelectedIndex >= 0)
+					FilterCuisineKind = FilterCuisinePicker.Items [FilterCuisinePicker.SelectedIndex];
+				else
+					FilterCuisineKind = null;
+				FilterList ();
+				filters.IsVisible = false;
+			};
+				
+
+			var FiltersCloseBtn = new RayvButton () { Text = "Clear Filter" };
+			FiltersCloseBtn.Clicked += (sender, e) => { 
+				FilterCuisinePicker.SelectedIndex = -1;
+			};
+			filters = new StackLayout {
+				Children = {
+					FilterMineBtn,
+					FilterAllBtn,
+					FilterCuisinePicker,
+					FiltersCloseBtn,
+				}
+			};
 			listView = new PlacesListView {
 				ItemsSource = Persist.Instance.Places,
 			};
@@ -51,10 +105,12 @@ namespace RayvMobileApp.iOS
 			StackLayout tools = new toolbar (this);
 			StackLayout inner = new StackLayout {
 				Children = {
+					filters,
 					listView,
 					tools
 				}
 			};
+			filters.IsVisible = false;
 			this.Content = new StackLayout {
 				Children = {
 					inner
@@ -70,6 +126,17 @@ namespace RayvMobileApp.iOS
 					Navigation.PushAsync (new MapPage ());
 				})
 			});
+
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Filter",
+				Icon = "filter.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => {
+					Debug.WriteLine ("ListPage Toolbar Filter");
+					filters.IsVisible = !filters.IsVisible;
+				})
+			});
+
 
 			this.Appearing += (object sender, EventArgs e) => {
 				SetList (Persist.Instance.Places);
@@ -102,7 +169,34 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region Logic
+		#region Methods
+
+		void FilterList ()
+		{
+			Persist data = Persist.Instance;
+			lock (data.Lock) {
+				switch (MainFilter) {
+				case FilterKind.Mine:
+					String me = Convert.ToString (data.MyId);
+					data.Places.Clear ();
+					foreach (Vote v in data.Votes) {
+						if (v.voter == me)
+							data.Places.Add (data.get_place (v.key));
+					}
+					data.SortPlaces ();
+				
+					break;
+				case FilterKind.All:
+					data.LoadFromDb ();
+					break;
+				case FilterKind.Cuisine:
+					data.LoadFromDb (FilterCuisineKind);
+					break;
+				}
+				data.Places.Sort ();
+			}
+			SetList (data.Places);
+		}
 
 		static void GetFullData (Page caller)
 		{
@@ -135,9 +229,10 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("GetFullData: lock get full");
 					Persist data = Persist.Instance;
 					JObject obj = JObject.Parse (resp.Content);
+					data.MyId = obj ["id"].Value<Int64> ();
 					string placeStr = obj ["places"].ToString ();
 					Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
-					lock (webReq.Lock) {
+					lock (data.Lock) {
 						data.Places = place_list.Values.ToList ();
 						data.Places.Sort ();
 						
@@ -175,7 +270,7 @@ namespace RayvMobileApp.iOS
 
 		public void SetList (List<Place> list)
 		{
-			lock (restConnection.Instance.Lock) {
+			lock (Persist.Instance.Lock) {
 				Console.WriteLine ("SetList");
 				ItemsSource = null;
 				list.Sort ();
@@ -208,7 +303,7 @@ namespace RayvMobileApp.iOS
 				return;
 			}
 			Debug.WriteLine ("OnTimerTrigger - Live");
-			lock (restConnection.Instance.Lock) {
+			lock (Persist.Instance.Lock) {
 				SetList (Persist.Instance.Places);
 			}
 			_timer.Close ();

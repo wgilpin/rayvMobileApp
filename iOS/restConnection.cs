@@ -8,7 +8,7 @@ namespace RayvMobileApp.iOS
 	public class restConnection
 	{
 
-		public Object Lock = new Object ();
+
 
 		private static restConnection instance;
 		RestClient client;
@@ -35,7 +35,7 @@ namespace RayvMobileApp.iOS
 
 		public bool loggedIn { 
 			get { 
-				lock (Lock) {
+				lock (Persist.Instance.Lock) {
 					string ping = this.get ("/ping").Content;
 					return ping == "OK";
 				}

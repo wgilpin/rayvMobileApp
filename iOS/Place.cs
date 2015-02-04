@@ -201,7 +201,7 @@ namespace RayvMobileApp.iOS
 
 			if (_commentSet != null)
 				return _commentSet;
-			for (int i = 0; i <= Persist.Instance.Votes.Count; i++) {
+			for (int i = 0; i < Persist.Instance.Votes.Count; i++) {
 				Vote v = Persist.Instance.Votes [i];
 				if (v.key == _key) {
 					return v.comment;
@@ -299,7 +299,7 @@ namespace RayvMobileApp.iOS
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);
 				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
-				lock (restConnection.Instance.Lock) {
+				lock (Persist.Instance.Lock) {
 					Persist.Instance.UpdatePlace (place);
 				}
 				return true;

@@ -80,8 +80,9 @@ namespace RayvMobileApp.iOS
 				this.Navigation.PushAsync (new AddResultsPage ());
 				AddResultsPage.ItemsSource = points;
 			} catch (Exception e) {
-				Console.WriteLine ("DoSearch: Excaption {0}", e);
-				DisplayAlert ("Oops", "Unable to search as an error occurred", "Close");
+				Spinner.IsRunning = false;
+				Console.WriteLine ("DoSearch: Exception {0}", e);
+				DisplayAlert ("Oops", "Unable to search. Network problems?", "Close");
 			}
 		}
 

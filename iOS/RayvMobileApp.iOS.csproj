@@ -163,6 +163,9 @@
     <BundleResource Include="..\..\art\two-smileys-lg.png">
       <Link>Resources\two-smileys-lg.png</Link>
     </BundleResource>
+    <BundleResource Include="..\..\art\filter.png">
+      <Link>Resources\filter.png</Link>
+    </BundleResource>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
