@@ -13,6 +13,10 @@ namespace RayvMobileApp.iOS
 {
 	public class AddMenu : ContentPage
 	{
+		const String SEARCH_NEAR = "Add Near Me";
+		const String NO_SEARCH_HISTORY = "No History";
+		const String SEARCH_MAP = "Add From Map";
+
 		#region Fields
 
 		Entry SearchBox;
@@ -177,7 +181,7 @@ namespace RayvMobileApp.iOS
 			history.Children.Add (PlaceHistoryBox);
 			if (Persist.Instance.SearchHistory.Count == 0) {
 				history.Children.Add (new LabelWide {
-					Text = "No History",
+					Text = NO_SEARCH_HISTORY,
 				});
 			} else {
 				foreach (SearchHistory item in Persist.Instance.SearchHistory) {
@@ -201,12 +205,12 @@ namespace RayvMobileApp.iOS
 			PlaceHistoryBtn.Clicked += ShowPlaceHistory;
 
 			NearMeBtn = new RayvButton {
-				Text = " Search Near Me ",
+				Text = SEARCH_NEAR,
 			};
 			NearMeBtn.Clicked += SearchNearMe;
 
 			FromMapBtn = new RayvButton {
-				Text = " Search With Map ",
+				Text = SEARCH_MAP,
 			};
 			FromMapBtn.Clicked += SearchMap;
 
