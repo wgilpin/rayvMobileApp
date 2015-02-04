@@ -7,10 +7,12 @@ namespace RayvMobileApp.iOS
 	public class PlacesListView : ListView
 	{
 		private const int IMAGE_SIZE = 63;
+		private bool ShowVotes;
 
 		public PlacesListView () : base ()
 		{
 			Console.WriteLine ("PlacesListView()");
+			ShowVotes = true;
 			RowHeight = 65;
 
 			ItemTemplate = new DataTemplate (() => {
@@ -36,44 +38,6 @@ namespace RayvMobileApp.iOS
 //				Binding x = new Binding ("img");
 				webImage.SetBinding (Image.SourceProperty, "thumb_url");
 
-
-				Label upVotes = new Label ();
-				upVotes.SetBinding (Label.IsVisibleProperty, "noVote");
-				upVotes.SetBinding (Label.TextProperty, "up");
-				upVotes.TextColor = Color.FromHex ("#4E4785");
-				upVotes.XAlign = TextAlignment.End;
-
-				Label downVotes = new Label ();
-				downVotes.TextColor = Color.Red;
-				downVotes.SetBinding (Label.IsVisibleProperty, "noVote");
-				downVotes.SetBinding (Label.TextProperty, "down");
-				downVotes.XAlign = TextAlignment.End;
-
-
-				Label myVote = new Label ();
-				myVote.TextColor = Color.Blue;
-				myVote.SetBinding (Label.IsVisibleProperty, "iVoted");
-				myVote.SetBinding (Label.TextProperty, "voteImage");
-
-				Image myVoteImg = new Image { 
-					Aspect = Aspect.AspectFit,
-					WidthRequest = 28, 
-					HeightRequest = 28,
-					TranslationX = -6,
-				};
-				myVoteImg.SetBinding (Image.SourceProperty, "voteImage");
-				myVoteImg.SetBinding (Label.IsVisibleProperty, "iVoted");
-
-
-				Image smileysImg = new Image { 
-					Aspect = Aspect.AspectFit,
-					WidthRequest = 20, 
-					HeightRequest = 32,
-					Source = "two-smileys-lg.png",
-					TranslationX = -6,
-				};
-				smileysImg.SetBinding (Label.IsVisibleProperty, "noVote");
-
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
 					RowDefinitions = {
@@ -92,10 +56,52 @@ namespace RayvMobileApp.iOS
 				grid.Children.Add (nameLabel, 1, 4, 0, 1);
 				grid.Children.Add (catLabel, 1, 2, 1, 2);
 				grid.Children.Add (distLabel, 1, 2, 2, 3);
-				grid.Children.Add (upVotes, 2, 3, 1, 2);
-				grid.Children.Add (downVotes, 2, 3, 2, 3);
-				grid.Children.Add (myVoteImg, 3, 4, 0, 3);
-				grid.Children.Add (smileysImg, 3, 4, 1, 3);
+
+
+				// votes are shown on the main list, not on the Add lists
+				if (ShowVotes) {
+
+					Label upVotes = new Label ();
+					upVotes.SetBinding (Label.IsVisibleProperty, "noVote");
+					upVotes.SetBinding (Label.TextProperty, "up");
+					upVotes.TextColor = Color.FromHex ("#4E4785");
+					upVotes.XAlign = TextAlignment.End;
+
+					Label downVotes = new Label ();
+					downVotes.TextColor = Color.Red;
+					downVotes.SetBinding (Label.IsVisibleProperty, "noVote");
+					downVotes.SetBinding (Label.TextProperty, "down");
+					downVotes.XAlign = TextAlignment.End;
+
+
+					Label myVote = new Label ();
+					myVote.TextColor = Color.Blue;
+					myVote.SetBinding (Label.IsVisibleProperty, "iVoted");
+					myVote.SetBinding (Label.TextProperty, "voteImage");
+
+					Image myVoteImg = new Image { 
+						Aspect = Aspect.AspectFit,
+						WidthRequest = 28, 
+						HeightRequest = 28,
+						TranslationX = -6,
+					};
+					myVoteImg.SetBinding (Image.SourceProperty, "voteImage");
+					myVoteImg.SetBinding (Label.IsVisibleProperty, "iVoted");
+
+
+					Image smileysImg = new Image { 
+						Aspect = Aspect.AspectFit,
+						WidthRequest = 20, 
+						HeightRequest = 32,
+						Source = "two-smileys-lg.png",
+						TranslationX = -6,
+					};
+					smileysImg.SetBinding (Label.IsVisibleProperty, "noVote");
+					grid.Children.Add (upVotes, 2, 3, 1, 2);
+					grid.Children.Add (downVotes, 2, 3, 2, 3);
+					grid.Children.Add (myVoteImg, 3, 4, 0, 3);
+					grid.Children.Add (smileysImg, 3, 4, 1, 3);
+				}
 
 
 
@@ -125,6 +131,11 @@ namespace RayvMobileApp.iOS
 				};
 			});
 			VerticalOptions = LayoutOptions.FillAndExpand;
+		}
+
+		public PlacesListView (bool showVotes) : this ()
+		{
+			ShowVotes = showVotes;
 		}
 	}
 }

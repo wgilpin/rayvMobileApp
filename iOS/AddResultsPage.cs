@@ -35,9 +35,8 @@ namespace RayvMobileApp.iOS
 			// (Argument of DataTemplate constructor is called for 
 			//      each item; it must return a Cell derivative.)
 
-			listView = new PlacesListView {
-				ItemsSource = Persist.Instance.Places,
-			};
+			listView = new PlacesListView (false);
+			listView.ItemsSource = Persist.Instance.Places;
 			listView.ItemSelected += DoEdit;
 
 
