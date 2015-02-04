@@ -14,8 +14,20 @@ namespace RayvMobileApp.iOS
 
 	public class AddResultsPage : ContentPage
 	{
+		#region Strings
+
+		const String ADD_FROM_MAP = "Add From Map";
+
+		#endregion
+
+		#region Fields
+
 		static ListView listView;
 		bool FirstTime;
+
+		#endregion
+
+		#region Events
 
 		void DoEdit (object sender, SelectedItemChangedEventArgs e)
 		{
@@ -23,6 +35,10 @@ namespace RayvMobileApp.iOS
 			Debug.WriteLine ("AddResultsPage.DoEdit Push EditPage");
 			this.Navigation.PushAsync (new EditPage (p));
 		}
+
+		#endregion
+
+		#region Constructors
 
 		public AddResultsPage ()
 		{
@@ -41,7 +57,10 @@ namespace RayvMobileApp.iOS
 
 
 			RayvButton addFromMapBtn = new RayvButton {
-				Text = "Find on Map",
+				Text = ADD_FROM_MAP,
+			};
+			addFromMapBtn.Clicked += async (object sender, EventArgs e) => {
+				await Navigation.PushAsync (new AddMapPage ());
 			};
 
 			StackLayout tools = new toolbar (this);
@@ -77,7 +96,9 @@ namespace RayvMobileApp.iOS
 
 		}
 
+		#endregion
 
+		#region Properties
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -85,7 +106,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-
+		#endregion
 
 	}
 
