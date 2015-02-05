@@ -13,6 +13,8 @@ namespace RayvMobileApp.iOS
 
 		public WebPage (String placeName, String url) : this ()
 		{
+			ActivityIndicator WebSpinner = new ActivityIndicator ();
+
 			Debug.WriteLine ("WebPage");
 			Label header = new Label {
 				Text = placeName,
@@ -27,6 +29,16 @@ namespace RayvMobileApp.iOS
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 
+			webView.Navigating += (sender, e) => {
+				WebSpinner.IsVisible = true;
+				WebSpinner.IsRunning = true;
+			};
+
+			webView.Navigated += (sender, e) => {
+				WebSpinner.IsVisible = false;
+				WebSpinner.IsRunning = false;
+			};
+
 			// Accomodate iPhone status bar.
 			this.Padding = new Thickness (10, Device.OnPlatform (20, 0, 0), 10, 5);
 
@@ -34,6 +46,7 @@ namespace RayvMobileApp.iOS
 			this.Content = new StackLayout {
 				Children = {
 					header,
+					WebSpinner,
 					webView
 				}
 			};
