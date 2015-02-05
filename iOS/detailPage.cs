@@ -129,7 +129,8 @@ namespace RayvMobileApp.iOS
 				SetVoteButton (VoteLike);
 				break;
 			default:
-				SetVoteButton (VoteWishlist);
+				if (DisplayPlace.vote == "0" && DisplayPlace.untried == true)
+					SetVoteButton (VoteWishlist);
 				break;
 			}
 		}
@@ -239,9 +240,11 @@ namespace RayvMobileApp.iOS
 			VoteDislike = new ButtonWide {
 				Text = DISLIKE_TEXT,
 			};
+			VoteDislike.Clicked += SetVote;
 			VoteWishlist = new ButtonWide {
 				Text = WISH_TEXT,
 			};
+			VoteWishlist.Clicked += SetVote;
 			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 7);

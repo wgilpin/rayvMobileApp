@@ -5,6 +5,7 @@ using Xamarin.Forms.Maps;
 using System.ComponentModel;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace RayvMobileApp.iOS
 {
@@ -186,13 +187,17 @@ namespace RayvMobileApp.iOS
 
 		public string voteImage {
 			get {
+				String imageUrl = "";
 				if (_vote == "1")
-					return "heart-lg.png";
+					imageUrl = "heart-lg.png";
 				if (_vote == "-1")
-					return "no-entry-lg.png";
+					imageUrl = "no-entry-lg.png";
 				if (_untried)
-					return "star-lg.png";
-				return "two-smileys-lg.png";
+					imageUrl = "star-lg.png";
+				if (imageUrl == "")
+					imageUrl = "two-smileys-lg.png";
+				Debug.WriteLine ("Place:vote Image: for {0} is {1}", _place_name, imageUrl);
+				return imageUrl;
 			}
 		}
 
