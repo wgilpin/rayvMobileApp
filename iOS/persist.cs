@@ -105,6 +105,18 @@ namespace RayvMobileApp.iOS
 				Db.InsertOrReplace (p);
 			}
 			Places.Sort ();
+			foreach (Vote v in Votes) {
+				try {
+					var found_v = (from fv in Db.Table<Vote> ()
+					               where fv.key == v.key
+					               select fv);
+					if (found_v.Count () == 0)
+						Db.Insert (v);
+					//Db.InsertOrReplace (v);
+				} catch (Exception E) {
+					Console.WriteLine ("updatePlaces Exception: {0}", E.Message);
+				}
+			}
 		}
 
 		/**
@@ -200,6 +212,13 @@ namespace RayvMobileApp.iOS
 				}
 			}
 			return null;
+		}
+
+		public Place GetPlaceFromDb (string key)
+		{
+			return (from p in Db.Table<Place> ()
+			        where p.key == key
+			        select p).First ();
 		}
 
 		public string GetConfig (string key)

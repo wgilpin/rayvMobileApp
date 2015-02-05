@@ -181,7 +181,7 @@ namespace RayvMobileApp.iOS
 					data.Places.Clear ();
 					foreach (Vote v in data.Votes) {
 						if (v.voter == me)
-							data.Places.Add (data.get_place (v.key));
+							data.Places.Add (data.GetPlaceFromDb (v.key));
 					}
 					data.SortPlaces ();
 				
@@ -242,6 +242,9 @@ namespace RayvMobileApp.iOS
 							string name = fr ["name"].ToString ();
 							data.Friends [fr_id] = name;
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
+							foreach (KeyValuePair<string, Vote> v in vote_list) {
+								v.Value.voter = fr_id;
+							}
 							data.Votes.AddRange (vote_list.Values);
 						}
 						//sort
