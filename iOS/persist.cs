@@ -122,12 +122,14 @@ namespace RayvMobileApp.iOS
 		/**
 		 * Sort Place by Distance from me
 		 */
-		public void SortPlaces ()
+		public void SortPlaces (List<Place> placeList = null)
 		{
-			foreach (Place p in Places) {
+			if (placeList == null)
+				placeList = Places;
+			foreach (Place p in placeList) {
 				p.distance_from_place ();
 			}
-			Places.Sort ();
+			placeList.Sort ();
 		}
 
 		void StorePlace (Place place, Place removePlace = null)
@@ -204,7 +206,7 @@ namespace RayvMobileApp.iOS
 		//
 		//		}
 
-		public Place get_place (string key)
+		public Place GetPlace (string key)
 		{
 			foreach (Place p in Places) {
 				if (p.key == key) {

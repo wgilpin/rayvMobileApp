@@ -196,7 +196,6 @@ namespace RayvMobileApp.iOS
 					imageUrl = "star-lg.png";
 				if (imageUrl == "")
 					imageUrl = "two-smileys-lg.png";
-				Debug.WriteLine ("Place:vote Image: for {0} is {1}", _place_name, imageUrl);
 				return imageUrl;
 			}
 		}
@@ -303,10 +302,10 @@ namespace RayvMobileApp.iOS
 				string result = restConnection.Instance.post ("/item", parameters);
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);
-				Console.WriteLine ("DoSave: read distance as {0}", place.distance);
 				lock (Persist.Instance.Lock) {
 					Persist.Instance.UpdatePlace (place);
 				}
+				Debug.WriteLine ("DoSave: saved {0}", place.place_name);
 				return true;
 
 			} catch (Exception ex) {
@@ -337,7 +336,7 @@ namespace RayvMobileApp.iOS
 			return true;
 		}
 
-		// Default comparer for Part type.
+		// Default comparer for Place type.
 		public int CompareTo (Place comparePlace)
 		{
 			// A null value means that this object is greater. 

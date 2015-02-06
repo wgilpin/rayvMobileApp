@@ -30,6 +30,8 @@ namespace RayvMobileApp.iOS
 		static ListView listView;
 		static FilterKind MainFilter = FilterKind.Mine;
 		static String FilterCuisineKind;
+		Picker FilterCuisinePicker;
+		List<Place> currentPlaces;
 
 		StackLayout filters;
 
@@ -65,22 +67,14 @@ namespace RayvMobileApp.iOS
 				FilterList ();
 				filters.IsVisible = false;
 			};
-			Picker FilterCuisinePicker = new Picker {
+			FilterCuisinePicker = new Picker {
 				Title = "Filter by Cuisine",
 			};
 			foreach (string cat in Persist.Instance.Categories) {
 				FilterCuisinePicker.Items.Add (cat);
 			}
 			FilterCuisinePicker.SelectedIndex = FilterCuisinePicker.Items.IndexOf (FilterCuisineKind);
-			FilterCuisinePicker.SelectedIndexChanged += (sender, e) => {
-				MainFilter = FilterKind.Cuisine;
-				if (FilterCuisinePicker.SelectedIndex >= 0)
-					FilterCuisineKind = FilterCuisinePicker.Items [FilterCuisinePicker.SelectedIndex];
-				else
-					FilterCuisineKind = null;
-				FilterList ();
-				filters.IsVisible = false;
-			};
+			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 				
 
 			var FiltersCloseBtn = new RayvButton () { Text = "Clear Filter" };
@@ -169,7 +163,30 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
+		#region Events
+
+		void UpdateCuisine (Object sender, System.EventArgs e)
+		{
+			MainFilter = FilterKind.Cuisine;
+			if (FilterCuisinePicker.SelectedIndex >= 0)
+				FilterCuisineKind = FilterCuisinePicker.Items [FilterCuisinePicker.SelectedIndex];
+			else
+				FilterCuisineKind = null;
+			FilterList ();
+			filters.IsVisible = false;
+		}
+
+		#endregion
+
 		#region Methods
+
+		void ResetCuisinePicker ()
+		{
+			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
+			FilterCuisinePicker.SelectedIndex = -1;
+			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
+		}
+
 
 		void FilterList ()
 		{
@@ -177,25 +194,26 @@ namespace RayvMobileApp.iOS
 			lock (data.Lock) {
 				switch (MainFilter) {
 				case FilterKind.Mine:
-					String me = Convert.ToString (data.MyId);
-					data.Places.Clear ();
-					foreach (Vote v in data.Votes) {
-						if (v.voter == me)
-							data.Places.Add (data.GetPlaceFromDb (v.key));
-					}
-					data.SortPlaces ();
-				
+					ResetCuisinePicker ();
+					currentPlaces = (
+					    from p in data.Places
+					    where p.iVoted == true
+					    select p).ToList ();
 					break;
 				case FilterKind.All:
-					data.LoadFromDb ();
+					ResetCuisinePicker ();
+					currentPlaces = data.Places;
 					break;
 				case FilterKind.Cuisine:
-					data.LoadFromDb (FilterCuisineKind);
+					currentPlaces = (
+					    from p in data.Places
+					    where p.category == FilterCuisineKind
+					    select p).ToList ();
 					break;
 				}
-				data.Places.Sort ();
+				data.SortPlaces (currentPlaces);
 			}
-			SetList (data.Places);
+			SetList (currentPlaces);
 		}
 
 		static void GetFullData (Page caller)

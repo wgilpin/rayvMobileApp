@@ -94,12 +94,22 @@ namespace RayvMobileApp.iOS
 		async void SearchHere (object sender, EventArgs e)
 		{
 			// geocode
-			Xamarin.FormsMaps.Init ();
-			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (PlaceHistoryBox.Text)).ToList ();
-			Console.WriteLine ("SearchHere: Got");
-			Persist.Instance.AddSearchHistoryItem (PlaceHistoryBox.Text);
-			searchPosition = positions.First ();
-			DoSearch ();
+			try {
+				Xamarin.FormsMaps.Init ();
+				var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (PlaceHistoryBox.Text));
+				var positions = geoCodePositions.ToList ();
+				if (positions.Count > 0) {
+					Console.WriteLine ("AddMenu.SearchHere: Got");
+					Persist.Instance.AddSearchHistoryItem (PlaceHistoryBox.Text);
+					searchPosition = positions.First ();
+					DoSearch ();
+				} else {
+					DisplayAlert ("Not Found", "Couldn't find that place", "OK");
+				}
+			} catch (Exception E) {
+				Console.WriteLine ("AddMenu.SearchHere: Exception {0}", E.Message);
+				DisplayAlert ("Error", "Couldn't find that place", "OK");
+			}
 		}
 
 		async void SearchSomewhere (object sender, EventArgs e)
