@@ -275,7 +275,7 @@ namespace RayvMobileApp.iOS
 			return this.distance;
 		}
 
-		public bool Save ()
+		public bool Save (out String errorMessage)
 		{
 			Dictionary<string, string> parameters = new Dictionary<string, string> ();
 
@@ -306,9 +306,10 @@ namespace RayvMobileApp.iOS
 					Persist.Instance.UpdatePlace (place);
 				}
 				Debug.WriteLine ("Place.Save: saved {0}", place.place_name);
+				errorMessage = "";
 				return true;
-
 			} catch (Exception ex) {
+				errorMessage = ex.Message;
 				Console.WriteLine ("Place.Save: Exception {0}", ex);
 				return false;
 			}

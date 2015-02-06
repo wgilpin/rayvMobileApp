@@ -230,11 +230,12 @@ namespace RayvMobileApp.iOS
 			EditPlace.setComment (Comment.Text);
 			EditPlace.address = Address.Text;
 			EditPlace.place_name = Place_name.Text;
-			if (EditPlace.Save ()) {
+			string Message = "";
+			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
 				this.Navigation.PopToRootAsync ();
 			} else {
-				await DisplayAlert ("Error", "Save Failed", "OK");
+				await DisplayAlert ("Error", Message, "OK");
 			}
 		}
 

@@ -62,7 +62,8 @@ namespace RayvMobileApp.iOS
 					DisplayPlace.untried = true;
 					break;
 				}
-				if (DisplayPlace.Save ()) {
+				string Message = "";
+				if (DisplayPlace.Save (out Message)) {
 					Device.BeginInvokeOnMainThread (() => {
 						// manipulate UI controls
 						SetVoteButton (sender as ButtonWide);
