@@ -45,22 +45,31 @@ namespace RayvMobileApp.iOS
 
 		void SetVote (object sender, EventArgs e)
 		{
-			switch ((sender as ButtonWide).Text) {
-			case LIKE_TEXT:
-				DisplayPlace.vote = "1";
-				DisplayPlace.untried = false;
-				break;
-			case DISLIKE_TEXT:
-				DisplayPlace.vote = "-1";
-				DisplayPlace.untried = false;
-				break;
-			case WISH_TEXT:
-				DisplayPlace.vote = "0";
-				DisplayPlace.untried = true;
-				break;
-			}
-			if (DisplayPlace.Save ())
-				SetVoteButton (sender as ButtonWide);
+			SetVoteButton (sender as ButtonWide);
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				// should NOT reference UILabel on background thread!
+				switch ((sender as ButtonWide).Text) {
+				case LIKE_TEXT:
+					DisplayPlace.vote = "1";
+					DisplayPlace.untried = false;
+					break;
+				case DISLIKE_TEXT:
+					DisplayPlace.vote = "-1";
+					DisplayPlace.untried = false;
+					break;
+				case WISH_TEXT:
+					DisplayPlace.vote = "0";
+					DisplayPlace.untried = true;
+					break;
+				}
+				if (DisplayPlace.Save ()) {
+					Device.BeginInvokeOnMainThread (() => {
+						// manipulate UI controls
+						SetVoteButton (sender as ButtonWide);
+					});
+				}
+			})).Start ();
+
 		}
 
 		void SetVoteButton (Button voteBtn)
@@ -248,21 +257,7 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 7);
-//			Grid voteGrid = new Grid {
-//				RowDefinitions = {
-//					new RowDefinition { Height = GridLength.Auto },
-//				},
-//				ColumnDefinitions = {
-//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-//					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-//				}
-//			};
-
-//			voteGrid.Children.Add (VoteLike, 0, 0);
-//			voteGrid.Children.Add (VoteWishlist, 1, 0);
-//			voteGrid.Children.Add (VoteDislike, 2, 0);
-
+//			
 			LoadPage (DisplayPlace.key);
 
 			this.Content = new ScrollView {
