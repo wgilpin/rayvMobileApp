@@ -44,6 +44,7 @@ namespace RayvMobileApp.iOS
 			Place_name.Text = EditPlace.place_name;
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
 			Address.Text = EditPlace.address;
+			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
 			PhoneNo.Text = EditPlace.telephone;

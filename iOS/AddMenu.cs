@@ -72,7 +72,7 @@ namespace RayvMobileApp.iOS
 //				                         );
 				List<Place> points = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
 				foreach (Place point in points) {
-					point.distance_from_place ();
+					point.CalculateDistanceFromPlace ();
 				}
 				points.Sort ();
 				Spinner.IsRunning = false;

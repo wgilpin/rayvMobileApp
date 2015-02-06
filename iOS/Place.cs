@@ -265,7 +265,7 @@ namespace RayvMobileApp.iOS
 		/**
 		 * Set the point from which all points are measured
 		 */
-		public string distance_from_place (Position? point = null)
+		public string CalculateDistanceFromPlace (Position? point = null)
 		{
 			Position calc_dist_from = point == null ? Persist.Instance.GpsPosition : (Position)point;
 			this.distance_double = approx_distance (
@@ -305,11 +305,11 @@ namespace RayvMobileApp.iOS
 				lock (Persist.Instance.Lock) {
 					Persist.Instance.UpdatePlace (place);
 				}
-				Debug.WriteLine ("DoSave: saved {0}", place.place_name);
+				Debug.WriteLine ("Place.Save: saved {0}", place.place_name);
 				return true;
 
 			} catch (Exception ex) {
-				Console.WriteLine ("EditPage.DoSave: Exception {0}", ex);
+				Console.WriteLine ("Place.Save: Exception {0}", ex);
 				return false;
 			}
 		}

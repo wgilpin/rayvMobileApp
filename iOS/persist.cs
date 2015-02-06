@@ -101,7 +101,7 @@ namespace RayvMobileApp.iOS
 		public void updatePlaces ()
 		{
 			foreach (Place p in Places) {
-				p.distance_from_place ();
+				p.CalculateDistanceFromPlace ();
 				Db.InsertOrReplace (p);
 			}
 			Places.Sort ();
@@ -127,7 +127,7 @@ namespace RayvMobileApp.iOS
 			if (placeList == null)
 				placeList = Places;
 			foreach (Place p in placeList) {
-				p.distance_from_place ();
+				p.CalculateDistanceFromPlace ();
 			}
 			placeList.Sort ();
 		}
@@ -149,12 +149,11 @@ namespace RayvMobileApp.iOS
 		{
 			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
-			place.distance_from_place ();
-			foreach (Place p in Places) {
-				if (p.key == place.key) {
+			place.CalculateDistanceFromPlace ();
+			for (int i = 0; i < Places.Count (); i++) {
+				if (Places [i].key == place.key) {
 					try {
-						Console.WriteLine ("UpdatePlace: Saving {0}", place.place_name);
-						StorePlace (place, p);
+						StorePlace (place, Places [i]);
 						updatePlaces ();
 						return;
 					} catch (Exception e) { 
@@ -229,7 +228,6 @@ namespace RayvMobileApp.iOS
 				Configuration ConfItem = (from s in Db.Table<Configuration> ()
 				                          where s.Key == key
 				                          select s).First ();
-				Console.WriteLine ("GetConfig: {0}=[{1}]", key, ConfItem.Value);
 				return ConfItem.Value;
 			} catch (Exception) {
 				Console.WriteLine ("GetConfig: {0} not found", key);
@@ -269,13 +267,13 @@ namespace RayvMobileApp.iOS
 				// all cuisine types
 				Places.AddRange (place_q);
 				foreach (var p in Places)
-					p.distance_from_place ();
+					p.CalculateDistanceFromPlace ();
 			} else
 				//TODO: LINQ
 				foreach (Place p in place_q) {
 					if (p.category == onlyWithCuisineType) {
 						Places.Add (p);
-						p.distance_from_place ();
+						p.CalculateDistanceFromPlace ();
 					}
 				}
 			Places.Sort ();
