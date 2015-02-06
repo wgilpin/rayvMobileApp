@@ -5,6 +5,16 @@ using System.Text;
 
 namespace RayvMobileApp.iOS
 {
+	public enum LogLevel
+	{
+		CRITICAL = 50,
+		ERROR = 40,
+		WARNING = 30,
+		INFO = 20,
+		DEBUG = 10
+	}
+
+
 	public class restConnection
 	{
 
@@ -62,7 +72,7 @@ namespace RayvMobileApp.iOS
 					response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 				return response;
 			} catch (Exception E) {
-				Console.WriteLine (String.Format ("get: exception {0}", E));
+				restConnection.LogErrorToServer (String.Format ("get: exception {0}", E));
 				return null;
 			}
 		}
@@ -80,6 +90,55 @@ namespace RayvMobileApp.iOS
 				return instance;
 			}
 		}
+
+		public static void LogToServer (LogLevel level, String message)
+		{
+			try {
+
+				Console.Error.WriteLine ("{0}: {1}", level.ToString (), message);
+				Dictionary<string, string> parameters = new Dictionary<string, string> ();
+				
+				parameters ["level"] = Convert.ToString ((int)level);
+				parameters ["message"] = message;
+				try {
+					restConnection.Instance.post ("/api/log", parameters);
+				} catch (Exception ex) {
+					Console.Error.WriteLine ("LogToServer Exception {0}", ex);
+				}
+			} catch (Exception ex) {
+				Console.WriteLine ("LogToError Exception 1", ex);
+			}
+		}
+
+		public static void LogToServer (LogLevel level, string format, params object[] args)
+		{
+			try {
+				String msg = String.Format (format, args);
+				LogToServer (level, msg);
+			} catch (Exception ex) {
+				restConnection.LogErrorToServer ("LogToServer Exception 2", ex);
+			}
+		}
+
+		public static void LogErrorToServer (string format, params object[] args)
+		{
+			try {
+				String msg = String.Format (format, args);
+				LogToServer (LogLevel.ERROR, msg);
+			} catch (Exception ex) {
+				restConnection.LogErrorToServer ("LogErrorToServer Exception 1", ex);
+			}
+		}
+
+		public static void LogErrorToServer (string message)
+		{
+			try {
+				LogToServer (LogLevel.ERROR, message);
+			} catch (Exception ex) {
+				restConnection.LogErrorToServer ("LogErrorToServer Exception 2", ex);
+			}
+		}
+
 	}
 }
 

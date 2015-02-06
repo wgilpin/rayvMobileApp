@@ -192,26 +192,30 @@ namespace RayvMobileApp.iOS
 		{
 			Persist data = Persist.Instance;
 			lock (data.Lock) {
-				switch (MainFilter) {
-				case FilterKind.Mine:
-					ResetCuisinePicker ();
-					currentPlaces = (
-					    from p in data.Places
-					    where p.iVoted == true
-					    select p).ToList ();
-					break;
-				case FilterKind.All:
-					ResetCuisinePicker ();
-					currentPlaces = data.Places;
-					break;
-				case FilterKind.Cuisine:
-					currentPlaces = (
-					    from p in data.Places
-					    where p.category == FilterCuisineKind
-					    select p).ToList ();
-					break;
+				try {
+					switch (MainFilter) {
+					case FilterKind.Mine:
+						ResetCuisinePicker ();
+						currentPlaces = (
+						    from p in data.Places
+						    where p.iVoted == true
+						    select p).ToList ();
+						break;
+					case FilterKind.All:
+						ResetCuisinePicker ();
+						currentPlaces = data.Places;
+						break;
+					case FilterKind.Cuisine:
+						currentPlaces = (
+						    from p in data.Places
+						    where p.category == FilterCuisineKind
+						    select p).ToList ();
+						break;
+					}
+					data.SortPlaces (currentPlaces);
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 				}
-				data.SortPlaces (currentPlaces);
 			}
 			SetList (currentPlaces);
 		}
@@ -251,29 +255,32 @@ namespace RayvMobileApp.iOS
 					string placeStr = obj ["places"].ToString ();
 					Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 					lock (data.Lock) {
-						data.Places = place_list.Values.ToList ();
-						data.Places.Sort ();
-						
-						data.Votes.Clear ();
-						foreach (JObject fr in obj["friendsData"]) {
-							string fr_id = fr ["id"].ToString ();
-							string name = fr ["name"].ToString ();
-							data.Friends [fr_id] = name;
-							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-							foreach (KeyValuePair<string, Vote> v in vote_list) {
-								v.Value.voter = fr_id;
+						try {
+							data.Places = place_list.Values.ToList ();
+							data.Places.Sort ();
+							
+							data.Votes.Clear ();
+							foreach (JObject fr in obj["friendsData"]) {
+								string fr_id = fr ["id"].ToString ();
+								string name = fr ["name"].ToString ();
+								data.Friends [fr_id] = name;
+								Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
+								foreach (KeyValuePair<string, Vote> v in vote_list) {
+									v.Value.voter = fr_id;
+								}
+								data.Votes.AddRange (vote_list.Values);
 							}
-							data.Votes.AddRange (vote_list.Values);
+							//sort
+							data.updatePlaces ();
+						} catch (Exception ex) {
+							restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
 						}
-						//sort
-						data.updatePlaces ();
 					}
 					Persist.Instance.DataIsLive = true;
 					Console.WriteLine ("ListPage.Setup loaded");	
 				} catch (Exception ex) {
-					Console.WriteLine ("GetFullData Exception {0}", ex);
-					System.Diagnostics.Debug.Write ("ListPage.Setup: ");
-					System.Diagnostics.Debug.WriteLine (ex.Message);
+					restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
+
 				}
 			}
 		}
@@ -292,10 +299,14 @@ namespace RayvMobileApp.iOS
 		public void SetList (List<Place> list)
 		{
 			lock (Persist.Instance.Lock) {
-				Console.WriteLine ("SetList");
-				ItemsSource = null;
-				list.Sort ();
-				ItemsSource = list;
+				try {
+					Console.WriteLine ("SetList");
+					ItemsSource = null;
+					list.Sort ();
+					ItemsSource = list;
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
+				}
 			}
 		}
 
@@ -325,7 +336,11 @@ namespace RayvMobileApp.iOS
 			}
 			Debug.WriteLine ("OnTimerTrigger - Live");
 			lock (Persist.Instance.Lock) {
-				SetList (Persist.Instance.Places);
+				try {
+					SetList (Persist.Instance.Places);
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
+				}
 			}
 			_timer.Close ();
 		}

@@ -303,14 +303,14 @@ namespace RayvMobileApp.iOS
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);
 				lock (Persist.Instance.Lock) {
+					// no try..catch as it's inside one
 					Persist.Instance.UpdatePlace (place);
 				}
-				Debug.WriteLine ("Place.Save: saved {0}", place.place_name);
 				errorMessage = "";
 				return true;
 			} catch (Exception ex) {
-				errorMessage = ex.Message;
-				Console.WriteLine ("Place.Save: Exception {0}", ex);
+				errorMessage = String.Format ("Place.Save: Exception {0}", ex);
+				restConnection.LogErrorToServer (errorMessage);
 				return false;
 			}
 		}

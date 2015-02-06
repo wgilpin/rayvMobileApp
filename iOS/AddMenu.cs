@@ -81,7 +81,7 @@ namespace RayvMobileApp.iOS
 				AddResultsPage.ItemsSource = points;
 			} catch (Exception e) {
 				Spinner.IsRunning = false;
-				Console.WriteLine ("DoSearch: Exception {0}", e);
+				restConnection.LogErrorToServer ("DoSearch: Exception {0}", e);
 				DisplayAlert ("Oops", "Unable to search. Network problems?", "Close");
 			}
 		}
@@ -107,7 +107,7 @@ namespace RayvMobileApp.iOS
 					DisplayAlert ("Not Found", "Couldn't find that place", "OK");
 				}
 			} catch (Exception E) {
-				Console.WriteLine ("AddMenu.SearchHere: Exception {0}", E.Message);
+				restConnection.LogErrorToServer ("AddMenu.SearchHere: Exception {0}", E.Message);
 				DisplayAlert ("Error", "Couldn't find that place", "OK");
 			}
 		}
@@ -129,6 +129,7 @@ namespace RayvMobileApp.iOS
 
 		void SearchNearMe (object sender, EventArgs e)
 		{
+
 			searchPosition = Persist.Instance.GpsPosition;
 			DoSearch ();
 		}

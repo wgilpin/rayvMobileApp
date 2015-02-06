@@ -12,7 +12,6 @@ using System.Diagnostics;
 namespace RayvMobileApp.iOS
 {
 
-
 	public class Persist
 	{
 		#region Fields
@@ -80,8 +79,12 @@ namespace RayvMobileApp.iOS
 			Dictionary<string, string> parameters = new Dictionary<string, string> ();
 			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
 			lock (Lock) {
-				JObject obj = JObject.Parse (result);
-				_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+				try {
+					JObject obj = JObject.Parse (result);
+					_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("Persist.LoadCategories Exception {0}", ex);
+				}
 			}
 		}
 
@@ -114,7 +117,7 @@ namespace RayvMobileApp.iOS
 						Db.Insert (v);
 					//Db.InsertOrReplace (v);
 				} catch (Exception E) {
-					Console.WriteLine ("updatePlaces Exception: {0}", E.Message);
+					restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
 				}
 			}
 		}
@@ -154,16 +157,16 @@ namespace RayvMobileApp.iOS
 				if (Places [i].key == place.key) {
 					try {
 						StorePlace (place, Places [i]);
-						updatePlaces ();
+						Db.InsertOrReplace (place);
+						//updatePlaces ();
 						return;
 					} catch (Exception e) { 
 						Db.Rollback ();
-						Console.WriteLine ("** UpdatePlace ROLLBACK : '{0}'", e);
+						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);
 					}
 				}
 			}
 			StorePlace (place);
-			updatePlaces ();
 		}
 
 		public void updateVotes ()
@@ -193,7 +196,7 @@ namespace RayvMobileApp.iOS
 				Db.Commit ();
 			} catch { 
 				Db.Rollback ();
-				Console.WriteLine ("** AddSearchHistoryItem ROLLBACK");
+				restConnection.LogErrorToServer ("** AddSearchHistoryItem ROLLBACK");
 			}
 		}
 
@@ -230,7 +233,7 @@ namespace RayvMobileApp.iOS
 				                          select s).First ();
 				return ConfItem.Value;
 			} catch (Exception) {
-				Console.WriteLine ("GetConfig: {0} not found", key);
+				restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
 				return "";
 			}
 		}
@@ -297,6 +300,7 @@ namespace RayvMobileApp.iOS
 
 
 		}
+
 
 		#endregion
 
