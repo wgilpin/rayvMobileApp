@@ -206,16 +206,13 @@ namespace RayvMobileApp.iOS
 		public void AddSearchHistoryItem (string item)
 		{
 			try {
-				for (int i = 0; i < SearchHistoryList.Count (); i++) {
-					if (SearchHistoryList [i].PlaceName == item) {
-						SearchHistory found = SearchHistoryList [i];
-						SearchHistoryList.RemoveAt (i);
-						SearchHistoryList.Insert (0, found);
-						SaveSearchHistoryToDB ();
-						return; // already in list
-					}
+				var found = SearchHistoryList.FirstOrDefault (h => h.PlaceName == item);
+				if (found != null) {
+					SearchHistoryList.Remove (found);
+					SearchHistoryList.Insert (0, found);
+					SaveSearchHistoryToDB ();
+					return; // already in list
 				}
-				
 				SearchHistoryList.Add (new SearchHistory (item));
 				if (SearchHistoryList.Count > 3) {
 					SearchHistoryList.Remove (SearchHistoryList [0]);
@@ -236,19 +233,14 @@ namespace RayvMobileApp.iOS
 
 		public Place GetPlace (string key)
 		{
-			foreach (Place p in Places) {
-				if (p.key == key) {
-					return p;
-				}
-			}
-			return null;
+			return Places.FirstOrDefault (p => p.key == key);
 		}
 
 		public Place GetPlaceFromDb (string key)
 		{
 			return (from p in Db.Table<Place> ()
 			        where p.key == key
-			        select p).First ();
+			        select p).FirstOrDefault ();
 		}
 
 		public string GetConfig (string key)
