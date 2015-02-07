@@ -8,7 +8,7 @@ namespace RayvMobileApp.iOS
 		[PrimaryKey, AutoIncrement]
 		public int ID { get; set; }
 
-		public string PlaceName;
+		public string PlaceName { get; set; }
 
 		public SearchHistory (string item)
 		{

@@ -195,7 +195,6 @@
     <Compile Include="Place.cs" />
     <Compile Include="PlacesListView.cs" />
     <Compile Include="restConnection.cs" />
-    <Compile Include="SearchHistory.cs" />
     <Compile Include="settings.cs" />
     <Compile Include="SettingsPage.cs" />
     <Compile Include="SQLite.cs" />
@@ -205,6 +204,7 @@
     <Compile Include="Friend.cs" />
     <Compile Include="MapPage.cs" />
     <Compile Include="WebPage.cs" />
+    <Compile Include="SearchHistoryItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

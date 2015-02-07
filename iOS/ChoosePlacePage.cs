@@ -23,12 +23,12 @@ namespace RayvMobileApp.iOS
 			hereBtn.Clicked += SearchHere;
 
 			StackLayout history = new StackLayout ();
-			if (Persist.Instance.SearchHistory.Count == 0) {
+			if (Persist.Instance.SearchHistoryList.Count == 0) {
 				history.Children.Add (new LabelWide {
 					Text = "No History",
 				});
 			} else {
-				foreach (SearchHistory item in Persist.Instance.SearchHistory) {
+				foreach (SearchHistory item in Persist.Instance.SearchHistoryList) {
 					Button clickItem = new Button {
 						Text = item.PlaceName,
 						HorizontalOptions = LayoutOptions.Center

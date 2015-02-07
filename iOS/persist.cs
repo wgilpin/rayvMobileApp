@@ -24,7 +24,7 @@ namespace RayvMobileApp.iOS
 
 		public bool DataIsLive;
 
-		public List<SearchHistory> SearchHistory;
+		public List<SearchHistory> SearchHistoryList;
 		private List<string> _categories;
 		public Dictionary<string,string> Friends;
 		public Position GpsPosition;
@@ -176,27 +176,51 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public void AddSearchHistoryItem (string item)
+		private void SaveSearchHistoryToDB ()
 		{
-			foreach (SearchHistory historyItem in SearchHistory) {
-				if (historyItem.PlaceName == item) {
-					//already exists
-					return;
-				}
-			}
-			SearchHistory.Add (new SearchHistory (item));
-			if (SearchHistory.Count > 3) {
-				SearchHistory.Remove (SearchHistory [0]);
-			}
 			try {
 				Db.BeginTransaction ();
 				var cmd = Db.CreateCommand ("delete from SearchHistory");
 				cmd.ExecuteNonQuery ();
-				Db.InsertAll (SearchHistory);
+				Db.InsertAll (SearchHistoryList);
 				Db.Commit ();
-			} catch { 
+			} catch (Exception ex) { 
 				Db.Rollback ();
-				restConnection.LogErrorToServer ("** AddSearchHistoryItem ROLLBACK");
+				restConnection.LogErrorToServer ("** SaveSearchHistoryToDB ROLLBACK {0}", ex);
+			}
+		}
+
+		public void LoadSearchHistoryFromDb ()
+		{
+			SearchHistoryList.Clear ();
+			var searches_q = Db.Table<SearchHistory> ();
+			foreach (var search in searches_q) {
+				if (search.PlaceName != null) {
+					SearchHistoryList.Add (search);
+				}
+			}
+		}
+
+		public void AddSearchHistoryItem (string item)
+		{
+			try {
+				for (int i = 0; i < SearchHistoryList.Count (); i++) {
+					if (SearchHistoryList [i].PlaceName == item) {
+						SearchHistory found = SearchHistoryList [i];
+						SearchHistoryList.RemoveAt (i);
+						SearchHistoryList.Insert (0, found);
+						SaveSearchHistoryToDB ();
+						return; // already in list
+					}
+				}
+				
+				SearchHistoryList.Add (new SearchHistory (item));
+				if (SearchHistoryList.Count > 3) {
+					SearchHistoryList.Remove (SearchHistoryList [0]);
+				}
+				SaveSearchHistoryToDB ();
+			} catch (Exception ex) {
+				restConnection.LogErrorToServer ("Persist.AddSearchHistoryItem: {0}", ex);
 			}
 		}
 
@@ -284,15 +308,8 @@ namespace RayvMobileApp.iOS
 			var votes_q = Db.Table<Vote> ();
 			foreach (var vote in votes_q)
 				Votes.Add (vote);
-			if (SearchHistory != null) {
-				SearchHistory.Clear ();
-				var searches_q = Db.Table<SearchHistory> ();
-				foreach (var search in searches_q) {
-					if (search.PlaceName != null) {
-						SearchHistory.Add (search);
-					}
-				}
-			}
+			LoadSearchHistoryFromDb ();
+			
 			Console.WriteLine ("Persist.LoadFromDb loaded");
 			//var friends_q = db.Table<Friend> ();
 			//foreach (var friend in friends_q)
@@ -319,7 +336,7 @@ namespace RayvMobileApp.iOS
 			} else {
 				Db = new SQLiteConnection (DbPath);
 			}
-			SearchHistory = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
+			SearchHistoryList = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
 			Double Lat = GetConfigDouble ("LastLat");
 			Double Lng = GetConfigDouble ("LastLng");
 			GpsPosition = new Position (Lat, Lng);
