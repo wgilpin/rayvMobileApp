@@ -92,8 +92,6 @@ namespace RayvMobileApp.iOS
 		public AddResultsPage (List<Place> source) : this ()
 		{
 			listView.ItemsSource = source;
-			listView.ItemSelected += DoEdit;
-
 		}
 
 		#endregion

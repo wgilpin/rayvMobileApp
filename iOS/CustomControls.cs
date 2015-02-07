@@ -7,8 +7,9 @@ namespace RayvMobileApp.iOS
 	{
 		public RayvButton () : base ()
 		{
-			BorderWidth = 2;
-			BorderColor = Color.FromHex ("#4444AA");
+			//BorderWidth = 2;
+			//BorderColor = Color.FromHex ("#4444AA");
+			BorderRadius = 0;
 			BackgroundColor = Color.FromHex ("#ddddff");
 			Font = Font.SystemFontOfSize (NamedSize.Large);
 //			HorizontalOptions = LayoutOptions.FillAndExpand;
