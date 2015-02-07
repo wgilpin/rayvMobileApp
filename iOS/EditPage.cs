@@ -60,7 +60,6 @@ namespace RayvMobileApp.iOS
 				SetVoteButton (VoteWishlist);
 				break;
 			}
-			Comment.Text = EditPlace.descr;
 		}
 
 		public EditPage ()

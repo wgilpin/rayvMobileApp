@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RayvMobileApp.iOS
 {
@@ -205,12 +206,9 @@ namespace RayvMobileApp.iOS
 
 			if (_commentSet != null)
 				return _commentSet;
-			for (int i = 0; i < Persist.Instance.Votes.Count; i++) {
-				Vote v = Persist.Instance.Votes [i];
-				if (v.key == _key) {
-					return v.comment;
-				}
-			}
+			Vote myVote = Persist.Instance.Votes.First (v => v.key == _key);
+			if (myVote != null)
+				return myVote.comment;
 			return null;
 		}
 
