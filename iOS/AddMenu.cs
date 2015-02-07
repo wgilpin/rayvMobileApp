@@ -209,7 +209,7 @@ namespace RayvMobileApp.iOS
 				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
 			}
 			PlaceHistoryBox = new Entry {
-				Placeholder = "Where to search near...",
+				Placeholder = "Enter a Search Location...",
 			};
 			PlaceHistoryBox.TextChanged += SearchLocationEdited;
 			var PlaceHistoryOpenBtn = new Image {
@@ -231,8 +231,7 @@ namespace RayvMobileApp.iOS
 
 			historyBox = new StackLayout ();
 			SetupSearchHistory ();
-			historyBox.Children.Add (PlaceHistoryBox);
-			historyBox.Children.Add (HereBtn);
+
 			PlaceHistoryFrame = new Frame {
 				OutlineColor = Color.Silver,
 				IsVisible = false,

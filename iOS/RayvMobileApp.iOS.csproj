@@ -204,7 +204,7 @@
     <Compile Include="Friend.cs" />
     <Compile Include="MapPage.cs" />
     <Compile Include="WebPage.cs" />
-    <Compile Include="SearchHistoryItem.cs" />
+    <Compile Include="SearchHistory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

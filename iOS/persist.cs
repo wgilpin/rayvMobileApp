@@ -34,6 +34,8 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
+		const string DB_VERSION = "DB_VERSION";
+
 		#region Properties
 
 		public List<string> Categories {
@@ -277,9 +279,42 @@ namespace RayvMobileApp.iOS
 			Db.InsertOrReplace (new Configuration (key, value));
 		}
 
+		public void SetConfig (string key, int value)
+		{
+			Db.InsertOrReplace (new Configuration (key, value.ToString ()));
+		}
+
 		public void SetConfigDouble (string key, Double value)
 		{
 			SetConfig (key, Convert.ToString (value));
+		}
+
+		private void UpdateSchema ()
+		{
+			try {
+				int db_version;
+				if (!int.TryParse (GetConfig (DB_VERSION), out db_version)) {
+					db_version = 0;
+				}
+				if (db_version == 0) {
+					Db.BeginTransaction ();
+					try {
+						Db.DropTable<SearchHistory> ();
+						Db.CreateTable<SearchHistory> ();
+						db_version = 1;
+						SetConfig (DB_VERSION, db_version);
+						Console.WriteLine ("Schema updated to 1");
+					} catch (Exception ex) {
+						restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
+						Db.Rollback ();
+						return;
+					}
+					Db.Commit ();
+				}
+				Console.WriteLine ("Schema Up To Date");
+			} catch (Exception ex) {
+				restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
+			}
 		}
 
 		public void LoadFromDb (String onlyWithCuisineType = null)
@@ -287,6 +322,7 @@ namespace RayvMobileApp.iOS
 			//load the data from the db
 			Console.WriteLine ("Persist.LoadFromDb loading");
 
+			UpdateSchema ();
 			// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 			Places.Clear ();
 			var place_q = Db.Table<Place> ();
