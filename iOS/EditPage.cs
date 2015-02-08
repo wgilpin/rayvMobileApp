@@ -236,6 +236,7 @@ namespace RayvMobileApp.iOS
 		{
 			//delete the current item
 			//is it in my list?
+			String name = EditPlace.place_name;
 			Vote vote = (from v in Persist.Instance.Votes
 			             where v.key == EditPlace.key
 			             select v).FirstOrDefault ();
@@ -247,8 +248,10 @@ namespace RayvMobileApp.iOS
 						             new Dictionary<string, string> () {
 							{ "key", EditPlace.key }
 						});
-					if (res != null)
+					if (res != null) {
 						Persist.Instance.Places.Remove (EditPlace);
+						Insights.Track ("EditPage.DeletePlace", "Place", name);
+					}
 				}
 			}
 			await Navigation.PopToRootAsync ();
@@ -282,7 +285,8 @@ namespace RayvMobileApp.iOS
 			Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
 				{ "PlaceName", EditPlace.place_name },
 				{ "Lat", EditPlace.lat.ToString () },
-				{ "Lng", EditPlace.lng.ToString () }
+				{ "Lng", EditPlace.lng.ToString () },
+				{ "Vote", EditPlace.vote },
 			});
 		}
 

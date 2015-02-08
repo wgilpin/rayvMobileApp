@@ -5,27 +5,26 @@ namespace RayvMobileApp.iOS
 {
 	public class RayvButton : Button
 	{
-		public RayvButton () : base ()
+		public RayvButton (String text = null) : base ()
 		{
 			//BorderWidth = 2;
 			//BorderColor = Color.FromHex ("#4444AA");
 			BorderRadius = 0;
 			BackgroundColor = Color.FromHex ("#ddddff");
 			Font = Font.SystemFontOfSize (NamedSize.Large);
+			if (text != null)
+				Text = text;
 //			HorizontalOptions = LayoutOptions.FillAndExpand;
 //			HorizontalOptions = LayoutOptions.CenterAndExpand;
-		}
-
-		public RayvButton (string text) : this ()
-		{
-			Text = text;
 		}
 	}
 
 	public class ButtonWide : Button
 	{
-		public ButtonWide () : base ()
+		public ButtonWide (String text = null) : base ()
 		{
+			if (text != null)
+				Text = text;
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			VerticalOptions = LayoutOptions.CenterAndExpand;
 		}

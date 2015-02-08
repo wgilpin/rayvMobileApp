@@ -20,8 +20,9 @@ namespace RayvMobileApp.iOS
 	{
 		Mine,
 		All,
-		Cuisine
-
+		Cuisine,
+		Wishlist,
+		New,
 	}
 
 	public class ListPage : ContentPage
@@ -33,9 +34,10 @@ namespace RayvMobileApp.iOS
 		static String FilterCuisineKind;
 		Picker FilterCuisinePicker;
 		List<Place> currentPlaces;
+		Entry FilterSearchText;
 		Page Caller;
 
-		StackLayout filters;
+		Grid filters;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -53,21 +55,17 @@ namespace RayvMobileApp.iOS
 			this.Title = "List";
 			this.Icon = "bars-black.png";
 
-			// Define template for displaying each item.
-			// (Argument of DataTemplate constructor is called for 
-			//      each item; it must return a Cell derivative.)
-
-			var FilterMineBtn = new ButtonWide { Text = "Show Mine" };
+			var FilterMineBtn = new ButtonWide ("My Places");
 			FilterMineBtn.Clicked += (sender, e) => { 
 				MainFilter = FilterKind.Mine;
 				FilterList ();
-				filters.IsVisible = false;
+				filters.IsVisible = currentPlaces.Count () == 0;
 			};
-			var FilterAllBtn = new ButtonWide { Text = "Show All" };
+			var FilterAllBtn = new ButtonWide ("All Places");
 			FilterAllBtn.Clicked += (sender, e) => { 
 				MainFilter = FilterKind.All;
 				FilterList ();
-				filters.IsVisible = false;
+				filters.IsVisible = currentPlaces.Count () == 0;
 			};
 			FilterCuisinePicker = new Picker {
 				Title = "Filter by Cuisine",
@@ -79,18 +77,56 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 				
 
-			var FiltersCloseBtn = new RayvButton () { Text = "Clear Filter" };
+			var FiltersCloseBtn = new RayvButton ("Clear Filter");
 			FiltersCloseBtn.Clicked += (sender, e) => { 
 				FilterCuisinePicker.SelectedIndex = -1;
+				FilterList ();
+				filters.IsVisible = currentPlaces.Count () == 0;
 			};
-			filters = new StackLayout {
-				Children = {
-					FilterMineBtn,
-					FilterAllBtn,
-					FilterCuisinePicker,
-					FiltersCloseBtn,
+
+			var FilterNewBtn = new ButtonWide ("New Places");
+			FilterNewBtn.Clicked += (object sender, EventArgs e) => {
+				DisplayAlert ("Not Implemented", "New Places is not done yet", "OK");
+			};
+
+			var FilterWishBtn = new ButtonWide ("Wishlist");
+			FilterWishBtn.Clicked += (object sender, EventArgs e) => {
+				MainFilter = FilterKind.Wishlist;
+				FilterList ();
+				filters.IsVisible = currentPlaces.Count () == 0;
+			};
+
+			FilterSearchText = new Entry {
+				Placeholder = "Search for text",
+				Text = "",
+			};
+			FilterSearchText.TextChanged += HandleTextChanged;
+
+			filters = new Grid {
+				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+
+
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
+			filters.Children.Add (FilterSearchText, 0, 2, 0, 1);
+			filters.Children.Add (FilterMineBtn, 0, 1, 1, 2);
+			filters.Children.Add (FilterAllBtn, 1, 2, 1, 2);
+			filters.Children.Add (FilterWishBtn, 0, 1, 2, 3);
+			filters.Children.Add (FilterNewBtn, 1, 2, 2, 3);
+			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
+			filters.Children.Add (FiltersCloseBtn, 0, 2, 4, 5);
+
+
+
 			listView = new PlacesListView {
 				ItemsSource = Persist.Instance.Places,
 			};
@@ -143,6 +179,8 @@ namespace RayvMobileApp.iOS
 			System.Diagnostics.Debug.WriteLine ("fillListPage");
 		}
 
+
+
 		/**
 		 * Constructor when a list of Places is supplied
 		 */
@@ -167,6 +205,11 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Events
+
+		void HandleTextChanged (object sender, TextChangedEventArgs e)
+		{
+			FilterList ();
+		}
 
 		void UpdateCuisine (Object sender, System.EventArgs e)
 		{
@@ -196,22 +239,42 @@ namespace RayvMobileApp.iOS
 			Persist data = Persist.Instance;
 			lock (data.Lock) {
 				try {
+					String text = FilterSearchText.Text.ToLower ();
 					switch (MainFilter) {
 					case FilterKind.Mine:
 						ResetCuisinePicker ();
 						currentPlaces = (
 						    from p in data.Places
-						    where p.iVoted == true
+						    where p.iVoted == true && (
+						            p.place_name.ToLower ().Contains (text) ||
+						            p.category.Contains (text))
 						    select p).ToList ();
 						break;
 					case FilterKind.All:
 						ResetCuisinePicker ();
-						currentPlaces = data.Places;
+						currentPlaces = (from p in data.Places
+						                 where
+						                     p.place_name.ToLower ().Contains (text) ||
+						                     p.category.Contains (text)
+						                 select p).ToList ();
 						break;
 					case FilterKind.Cuisine:
+						if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
+							currentPlaces = (
+							    from p in data.Places
+							    where p.category == FilterCuisineKind && (
+							            p.place_name.ToLower ().Contains (text) ||
+							            p.category.Contains (text))
+							    select p).ToList ();
+						else
+							goto case FilterKind.All;
+						break;
+					case FilterKind.Wishlist:
 						currentPlaces = (
 						    from p in data.Places
-						    where p.category == FilterCuisineKind
+						    where p.untried == true && (
+						            p.place_name.ToLower ().Contains (text) ||
+						            p.category.Contains (text))
 						    select p).ToList ();
 						break;
 					}
