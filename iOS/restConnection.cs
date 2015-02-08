@@ -2,6 +2,7 @@
 using RestSharp;
 using System.Collections.Generic;
 using System.Text;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -72,6 +73,7 @@ namespace RayvMobileApp.iOS
 					response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 				return response;
 			} catch (Exception E) {
+				Insights.Report (E);
 				restConnection.LogErrorToServer (String.Format ("get: exception {0}", E));
 				return null;
 			}
@@ -106,6 +108,7 @@ namespace RayvMobileApp.iOS
 					Console.Error.WriteLine ("LogToServer Exception {0}", ex);
 				}
 			} catch (Exception ex) {
+				Insights.Report (ex);
 				Console.WriteLine ("LogToError Exception 1", ex);
 			}
 		}

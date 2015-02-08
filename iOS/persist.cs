@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -38,9 +39,11 @@ namespace RayvMobileApp.iOS
 
 		#region Properties
 
+		public bool HaveAdded { get; set; }
+
 		public List<string> Categories {
 			get {
-				if (_categories == null)
+				if (_categories == null || _categories.Count () == 0)
 					this.LoadCategories ();
 				return _categories;
 			}
@@ -85,7 +88,9 @@ namespace RayvMobileApp.iOS
 					JObject obj = JObject.Parse (result);
 					_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
 				} catch (Exception ex) {
+					Insights.Report (ex);
 					restConnection.LogErrorToServer ("Persist.LoadCategories Exception {0}", ex);
+					_categories = new List<string> ();
 				}
 			}
 		}
@@ -119,6 +124,7 @@ namespace RayvMobileApp.iOS
 						Db.Insert (v);
 					//Db.InsertOrReplace (v);
 				} catch (Exception E) {
+					Insights.Report (E);
 					restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
 				}
 			}
@@ -164,6 +170,7 @@ namespace RayvMobileApp.iOS
 						return;
 					} catch (Exception e) { 
 						Db.Rollback ();
+						Insights.Report (e);
 						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);
 					}
 				}
@@ -188,6 +195,7 @@ namespace RayvMobileApp.iOS
 				Db.Commit ();
 			} catch (Exception ex) { 
 				Db.Rollback ();
+				Insights.Report (ex);
 				restConnection.LogErrorToServer ("** SaveSearchHistoryToDB ROLLBACK {0}", ex);
 			}
 		}
@@ -219,6 +227,7 @@ namespace RayvMobileApp.iOS
 				}
 				SaveSearchHistoryToDB ();
 			} catch (Exception ex) {
+				Insights.Report (ex);
 				restConnection.LogErrorToServer ("Persist.AddSearchHistoryItem: {0}", ex);
 			}
 		}
@@ -250,7 +259,8 @@ namespace RayvMobileApp.iOS
 				                          where s.Key == key
 				                          select s).First ();
 				return ConfItem.Value;
-			} catch (Exception) {
+			} catch (Exception ex) {
+				Insights.Report (ex);
 				restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
 				return "";
 			}
@@ -297,6 +307,7 @@ namespace RayvMobileApp.iOS
 						SetConfig (DB_VERSION, db_version);
 						Console.WriteLine ("Schema updated to 1");
 					} catch (Exception ex) {
+						Insights.Report (ex);
 						restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
 						Db.Rollback ();
 						return;

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Linq;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -307,6 +308,8 @@ namespace RayvMobileApp.iOS
 				errorMessage = "";
 				return true;
 			} catch (Exception ex) {
+				Insights.Report (ex);
+				// store the rrorMessage for the out param
 				errorMessage = String.Format ("Place.Save: Exception {0}", ex);
 				restConnection.LogErrorToServer (errorMessage);
 				return false;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Foundation;
 using UIKit;
 using CoreLocation;
+using Xamarin;
 
 
 namespace RayvMobileApp.iOS
@@ -15,6 +16,7 @@ namespace RayvMobileApp.iOS
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init ();
+			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
 
 			LoadApplication (new App ());
 
@@ -26,12 +28,14 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("App entering background state.");
 			locationMgr.StopUpdatingLocation ();
+			Insights.Track ("AppDelegate.DidEnterBackground");
 		}
 
 		public override void WillEnterForeground (UIApplication application)
 		{
 			Console.WriteLine ("App will enter foreground");
 			locationMgr.StartLocationUpdates ();
+			Insights.Track ("AppDelegate.WillEnterForeground");
 		}
 	}
 }

@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -27,6 +28,7 @@ namespace RayvMobileApp.iOS
 		Image ImgRotR;
 		Place EditPlace;
 		Entry Comment;
+		bool IsNew;
 
 		#endregion
 
@@ -34,6 +36,7 @@ namespace RayvMobileApp.iOS
 
 		public EditPage (Place place) : this ()
 		{
+			IsNew = place.category == null || place.category.Length == 0;
 			EditPlace = place;
 			if (EditPlace.img.Length > 0) {
 				Img.Source = ImageSource.FromUri (new Uri (EditPlace.img));
@@ -64,7 +67,7 @@ namespace RayvMobileApp.iOS
 
 		public EditPage ()
 		{
-
+			IsNew = true;
 			var MainGrid = new Grid {
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },
@@ -135,6 +138,7 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (Category, 0, 3, 7, 8);
 			Address = new Entry {
 				Text = "",
+				Placeholder = "Address",
 			};
 			MainGrid.Children.Add (Address, 0, 3, 8, 9);
 			WebSite = new Entry {
@@ -192,6 +196,7 @@ namespace RayvMobileApp.iOS
 
 		public EditPage (Position position, String address) : this ()
 		{
+			IsNew = true;
 			EditPlace = new Place ();
 			EditPlace.lat = position.Latitude;
 			EditPlace.lng = position.Longitude;
@@ -222,7 +227,7 @@ namespace RayvMobileApp.iOS
 		async private void DoSave (object sender, EventArgs e)
 		{
 			if (Category.SelectedIndex == -1) {
-				DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+				await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
 				return;
 			}
 			EditPlace.category = Category.Items [Category.SelectedIndex];
@@ -232,10 +237,16 @@ namespace RayvMobileApp.iOS
 			string Message = "";
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
+				Persist.Instance.HaveAdded = this.IsNew;
 				this.Navigation.PopToRootAsync ();
 			} else {
 				await DisplayAlert ("Error", Message, "OK");
 			}
+			Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
+				{ "PlaceName", EditPlace.place_name },
+				{ "Lat", EditPlace.lat.ToString () },
+				{ "Lng", EditPlace.lng.ToString () }
+			});
 		}
 
 		#endregion

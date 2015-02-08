@@ -4,6 +4,8 @@ using Foundation;
 using UIKit;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using Xamarin;
+using System.Collections.Generic;
 
 namespace RayvMobileApp.iOS
 {
@@ -64,6 +66,11 @@ namespace RayvMobileApp.iOS
 				}
 				string Message = "";
 				if (DisplayPlace.Save (out Message)) {
+					Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
+						{ "PlaceName", DisplayPlace.place_name },
+						{ "Vote", DisplayPlace.vote.ToString () },
+						{ "Untried", DisplayPlace.untried.ToString () }
+					});
 					Device.BeginInvokeOnMainThread (() => {
 						// manipulate UI controls
 						SetVoteButton (sender as ButtonWide);

@@ -8,6 +8,7 @@ using RestSharp;
 using System.Linq;
 using Xamarin.Forms.Maps;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -36,7 +37,30 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region logic
+		#region Methods
+
+		void SetHistoryButton ()
+		{
+			var HistoryList = Persist.Instance.SearchHistoryList;
+			while (HistoryList.Count > 0 && HistoryList [0] != null && HistoryList [0].PlaceName == null)
+				HistoryList.RemoveAt (0);
+
+			if (HistoryList.Count > 0 &&
+			    HistoryList [0] != null &&
+			    HistoryList [0].PlaceName != null &&
+			    HistoryList [0].PlaceName.Length > 0) {
+
+				PlaceHistoryBtn.Text = Persist.Instance.SearchHistoryList [0].PlaceName;
+				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
+				PlaceHistoryBtn.Clicked -= SearchSomewhere;
+				PlaceHistoryBtn.Clicked += SearchSomewhere;
+			} else {
+				PlaceHistoryBtn.Text = " Choose Where... ";
+				PlaceHistoryBtn.Clicked -= SearchSomewhere;
+				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
+				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
+			}
+		}
 
 		public Position searchPosition {
 			get { return _searchPosition; }
@@ -83,6 +107,7 @@ namespace RayvMobileApp.iOS
 						this.Navigation.PushAsync (new AddResultsPage (points));
 					});
 				} catch (Exception e) {
+					Insights.Report (e);
 					restConnection.LogErrorToServer ("AddMenu.DoSearch: Exception {0}", e);
 					Device.BeginInvokeOnMainThread (() => {
 						Spinner.IsRunning = false;
@@ -144,6 +169,7 @@ namespace RayvMobileApp.iOS
 					await DisplayAlert ("Not Found", "Couldn't find that place", "OK");
 				}
 			} catch (Exception E) {
+				Insights.Report (E);
 				restConnection.LogErrorToServer ("AddMenu.SearchHere: Exception {0}", E.Message);
 				await DisplayAlert ("Error", "Couldn't find that place", "OK");
 			}
@@ -195,32 +221,12 @@ namespace RayvMobileApp.iOS
 
 		#region Constructors
 
-		void SetHistoryButton ()
-		{
-			var HistoryList = Persist.Instance.SearchHistoryList;
-			while (HistoryList.Count > 0 && HistoryList [0] != null && HistoryList [0].PlaceName == null)
-				HistoryList.RemoveAt (0);
 
-			if (HistoryList.Count > 0 &&
-			    HistoryList [0] != null &&
-			    HistoryList [0].PlaceName != null &&
-			    HistoryList [0].PlaceName.Length > 0) {
-					
-				PlaceHistoryBtn.Text = Persist.Instance.SearchHistoryList [0].PlaceName;
-				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
-				PlaceHistoryBtn.Clicked -= SearchSomewhere;
-				PlaceHistoryBtn.Clicked += SearchSomewhere;
-			} else {
-				PlaceHistoryBtn.Text = " Choose Where... ";
-				PlaceHistoryBtn.Clicked -= SearchSomewhere;
-				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
-				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
-			}
-		}
 
 		public AddMenu ()
 		{
 			Console.WriteLine ("AddMenu()");
+			Persist.Instance.HaveAdded = false;
 			FirstTime = true;
 			SearchBox = new Entry {
 				Placeholder = "Name to find"
@@ -314,10 +320,10 @@ namespace RayvMobileApp.iOS
 			};
 			this.Appearing += (object sender, EventArgs e) => {
 				PlaceHistoryBox.Text = "";
-//				if (!FirstTime)
-//					this.Navigation.PushAsync (new ListPage ());
-//				else
-//					FirstTime = false;
+				// if we have come from saving a place then we go back to the list
+				if (Persist.Instance.HaveAdded)
+					this.Navigation.PushAsync (new ListPage ());
+				Persist.Instance.HaveAdded = false;
 			};
 		}
 

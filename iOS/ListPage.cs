@@ -11,6 +11,7 @@ using CoreLocation;
 using RestSharp;
 using System.Linq;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -32,6 +33,7 @@ namespace RayvMobileApp.iOS
 		static String FilterCuisineKind;
 		Picker FilterCuisinePicker;
 		List<Place> currentPlaces;
+		Page Caller;
 
 		StackLayout filters;
 
@@ -214,6 +216,7 @@ namespace RayvMobileApp.iOS
 					}
 					data.SortPlaces (currentPlaces);
 				} catch (Exception ex) {
+					Insights.Report (ex);
 					restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 				}
 			}
@@ -273,14 +276,15 @@ namespace RayvMobileApp.iOS
 							//sort
 							data.updatePlaces ();
 						} catch (Exception ex) {
+							Insights.Report (ex);
 							restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
 						}
 					}
 					Persist.Instance.DataIsLive = true;
 					Console.WriteLine ("ListPage.Setup loaded");	
 				} catch (Exception ex) {
+					Insights.Report (ex);
 					restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
-
 				}
 			}
 		}
@@ -298,14 +302,19 @@ namespace RayvMobileApp.iOS
 
 		public void SetList (List<Place> list)
 		{
-			lock (Persist.Instance.Lock) {
-				try {
-					Console.WriteLine ("SetList");
-					ItemsSource = null;
-					list.Sort ();
-					ItemsSource = list;
-				} catch (Exception ex) {
-					restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
+			if (Persist.Instance.Places.Count () == 0)
+				Setup (this);
+			else {
+				lock (Persist.Instance.Lock) {
+					try {
+						Console.WriteLine ("SetList");
+						ItemsSource = null;
+						list.Sort ();
+						ItemsSource = list;
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
+					}
 				}
 			}
 		}
@@ -339,6 +348,7 @@ namespace RayvMobileApp.iOS
 				try {
 					SetList (Persist.Instance.Places);
 				} catch (Exception ex) {
+					Insights.Report (ex);
 					restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
 				}
 			}
