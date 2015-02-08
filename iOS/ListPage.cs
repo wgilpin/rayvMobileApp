@@ -136,6 +136,7 @@ namespace RayvMobileApp.iOS
 
 			this.Appearing += (object sender, EventArgs e) => {
 				SetList (Persist.Instance.Places);
+				FilterList ();
 			};
 			StartTimerIfNoGPS ();
 
