@@ -178,6 +178,25 @@ namespace RayvMobileApp.iOS
 			StorePlace (place);
 		}
 
+		public void DeletePlace (Place place)
+		{
+			try {
+				Place StoredPlace = (from p in Places
+				                     where p.key == place.key
+				                     select p).FirstOrDefault ();
+				if (StoredPlace != null) {
+					Places.Remove (StoredPlace);
+					Db.BeginTransaction ();
+					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
+					cmd.ExecuteNonQuery ();
+					Db.Commit ();
+				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("DeletePlace", ex);
+			}
+		}
+
 		public void updateVotes ()
 		{
 			foreach (Vote v in Votes) {

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Xamarin.Forms.Maps;
 using System.Diagnostics;
 using Xamarin;
+using System.Linq;
 
 namespace RayvMobileApp.iOS
 {
@@ -185,9 +186,20 @@ namespace RayvMobileApp.iOS
 				Text = "Save",
 				BackgroundColor = Color.Blue,
 				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
 			};
+			SaveBtn.Font = Font.SystemFontOfSize (NamedSize.Large);
 			SaveBtn.Clicked += DoSave;
 			MainGrid.Children.Add (SaveBtn, 0, 3, 13, 14);
+			ButtonWide DeleteButton = new ButtonWide {
+				Text = "Delete",
+				BackgroundColor = Color.Red,
+				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
+			};
+			DeleteButton.Font = Font.SystemFontOfSize (NamedSize.Large);
+			DeleteButton.Clicked += DeletePlace;
+			MainGrid.Children.Add (DeleteButton, 0, 3, 14, 15);
 		
 			this.Content = new ScrollView {
 				Content = MainGrid,
@@ -206,7 +218,7 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region Logic
+		#region Methods
 
 		void SetVoteButton (Button voteBtn)
 		{
@@ -218,6 +230,28 @@ namespace RayvMobileApp.iOS
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
 			voteBtn.BackgroundColor = Color.Olive;
 			voteBtn.TextColor = Color.White;
+		}
+
+		async void DeletePlace (object sender, EventArgs e)
+		{
+			//delete the current item
+			//is it in my list?
+			Vote vote = (from v in Persist.Instance.Votes
+			             where v.key == EditPlace.key
+			             select v).FirstOrDefault ();
+			if (vote != null) {
+				bool confirm_delete = await DisplayAlert ("Delete", "Remove this place from your list?", "Yes", "No");
+				if (confirm_delete) {
+					string res = restConnection.Instance.post (
+						             "api/delete",
+						             new Dictionary<string, string> () {
+							{ "key", EditPlace.key }
+						});
+					if (res != null)
+						Persist.Instance.Places.Remove (EditPlace);
+				}
+			}
+			await Navigation.PopToRootAsync ();
 		}
 
 		#endregion

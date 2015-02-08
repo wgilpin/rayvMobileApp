@@ -71,6 +71,17 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine (String.Format (
 					"get: response: {0}", 
 					response.Content.Substring (0, Math.Min (100, response.Content.Length))));
+				try {
+					int code = (int)response.StatusCode.GetTypeCode ();
+					if (code > 400)
+						throw new InvalidOperationException (
+							String.Format (
+								"Status {0} {1}", 
+								response.StatusCode, 
+								response.StatusDescription));
+				} catch {
+					return null;
+				}
 				return response;
 			} catch (Exception E) {
 				Insights.Report (E);
