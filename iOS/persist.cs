@@ -70,13 +70,18 @@ namespace RayvMobileApp.iOS
 		public void Wipe ()
 		{
 			Db.BeginTransaction ();
-			Places.Clear ();
-			Db.DeleteAll<Place> ();
-			Votes.Clear ();
-			Db.DeleteAll<Vote> ();
-			Friends.Clear ();
-			Db.DeleteAll<Friend> ();
-			Db.Commit ();
+			try {
+				Places.Clear ();
+				Db.DeleteAll<Place> ();
+				Votes.Clear ();
+				Db.DeleteAll<Vote> ();
+				Friends.Clear ();
+				Db.DeleteAll<Friend> ();
+				Db.Commit ();
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Db.Rollback ();
+			}
 		}
 
 		void LoadCategories ()
@@ -145,15 +150,20 @@ namespace RayvMobileApp.iOS
 
 		void StorePlace (Place place, Place removePlace = null)
 		{
-			Db.BeginTransaction ();
-			var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
-			cmd.ExecuteNonQuery ();
-			Db.Insert (place);
-			Db.Commit ();
-			if (removePlace != null) {
-				Places.Remove (removePlace);
+			try {
+				Db.BeginTransaction ();
+				var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
+				cmd.ExecuteNonQuery ();
+				Db.Insert (place);
+				Db.Commit ();
+				if (removePlace != null) {
+					Places.Remove (removePlace);
+				}
+				Places.Add (place);
+			} catch (Exception ex) {
+				Db.Rollback ();
+				Insights.Report (ex);
 			}
-			Places.Add (place);
 		}
 
 		public void UpdatePlace (Place place)
@@ -186,10 +196,15 @@ namespace RayvMobileApp.iOS
 				                     select p).FirstOrDefault ();
 				if (StoredPlace != null) {
 					Places.Remove (StoredPlace);
-					Db.BeginTransaction ();
-					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
-					cmd.ExecuteNonQuery ();
-					Db.Commit ();
+					try {
+						Db.BeginTransaction ();
+						var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
+						cmd.ExecuteNonQuery ();
+						Db.Commit ();
+					} catch (Exception ex) {
+						Db.Rollback ();
+						Insights.Report (ex);
+					}
 				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -325,13 +340,13 @@ namespace RayvMobileApp.iOS
 						db_version = 1;
 						SetConfig (DB_VERSION, db_version);
 						Console.WriteLine ("Schema updated to 1");
+						Db.Commit ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
 						Db.Rollback ();
 						return;
 					}
-					Db.Commit ();
 				}
 				Console.WriteLine ("Schema Up To Date");
 			} catch (Exception ex) {
