@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using Xamarin;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RayvMobileApp.iOS
 {
@@ -95,12 +96,9 @@ namespace RayvMobileApp.iOS
 
 		void LoadPage (string key)
 		{
-			foreach (Place p in Persist.Instance.Places) {
-				if (p.key == key) {
-					DisplayPlace = p;
-					break;
-				}
-			}
+			DisplayPlace = (from p in Persist.Instance.Places
+			                where p.key == key
+			                select p).FirstOrDefault ();
 			if (DisplayPlace == null) {
 				Console.WriteLine ("LoadPage FAILED");
 				return;

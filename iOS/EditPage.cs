@@ -238,7 +238,10 @@ namespace RayvMobileApp.iOS
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
 				Persist.Instance.HaveAdded = this.IsNew;
-				this.Navigation.PopToRootAsync ();
+				if (IsNew)
+					this.Navigation.PopToRootAsync ();
+				else
+					this.Navigation.PopAsync ();
 			} else {
 				await DisplayAlert ("Error", Message, "OK");
 			}

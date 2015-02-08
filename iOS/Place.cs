@@ -204,7 +204,8 @@ namespace RayvMobileApp.iOS
 
 		public string Comment ()
 		{
-
+			if (_descr != null && _descr.Length > 0)
+				return _descr;
 			if (_commentSet != null)
 				return _commentSet;
 			Vote myVote = Persist.Instance.Votes.FirstOrDefault (v => v.key == _key);
