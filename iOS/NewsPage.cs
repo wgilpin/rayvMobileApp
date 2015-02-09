@@ -54,6 +54,7 @@ namespace RayvMobileApp.iOS
 						WidthRequest = NEWS_IMAGE_SIZE, 
 						HeightRequest = NEWS_IMAGE_SIZE,
 						TranslationX = 0,
+						VerticalOptions = LayoutOptions.Start,
 					};
 					PlaceImg.SetBinding (Image.SourceProperty, "PlaceImage");
 
@@ -66,6 +67,7 @@ namespace RayvMobileApp.iOS
 						FontAttributes = FontAttributes.Italic,
 						BackgroundColor = Color.White,
 						TextColor = Color.FromHex ("#606060"),
+						HorizontalOptions = LayoutOptions.Start,
 					};
 					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
 

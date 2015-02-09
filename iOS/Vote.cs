@@ -58,7 +58,9 @@ namespace RayvMobileApp.iOS
 		[Ignore]
 		public string PrettyComment {
 			get {
-				return String.Format ("\"{0}\"", comment);
+				if (comment != null && comment.Length > 0)
+					return String.Format ("\"{0}\"", comment);
+				return "";
 			}
 		}
 
