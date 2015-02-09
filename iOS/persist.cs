@@ -289,22 +289,22 @@ namespace RayvMobileApp.iOS
 		public string GetConfig (string key)
 		{
 			try {
-				Configuration ConfItem = (from s in Db.Table<Configuration> ()
-				                          where s.Key == key
-				                          select s).First ();
-				return ConfItem.Value;
+				var ConfList = (from s in Db.Table<Configuration> ()
+				                where s.Key == key
+				                select s);
+				if (ConfList.Count () > 0)
+					return ConfList.First ().Value;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
-				return "";
 			}
+			return "";
 		}
 
 		public Double GetConfigDouble (string key)
 		{
-			string StringValue = GetConfig (key);
 			try {
-				return Convert.ToDouble (StringValue);
+				return Convert.ToDouble (GetConfig (key));
 			} catch {
 				return 0.0;
 			}
@@ -312,7 +312,11 @@ namespace RayvMobileApp.iOS
 
 		public void SetConfig (string key, string value)
 		{
-			Db.InsertOrReplace (new Configuration (key, value));
+			try {
+				Db.InsertOrReplace (new Configuration (key, value));
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
 		}
 
 		public void SetConfig (string key, int value)

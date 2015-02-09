@@ -41,6 +41,7 @@ namespace RayvMobileApp.iOS
 			EditPlace = place;
 			if (EditPlace.img.Length > 0) {
 				Img.Source = ImageSource.FromUri (new Uri (EditPlace.img));
+
 			}
 			Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
 			Img.VerticalOptions = LayoutOptions.Start;
@@ -203,6 +204,11 @@ namespace RayvMobileApp.iOS
 		
 			this.Content = new ScrollView {
 				Content = MainGrid,
+			};
+
+			this.Appearing += (sender, e) => {
+				Img.HeightRequest = this.Width / 3;
+				Img.Aspect = Aspect.AspectFill;
 			};
 		}
 

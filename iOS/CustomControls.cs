@@ -25,6 +25,7 @@ namespace RayvMobileApp.iOS
 		{
 			if (text != null)
 				Text = text;
+			BorderRadius = 0;
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			VerticalOptions = LayoutOptions.CenterAndExpand;
 		}

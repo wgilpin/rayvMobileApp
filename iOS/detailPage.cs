@@ -35,7 +35,7 @@ namespace RayvMobileApp.iOS
 		Label Category;
 		ButtonWide VoteLike;
 		ButtonWide VoteDislike;
-		Button VoteWishlist;
+		ButtonWide VoteWishlist;
 		ButtonWide CallBtn;
 		ButtonWide WebBtn;
 		Label distance;
