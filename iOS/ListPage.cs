@@ -80,7 +80,7 @@ namespace RayvMobileApp.iOS
 			var FiltersCloseBtn = new RayvButton ("Clear Filter");
 			FiltersCloseBtn.Clicked += (sender, e) => { 
 				FilterCuisinePicker.SelectedIndex = -1;
-				FilterList ();
+				FilterSearchText.Text = "";
 				filters.IsVisible = currentPlaces.Count () == 0;
 			};
 
