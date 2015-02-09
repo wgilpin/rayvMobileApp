@@ -5,6 +5,11 @@ namespace RayvMobileApp.iOS
 {
 	public class RayvButton : Button
 	{
+		public EventHandler OnClick {
+			get { return null; }
+			set { Clicked += value; }
+		}
+
 		public RayvButton (String text = null) : base ()
 		{
 			//BorderWidth = 2;
@@ -21,6 +26,11 @@ namespace RayvMobileApp.iOS
 
 	public class ButtonWide : Button
 	{
+		public EventHandler OnClick {
+			get { return null; }
+			set { Clicked += value; }
+		}
+
 		public ButtonWide (String text = null) : base ()
 		{
 			if (text != null)

@@ -23,6 +23,7 @@ namespace RayvMobileApp.iOS
 			};
 			LogoutBtn.Clicked += DoLogout;
 
+
 			StackLayout tools = new toolbar (this);
 			Content = new StackLayout {
 				Children = {
@@ -38,6 +39,14 @@ namespace RayvMobileApp.iOS
 							"{0:0.0000},{1:0.0000}",
 							Persist.Instance.GpsPosition.Latitude, 
 							Persist.Instance.GpsPosition.Longitude),
+					},
+					new ButtonWide {
+						BackgroundColor = Color.Red,
+						Text = "Clear Local Data",
+						OnClick = async (s, e) => {
+							if (await DisplayAlert ("Are You Sure?", "This will clear the local cache", "Yes", "No"))
+								Persist.Instance.Wipe ();
+						}
 					},
 					tools
 				}

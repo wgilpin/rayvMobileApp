@@ -133,6 +133,14 @@ namespace RayvMobileApp.iOS
 					restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
 				}
 			}
+			foreach (KeyValuePair<string, string> f in Friends) {
+				try {
+					Db.InsertOrReplace (new Friend { id = f.Key, name = f.Value });
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex.Message);
+				}
+			}
 		}
 
 		/**
@@ -360,39 +368,42 @@ namespace RayvMobileApp.iOS
 
 		public void LoadFromDb (String onlyWithCuisineType = null)
 		{
-			//load the data from the db
-			Console.WriteLine ("Persist.LoadFromDb loading");
+			try {
+				//load the data from the db
+				Console.WriteLine ("Persist.LoadFromDb loading");
 
-			UpdateSchema ();
-			// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
-			Places.Clear ();
-			var place_q = Db.Table<Place> ();
-			if (onlyWithCuisineType == null) {
-				// all cuisine types
-				Places.AddRange (place_q);
-				foreach (var p in Places)
-					p.CalculateDistanceFromPlace ();
-			} else
+				UpdateSchema ();
+				// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
+				Places.Clear ();
+				var place_q = Db.Table<Place> ();
+				if (onlyWithCuisineType == null) {
+					// all cuisine types
+					Places.AddRange (place_q);
+					foreach (var p in Places)
+						p.CalculateDistanceFromPlace ();
+				} else
 				//TODO: LINQ
 				foreach (Place p in place_q) {
-					if (p.category == onlyWithCuisineType) {
-						Places.Add (p);
-						p.CalculateDistanceFromPlace ();
+						if (p.category == onlyWithCuisineType) {
+							Places.Add (p);
+							p.CalculateDistanceFromPlace ();
+						}
 					}
-				}
-			Places.Sort ();
-			Votes.Clear ();
-			var votes_q = Db.Table<Vote> ();
-			foreach (var vote in votes_q)
-				Votes.Add (vote);
-			LoadSearchHistoryFromDb ();
+				Places.Sort ();
+				Votes.Clear ();
+				var votes_q = Db.Table<Vote> ();
+				foreach (var vote in votes_q)
+					Votes.Add (vote);
+				LoadSearchHistoryFromDb ();
 			
-			Console.WriteLine ("Persist.LoadFromDb loaded");
-			//var friends_q = db.Table<Friend> ();
-			//foreach (var friend in friends_q)
-			//	friends.Add(friend);
-
-
+				Console.WriteLine ("Persist.LoadFromDb loaded");
+				var friends_q = Db.Table<Friend> ();
+				foreach (var friend in friends_q)
+					Friends [friend.id] = friend.name;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
+			}
 		}
 
 

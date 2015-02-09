@@ -46,6 +46,44 @@ namespace RayvMobileApp.iOS
 
 		#region Logic
 
+		Grid GetFriendsComments ()
+		{
+			List<Vote> voteList = (from v in Persist.Instance.Votes
+			                       where v.key == DisplayPlace.key
+			                       select v).OrderBy (x => x.comment).ToList ();
+			Grid grid = new Grid {
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (20.0) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+				}
+			};
+			string MyStringId = Persist.Instance.MyId.ToString ();
+			int whichRow = 0;
+			for (int row = 0; row < voteList.Count (); row++) {
+				if (voteList [row].voter != MyStringId) {
+					try {
+						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
+						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter];
+						grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow, whichRow + 1);
+						grid.Children.Add (new Label { Text = voteList [row].comment }, 2, 4, whichRow, whichRow + 1);
+						Image img = new Image {
+							WidthRequest = 20,
+							Aspect = Aspect.AspectFit,
+							Source = voteList [row].GetIconName (),
+						};
+						grid.Children.Add (img, 1, 2, whichRow, whichRow + 1);
+						whichRow++;
+					} catch (Exception ex) {
+						Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
+						Insights.Report (ex);
+					}
+				}
+			}
+			return grid;
+		}
+
 		void SetVote (object sender, EventArgs e)
 		{
 			SetVoteButton (sender as ButtonWide);
@@ -263,7 +301,6 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 7);
-//			
 			LoadPage (DisplayPlace.key);
 
 			this.Content = new ScrollView {
@@ -271,6 +308,7 @@ namespace RayvMobileApp.iOS
 					Children = {
 						Img,
 						MainGrid,
+						GetFriendsComments (),
 					}
 				},
 			};

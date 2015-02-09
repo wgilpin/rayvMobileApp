@@ -17,6 +17,18 @@ namespace RayvMobileApp.iOS
 		public bool untried { get; set; }
 
 		public string comment { get; set; }
+
+		public string GetIconName ()
+		{
+			String imageUrl = "";
+			if (vote == 1)
+				imageUrl = "heart-lg.png";
+			if (vote == -1)
+				imageUrl = "no-entry-lg.png";
+			if (untried)
+				imageUrl = "star-lg.png";
+			return imageUrl;
+		}
 	}
 }
 
