@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RayvMobileApp.iOS
 {
@@ -10,9 +11,12 @@ namespace RayvMobileApp.iOS
 		const int NEWS_ICON_SIZE = 20;
 		const int ROW_HEIGHT = 85;
 
+		ListView list;
+		DateTime LastUpdate;
+
 		public NewsPage ()
 		{
-			ListView list = new ListView () {
+			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
 
 				ItemTemplate = new DataTemplate (() => {
@@ -84,10 +88,7 @@ namespace RayvMobileApp.iOS
 				})
 			};
 			StackLayout tools = new toolbar (this);
-			lock (Persist.Instance.Lock) {
-				Persist.Instance.Votes.Sort ();
-				list.ItemsSource = Persist.Instance.Votes;
-			}
+			SetSource ();
 			this.Content = new StackLayout {
 				Children = {
 					new ScrollView {
@@ -101,6 +102,27 @@ namespace RayvMobileApp.iOS
 				Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
 				this.Navigation.PushAsync (new DetailPage (p));
 			};
+			LastUpdate = DateTime.Now;
+			this.Appearing += CheckForUpdates;
+		}
+
+		void CheckForUpdates (object sender, EventArgs e)
+		{
+			if (list != null) {
+				Console.WriteLine ("NewsPage.CheckForUpdates");
+				Persist.Instance.GetUserData (this, DateTime.Now);
+				SetSource ();
+			}
+		}
+
+		void SetSource ()
+		{
+			Console.WriteLine ("NewsPage.SetSource");
+			lock (Persist.Instance.Lock) {
+				list.ItemsSource = null;
+				Persist.Instance.Votes.Sort (); 
+				list.ItemsSource = Persist.Instance.Votes.Take (20);
+			}
 		}
 	}
 }

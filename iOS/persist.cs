@@ -9,6 +9,9 @@ using Xamarin.Forms.Maps;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Xamarin;
+using Xamarin.Forms;
+using RestSharp;
+using System.Net;
 
 namespace RayvMobileApp.iOS
 {
@@ -66,6 +69,151 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Methods
+
+		void StoreFullUserRecord (IRestResponse resp)
+		{
+			try {
+				Console.WriteLine ("GetFullData: lock get full");
+				JObject obj = JObject.Parse (resp.Content);
+				MyId = obj ["id"].Value<Int64> ();
+				string placeStr = obj ["places"].ToString ();
+				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+				lock (Lock) {
+					try {
+						Places = place_list.Values.ToList ();
+						Places.Sort ();
+						Votes.Clear ();
+						foreach (JObject fr in obj ["friendsData"]) {
+							string fr_id = fr ["id"].ToString ();
+							string name = fr ["name"].ToString ();
+							Friends [fr_id] = name;
+							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
+							foreach (KeyValuePair<string, Vote> v in vote_list) {
+								v.Value.voter = fr_id;
+							}
+							Votes.AddRange (vote_list.Values);
+						}
+						//sort
+						updatePlaces ();
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
+					}
+				}
+				DataIsLive = true;
+				Console.WriteLine ("ListPage.Setup loaded");
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
+			}
+		}
+
+		// for an incremental query - since a time
+		void StoreUpdatedUserRecord (IRestResponse resp)
+		{
+			try {
+				Console.WriteLine ("StoreUpdatedUserRecord: lock ");
+				JObject obj = JObject.Parse (resp.Content);
+				MyId = obj ["id"].Value<Int64> ();
+				string placeStr = obj ["places"].ToString ();
+				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
+				lock (Lock) {
+					try {
+						bool Added = false;
+						foreach (KeyValuePair<String,Place> kvp in place_list) {
+							Added = false;
+							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
+								if (Places [PlacesIdx].key == kvp.Key) {
+									Console.WriteLine ("StoreUpdatedUserRecord: Update {0}", kvp.Value.place_name);
+									Places [PlacesIdx] = kvp.Value;
+									Added = true;
+									break;
+								}
+							}
+							if (!Added)
+								Places.Add (kvp.Value);
+						}
+						List<Vote> NewVotes = new List<Vote> ();
+						foreach (JObject fr in obj ["friendsData"]) {
+							string fr_id = fr ["id"].ToString ();
+							string name = fr ["name"].ToString ();
+							Friends [fr_id] = name;
+							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
+							foreach (KeyValuePair<string, Vote> v in vote_list) {
+								v.Value.voter = fr_id;
+								NewVotes.Add (v.Value);
+							}
+						}
+						foreach (Vote v in NewVotes) {
+							Added = false;
+							for (int VoteIdx = 0; VoteIdx < Votes.Count (); VoteIdx++) {
+								if (Votes [VoteIdx].key == v.key && Votes [VoteIdx].voter == v.voter) {
+									Votes [VoteIdx] = v;
+									Added = true;
+									Console.WriteLine ("StoreUpdatedUserRecord: Update Vote for {0}", v.place_name);
+									break;
+								}
+							}
+							if (!Added)
+								Votes.Add (v);
+						}
+
+						//sort
+						updatePlaces ();
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
+					}
+				}
+				DataIsLive = true;
+				Console.WriteLine ("ListPage.Setup loaded");
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
+			}
+		}
+
+
+		public void GetUserData (Page caller, DateTime? since = null)
+		{
+			restConnection webReq = restConnection.Instance;
+			string server = GetConfig ("server");
+			if (server.Length == 0) {
+				Console.WriteLine ("ListPage.Setup: No server");
+				return;
+			} else {
+				webReq.setBaseUrl (server);
+				webReq.setCredentials (GetConfig ("username"), GetConfig ("pwd"), "");
+				IRestResponse resp;
+				Console.WriteLine ("GetFullData Login");
+				resp = webReq.get ("/api/login", null);
+				if (resp == null) {
+					Console.WriteLine ("GetFullData: Response NULL");
+					return;
+				}
+				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
+					//TODO: This doesn't work
+					Device.BeginInvokeOnMainThread (() => {
+						Console.WriteLine ("GetFullData: Need to login - push LoginPage");
+						caller.Navigation.PushModalAsync (new LoginPage ());
+					});
+					Console.WriteLine ("GetFullData: No login");
+					return;
+				}
+				Dictionary<String, String> paramList = new Dictionary<String, String> ();
+				if (since != null) {
+					paramList.Add ("since", ((DateTime)since).ToString ("s"));
+				}
+				resp = webReq.get ("/getFullUserRecord", paramList);
+				if (since != null) {
+					// incremental
+					StoreUpdatedUserRecord (resp);
+				} else {
+					StoreFullUserRecord (resp);
+				}
+			}
+		}
+
 
 		public void Wipe ()
 		{

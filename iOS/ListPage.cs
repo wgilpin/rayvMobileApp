@@ -287,78 +287,13 @@ namespace RayvMobileApp.iOS
 			SetList (currentPlaces);
 		}
 
-		static void GetFullData (Page caller)
-		{
-			restConnection webReq = restConnection.Instance;
-			string server = Persist.Instance.GetConfig ("server");
-			if (server.Length == 0) {
-				Console.WriteLine ("ListPage.Setup: No server");
-				return;
-			} else {
-				webReq.setBaseUrl (server);
-				webReq.setCredentials (Persist.Instance.GetConfig ("username"), Persist.Instance.GetConfig ("pwd"), "");
-				IRestResponse resp;
-				Console.WriteLine ("GetFullData Login");
-				resp = webReq.get ("/api/login", null);
-				if (resp == null) {
-					Console.WriteLine ("GetFullData: Response NULL");
-					return;
-				}
-				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-					//TODO: This doesn't work
-					Device.BeginInvokeOnMainThread (() => {
-						Console.WriteLine ("GetFullData: Need to login - push LoginPage");
-						caller.Navigation.PushModalAsync (new LoginPage ());
-					});
-					Console.WriteLine ("GetFullData: No login");
-					return;
-				}
-				resp = webReq.get ("/getFullUserRecord");
-				try {
-					Console.WriteLine ("GetFullData: lock get full");
-					Persist data = Persist.Instance;
-					JObject obj = JObject.Parse (resp.Content);
-					data.MyId = obj ["id"].Value<Int64> ();
-					string placeStr = obj ["places"].ToString ();
-					Dictionary<string,Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
-					lock (data.Lock) {
-						try {
-							data.Places = place_list.Values.ToList ();
-							data.Places.Sort ();
-							
-							data.Votes.Clear ();
-							foreach (JObject fr in obj["friendsData"]) {
-								string fr_id = fr ["id"].ToString ();
-								string name = fr ["name"].ToString ();
-								data.Friends [fr_id] = name;
-								Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-								foreach (KeyValuePair<string, Vote> v in vote_list) {
-									v.Value.voter = fr_id;
-								}
-								data.Votes.AddRange (vote_list.Values);
-							}
-							//sort
-							data.updatePlaces ();
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
-						}
-					}
-					Persist.Instance.DataIsLive = true;
-					Console.WriteLine ("ListPage.Setup loaded");	
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
-				}
-			}
-		}
 
 		public static void Setup (Page caller)
 		{
 			Console.WriteLine ("ListPage.Setup");
 			// fire off a thread to get the data
 			System.Threading.ThreadPool.QueueUserWorkItem (delegate {
-				GetFullData (caller);
+				Persist.Instance.GetUserData (caller);
 			}, null);
 
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
