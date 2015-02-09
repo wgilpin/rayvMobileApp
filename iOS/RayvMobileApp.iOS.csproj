@@ -211,6 +211,7 @@
     <Compile Include="MapPage.cs" />
     <Compile Include="WebPage.cs" />
     <Compile Include="SearchHistory.cs" />
+    <Compile Include="NewsPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

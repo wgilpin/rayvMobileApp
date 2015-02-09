@@ -360,6 +360,23 @@ namespace RayvMobileApp.iOS
 						return;
 					}
 				}
+				if (db_version == 1) {
+					//Migration 2 - add When field to votes
+					Db.BeginTransaction ();
+					try {
+						Db.DropTable<Vote> ();
+						Db.CreateTable<Vote> ();
+						db_version = 2;
+						SetConfig (DB_VERSION, db_version);
+						Console.WriteLine ("Schema updated to 2");
+						Db.Commit ();
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
+						Db.Rollback ();
+						return;
+					}
+				}
 				Console.WriteLine ("Schema Up To Date");
 			} catch (Exception ex) {
 				restConnection.LogErrorToServer ("UpdateSchema {0}", ex);

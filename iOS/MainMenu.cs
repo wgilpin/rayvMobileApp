@@ -67,6 +67,12 @@ namespace RayvMobileApp.iOS
 			Image newsImg = new Image {
 				Source = "NewsBigBtn.png"
 			};
+			var clickNews = new TapGestureRecognizer ();
+			clickNews.Tapped += (s, e) => {
+				Console.WriteLine ("MainMenu: news button - push NewsPage");
+				this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
+			};
+			newsImg.GestureRecognizers.Add (clickNews);
 
 			//  LIST
 			Image placesImg = new Image {

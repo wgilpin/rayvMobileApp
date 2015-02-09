@@ -71,7 +71,7 @@ namespace RayvMobileApp.iOS
 						Image img = new Image {
 							WidthRequest = 20,
 							Aspect = Aspect.AspectFit,
-							Source = voteList [row].GetIconName (),
+							Source = voteList [row].GetIconName,
 						};
 						grid.Children.Add (img, 1, 2, whichRow, whichRow + 1);
 						whichRow++;

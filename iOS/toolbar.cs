@@ -11,8 +11,12 @@ namespace RayvMobileApp.iOS
 			Orientation = StackOrientation.Horizontal;
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Button recentBtn = new Button {
-				Text = "Recent",
+				Text = "News",
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
+			};
+			recentBtn.Clicked += (object sender, EventArgs e) => {
+				Console.WriteLine ("Toolbar: news button push NewsPage");
+				this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
 			};
 			Button listBtn = new Button {
 				Text = "List",
