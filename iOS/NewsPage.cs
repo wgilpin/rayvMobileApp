@@ -23,7 +23,7 @@ namespace RayvMobileApp.iOS
 					Grid grid = new Grid {
 						VerticalOptions = LayoutOptions.FillAndExpand,
 						RowDefinitions = {
-							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
 						},
@@ -37,11 +37,14 @@ namespace RayvMobileApp.iOS
 
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
+						TextColor = Color.Blue,
 					};
 					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
 
 					Label TimeLbl = new Label {
-						FontAttributes = FontAttributes.Italic
+						FontAttributes = FontAttributes.Italic,
+						Font = Font.SystemFontOfSize (NamedSize.Small),
+						TextColor = Color.FromHex ("#606060"),
 					};
 					TimeLbl.SetBinding (Label.TextProperty, "PrettyHowLongAgo");
 
@@ -54,9 +57,9 @@ namespace RayvMobileApp.iOS
 					VoteImg.SetBinding (Image.SourceProperty, "GetIconName");
 
 					Image PlaceImg = new Image { 
-						Aspect = Aspect.AspectFit,
+						Aspect = Aspect.AspectFill,
 						WidthRequest = NEWS_IMAGE_SIZE, 
-						HeightRequest = NEWS_IMAGE_SIZE,
+						HeightRequest = ROW_HEIGHT,
 						TranslationX = 0,
 						VerticalOptions = LayoutOptions.Start,
 					};
@@ -72,6 +75,7 @@ namespace RayvMobileApp.iOS
 						BackgroundColor = Color.White,
 						TextColor = Color.FromHex ("#606060"),
 						HorizontalOptions = LayoutOptions.Start,
+						LineBreakMode = LineBreakMode.TailTruncation,
 					};
 					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
 
