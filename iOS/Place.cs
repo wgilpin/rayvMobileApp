@@ -267,38 +267,45 @@ namespace RayvMobileApp.iOS
 		 */
 		public string CalculateDistanceFromPlace (Position? point = null)
 		{
-			Position calc_dist_from = point == null ? Persist.Instance.GpsPosition : (Position)point;
-			this.distance_double = approx_distance (
-				new Position (this.lat, this.lng),
-				calc_dist_from);
-			this.pretty_dist = null;
+			try {
+				Position calc_dist_from = point == null ? Persist.Instance.GpsPosition : (Position)point;
+				this.distance_double = approx_distance (
+					new Position (this.lat, this.lng),
+					calc_dist_from);
+				this.pretty_dist = null;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
 			return this.distance;
 		}
 
 		public bool Save (out String errorMessage)
 		{
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
-
-			parameters ["key"] = key;
-			parameters ["lat"] = lat.ToString ();
-			parameters ["lng"] = lng.ToString ();
-			parameters ["addr"] = address;
-			parameters ["place_name"] = place_name;
-			parameters ["myComment"] = Comment ();
-			parameters ["category"] = category;
-			parameters ["descr"] = "";
-			switch (vote) {
-			case "-1":
-				parameters ["voteScore"] = "dislike";
-				break;
-			case "1":
-				parameters ["voteScore"] = "like";
-				break;
-			default:
-				parameters ["untried"] = "true";
-				break;
-			}
 			try {
+
+			
+				Dictionary<string, string> parameters = new Dictionary<string, string> ();
+
+				parameters ["key"] = key;
+				parameters ["lat"] = lat.ToString ();
+				parameters ["lng"] = lng.ToString ();
+				parameters ["addr"] = address;
+				parameters ["place_name"] = place_name;
+				parameters ["myComment"] = Comment ();
+				parameters ["category"] = category;
+				parameters ["descr"] = "";
+				switch (vote) {
+				case "-1":
+					parameters ["voteScore"] = "dislike";
+					break;
+				case "1":
+					parameters ["voteScore"] = "like";
+					break;
+				default:
+					parameters ["untried"] = "true";
+					break;
+				}
+			
 				string result = restConnection.Instance.post ("/item", parameters);
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);

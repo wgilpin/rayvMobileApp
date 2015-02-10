@@ -68,7 +68,7 @@ namespace RayvMobileApp.iOS
 		public string PrettyHowLongAgo {
 			// e.g. "A few seconds ago","10 mins ago", "2 hours ago", "24 days ago"
 			get {
-				TimeSpan d = DateTime.Now - when;
+				TimeSpan d = DateTime.UtcNow - when;
 				if (d.TotalDays > 1.0) {
 					// days
 					return MakeString (d.TotalDays, "days");

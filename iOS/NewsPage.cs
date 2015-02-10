@@ -116,7 +116,7 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine ("NewsPage.CheckForUpdates");
 				Persist.Instance.GetUserData (this, LastUpdate);
 				SetSource ();
-				LastUpdate = DateTime.Now;
+				LastUpdate = DateTime.UtcNow;
 			}
 
 		}

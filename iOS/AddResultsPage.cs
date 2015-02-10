@@ -83,7 +83,7 @@ namespace RayvMobileApp.iOS
 				else
 					FirstTime = false;
 			};
-			System.Diagnostics.Debug.WriteLine ("fillListPage");
+			System.Diagnostics.Debug.WriteLine ("AddresultsPage:fillListPage");
 		}
 
 		/**

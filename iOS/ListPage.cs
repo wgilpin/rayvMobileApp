@@ -128,7 +128,7 @@ namespace RayvMobileApp.iOS
 
 
 			listView = new PlacesListView {
-				ItemsSource = Persist.Instance.Places,
+				//ItemsSource = Persist.Instance.Places,
 			};
 			listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
 				Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
@@ -169,14 +169,14 @@ namespace RayvMobileApp.iOS
 				})
 			});
 
-
+			FilterList ();
 			this.Appearing += (object sender, EventArgs e) => {
-				SetList (Persist.Instance.Places);
+				//SetList (Persist.Instance.Places);
 				FilterList ();
 			};
 			StartTimerIfNoGPS ();
 
-			System.Diagnostics.Debug.WriteLine ("fillListPage");
+			System.Diagnostics.Debug.WriteLine ("ListPage() Done");
 		}
 
 
