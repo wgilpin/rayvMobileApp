@@ -182,22 +182,22 @@ namespace RayvMobileApp.iOS
 			restConnection webReq = restConnection.Instance;
 			string server = GetConfig ("server");
 			if (server.Length == 0) {
-				Console.WriteLine ("ListPage.Setup: No server");
+				Console.WriteLine ("GetUserData: No server");
 				return;
 			} else {
 				webReq.setBaseUrl (server);
 				webReq.setCredentials (GetConfig ("username"), GetConfig ("pwd"), "");
 				IRestResponse resp;
-				Console.WriteLine ("GetFullData Login");
+				Console.WriteLine ("GetUserData Login");
 				resp = webReq.get ("/api/login", null);
 				if (resp == null) {
-					Console.WriteLine ("GetFullData: Response NULL");
+					Console.WriteLine ("GetUserData: Response NULL");
 					return;
 				}
 				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
 					//TODO: This doesn't work
 					Device.BeginInvokeOnMainThread (() => {
-						Console.WriteLine ("GetFullData: Need to login - push LoginPage");
+						Console.WriteLine ("GetUserData: Need to login - push LoginPage");
 						caller.Navigation.PushModalAsync (new LoginPage ());
 					});
 					Console.WriteLine ("GetFullData: No login");

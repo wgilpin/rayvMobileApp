@@ -131,7 +131,9 @@ namespace RayvMobileApp.iOS
 				List<Vote> News = (from v in Persist.Instance.Votes
 				                   where v.voter != MyStringId
 				                       && v.vote == 1
-				                   select v).ToList ();
+				                   select v)
+					.OrderByDescending (x => x.when)
+					.ToList ();
 				list.ItemsSource = News.Take (20);
 			}
 		}
