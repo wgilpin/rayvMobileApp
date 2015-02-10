@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -136,10 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default.png" />
-    <BundleResource Include="Resources\Default%402x.png" />
-    <BundleResource Include="Resources\Default-568h%402x.png" />
     <BundleResource Include="Resources\Default-Portrait.png" />
-    <BundleResource Include="Resources\Default-Portrait%402x.png" />
     <BundleResource Include="Resources\Icon-60%402x.png" />
     <BundleResource Include="Resources\Icon-60%403x.png" />
     <BundleResource Include="Resources\Icon-76.png" />
@@ -172,6 +169,15 @@
     <BundleResource Include="..\..\art\filter.png">
       <Link>Resources\filter.png</Link>
     </BundleResource>
+    <BundleResource Include="..\..\art\Default-Portrait%402x.png">
+      <Link>Resources\Default-Portrait%402x.png</Link>
+    </BundleResource>
+    <BundleResource Include="..\..\art\Default-568h%402x.png">
+      <Link>Resources\Default-568h%402x.png</Link>
+    </BundleResource>
+    <BundleResource Include="..\..\art\Default%402x.png">
+      <Link>Resources\Default%402x.png</Link>
+    </BundleResource>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -194,6 +200,7 @@
     <Compile Include="EditPage.cs" />
     <Compile Include="ListPage.cs" />
     <Compile Include="LocationManager.cs" />
+    <Compile Include="MapPage.cs" />
     <Compile Include="LocationUpdateEventArgs.cs" />
     <Compile Include="LoginPage.cs" />
     <Compile Include="MainMenu.cs" />
@@ -208,7 +215,6 @@
     <Compile Include="toolbar.cs" />
     <Compile Include="Vote.cs" />
     <Compile Include="Friend.cs" />
-    <Compile Include="MapPage.cs" />
     <Compile Include="WebPage.cs" />
     <Compile Include="SearchHistory.cs" />
     <Compile Include="NewsPage.cs" />

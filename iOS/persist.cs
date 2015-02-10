@@ -21,7 +21,6 @@ namespace RayvMobileApp.iOS
 		#region Fields
 
 		private static string DbPath;
-		private static SQLiteConnection Db;
 		public List<Vote> Votes;
 
 		public List<Place> Places { get; set; }
@@ -88,10 +87,12 @@ namespace RayvMobileApp.iOS
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = name;
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-							foreach (KeyValuePair<string, Vote> v in vote_list) {
-								v.Value.voter = fr_id;
+							if (vote_list != null) {
+								foreach (KeyValuePair<string, Vote> v in vote_list) {
+									v.Value.voter = fr_id;
+								}
+								Votes.AddRange (vote_list.Values);
 							}
-							Votes.AddRange (vote_list.Values);
 						}
 						//sort
 						updatePlaces ();
@@ -139,10 +140,12 @@ namespace RayvMobileApp.iOS
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = name;
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-							foreach (KeyValuePair<string, Vote> v in vote_list) {
-								v.Value.voter = fr_id;
-								NewVotes.Add (v.Value);
-							}
+							if (vote_list != null)
+								foreach (KeyValuePair<string, Vote> v in vote_list) {
+									Console.WriteLine (v.Value.place_name);
+									v.Value.voter = fr_id;
+									NewVotes.Add (v.Value);
+								}
 						}
 						foreach (Vote v in NewVotes) {
 							Added = false;
@@ -205,6 +208,11 @@ namespace RayvMobileApp.iOS
 					paramList.Add ("since", ((DateTime)since).ToString ("s"));
 				}
 				resp = webReq.get ("/getFullUserRecord", paramList);
+				if (resp.ResponseStatus == ResponseStatus.Error) {
+					//unable to contact server
+					Console.WriteLine ("GetUserData - NO RESPONSE");
+					return;
+				}
 				if (since != null) {
 					// incremental
 					StoreUpdatedUserRecord (resp);
@@ -217,18 +225,20 @@ namespace RayvMobileApp.iOS
 
 		public void Wipe ()
 		{
-			Db.BeginTransaction ();
-			try {
-				Places.Clear ();
-				Db.DeleteAll<Place> ();
-				Votes.Clear ();
-				Db.DeleteAll<Vote> ();
-				Friends.Clear ();
-				Db.DeleteAll<Friend> ();
-				Db.Commit ();
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				Db.Rollback ();
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BeginTransaction ();
+				try {
+					Places.Clear ();
+					Db.DeleteAll<Place> ();
+					Votes.Clear ();
+					Db.DeleteAll<Vote> ();
+					Friends.Clear ();
+					Db.DeleteAll<Friend> ();
+					Db.Commit ();
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Db.Rollback ();
+				}
 			}
 		}
 
@@ -250,12 +260,13 @@ namespace RayvMobileApp.iOS
 
 		static void createDb ()
 		{
-			Db = new SQLiteConnection (DbPath);
-			Db.CreateTable<Vote> ();
-			Db.CreateTable<Place> ();
-			Db.CreateTable<Friend> ();
-			Db.CreateTable<SearchHistory> ();
-			Db.CreateTable<Configuration> ();
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.CreateTable<Vote> ();
+				Db.CreateTable<Place> ();
+				Db.CreateTable<Friend> ();
+				Db.CreateTable<SearchHistory> ();
+				Db.CreateTable<Configuration> ();
+			}
 		}
 
 		/**
@@ -263,30 +274,35 @@ namespace RayvMobileApp.iOS
 		 */
 		public void updatePlaces ()
 		{
-			foreach (Place p in Places) {
-				p.CalculateDistanceFromPlace ();
-				Db.InsertOrReplace (p);
-			}
-			Places.Sort ();
-			foreach (Vote v in Votes) {
-				try {
-					var found_v = (from fv in Db.Table<Vote> ()
-					               where fv.key == v.key
-					               select fv);
-					if (found_v.Count () == 0)
-						Db.Insert (v);
-					//Db.InsertOrReplace (v);
-				} catch (Exception E) {
-					Insights.Report (E);
-					restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
+			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
+
+				foreach (Place p in Places) {
+					p.CalculateDistanceFromPlace ();
+					db.InsertOrReplace (p);
 				}
-			}
-			foreach (KeyValuePair<string, string> f in Friends) {
-				try {
-					Db.InsertOrReplace (new Friend { id = f.Key, name = f.Value });
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex.Message);
+			
+				Places.Sort ();
+				foreach (Vote v in Votes) {
+					try {
+						var found_v = (from fv in db.Table<Vote> ()
+						               where fv.key == v.key
+						               select fv);
+						if (found_v.Count () == 0)
+							db.Insert (v);
+						//Db.InsertOrReplace (v);
+					} catch (Exception E) {
+						Insights.Report (E);
+						restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
+					}
+				}
+			
+				foreach (KeyValuePair<string, string> f in Friends) {
+					try {
+						db.InsertOrReplace (new Friend { id = f.Key, name = f.Value });
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex.Message);
+					}
 				}
 			}
 		}
@@ -306,19 +322,21 @@ namespace RayvMobileApp.iOS
 
 		void StorePlace (Place place, Place removePlace = null)
 		{
-			try {
-				Db.BeginTransaction ();
-				var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
-				cmd.ExecuteNonQuery ();
-				Db.Insert (place);
-				Db.Commit ();
-				if (removePlace != null) {
-					Places.Remove (removePlace);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					Db.BeginTransaction ();
+					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
+					cmd.ExecuteNonQuery ();
+					Db.Insert (place);
+					Db.Commit ();
+					if (removePlace != null) {
+						Places.Remove (removePlace);
+					}
+					Places.Add (place);
+				} catch (Exception ex) {
+					Db.Rollback ();
+					Insights.Report (ex);
 				}
-				Places.Add (place);
-			} catch (Exception ex) {
-				Db.Rollback ();
-				Insights.Report (ex);
 			}
 		}
 
@@ -331,11 +349,8 @@ namespace RayvMobileApp.iOS
 				if (Places [i].key == place.key) {
 					try {
 						StorePlace (place, Places [i]);
-						Db.InsertOrReplace (place);
-						//updatePlaces ();
 						return;
 					} catch (Exception e) { 
-						Db.Rollback ();
 						Insights.Report (e);
 						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);
 					}
@@ -352,14 +367,16 @@ namespace RayvMobileApp.iOS
 				                     select p).FirstOrDefault ();
 				if (StoredPlace != null) {
 					Places.Remove (StoredPlace);
-					try {
-						Db.BeginTransaction ();
-						var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
-						cmd.ExecuteNonQuery ();
-						Db.Commit ();
-					} catch (Exception ex) {
-						Db.Rollback ();
-						Insights.Report (ex);
+					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+						try {
+							Db.BeginTransaction ();
+							var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
+							cmd.ExecuteNonQuery ();
+							Db.Commit ();
+						} catch (Exception ex) {
+							Db.Rollback ();
+							Insights.Report (ex);
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -370,33 +387,39 @@ namespace RayvMobileApp.iOS
 
 		public void updateVotes ()
 		{
-			foreach (Vote v in Votes) {
-				Db.InsertOrReplace (v);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				foreach (Vote v in Votes) {
+					Db.InsertOrReplace (v);
+				}
 			}
 		}
 
 		private void SaveSearchHistoryToDB ()
 		{
-			try {
-				Db.BeginTransaction ();
-				var cmd = Db.CreateCommand ("delete from SearchHistory");
-				cmd.ExecuteNonQuery ();
-				Db.InsertAll (SearchHistoryList);
-				Db.Commit ();
-			} catch (Exception ex) { 
-				Db.Rollback ();
-				Insights.Report (ex);
-				restConnection.LogErrorToServer ("** SaveSearchHistoryToDB ROLLBACK {0}", ex);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					Db.BeginTransaction ();
+					var cmd = Db.CreateCommand ("delete from SearchHistory");
+					cmd.ExecuteNonQuery ();
+					Db.InsertAll (SearchHistoryList);
+					Db.Commit ();
+				} catch (Exception ex) { 
+					Db.Rollback ();
+					Insights.Report (ex);
+					restConnection.LogErrorToServer ("** SaveSearchHistoryToDB ROLLBACK {0}", ex);
+				}
 			}
 		}
 
 		public void LoadSearchHistoryFromDb ()
 		{
 			SearchHistoryList.Clear ();
-			var searches_q = Db.Table<SearchHistory> ();
-			foreach (var search in searches_q) {
-				if (search.PlaceName != null) {
-					SearchHistoryList.Add (search);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				var searches_q = Db.Table<SearchHistory> ();
+				foreach (var search in searches_q) {
+					if (search.PlaceName != null) {
+						SearchHistoryList.Add (search);
+					}
 				}
 			}
 		}
@@ -437,24 +460,28 @@ namespace RayvMobileApp.iOS
 
 		public Place GetPlaceFromDb (string key)
 		{
-			return (from p in Db.Table<Place> ()
-			        where p.key == key
-			        select p).FirstOrDefault ();
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				return (from p in Db.Table<Place> ()
+				        where p.key == key
+				        select p).FirstOrDefault ();
+			}
 		}
 
 		public string GetConfig (string key)
 		{
-			try {
-				var ConfList = (from s in Db.Table<Configuration> ()
-				                where s.Key == key
-				                select s);
-				if (ConfList.Count () > 0)
-					return ConfList.First ().Value;
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					var ConfList = (from s in Db.Table<Configuration> ()
+					                where s.Key == key
+					                select s);
+					if (ConfList.Count () > 0)
+						return ConfList.First ().Value;
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
+				}
+				return "";
 			}
-			return "";
 		}
 
 		public Double GetConfigDouble (string key)
@@ -468,16 +495,20 @@ namespace RayvMobileApp.iOS
 
 		public void SetConfig (string key, string value)
 		{
-			try {
-				Db.InsertOrReplace (new Configuration (key, value));
-			} catch (Exception ex) {
-				Insights.Report (ex);
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					Db.InsertOrReplace (new Configuration (key, value));
+				} catch (Exception ex) {
+					Insights.Report (ex);
+				}
 			}
 		}
 
 		public void SetConfig (string key, int value)
 		{
-			Db.InsertOrReplace (new Configuration (key, value.ToString ()));
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.InsertOrReplace (new Configuration (key, value.ToString ()));
+			}
 		}
 
 		public void SetConfigDouble (string key, Double value)
@@ -487,87 +518,91 @@ namespace RayvMobileApp.iOS
 
 		private void UpdateSchema ()
 		{
-			try {
-				int db_version;
-				if (!int.TryParse (GetConfig (DB_VERSION), out db_version)) {
-					db_version = 0;
-				}
-				if (db_version == 0) {
-					Db.BeginTransaction ();
-					try {
-						Db.DropTable<SearchHistory> ();
-						Db.CreateTable<SearchHistory> ();
-						db_version = 1;
-						SetConfig (DB_VERSION, db_version);
-						Console.WriteLine ("Schema updated to 1");
-						Db.Commit ();
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
-						Db.Rollback ();
-						return;
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					int db_version;
+					if (!int.TryParse (GetConfig (DB_VERSION), out db_version)) {
+						db_version = 0;
 					}
-				}
-				if (db_version == 1) {
-					//Migration 2 - add When field to votes
-					Db.BeginTransaction ();
-					try {
-						Db.DropTable<Vote> ();
-						Db.CreateTable<Vote> ();
-						db_version = 2;
-						SetConfig (DB_VERSION, db_version);
-						Console.WriteLine ("Schema updated to 2");
-						Db.Commit ();
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
-						Db.Rollback ();
-						return;
+					if (db_version == 0) {
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<SearchHistory> ();
+							Db.CreateTable<SearchHistory> ();
+							db_version = 1;
+							SetConfig (DB_VERSION, db_version);
+							Console.WriteLine ("Schema updated to 1");
+							Db.Commit ();
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
 					}
+					if (db_version == 1) {
+						//Migration 2 - add When field to votes
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<Vote> ();
+							Db.CreateTable<Vote> ();
+							db_version = 2;
+							SetConfig (DB_VERSION, db_version);
+							Console.WriteLine ("Schema updated to 2");
+							Db.Commit ();
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
+					Console.WriteLine ("Schema Up To Date");
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
 				}
-				Console.WriteLine ("Schema Up To Date");
-			} catch (Exception ex) {
-				restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
 			}
 		}
 
 		public void LoadFromDb (String onlyWithCuisineType = null)
 		{
-			try {
-				//load the data from the db
-				Console.WriteLine ("Persist.LoadFromDb loading");
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					//load the data from the db
+					Console.WriteLine ("Persist.LoadFromDb loading");
 
-				UpdateSchema ();
-				// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
-				Places.Clear ();
-				var place_q = Db.Table<Place> ();
-				if (onlyWithCuisineType == null) {
-					// all cuisine types
-					Places.AddRange (place_q);
-					foreach (var p in Places)
-						p.CalculateDistanceFromPlace ();
-				} else
+					UpdateSchema ();
+					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
+					Places.Clear ();
+					var place_q = Db.Table<Place> ();
+					if (onlyWithCuisineType == null) {
+						// all cuisine types
+						Places.AddRange (place_q);
+						foreach (var p in Places)
+							p.CalculateDistanceFromPlace ();
+					} else
 				//TODO: LINQ
 				foreach (Place p in place_q) {
-						if (p.category == onlyWithCuisineType) {
-							Places.Add (p);
-							p.CalculateDistanceFromPlace ();
+							if (p.category == onlyWithCuisineType) {
+								Places.Add (p);
+								p.CalculateDistanceFromPlace ();
+							}
 						}
-					}
-				Places.Sort ();
-				Votes.Clear ();
-				var votes_q = Db.Table<Vote> ();
-				foreach (var vote in votes_q)
-					Votes.Add (vote);
-				LoadSearchHistoryFromDb ();
+					Places.Sort ();
+					Votes.Clear ();
+					var votes_q = Db.Table<Vote> ();
+					foreach (var vote in votes_q)
+						Votes.Add (vote);
+					LoadSearchHistoryFromDb ();
 			
-				Console.WriteLine ("Persist.LoadFromDb loaded");
-				var friends_q = Db.Table<Friend> ();
-				foreach (var friend in friends_q)
-					Friends [friend.id] = friend.name;
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
+					Console.WriteLine ("Persist.LoadFromDb loaded");
+					var friends_q = Db.Table<Friend> ();
+					foreach (var friend in friends_q)
+						Friends [friend.id] = friend.name;
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
+				}
 			}
 		}
 
@@ -585,11 +620,13 @@ namespace RayvMobileApp.iOS
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
 				"database.db3");
 			if (!File.Exists (DbPath)) {
+				Console.WriteLine ("Persist: New Db");
+				Insights.Track ("New Db");
 				createDb ();
-			} else {
-				Db = new SQLiteConnection (DbPath);
+			} 
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				SearchHistoryList = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
 			}
-			SearchHistoryList = Db.Query<SearchHistory> ("select DISTINCT * from SearchHistory order by ID limit 3");
 			Double Lat = GetConfigDouble ("LastLat");
 			Double Lng = GetConfigDouble ("LastLng");
 			GpsPosition = new Position (Lat, Lng);

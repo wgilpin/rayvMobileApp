@@ -11,7 +11,8 @@ namespace RayvMobileApp.iOS
 		{
 			Persist.Instance.LoadFromDb ();
 			Console.WriteLine ("loadDataFromServer");
-			ListPage.Setup (caller);
+			Persist.Instance.GetUserData (this);
+//			ListPage.Setup (caller);
 		}
 
 		public void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)

@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using System.Diagnostics;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RayvMobileApp.iOS
 {
@@ -9,10 +10,10 @@ namespace RayvMobileApp.iOS
 	{
 		const int NEWS_IMAGE_SIZE = 60;
 		const int NEWS_ICON_SIZE = 20;
-		const int ROW_HEIGHT = 85;
+		const int ROW_HEIGHT = 79;
 
 		ListView list;
-		DateTime LastUpdate;
+		DateTime? LastUpdate;
 
 		public NewsPage ()
 		{
@@ -23,7 +24,7 @@ namespace RayvMobileApp.iOS
 					Grid grid = new Grid {
 						VerticalOptions = LayoutOptions.FillAndExpand,
 						RowDefinitions = {
-							new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (21, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
 						},
@@ -106,7 +107,6 @@ namespace RayvMobileApp.iOS
 				Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
 				this.Navigation.PushAsync (new DetailPage (p));
 			};
-			LastUpdate = DateTime.Now;
 			this.Appearing += CheckForUpdates;
 		}
 
@@ -114,9 +114,11 @@ namespace RayvMobileApp.iOS
 		{
 			if (list != null) {
 				Console.WriteLine ("NewsPage.CheckForUpdates");
-				Persist.Instance.GetUserData (this, DateTime.Now);
+				Persist.Instance.GetUserData (this, LastUpdate);
 				SetSource ();
+				LastUpdate = DateTime.Now;
 			}
+
 		}
 
 		void SetSource ()
@@ -125,7 +127,12 @@ namespace RayvMobileApp.iOS
 			lock (Persist.Instance.Lock) {
 				list.ItemsSource = null;
 				Persist.Instance.Votes.Sort (); 
-				list.ItemsSource = Persist.Instance.Votes.Take (20);
+				string MyStringId = Persist.Instance.MyId.ToString ();
+				List<Vote> News = (from v in Persist.Instance.Votes
+				                   where v.voter != MyStringId
+				                       && v.vote == 1
+				                   select v).ToList ();
+				list.ItemsSource = News.Take (20);
 			}
 		}
 	}

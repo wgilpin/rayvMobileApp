@@ -48,8 +48,10 @@ namespace RayvMobileApp.iOS
 
 		Grid GetFriendsComments ()
 		{
+			string MyStringId = Persist.Instance.MyId.ToString ();
 			List<Vote> voteList = (from v in Persist.Instance.Votes
 			                       where v.key == DisplayPlace.key
+			                           && v.voter != MyStringId
 			                       select v).OrderBy (x => x.comment).ToList ();
 			Grid grid = new Grid {
 				ColumnDefinitions = {
@@ -59,21 +61,30 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-			string MyStringId = Persist.Instance.MyId.ToString ();
 			int whichRow = 0;
 			for (int row = 0; row < voteList.Count (); row++) {
 				if (voteList [row].voter != MyStringId) {
 					try {
 						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
+						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter];
-						grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow, whichRow + 1);
-						grid.Children.Add (new Label { Text = voteList [row].comment }, 2, 4, whichRow, whichRow + 1);
+						grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
+						grid.Children.Add (new Label { 
+							Text = voteList [row].PrettyHowLongAgo,
+							Font = Font.SystemFontOfSize (NamedSize.Small),
+							FontAttributes = FontAttributes.Italic,
+							TextColor = Color.FromHex ("#606060"),
+						}, 2, 4, whichRow * 2, whichRow * 2 + 1);
+						grid.Children.Add (new Label { 
+							Text = voteList [row].PrettyComment,
+							FontAttributes = FontAttributes.Italic,
+						}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
 						Image img = new Image {
 							WidthRequest = 20,
 							Aspect = Aspect.AspectFit,
 							Source = voteList [row].GetIconName,
 						};
-						grid.Children.Add (img, 1, 2, whichRow, whichRow + 1);
+						grid.Children.Add (img, 1, 2, whichRow * 2, whichRow * 2 + 1);
 						whichRow++;
 					} catch (Exception ex) {
 						Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
@@ -240,13 +251,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
 
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -298,9 +303,9 @@ namespace RayvMobileApp.iOS
 				Text = WISH_TEXT,
 			};
 			VoteWishlist.Clicked += SetVote;
-			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 7);
-			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 7);
-			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 7);
+			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 6);
 			LoadPage (DisplayPlace.key);
 
 			this.Content = new ScrollView {
