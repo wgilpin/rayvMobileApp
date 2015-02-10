@@ -212,6 +212,8 @@ namespace RayvMobileApp.iOS
 
 		public void GotoWebPage (object sender, EventArgs e)
 		{
+			if (DisplayPlace.website == null)
+				return;
 			Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
 			Navigation.PushAsync (new WebPage (
 				DisplayPlace.place_name,
@@ -220,6 +222,8 @@ namespace RayvMobileApp.iOS
 
 		void DoMakeCall (object sender, EventArgs e)
 		{
+			if (DisplayPlace.telephone == null)
+				return;
 			String EscapedNo = "";
 			EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
 			var urlToSend = new NSUrl ("tel:" + EscapedNo); // phonenum is in the format 1231231234
@@ -240,6 +244,7 @@ namespace RayvMobileApp.iOS
 			const int IMAGE_HEIGHT = 0;
 
 			var MainGrid = new Grid {
+				Padding = 2,
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },

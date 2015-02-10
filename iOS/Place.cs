@@ -208,7 +208,10 @@ namespace RayvMobileApp.iOS
 				return _descr;
 			if (_commentSet != null)
 				return _commentSet;
-			Vote myVote = Persist.Instance.Votes.FirstOrDefault (v => v.key == _key);
+			var myVote = (from v in Persist.Instance.Votes
+			              where v.key == _key &&
+			                  v.voter == Persist.Instance.MyId.ToString ()
+			              select v).FirstOrDefault ();
 			if (myVote != null)
 				return myVote.comment;
 			return null;

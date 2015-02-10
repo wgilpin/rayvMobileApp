@@ -39,6 +39,7 @@ namespace RayvMobileApp.iOS
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
 						TextColor = Color.Blue,
+						TranslationX = 2,
 					};
 					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
 

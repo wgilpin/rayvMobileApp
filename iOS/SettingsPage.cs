@@ -26,6 +26,7 @@ namespace RayvMobileApp.iOS
 
 			StackLayout tools = new toolbar (this);
 			Content = new StackLayout {
+				Padding = 5,
 				Children = {
 					LogoutBtn,
 					new Label {
