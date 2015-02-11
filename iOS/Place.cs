@@ -161,6 +161,13 @@ namespace RayvMobileApp.iOS
 			set { SetField (ref _pretty_dist, value, "key"); } 
 		}
 
+		[Ignore]
+		public string CategoryLowerCase {
+			get {
+				return _category.ToLower ();
+			}
+		}
+
 		public string distance {
 			get { 
 				if (this.pretty_dist == null) {

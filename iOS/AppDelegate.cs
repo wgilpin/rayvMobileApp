@@ -13,19 +13,25 @@ namespace RayvMobileApp.iOS
 	{
 		public static LocationManager locationMgr;
 
+		private void IdentifyToAnalytics ()
+		{
+			try {
+				String user = Persist.Instance.GetConfig ("username");
+				Insights.Identify (user, "email", user);
+				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+		}
+
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init ();
 			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
-			try {
-				String user = Persist.Instance.GetConfig ("username");
-				Insights.Identify (user, "email", "user");
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
+
 
 			LoadApplication (new App ());
-
+			IdentifyToAnalytics ();
 
 			return base.FinishedLaunching (app, options);
 		}
@@ -41,6 +47,7 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("App will enter foreground");
 			locationMgr.StartLocationUpdates ();
+			IdentifyToAnalytics ();
 			Insights.Track ("AppDelegate.WillEnterForeground");
 		}
 	}

@@ -78,11 +78,7 @@ namespace RayvMobileApp.iOS
 				
 
 			var FiltersCloseBtn = new RayvButton ("Clear Filter");
-			FiltersCloseBtn.Clicked += (sender, e) => { 
-				FilterCuisinePicker.SelectedIndex = -1;
-				FilterSearchText.Text = "";
-				filters.IsVisible = currentPlaces.Count () == 0;
-			};
+			FiltersCloseBtn.Clicked += ClearFilter;
 
 			var FilterNewBtn = new ButtonWide ("New Places");
 			FilterNewBtn.Clicked += (object sender, EventArgs e) => {
@@ -233,6 +229,14 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 		}
 
+		void ClearFilter (object s, EventArgs e)
+		{ 
+			FilterCuisinePicker.SelectedIndex = -1;
+			FilterSearchText.Text = "";
+			filters.IsVisible = currentPlaces.Count () == 0;
+			MainFilter = FilterKind.All;
+			FilterList ();
+		}
 
 		void FilterList ()
 		{
@@ -247,7 +251,7 @@ namespace RayvMobileApp.iOS
 						    from p in data.Places
 						    where p.iVoted == true && (
 						            p.place_name.ToLower ().Contains (text) ||
-						            p.category.Contains (text))
+						            p.CategoryLowerCase.Contains (text))
 						    select p).ToList ();
 						break;
 					case FilterKind.All:
@@ -255,7 +259,7 @@ namespace RayvMobileApp.iOS
 						currentPlaces = (from p in data.Places
 						                 where
 						                     p.place_name.ToLower ().Contains (text) ||
-						                     p.category.Contains (text)
+						                     p.CategoryLowerCase.Contains (text)
 						                 select p).ToList ();
 						break;
 					case FilterKind.Cuisine:
@@ -264,7 +268,7 @@ namespace RayvMobileApp.iOS
 							    from p in data.Places
 							    where p.category == FilterCuisineKind && (
 							            p.place_name.ToLower ().Contains (text) ||
-							            p.category.Contains (text))
+							            p.CategoryLowerCase.Contains (text))
 							    select p).ToList ();
 						else
 							goto case FilterKind.All;
@@ -274,7 +278,7 @@ namespace RayvMobileApp.iOS
 						    from p in data.Places
 						    where p.untried == true && (
 						            p.place_name.ToLower ().Contains (text) ||
-						            p.category.Contains (text))
+						            p.CategoryLowerCase.Contains (text))
 						    select p).ToList ();
 						break;
 					}

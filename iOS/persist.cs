@@ -15,9 +15,10 @@ using System.Net;
 
 namespace RayvMobileApp.iOS
 {
-
 	public class Persist
 	{
+		public TimeSpan DbTimeout = new TimeSpan (0, 0, 5);
+
 		#region Fields
 
 		private static string DbPath;
@@ -272,7 +273,7 @@ namespace RayvMobileApp.iOS
 		public void updatePlaces ()
 		{
 			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
-				db.BusyTimeout = 5000;
+				db.BusyTimeout = DbTimeout;
 				foreach (Place p in Places) {
 					p.CalculateDistanceFromPlace ();
 					db.InsertOrReplace (p);
@@ -322,7 +323,7 @@ namespace RayvMobileApp.iOS
 
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
-					Db.BusyTimeout = 5000;
+					Db.BusyTimeout = DbTimeout;
 					Db.BeginTransaction ();
 					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
 					cmd.ExecuteNonQuery ();
@@ -387,7 +388,7 @@ namespace RayvMobileApp.iOS
 		public void updateVotes ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = 5000;
+				Db.BusyTimeout = DbTimeout;
 				foreach (Vote v in Votes) {
 					Db.InsertOrReplace (v);
 				}
@@ -398,7 +399,7 @@ namespace RayvMobileApp.iOS
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
-					Db.BusyTimeout = 5000;
+					Db.BusyTimeout = DbTimeout;
 					Db.BeginTransaction ();
 					var cmd = Db.CreateCommand ("delete from SearchHistory");
 					cmd.ExecuteNonQuery ();
@@ -497,7 +498,7 @@ namespace RayvMobileApp.iOS
 		public void SetConfig (string key, string value)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = 3000;
+				Db.BusyTimeout = DbTimeout;
 				try {
 					Db.InsertOrReplace (new Configuration (key, value));
 				} catch (Exception ex) {
@@ -509,7 +510,7 @@ namespace RayvMobileApp.iOS
 		public void SetConfig (string key, int value)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = 3000;
+				Db.BusyTimeout = DbTimeout;
 				Db.InsertOrReplace (new Configuration (key, value.ToString ()));
 			}
 		}
