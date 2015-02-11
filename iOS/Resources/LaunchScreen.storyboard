@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="45" translatesAutoresizingMaskIntoConstraints="NO" allowsEditingTextAttributes="NO" text="Rayv" textAlignment="center" scrollEnabled="NO" misplaced="YES">
-                                <rect key="frame" x="-98" y="254" width="517" height="112"/>
+                                <rect key="frame" x="47" y="254" width="226" height="112"/>
                                 <color key="backgroundColor" colorSpace="calibratedRGB" red="1" green="1" blue="1" alpha="0"/>
                                 <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="34"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -47,12 +47,14 @@
                         </subviews>
                         <color key="backgroundColor" colorSpace="calibratedRGB" red="0.62352941176470589" green="0.63137254901960782" blue="0.94901960784313721" alpha="1"/>
                         <constraints>
-                            <constraint id="55" constant="103" firstItem="yd7-JS-zBw" firstAttribute="trailing" secondItem="45" secondAttribute="trailing"/>
+                            <constraint id="55" constant="103" firstItem="yd7-JS-zBw" firstAttribute="centerX" secondItem="45" secondAttribute="trailing"/>
                             <constraint id="56" constant="256" firstItem="45" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
                             <constraint firstItem="yd7-JS-zBw" firstAttribute="bottom" secondItem="91" secondAttribute="bottom" constant="11" id="92"/>
-                            <constraint firstItem="45" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="26" id="93"/>
                             <constraint firstItem="91" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="217" id="96"/>
-                            <constraint firstItem="45" firstAttribute="centerX" secondItem="91" secondAttribute="leading" constant="63" id="99"/>
+                            <constraint firstItem="91" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="6" id="118"/>
+                            <constraint firstItem="45" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="0.0" id="125"/>
+                            <constraint firstItem="45" firstAttribute="leading" secondItem="yd7-JS-zBw" secondAttribute="leading" constant="47" id="128"/>
+                            <constraint firstItem="yd7-JS-zBw" firstAttribute="trailing" secondItem="45" secondAttribute="trailing" constant="47" id="129"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
@@ -99,6 +101,7 @@
         <image name="Default-Portrait.png" width="1536" height="2008"/>
         <image name="Default-568h.png" width="640" height="1136"/>
         <image name="Default.png" width="320" height="480"/>
+        <image name="rayvcircle.gif" width="309" height="341"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>
