@@ -30,7 +30,7 @@ namespace RayvMobileApp.iOS
 		#region Fields
 
 		static ListView listView;
-		static FilterKind MainFilter = FilterKind.Mine;
+		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisineKind;
 		Picker FilterCuisinePicker;
 		List<Place> currentPlaces;
