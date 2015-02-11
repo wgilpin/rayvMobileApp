@@ -289,6 +289,7 @@ namespace RayvMobileApp.iOS
 				}
 			}
 			SetList (currentPlaces);
+			FilterSearchText.Unfocus ();
 		}
 
 
