@@ -50,7 +50,7 @@ namespace RayvMobileApp.iOS
 			};
 			// ADD
 			Image addImg = new Image {
-				Source = "AddBigBtn.png"
+				Source = "big-btn-add.png"
 			};
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
@@ -61,12 +61,12 @@ namespace RayvMobileApp.iOS
 
 			// FRIENDS
 			Image friendsImg = new Image {
-				Source = "FriendsBigBtn.png"
+				Source = "big-btn-friends.png"
 			};
 
 			// NEWS
 			Image newsImg = new Image {
-				Source = "NewsBigBtn.png"
+				Source = "big-btn-news.png"
 			};
 			var clickNews = new TapGestureRecognizer ();
 			clickNews.Tapped += (s, e) => {
@@ -77,7 +77,7 @@ namespace RayvMobileApp.iOS
 
 			//  LIST
 			Image placesImg = new Image {
-				Source = "PlacesBigBtn.png",
+				Source = "big-btn-places.png",
 			};
 			var clickList = new TapGestureRecognizer ();
 			clickList.Tapped += (s, e) => {
@@ -87,15 +87,21 @@ namespace RayvMobileApp.iOS
 			placesImg.GestureRecognizers.Add (clickList);
 
 			// SHARE
-			Image shareImg = new Image {
-				Source = "ShareBigBtn.png"
+			Image profileImg = new Image {
+				Source = "big-btn-profile.png"
 			};
+			var clickProfile = new TapGestureRecognizer ();
+			clickProfile.Tapped += (s, e) => {
+				Console.WriteLine ("MainMenu: profile button - push SettingsPage");
+				this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
+			};
+			profileImg.GestureRecognizers.Add (clickProfile);
 
 			grid.Children.Add (placesImg, 0, 0);
 			grid.Children.Add (newsImg, 0, 1);
 			grid.Children.Add (addImg, 0, 2);
 			grid.Children.Add (friendsImg, 0, 3);
-			grid.Children.Add (shareImg, 0, 4);
+			grid.Children.Add (profileImg, 0, 4);
 			this.Content = grid;
 
 			AppDelegate.locationMgr = new LocationManager ();

@@ -112,6 +112,11 @@
         <image name="icon-gear-pressed.png" width="50" height="32"/>
         <image name="icon-friends-pressed.png" width="50" height="32"/>
         <image name="icon-add-pressed.png" width="50" height="32"/>
+        <image name="big-btn-add.png" width="640" height="227"/>
+        <image name="big-btn-profile.png" width="640" height="227"/>
+        <image name="big-btn-friends.png" width="640" height="227"/>
+        <image name="big-btn-news.png" width="640" height="227"/>
+        <image name="big-btn-places.png" width="640" height="227"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

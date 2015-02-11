@@ -28,7 +28,7 @@ namespace RayvMobileApp.iOS
 //					new RowDefinition { Height = new GridLength (18, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = Color.Black,
+				BackgroundColor = Color.FromHex ("#554FD9"),
 			};
 
 			Image addImg = new ImageButton {
@@ -87,8 +87,8 @@ namespace RayvMobileApp.iOS
 				;
 			}
 
-			grid.Children.Add (newsImg, 0, 1, 0, 1);
-			grid.Children.Add (ListImg, 1, 2, 0, 1);
+			grid.Children.Add (ListImg, 0, 1, 0, 1);
+			grid.Children.Add (newsImg, 1, 2, 0, 1);
 			grid.Children.Add (addImg, 2, 3, 0, 1);
 			grid.Children.Add (friendsImg, 3, 4, 0, 1);
 			grid.Children.Add (settingsImg, 4, 5, 0, 1);

@@ -149,15 +149,9 @@
     <BundleResource Include="Resources\187-pencil.png" />
     <BundleResource Include="Resources\187-pencil%402x.png" />
     <BundleResource Include="Resources\216-compose.png" />
-    <BundleResource Include="Resources\AddBigBtn.png" />
-    <BundleResource Include="Resources\FriendsBigBtn.png" />
     <BundleResource Include="Resources\left32x32.png" />
-    <BundleResource Include="Resources\NewsBigBtn.png" />
-    <BundleResource Include="Resources\PlacesBigBtn.png" />
     <BundleResource Include="Resources\RayvTopSplash.png" />
     <BundleResource Include="Resources\right32x32.png" />
-    <BundleResource Include="Resources\ShareBigBtn.png" />
-    <BundleResource Include="Resources\icon-map.png" />
     <BundleResource Include="Resources\heart-lg.png" />
     <BundleResource Include="Resources\no-entry-lg.png" />
     <BundleResource Include="Resources\star-lg.png" />
@@ -179,16 +173,21 @@
     <BundleResource Include="Resources\Default.png" />
     <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\rayvcircle.gif" />
-    <BundleResource Include="Resources\icon-news.png" />
-    <BundleResource Include="Resources\icon-grid.png" />
-    <BundleResource Include="Resources\icon-add.png" />
-    <BundleResource Include="Resources\icon-friends.png" />
-    <BundleResource Include="Resources\icon-gear.png" />
-    <BundleResource Include="Resources\icon-news-pressed.png" />
-    <BundleResource Include="Resources\icon-grid-pressed.png" />
-    <BundleResource Include="Resources\icon-gear-pressed.png" />
-    <BundleResource Include="Resources\icon-friends-pressed.png" />
+    <BundleResource Include="Resources\big-btn-add.png" />
+    <BundleResource Include="Resources\big-btn-profile.png" />
+    <BundleResource Include="Resources\big-btn-friends.png" />
+    <BundleResource Include="Resources\big-btn-news.png" />
+    <BundleResource Include="Resources\big-btn-places.png" />
     <BundleResource Include="Resources\icon-add-pressed.png" />
+    <BundleResource Include="Resources\icon-add.png" />
+    <BundleResource Include="Resources\icon-friends-pressed.png" />
+    <BundleResource Include="Resources\icon-friends.png" />
+    <BundleResource Include="Resources\icon-gear-pressed.png" />
+    <BundleResource Include="Resources\icon-gear.png" />
+    <BundleResource Include="Resources\icon-grid-pressed.png" />
+    <BundleResource Include="Resources\icon-grid.png" />
+    <BundleResource Include="Resources\icon-news-pressed.png" />
+    <BundleResource Include="Resources\icon-news.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
