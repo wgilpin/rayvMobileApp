@@ -20,6 +20,7 @@ namespace RayvMobileApp.iOS
 		Button MoreBtn;
 		int ShowRows;
 		StackLayout Toolbar;
+		ActivityIndicator Spinner;
 
 		public NewsPage ()
 		{
@@ -100,12 +101,14 @@ namespace RayvMobileApp.iOS
 					};
 				})
 			};
+			Spinner = new ActivityIndicator ();
 			Toolbar = new toolbar (this, "news");
 			ShowRows = PAGE_SIZE;
 			MoreBtn = new RayvButton ("Show More...");
 			MoreBtn.Clicked += DoShowMore;
 			this.Content = new StackLayout {
 				Children = {
+					Spinner,
 					new ScrollView {
 						Content = new StackLayout {
 							Children = {
@@ -141,13 +144,23 @@ namespace RayvMobileApp.iOS
 
 		void CheckForUpdates (object sender, EventArgs e)
 		{
-			Clicked = false;
-			if (list != null) {
-				Console.WriteLine ("NewsPage.CheckForUpdates");
-				Persist.Instance.GetUserData (this, LastUpdate);
-				SetSource ();
-				LastUpdate = DateTime.UtcNow;
-			}
+			Spinner.IsVisible = true;
+			Spinner.IsRunning = true;
+			Console.WriteLine ("Spin up");
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				Clicked = false;
+				if (list != null) {
+					Console.WriteLine ("NewsPage.CheckForUpdates");
+					Persist.Instance.GetUserData (this, LastUpdate);
+					SetSource ();
+					LastUpdate = DateTime.UtcNow;
+				}
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsRunning = false;
+					Spinner.IsVisible = false;
+					Console.WriteLine ("Spin down");
+				});
+			})).Start ();
 
 		}
 
@@ -167,6 +180,8 @@ namespace RayvMobileApp.iOS
 				MoreBtn.IsVisible = News.Count > ShowRows;
 				list.ItemsSource = News.Take (ShowRows);
 			}
+
+
 		}
 	}
 }
