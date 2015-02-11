@@ -92,14 +92,14 @@ namespace RayvMobileApp.iOS
 					grid.Children.Add (VoteImg, 0, 1, 1, 2);
 					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
 					grid.Children.Add (PlaceImg, 3, 4, 0, 4);
-					grid.Children.Add (CommentLbl, 0, 4, 2, 3);
+					grid.Children.Add (CommentLbl, 0, 3, 2, 3);
 
 					return new ViewCell {
 						View = grid,
 					};
 				})
 			};
-			StackLayout tools = new toolbar (this);
+			StackLayout tools = new toolbar (this, "news");
 			ShowRows = PAGE_SIZE;
 			MoreBtn = new RayvButton ("Show More...");
 			MoreBtn.Clicked += DoShowMore;

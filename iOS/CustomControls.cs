@@ -48,6 +48,11 @@ namespace RayvMobileApp.iOS
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			VerticalOptions = LayoutOptions.CenterAndExpand;
 		}
+
+		public LabelWide (string text) : this ()
+		{
+			Text = text;
+		}
 	}
 
 	public class LabelWithData : Label
@@ -57,6 +62,27 @@ namespace RayvMobileApp.iOS
 		public LabelWithData () : base ()
 		{
 			Data = "";
+		}
+	}
+
+	public class ImageButton : Image
+	{
+		TapGestureRecognizer Gesture;
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { 
+				if (Gesture == null) {
+					Gesture = new TapGestureRecognizer ();
+					GestureRecognizers.Add (Gesture);
+				}
+				Gesture.Tapped += value; 
+			}
+		}
+
+		public ImageButton () : base ()
+		{
+
 		}
 	}
 }

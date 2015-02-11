@@ -301,6 +301,7 @@ namespace RayvMobileApp.iOS
 			var menu = new StackLayout {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
+				Padding = 4,
 				Children = {
 					SearchBox,
 					NearMeBtn,
@@ -310,9 +311,8 @@ namespace RayvMobileApp.iOS
 					PlaceHistoryFrame,
 				}
 			};
-			StackLayout tools = new toolbar (this);
+			StackLayout tools = new toolbar (this, "add");
 			Content = new StackLayout {
-				Padding = 4,
 				Children = {
 					menu,
 					tools

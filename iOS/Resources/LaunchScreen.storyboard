@@ -102,6 +102,16 @@
         <image name="Default-568h.png" width="640" height="1136"/>
         <image name="Default.png" width="320" height="480"/>
         <image name="rayvcircle.gif" width="309" height="341"/>
+        <image name="icon-add.png" width="50" height="32"/>
+        <image name="icon-friends.png" width="50" height="32"/>
+        <image name="icon-gear.png" width="50" height="32"/>
+        <image name="icon-grid.png" width="50" height="32"/>
+        <image name="icon-news.png" width="50" height="32"/>
+        <image name="icon-news-pressed.png" width="50" height="32"/>
+        <image name="icon-grid-pressed.png" width="50" height="32"/>
+        <image name="icon-gear-pressed.png" width="50" height="32"/>
+        <image name="icon-friends-pressed.png" width="50" height="32"/>
+        <image name="icon-add-pressed.png" width="50" height="32"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

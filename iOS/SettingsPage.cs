@@ -24,8 +24,7 @@ namespace RayvMobileApp.iOS
 			LogoutBtn.Clicked += DoLogout;
 
 
-			StackLayout tools = new toolbar (this);
-			Content = new StackLayout {
+			StackLayout Inner = new StackLayout {
 				Padding = 5,
 				Children = {
 					LogoutBtn,
@@ -49,7 +48,12 @@ namespace RayvMobileApp.iOS
 								Persist.Instance.Wipe ();
 						}
 					},
-					tools
+				}
+			};
+			Content = new StackLayout {
+				Children = {
+					Inner,
+					new toolbar (this, "settings"),
 				}
 			};
 		}

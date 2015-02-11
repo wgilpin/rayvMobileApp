@@ -5,52 +5,102 @@ namespace RayvMobileApp.iOS
 {
 	public class toolbar : StackLayout
 	{
-		public toolbar (Page page)
+		void GoSettingsPage (object s, EventArgs e)
 		{
-			Console.WriteLine ("toolbar()");
-			Orientation = StackOrientation.Horizontal;
+			this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
+		}
+
+		public toolbar (Page page, String pressed = null)
+		{
 			VerticalOptions = LayoutOptions.EndAndExpand;
-			Button recentBtn = new Button {
-				Text = "News",
-				HorizontalOptions = LayoutOptions.CenterAndExpand,
+			Console.WriteLine ("toolbar()");
+			Grid grid = new Grid {
+				Padding = 2,
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+				},
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (36, GridUnitType.Absolute) },
+//					new RowDefinition { Height = new GridLength (18, GridUnitType.Absolute) },
+				},
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				BackgroundColor = Color.Black,
 			};
-			recentBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: news button push NewsPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
+
+			Image addImg = new ImageButton {
+				Source = "icon-add.png",
+				OnClick = (s, e) => {
+					Console.WriteLine ("Toolbar: Add button - push AddMenu");
+					this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
+				},
 			};
-			Button listBtn = new Button {
-				Text = "List",
-				HorizontalOptions = LayoutOptions.CenterAndExpand
+
+			// FRIENDS
+			Image friendsImg = new ImageButton {
+				Source = "icon-friends.png",
 			};
-			listBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: list button push ListPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+
+
+			// NEWS
+			Image newsImg = new ImageButton {
+				Source = "icon-news.png",
+				OnClick = (s, e) => {
+					this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
+				},
 			};
-			Button addBtn = new Button {
-				Text = "Add",
-				HorizontalOptions = LayoutOptions.CenterAndExpand
+
+			//  LIST
+			Image ListImg = new ImageButton {
+				Source = "icon-grid.png",
+				OnClick = (s, e) => {
+					this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+				},
 			};
-			addBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: add button - push AddMenu");
-				this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
+
+			// SHARE
+			Image settingsImg = new ImageButton {
+				Source = "icon-gear.png",
+				OnClick = GoSettingsPage,
 			};
-			Button friendsBtn = new Button {
-				Text = "Friends",
-				HorizontalOptions = LayoutOptions.CenterAndExpand
-			};
-			Button settingsBtn = new Button {
-				Text = "Settings",
-				HorizontalOptions = LayoutOptions.CenterAndExpand
-			};
-			settingsBtn.Clicked += (object sender, EventArgs e) => {
-				Console.WriteLine ("Toolbar: settings button push Settingspage");
-				this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
-			};
-			Children.Add (recentBtn);
-			Children.Add (listBtn);
-			Children.Add (addBtn);
-			Children.Add (friendsBtn);
-			Children.Add (settingsBtn);
+			if (pressed != null) {
+				switch (pressed) {
+				case "news":
+					newsImg.Source = "icon-news-pressed.png";
+					break;
+				case "list":
+					ListImg.Source = "icon-grid-pressed.png";
+					break;
+				case "settings":
+					settingsImg.Source = "icon-gear-pressed.png";
+					break;
+				case "friends":
+					friendsImg.Source = "icon-friends-pressed.png";
+					break;
+				case "add":
+					addImg.Source = "icon-add-pressed.png";
+					break;
+				}
+				;
+			}
+
+			grid.Children.Add (newsImg, 0, 1, 0, 1);
+			grid.Children.Add (ListImg, 1, 2, 0, 1);
+			grid.Children.Add (addImg, 2, 3, 0, 1);
+			grid.Children.Add (friendsImg, 3, 4, 0, 1);
+			grid.Children.Add (settingsImg, 4, 5, 0, 1);
+
+//			Label NewsLbl = new Label { Text = "News",  TextColor = Color.White };
+//			grid.Children.Add (new Label { Text = "News",  TextColor = Color.White }, 0, 1, 0, 1);
+//			grid.Children.Add (new LabelWide ("List"){ TextColor = Color.White }, 1, 2, 1, 2);
+//			grid.Children.Add (new LabelWide ("Add"){ TextColor = Color.White }, 2, 3, 1, 2);
+//			grid.Children.Add (new LabelWide ("Friends"){ TextColor = Color.White }, 3, 4, 1, 2);
+//			grid.Children.Add (new LabelWide ("Settings"){ TextColor = Color.White }, 4, 5, 1, 2);
+
+			this.Children.Add (grid);
 		}
 	}
 }

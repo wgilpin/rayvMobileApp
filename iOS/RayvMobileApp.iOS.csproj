@@ -179,6 +179,16 @@
     <BundleResource Include="Resources\Default.png" />
     <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\rayvcircle.gif" />
+    <BundleResource Include="Resources\icon-news.png" />
+    <BundleResource Include="Resources\icon-grid.png" />
+    <BundleResource Include="Resources\icon-add.png" />
+    <BundleResource Include="Resources\icon-friends.png" />
+    <BundleResource Include="Resources\icon-gear.png" />
+    <BundleResource Include="Resources\icon-news-pressed.png" />
+    <BundleResource Include="Resources\icon-grid-pressed.png" />
+    <BundleResource Include="Resources\icon-gear-pressed.png" />
+    <BundleResource Include="Resources\icon-friends-pressed.png" />
+    <BundleResource Include="Resources\icon-add-pressed.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
