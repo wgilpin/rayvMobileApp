@@ -19,6 +19,7 @@ namespace RayvMobileApp.iOS
 		bool Clicked;
 		Button MoreBtn;
 		int ShowRows;
+		StackLayout Toolbar;
 
 		public NewsPage ()
 		{
@@ -99,7 +100,7 @@ namespace RayvMobileApp.iOS
 					};
 				})
 			};
-			StackLayout tools = new toolbar (this, "news");
+			Toolbar = new toolbar (this, "news");
 			ShowRows = PAGE_SIZE;
 			MoreBtn = new RayvButton ("Show More...");
 			MoreBtn.Clicked += DoShowMore;
@@ -113,7 +114,7 @@ namespace RayvMobileApp.iOS
 							}
 						}
 					},
-					tools
+					Toolbar
 				}
 			};
 			Clicked = false;

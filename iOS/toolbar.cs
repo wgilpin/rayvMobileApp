@@ -7,7 +7,7 @@ namespace RayvMobileApp.iOS
 	{
 		void GoSettingsPage (object s, EventArgs e)
 		{
-			this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
+			this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()), false);
 		}
 
 		public toolbar (Page page, String pressed = null)
@@ -35,7 +35,7 @@ namespace RayvMobileApp.iOS
 				Source = "icon-add.png",
 				OnClick = (s, e) => {
 					Console.WriteLine ("Toolbar: Add button - push AddMenu");
-					this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
+					this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()), false);
 				},
 			};
 
@@ -49,7 +49,7 @@ namespace RayvMobileApp.iOS
 			Image newsImg = new ImageButton {
 				Source = "icon-news.png",
 				OnClick = (s, e) => {
-					this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
+					this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()), false);
 				},
 			};
 
@@ -57,7 +57,7 @@ namespace RayvMobileApp.iOS
 			Image ListImg = new ImageButton {
 				Source = "icon-grid.png",
 				OnClick = (s, e) => {
-					this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+					this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()), false);
 				},
 			};
 

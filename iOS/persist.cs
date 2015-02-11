@@ -272,7 +272,7 @@ namespace RayvMobileApp.iOS
 		public void updatePlaces ()
 		{
 			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
-
+				db.BusyTimeout = 5000;
 				foreach (Place p in Places) {
 					p.CalculateDistanceFromPlace ();
 					db.InsertOrReplace (p);
@@ -319,8 +319,10 @@ namespace RayvMobileApp.iOS
 
 		void StorePlace (Place place, Place removePlace = null)
 		{
+
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
+					Db.BusyTimeout = 5000;
 					Db.BeginTransaction ();
 					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", place.key));
 					cmd.ExecuteNonQuery ();
@@ -385,6 +387,7 @@ namespace RayvMobileApp.iOS
 		public void updateVotes ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = 5000;
 				foreach (Vote v in Votes) {
 					Db.InsertOrReplace (v);
 				}
@@ -395,6 +398,7 @@ namespace RayvMobileApp.iOS
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
+					Db.BusyTimeout = 5000;
 					Db.BeginTransaction ();
 					var cmd = Db.CreateCommand ("delete from SearchHistory");
 					cmd.ExecuteNonQuery ();
@@ -493,6 +497,7 @@ namespace RayvMobileApp.iOS
 		public void SetConfig (string key, string value)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = 3000;
 				try {
 					Db.InsertOrReplace (new Configuration (key, value));
 				} catch (Exception ex) {
@@ -504,6 +509,7 @@ namespace RayvMobileApp.iOS
 		public void SetConfig (string key, int value)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = 3000;
 				Db.InsertOrReplace (new Configuration (key, value.ToString ()));
 			}
 		}
