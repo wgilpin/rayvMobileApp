@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -11,12 +12,17 @@ namespace RayvMobileApp.iOS
 		const int NEWS_IMAGE_SIZE = 60;
 		const int NEWS_ICON_SIZE = 20;
 		const int ROW_HEIGHT = 79;
+		const int PAGE_SIZE = 10;
 
 		ListView list;
 		DateTime? LastUpdate;
+		bool Clicked;
+		Button MoreBtn;
+		int ShowRows;
 
 		public NewsPage ()
 		{
+			Insights.Track ("News Page");
 			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
 
@@ -94,25 +100,47 @@ namespace RayvMobileApp.iOS
 				})
 			};
 			StackLayout tools = new toolbar (this);
-			SetSource ();
+			ShowRows = PAGE_SIZE;
+			MoreBtn = new RayvButton ("Show More...");
+			MoreBtn.Clicked += DoShowMore;
 			this.Content = new StackLayout {
 				Children = {
 					new ScrollView {
-						Content = list,
+						Content = new StackLayout {
+							Children = {
+								list,
+								MoreBtn,
+							}
+						}
 					},
 					tools
 				}
 			};
+			Clicked = false;
 			list.ItemTapped += (object sender, ItemTappedEventArgs e) => {
+				if (Clicked) {
+					Console.WriteLine ("Click ignored");
+					return;
+				}
+				Clicked = true;
 				Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
 				Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
 				this.Navigation.PushAsync (new DetailPage (p));
 			};
 			this.Appearing += CheckForUpdates;
+			SetSource ();
+		}
+
+		void DoShowMore (object sender, EventArgs e)
+		{
+			Console.WriteLine ("NewsPage.DoShowMore");
+			ShowRows += PAGE_SIZE;
+			SetSource ();
 		}
 
 		void CheckForUpdates (object sender, EventArgs e)
 		{
+			Clicked = false;
 			if (list != null) {
 				Console.WriteLine ("NewsPage.CheckForUpdates");
 				Persist.Instance.GetUserData (this, LastUpdate);
@@ -135,7 +163,8 @@ namespace RayvMobileApp.iOS
 				                   select v)
 					.OrderByDescending (x => x.when)
 					.ToList ();
-				list.ItemsSource = News.Take (20);
+				MoreBtn.IsVisible = News.Count > ShowRows;
+				list.ItemsSource = News.Take (ShowRows);
 			}
 		}
 	}

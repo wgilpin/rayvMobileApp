@@ -125,7 +125,6 @@ namespace RayvMobileApp.iOS
 							Added = false;
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
 								if (Places [PlacesIdx].key == kvp.Key) {
-									Console.WriteLine ("StoreUpdatedUserRecord: Update {0}", kvp.Value.place_name);
 									Places [PlacesIdx] = kvp.Value;
 									Added = true;
 									break;
@@ -142,7 +141,6 @@ namespace RayvMobileApp.iOS
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
 							if (vote_list != null)
 								foreach (KeyValuePair<string, Vote> v in vote_list) {
-									Console.WriteLine (v.Value.place_name);
 									v.Value.voter = fr_id;
 									NewVotes.Add (v.Value);
 								}
@@ -153,7 +151,6 @@ namespace RayvMobileApp.iOS
 								if (Votes [VoteIdx].key == v.key && Votes [VoteIdx].voter == v.voter) {
 									Votes [VoteIdx] = v;
 									Added = true;
-									Console.WriteLine ("StoreUpdatedUserRecord: Update Vote for {0}", v.place_name);
 									break;
 								}
 							}

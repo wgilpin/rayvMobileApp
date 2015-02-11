@@ -7,26 +7,67 @@
         <!--View Controller-->
         <scene sceneID="gAE-YM-kbH">
             <objects>
-                <viewController id="X5k-f2-b5h" sceneMemberID="viewController">
+                <viewController id="X5k-f2-b5h" sceneMemberID="viewController" customClass="SplashPage">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Y8P-hJ-Z43"/>
                         <viewControllerLayoutGuide type="bottom" id="9ZL-r4-8FZ"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="yd7-JS-zBw">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" misplaced="YES" image="Icon-60.png" translatesAutoresizingMaskIntoConstraints="NO" id="23">
-                                <rect key="frame" x="270" y="270" width="60" height="60"/>
-                                <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
-                            </imageView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="45" translatesAutoresizingMaskIntoConstraints="NO" allowsEditingTextAttributes="NO" text="Rayv" textAlignment="center" scrollEnabled="NO" misplaced="YES">
+                                <rect key="frame" x="-98" y="254" width="517" height="112"/>
+                                <color key="backgroundColor" colorSpace="calibratedRGB" red="1" green="1" blue="1" alpha="0"/>
+                                <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="34"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <rect key="frame" x="135" y="256" width="82" height="42"/>
+                                    <mask key="constraints">
+                                        <include reference="57"/>
+                                        <include reference="58"/>
+                                    </mask>
+                                </variation>
+                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                            </textView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="91" translatesAutoresizingMaskIntoConstraints="NO" allowsEditingTextAttributes="NO" text="Loading..." textAlignment="center" scrollEnabled="NO" misplaced="YES">
+                                <rect key="frame" x="97" y="446" width="139" height="112"/>
+                                <color key="backgroundColor" colorSpace="calibratedRGB" red="1" green="1" blue="1" alpha="0"/>
+                                <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <rect key="frame" x="135" y="256" width="82" height="42"/>
+                                    <mask key="constraints">
+                                        <include reference="57"/>
+                                        <include reference="58"/>
+                                    </mask>
+                                </variation>
+                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                            </textView>
                         </subviews>
-                        <color key="backgroundColor" red="0.20392156862745098" green="0.59607843137254901" blue="0.85882352941176465" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" colorSpace="calibratedRGB" red="0.62352941176470589" green="0.63137254901960782" blue="0.94901960784313721" alpha="1"/>
                         <constraints>
-                            <constraint firstItem="23" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" priority="1" id="39"/>
-                            <constraint firstItem="23" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" priority="1" id="41"/>
+                            <constraint id="55" constant="103" firstItem="yd7-JS-zBw" firstAttribute="trailing" secondItem="45" secondAttribute="trailing"/>
+                            <constraint id="56" constant="256" firstItem="45" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
+                            <constraint firstItem="yd7-JS-zBw" firstAttribute="bottom" secondItem="91" secondAttribute="bottom" constant="11" id="92"/>
+                            <constraint firstItem="45" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="26" id="93"/>
+                            <constraint firstItem="91" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="217" id="96"/>
+                            <constraint firstItem="45" firstAttribute="centerX" secondItem="91" secondAttribute="leading" constant="63" id="99"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="55"/>
+                                <exclude reference="56"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular-widthClass=compact">
+                            <mask key="constraints">
+                                <include reference="55"/>
+                                <include reference="56"/>
+                            </mask>
+                        </variation>
                     </view>
+                    <connections/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XAI-xm-WK6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -35,5 +76,31 @@
     </scenes>
     <resources>
         <image name="Icon-60.png" width="180" height="180"/>
+        <image name="Icon-76.png" width="76" height="76"/>
+        <image name="Icon-Small.png" width="29" height="29"/>
+        <image name="Icon-Small-40.png" width="40" height="40"/>
+        <image name="01-refresh.png" width="47" height="51"/>
+        <image name="187-pencil.png" width="23" height="23"/>
+        <image name="216-compose.png" width="23" height="18"/>
+        <image name="AddBigBtn.png" width="640" height="227"/>
+        <image name="FriendsBigBtn.png" width="640" height="227"/>
+        <image name="left32x32.png" width="32" height="32"/>
+        <image name="NewsBigBtn.png" width="640" height="227"/>
+        <image name="PlacesBigBtn.png" width="640" height="227"/>
+        <image name="RayvTopSplash.png" width="640" height="227"/>
+        <image name="right32x32.png" width="32" height="32"/>
+        <image name="ShareBigBtn.png" width="640" height="227"/>
+        <image name="icon-map.png" width="26" height="32"/>
+        <image name="heart-lg.png" width="29" height="29"/>
+        <image name="no-entry-lg.png" width="29" height="29"/>
+        <image name="star-lg.png" width="29" height="29"/>
+        <image name="two-smileys-lg.png" width="20" height="48"/>
+        <image name="filter.png" width="26" height="38"/>
+        <image name="Default-Portrait.png" width="1536" height="2008"/>
+        <image name="Default-568h.png" width="640" height="1136"/>
+        <image name="Default.png" width="320" height="480"/>
     </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
 </document>

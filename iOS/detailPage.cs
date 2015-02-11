@@ -142,60 +142,68 @@ namespace RayvMobileApp.iOS
 			voteBtn.TextColor = Color.White;
 		}
 
+		object Lock = new object ();
 
 		void LoadPage (string key)
 		{
-			DisplayPlace = (from p in Persist.Instance.Places
-			                where p.key == key
-			                select p).FirstOrDefault ();
-			if (DisplayPlace == null) {
-				Console.WriteLine ("LoadPage FAILED");
-				return;
-			}
-			Console.WriteLine ("DetailsPage.LoadPage: dist is {0}", DisplayPlace.distance);
+			lock (Lock) {
+				try {
 
-			Place_name.Text = DisplayPlace.place_name;
-			Address.Text = DisplayPlace.address;
-			if (DisplayPlace.img.Length > 0) {
-				Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
-				Img.HorizontalOptions = LayoutOptions.FillAndExpand;
-				//Img.VerticalOptions = LayoutOptions.Start;
-				Img.Aspect = Aspect.AspectFill;
-				Img.WidthRequest = this.Width;
-				Img.HeightRequest = this.Height / 3;
-			}
-			Category.Text = DisplayPlace.category;
-			var comment = DisplayPlace.Comment ();
-			if (comment != null && comment.Length > 0)
-				descr.Text = '"' + DisplayPlace.Comment () + '"';
-			else {
-				descr.Text = null;
-			}
-			distance.Text = DisplayPlace.distance;
-			if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
-				WebBtn.Text = "Go To Website";
-			else
-				WebBtn.Text = "";
-			WebBtn.Clicked -= GotoWebPage;
-			WebBtn.Clicked += GotoWebPage;
-			CallBtn.Text = DisplayPlace.telephone;
-			VoteLike.TextColor = Color.Black;
-			VoteDislike.TextColor = Color.Black;
-			VoteWishlist.TextColor = Color.Black;
-			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
-			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
-			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
-			switch (DisplayPlace.vote) {
-			case "-1":
-				SetVoteButton (VoteDislike);
-				break;
-			case "1":
-				SetVoteButton (VoteLike);
-				break;
-			default:
-				if (DisplayPlace.vote == "0" && DisplayPlace.untried == true)
-					SetVoteButton (VoteWishlist);
-				break;
+					DisplayPlace = (from p in Persist.Instance.Places
+					                where p.key == key
+					                select p).FirstOrDefault ();
+					if (DisplayPlace == null) {
+						Console.WriteLine ("LoadPage FAILED");
+						return;
+					}
+					Console.WriteLine ("DetailsPage.LoadPage: dist is {0}", DisplayPlace.distance);
+					
+					Place_name.Text = DisplayPlace.place_name;
+					Address.Text = DisplayPlace.address;
+					if (DisplayPlace.img.Length > 0) {
+						Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
+						Img.HorizontalOptions = LayoutOptions.FillAndExpand;
+						//Img.VerticalOptions = LayoutOptions.Start;
+						Img.Aspect = Aspect.AspectFill;
+						Img.WidthRequest = this.Width;
+						Img.HeightRequest = this.Height / 3;
+					}
+					Category.Text = DisplayPlace.category;
+					var comment = DisplayPlace.Comment ();
+					if (comment != null && comment.Length > 0)
+						descr.Text = '"' + DisplayPlace.Comment () + '"';
+					else {
+						descr.Text = null;
+					}
+					distance.Text = DisplayPlace.distance;
+					if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
+						WebBtn.Text = "Go To Website";
+					else
+						WebBtn.Text = "";
+					WebBtn.Clicked -= GotoWebPage;
+					WebBtn.Clicked += GotoWebPage;
+					CallBtn.Text = DisplayPlace.telephone;
+					VoteLike.TextColor = Color.Black;
+					VoteDislike.TextColor = Color.Black;
+					VoteWishlist.TextColor = Color.Black;
+					VoteLike.BackgroundColor = Color.FromHex ("#444111111");
+					VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
+					VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+					switch (DisplayPlace.vote) {
+					case "-1":
+						SetVoteButton (VoteDislike);
+						break;
+					case "1":
+						SetVoteButton (VoteLike);
+						break;
+					default:
+						if (DisplayPlace.vote == "0" && DisplayPlace.untried == true)
+							SetVoteButton (VoteWishlist);
+						break;
+					}
+				} catch (Exception ex) {
+					Insights.Report (ex);
+				}
 			}
 		}
 
@@ -205,9 +213,7 @@ namespace RayvMobileApp.iOS
 
 		public void DoLoadPage (object sender, EventArgs e)
 		{
-			Console.WriteLine ("DetailPage: Pre-Appearing distance is {0}", DisplayPlace.distance);
 			LoadPage (DisplayPlace.key);
-			Console.WriteLine ("DetailPage: Post-Appearing distance is {0}", DisplayPlace.distance);
 		}
 
 		public void GotoWebPage (object sender, EventArgs e)
@@ -340,7 +346,6 @@ namespace RayvMobileApp.iOS
 					Navigation.PushAsync (new EditPage (DisplayPlace));
 				})
 			});
-
 		}
 	}
 }
