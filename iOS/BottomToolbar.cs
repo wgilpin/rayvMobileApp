@@ -3,7 +3,7 @@ using Xamarin.Forms;
 
 namespace RayvMobileApp.iOS
 {
-	public class toolbar : StackLayout
+	public class BottomToolbar : StackLayout
 	{
 		void ShowList (object s, EventArgs e)
 		{
@@ -19,8 +19,8 @@ namespace RayvMobileApp.iOS
 
 		void ShowProfile (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: Settings button - push SettingsPage");
-			this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()), false);
+			Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
+			this.Navigation.PushModalAsync (new NavigationPage (new ProfilePage ()), false);
 		}
 
 		void ShowAdd (object s, EventArgs e)
@@ -36,7 +36,7 @@ namespace RayvMobileApp.iOS
 		}
 
 
-		public toolbar (Page page, String pressed = null)
+		public BottomToolbar (Page page, String pressed = null)
 		{
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
@@ -83,7 +83,7 @@ namespace RayvMobileApp.iOS
 
 			// SHARE
 			Image settingsImg = new ImageButton {
-				Source = "icon-gear.png",
+				Source = "icon-profile.png",
 				OnClick = ShowProfile,
 			};
 			int selectedColumn = 0;
@@ -97,8 +97,8 @@ namespace RayvMobileApp.iOS
 					ListImg.Source = "icon-grid-pressed.png";
 					selectedColumn = 0;
 					break;
-				case "settings":
-					settingsImg.Source = "icon-gear-pressed.png";
+				case "profile":
+					settingsImg.Source = "icon-profile-pressed.png";
 					selectedColumn = 4;
 					break;
 				case "friends":

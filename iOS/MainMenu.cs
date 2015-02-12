@@ -93,8 +93,8 @@ namespace RayvMobileApp.iOS
 			};
 			var clickProfile = new TapGestureRecognizer ();
 			clickProfile.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: profile button - push SettingsPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new SettingsPage ()));
+				Console.WriteLine ("MainMenu: profile button - push ProfilePage");
+				this.Navigation.PushModalAsync (new NavigationPage (new ProfilePage ()));
 			};
 			profileImg.GestureRecognizers.Add (clickProfile);
 

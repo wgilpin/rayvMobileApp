@@ -24,6 +24,7 @@ namespace RayvMobileApp.iOS
 
 		public NewsPage ()
 		{
+			Title = "News";
 			Insights.Track ("News Page");
 			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
@@ -102,7 +103,7 @@ namespace RayvMobileApp.iOS
 				})
 			};
 			Spinner = new ActivityIndicator ();
-			Toolbar = new toolbar (this, "news");
+			Toolbar = new BottomToolbar (this, "news");
 			ShowRows = PAGE_SIZE;
 			MoreBtn = new RayvButton ("Show More...");
 			MoreBtn.Clicked += DoShowMore;

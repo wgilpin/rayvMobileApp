@@ -97,8 +97,10 @@ namespace RayvMobileApp.iOS
 
 		void TrickleUpdate ()
 		{	
-			Console.WriteLine ("Persist starting TrickleUpdate");
-			Device.StartTimer (new TimeSpan (0, 0, 3), UdpdateNextUnsynced);
+			if (settings.OFFLINE_UPDATE_ENABLED) {
+				Console.WriteLine ("Persist starting TrickleUpdate");
+				Device.StartTimer (new TimeSpan (0, 0, 3), UdpdateNextUnsynced);
+			}
 		}
 
 		void StoreFullUserRecord (IRestResponse resp)

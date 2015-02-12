@@ -63,7 +63,7 @@ namespace RayvMobileApp.iOS
 				await Navigation.PushAsync (new AddMapPage ());
 			};
 
-			StackLayout tools = new toolbar (this);
+			StackLayout tools = new BottomToolbar (this);
 			StackLayout inner = new StackLayout {
 				Children = {
 					addFromMapBtn,

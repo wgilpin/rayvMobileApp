@@ -183,11 +183,18 @@
     <BundleResource Include="Resources\icon-grid-pressed.png" />
     <BundleResource Include="Resources\icon-grid.png" />
     <BundleResource Include="Resources\icon-add.png" />
-    <BundleResource Include="Resources\icon-friends.png" />
-    <BundleResource Include="Resources\icon-friends-pressed.png" />
-    <BundleResource Include="Resources\icon-gear-pressed.png" />
-    <BundleResource Include="Resources\icon-gear.png" />
     <BundleResource Include="Resources\icon-add-pressed.png" />
+    <BundleResource Include="Resources\19-gear.png" />
+    <BundleResource Include="Resources\icon-friends-pressed.png" />
+    <BundleResource Include="Resources\icon-friends.png" />
+    <BundleResource Include="Resources\icon-profile-pressed.png" />
+    <BundleResource Include="Resources\icon-profile.png" />
+    <BundleResource Include="Resources\111-user%402x.png" />
+    <BundleResource Include="Resources\259-list%402x.png" />
+    <BundleResource Include="Resources\287-at%402x.png" />
+    <BundleResource Include="Resources\18-envelope%402x.png" />
+    <BundleResource Include="Resources\54-lock%402x.png" />
+    <BundleResource Include="Resources\298-circlex%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -222,12 +229,13 @@
     <Compile Include="SettingsPage.cs" />
     <Compile Include="SQLite.cs" />
     <Compile Include="SQLiteAsync.cs" />
-    <Compile Include="toolbar.cs" />
     <Compile Include="Vote.cs" />
     <Compile Include="Friend.cs" />
     <Compile Include="WebPage.cs" />
     <Compile Include="SearchHistory.cs" />
     <Compile Include="NewsPage.cs" />
+    <Compile Include="ProfilePage.cs" />
+    <Compile Include="BottomToolbar.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

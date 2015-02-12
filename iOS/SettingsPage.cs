@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 			Content = new StackLayout {
 				Children = {
 					Inner,
-					new toolbar (this, "settings"),
+					new BottomToolbar (this, "settings"),
 				}
 			};
 		}

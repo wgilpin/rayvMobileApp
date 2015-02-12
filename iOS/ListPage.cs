@@ -130,7 +130,7 @@ namespace RayvMobileApp.iOS
 				Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
 				this.Navigation.PushAsync (new DetailPage (e.Item as Place));
 			};
-			StackLayout tools = new toolbar (this, "list");
+			StackLayout tools = new BottomToolbar (this, "list");
 			StackLayout inner = new StackLayout {
 				Children = {
 					filters,

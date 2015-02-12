@@ -311,7 +311,7 @@ namespace RayvMobileApp.iOS
 					PlaceHistoryFrame,
 				}
 			};
-			StackLayout tools = new toolbar (this, "add");
+			StackLayout tools = new BottomToolbar (this, "add");
 			Content = new StackLayout {
 				Children = {
 					menu,
