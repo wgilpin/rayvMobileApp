@@ -39,13 +39,13 @@ namespace RayvMobileApp.iOS
 		{
 			IsNew = place.category == null || place.category.Length == 0;
 			EditPlace = place;
-			if (EditPlace.img.Length > 0) {
-				Img.Source = ImageSource.FromUri (new Uri (EditPlace.img));
-
-			}
-			Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
-			Img.VerticalOptions = LayoutOptions.Start;
-			Img.Aspect = Aspect.AspectFill;
+//			if (EditPlace.img.Length > 0) {
+//				Img.Source = ImageSource.FromUri (new Uri (EditPlace.img));
+//
+//			}
+//			Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
+//			Img.VerticalOptions = LayoutOptions.Start;
+//			Img.Aspect = Aspect.AspectFill;
 			Place_name.Text = EditPlace.place_name;
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
 			Address.Text = EditPlace.address;
@@ -97,31 +97,31 @@ namespace RayvMobileApp.iOS
 				}
 			};
 
-			Img = new Image ();
-			try {
-				Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
-				Img.VerticalOptions = LayoutOptions.Start;
-				Img.Aspect = Aspect.AspectFill;
-			} catch {
-				Img.Source = null;
-			}
-			MainGrid.Children.Add (Img, 0, 3, 0, 5);
-			ImgRotL = new Image {
-				Source = ImageSource.FromFile ("left32x32.png"),
-				HeightRequest = 32,
-			};
-			ImgRotR = new Image {
-				Source = ImageSource.FromFile ("right32x32.png"),
-				HeightRequest = 32,
-			};
-			NewImgBtn = new Button {
-				BackgroundColor = Color.FromHex ("#444111111"),
-				TextColor = Color.Black,
-				Text = "Change Image",
-			};
-			MainGrid.Children.Add (ImgRotL, 0, 5);
-			MainGrid.Children.Add (ImgRotR, 2, 5);
-			MainGrid.Children.Add (NewImgBtn, 1, 5);
+//			Img = new Image ();
+//			try {
+//				Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
+//				Img.VerticalOptions = LayoutOptions.Start;
+//				Img.Aspect = Aspect.AspectFill;
+//			} catch {
+//				Img.Source = null;
+//			}
+//			MainGrid.Children.Add (Img, 0, 3, 0, 5);
+//			ImgRotL = new Image {
+//				Source = ImageSource.FromFile ("left32x32.png"),
+//				HeightRequest = 32,
+//			};
+//			ImgRotR = new Image {
+//				Source = ImageSource.FromFile ("right32x32.png"),
+//				HeightRequest = 32,
+//			};
+//			NewImgBtn = new Button {
+//				BackgroundColor = Color.FromHex ("#444111111"),
+//				TextColor = Color.Black,
+//				Text = "Change Image",
+//			};
+//			MainGrid.Children.Add (ImgRotL, 0, 5);
+//			MainGrid.Children.Add (ImgRotR, 2, 5);
+//			MainGrid.Children.Add (NewImgBtn, 1, 5);
 
 
 			Place_name = new Entry {
@@ -207,8 +207,8 @@ namespace RayvMobileApp.iOS
 			};
 
 			this.Appearing += (sender, e) => {
-				Img.HeightRequest = this.Width / 3;
-				Img.Aspect = Aspect.AspectFill;
+//				Img.HeightRequest = this.Width / 3;
+//				Img.Aspect = Aspect.AspectFill;
 			};
 		}
 
