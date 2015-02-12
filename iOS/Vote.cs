@@ -6,6 +6,7 @@ namespace RayvMobileApp.iOS
 {
 	public class Vote: IComparable<Vote>
 	{
+
 		#region sqlLite columns
 
 		[PrimaryKey]
@@ -26,6 +27,12 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region properties
+
+		[Ignore]
+		public string IsSynced {
+			get;
+			set;
+		}
 
 		[Ignore]
 		public string VoterName {

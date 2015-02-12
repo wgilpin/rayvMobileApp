@@ -42,7 +42,7 @@ namespace RayvMobileApp.iOS
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,
-						Text = "Clear Local Data",
+						Text = "[Debug] Clear Local Data",
 						OnClick = async (s, e) => {
 							if (await DisplayAlert ("Are You Sure?", "This will clear the local cache", "Yes", "No"))
 								Persist.Instance.Wipe ();

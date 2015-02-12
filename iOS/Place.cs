@@ -39,6 +39,27 @@ namespace RayvMobileApp.iOS
 		private string _postcode;
 		private string _pretty_dist;
 		private string _commentSet;
+		private bool _isSynced;
+
+		// boiler-plate
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged (string propertyName)
+		{
+			PropertyChangedEventHandler handler = PropertyChanged;
+			if (handler != null)
+				handler (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		protected bool SetField<T> (ref T field, T value, string propertyName)
+		{
+			if (EqualityComparer<T>.Default.Equals (field, value))
+				return false;
+			field = value;
+			OnPropertyChanged (propertyName);
+			IsSynced = false;
+			return true;
+		}
 
 		#endregion
 
@@ -168,6 +189,16 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		[Ignore]
+		public bool IsSynced {
+			get{ return _isSynced; }
+			set { 
+				_isSynced = value;
+				if (value = false)
+					Persist.Instance.UnsyncedPlaces = true;
+			}
+		}
+
 		public string distance {
 			get { 
 				if (this.pretty_dist == null) {
@@ -292,8 +323,6 @@ namespace RayvMobileApp.iOS
 		public bool Save (out String errorMessage)
 		{
 			try {
-
-			
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();
 
 				parameters ["key"] = key;
@@ -319,6 +348,7 @@ namespace RayvMobileApp.iOS
 				string result = restConnection.Instance.post ("/item", parameters);
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);
+				place.IsSynced = true;
 				lock (Persist.Instance.Lock) {
 					// no try..catch as it's inside one
 					Persist.Instance.UpdatePlace (place);
@@ -337,24 +367,7 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 
-		// boiler-plate
-		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged (string propertyName)
-		{
-			PropertyChangedEventHandler handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		protected bool SetField<T> (ref T field, T value, string propertyName)
-		{
-			if (EqualityComparer<T>.Default.Equals (field, value))
-				return false;
-			field = value;
-			OnPropertyChanged (propertyName);
-			return true;
-		}
 
 		// Default comparer for Place type.
 		public int CompareTo (Place comparePlace)

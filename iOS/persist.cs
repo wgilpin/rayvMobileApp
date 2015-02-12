@@ -12,6 +12,7 @@ using Xamarin;
 using Xamarin.Forms;
 using RestSharp;
 using System.Net;
+using System.Threading;
 
 namespace RayvMobileApp.iOS
 {
@@ -35,12 +36,22 @@ namespace RayvMobileApp.iOS
 		private static Persist _instance;
 
 		public Object Lock = new Object ();
+		private bool _unsyncedPlaces;
 
 		#endregion
 
 		const string DB_VERSION = "DB_VERSION";
 
 		#region Properties
+
+		public bool UnsyncedPlaces {
+			get { return _unsyncedPlaces; }
+			set { 
+				_unsyncedPlaces = value; 
+				if (value)
+					TrickleUpdate ();
+			}
+		}
 
 		public bool HaveAdded { get; set; }
 
@@ -69,6 +80,26 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Methods
+
+
+		bool UdpdateNextUnsynced ()
+		{
+			Console.WriteLine ("Persist UdpdateNextUnsynced Timer Event");
+			Place p = Places.Where (x => x.IsSynced == false).FirstOrDefault ();
+			if (p == null) {
+				return false;
+			} else {
+				string msg;
+				p.Save (out msg);
+				return true;
+			}
+		}
+
+		void TrickleUpdate ()
+		{	
+			Console.WriteLine ("Persist starting TrickleUpdate");
+			Device.StartTimer (new TimeSpan (0, 0, 3), UdpdateNextUnsynced);
+		}
 
 		void StoreFullUserRecord (IRestResponse resp)
 		{
@@ -277,6 +308,8 @@ namespace RayvMobileApp.iOS
 				foreach (Place p in Places) {
 					p.CalculateDistanceFromPlace ();
 					db.InsertOrReplace (p);
+					// it is synced because it has just come from the server
+					p.IsSynced = true;
 				}
 			
 				Places.Sort ();
