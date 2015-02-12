@@ -8,6 +8,8 @@ namespace RayvMobileApp.iOS
 		public static string SECRET_KEY = "=r-$b*8hglm+858&9t043hlm6-&6-3d3vfc4((7yd0dbrakhvi";
 		public static string GOOGLE_API_KEY = "AIzaSyDiTThta8R7EFuFo8cGfPHxIGYoFkc77Bw";
 		public static bool OFFLINE_UPDATE_ENABLED = false;
+		public static Double GEO_FILTER_BOX_SIZE_DEG = 0.017;
+		// = 1mile
 	}
 }
 

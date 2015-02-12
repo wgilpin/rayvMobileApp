@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -20,6 +21,13 @@ namespace RayvMobileApp.iOS
 			restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
 			Persist.Instance.Wipe ();
 			Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
+			try {
+				String user = Persist.Instance.GetConfig ("username");
+				Insights.Identify (user, "email", user);
+				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
 			this.Navigation.PushModalAsync (new MainMenu ());
 		}
 

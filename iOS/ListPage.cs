@@ -12,6 +12,7 @@ using RestSharp;
 using System.Linq;
 using System.Diagnostics;
 using Xamarin;
+using Xamarin.Forms.Maps;
 
 namespace RayvMobileApp.iOS
 {
@@ -34,9 +35,10 @@ namespace RayvMobileApp.iOS
 		static String FilterCuisineKind;
 		Picker FilterCuisinePicker;
 		List<Place> currentPlaces;
-		Entry FilterSearchText;
+		EntryWithButton FilterSearchBox;
+		EntryWithButton FilterAreaSearchBox;
 		Page Caller;
-
+		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
 
 		public static IEnumerable ItemsSource {
@@ -49,24 +51,20 @@ namespace RayvMobileApp.iOS
 
 		#region Constructors
 
+
 		public ListPage ()
 		{
 			Console.WriteLine ("ListView()");
+			Xamarin.FormsMaps.Init ();
 			this.Title = "List";
 			this.Icon = "bars-black.png";
 
 			var FilterMineBtn = new ButtonWide ("My Places");
-			FilterMineBtn.Clicked += (sender, e) => { 
-				MainFilter = FilterKind.Mine;
-				FilterList ();
-				filters.IsVisible = currentPlaces.Count () == 0;
-			};
+			FilterMineBtn.Clicked += DoFilterMine;
+
 			var FilterAllBtn = new ButtonWide ("All Places");
-			FilterAllBtn.Clicked += (sender, e) => { 
-				MainFilter = FilterKind.All;
-				FilterList ();
-				filters.IsVisible = currentPlaces.Count () == 0;
-			};
+			FilterAllBtn.Clicked += DoFilterAll;
+
 			FilterCuisinePicker = new Picker {
 				Title = "Filter by Cuisine",
 			};
@@ -86,20 +84,25 @@ namespace RayvMobileApp.iOS
 			};
 
 			var FilterWishBtn = new ButtonWide ("Wishlist");
-			FilterWishBtn.Clicked += (object sender, EventArgs e) => {
-				MainFilter = FilterKind.Wishlist;
-				FilterList ();
-				filters.IsVisible = currentPlaces.Count () == 0;
-			};
+			FilterWishBtn.Clicked += DoFilterWish;
 
-			FilterSearchText = new Entry {
+			FilterSearchBox = new EntryWithButton {
 				Placeholder = "Search for text",
+				Source = "06-magnify@2x.png",
+				OnClick = DoTextSearch,
 				Text = "",
 			};
-			FilterSearchText.TextChanged += HandleTextChanged;
+
+			FilterAreaSearchBox = new EntryWithButton {
+				Placeholder = "Search in an Area",
+				Source = "06-magnify@2x.png",
+				OnClick = DoTextSearch,
+				Text = "",
+			};
 
 			filters = new Grid {
 				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
@@ -113,13 +116,14 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-			filters.Children.Add (FilterSearchText, 0, 2, 0, 1);
+			filters.Children.Add (FilterSearchBox, 0, 2, 0, 1);
 			filters.Children.Add (FilterMineBtn, 0, 1, 1, 2);
 			filters.Children.Add (FilterAllBtn, 1, 2, 1, 2);
 			filters.Children.Add (FilterWishBtn, 0, 1, 2, 3);
 			filters.Children.Add (FilterNewBtn, 1, 2, 2, 3);
 			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
-			filters.Children.Add (FiltersCloseBtn, 0, 2, 4, 5);
+			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
+			filters.Children.Add (FiltersCloseBtn, 0, 2, 5, 6);
 
 
 
@@ -202,7 +206,7 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
-		void HandleTextChanged (object sender, TextChangedEventArgs e)
+		void DoTextSearch (object sender, EventArgs e)
 		{
 			FilterList ();
 		}
@@ -222,6 +226,52 @@ namespace RayvMobileApp.iOS
 
 		#region Methods
 
+		public async Task  NarrowGeoSearch ()
+		{
+			try {
+				Position centre = new Position ();
+				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text)).ToList ();
+				Console.WriteLine ("ListPage.NarrowGeoSearch: Got");
+				if (positions.Count > 0) {
+					centre = positions.First ();
+				} else if (DEBUG_ON_SIMULATOR) {
+					centre = new Position (53.1, -1.5);
+					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
+				}
+				var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
+				currentPlaces = currentPlaces.Where (
+					p => p.lat < centre.Latitude + delta &&
+					p.lat > centre.Latitude - delta &&
+					p.lng < centre.Longitude + delta &&
+					p.lng > centre.Longitude - delta).ToList ();
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+		}
+
+		public async void  DoFilterMine (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.Mine;
+			await FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+		public async void  DoFilterAll (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.All;
+			FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+		public async void  DoFilterWish (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.Wishlist;
+			FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+
+
 		void ResetCuisinePicker ()
 		{
 			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
@@ -232,64 +282,66 @@ namespace RayvMobileApp.iOS
 		void ClearFilter (object s, EventArgs e)
 		{ 
 			FilterCuisinePicker.SelectedIndex = -1;
-			FilterSearchText.Text = "";
+			FilterSearchBox.Text = "";
 			filters.IsVisible = currentPlaces.Count () == 0;
 			MainFilter = FilterKind.All;
 			FilterList ();
 		}
 
-		void FilterList ()
+		async Task FilterList ()
 		{
 			Persist data = Persist.Instance;
-			lock (data.Lock) {
-				try {
-					String text = FilterSearchText.Text.ToLower ();
-					switch (MainFilter) {
-					case FilterKind.Mine:
-						ResetCuisinePicker ();
+			try {
+				String text = FilterSearchBox.Text.ToLower ();
+				switch (MainFilter) {
+				case FilterKind.Mine:
+					ResetCuisinePicker ();
+					currentPlaces = (
+					    from p in data.Places
+					    where p.iVoted == true && (
+					            p.place_name.ToLower ().Contains (text) ||
+					            p.CategoryLowerCase.Contains (text))
+					    select p).ToList ();
+					break;
+				case FilterKind.All:
+					ResetCuisinePicker ();
+					currentPlaces = (from p in data.Places
+					                 where
+					                     p.place_name.ToLower ().Contains (text) ||
+					                     p.CategoryLowerCase.Contains (text)
+					                 select p).ToList ();
+					break;
+				case FilterKind.Cuisine:
+					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
 						currentPlaces = (
 						    from p in data.Places
-						    where p.iVoted == true && (
+						    where p.category == FilterCuisineKind && (
 						            p.place_name.ToLower ().Contains (text) ||
 						            p.CategoryLowerCase.Contains (text))
 						    select p).ToList ();
-						break;
-					case FilterKind.All:
-						ResetCuisinePicker ();
-						currentPlaces = (from p in data.Places
-						                 where
-						                     p.place_name.ToLower ().Contains (text) ||
-						                     p.CategoryLowerCase.Contains (text)
-						                 select p).ToList ();
-						break;
-					case FilterKind.Cuisine:
-						if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
-							currentPlaces = (
-							    from p in data.Places
-							    where p.category == FilterCuisineKind && (
-							            p.place_name.ToLower ().Contains (text) ||
-							            p.CategoryLowerCase.Contains (text))
-							    select p).ToList ();
-						else
-							goto case FilterKind.All;
-						break;
-					case FilterKind.Wishlist:
-						currentPlaces = (
-						    from p in data.Places
-						    where p.untried == true && (
-						            p.place_name.ToLower ().Contains (text) ||
-						            p.CategoryLowerCase.Contains (text))
-						    select p).ToList ();
-						break;
-					}
-					data.SortPlaces (currentPlaces);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
+					else
+						goto case FilterKind.All;
+					break;
+				case FilterKind.Wishlist:
+					currentPlaces = (
+					    from p in data.Places
+					    where p.untried == true && (
+					            p.place_name.ToLower ().Contains (text) ||
+					            p.CategoryLowerCase.Contains (text))
+					    select p).ToList ();
+					break;
 				}
+				if (FilterAreaSearchBox.Text.Length > 0)
+					await NarrowGeoSearch ();
+				lock (Persist.Instance.Lock) {
+					data.SortPlaces (currentPlaces);
+				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
 			SetList (currentPlaces);
-			FilterSearchText.Unfocus ();
+			FilterSearchBox.Unfocus ();
 		}
 
 

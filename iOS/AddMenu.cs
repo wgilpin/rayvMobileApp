@@ -163,7 +163,7 @@ namespace RayvMobileApp.iOS
 					} else {
 						searchPosition = positions.First ();
 					}
-					DoSearch (null);
+					DoSearch (SearchBox.Text);
 					SetupSearchHistory ();
 				} else {
 					await DisplayAlert ("Not Found", "Couldn't find that place", "OK");
@@ -202,7 +202,7 @@ namespace RayvMobileApp.iOS
 		{
 
 			searchPosition = Persist.Instance.GpsPosition;
-			DoSearch (null);
+			DoSearch (SearchBox.Text);
 		}
 
 		async void SearchMap (object sender, EventArgs e)
