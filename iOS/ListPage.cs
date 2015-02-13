@@ -283,6 +283,7 @@ namespace RayvMobileApp.iOS
 		{ 
 			FilterCuisinePicker.SelectedIndex = -1;
 			FilterSearchBox.Text = "";
+			FilterAreaSearchBox.Text = "";
 			filters.IsVisible = currentPlaces.Count () == 0;
 			MainFilter = FilterKind.All;
 			FilterList ();
