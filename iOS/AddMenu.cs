@@ -70,7 +70,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		void DoSearch (String searchPlace)
+		void DoSearch (String searchPlace, bool addToHistory = false)
 		{
 			if (!_dirty) {
 				Console.WriteLine ("AddMenu.DoSearch - Not Dirty");
@@ -100,7 +100,8 @@ namespace RayvMobileApp.iOS
 						point.CalculateDistanceFromPlace ();
 					}
 					points.Sort ();
-					Persist.Instance.AddSearchHistoryItem (searchPlace);
+					if (addToHistory)
+						Persist.Instance.AddSearchHistoryItem (searchPlace);
 					Device.BeginInvokeOnMainThread (() => {
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddMenu.DoSearch: Activity Over. push AddResultsPage");
@@ -163,7 +164,7 @@ namespace RayvMobileApp.iOS
 					} else {
 						searchPosition = positions.First ();
 					}
-					DoSearch (SearchBox.Text);
+					DoSearch (SearchBox.Text, true);
 					SetupSearchHistory ();
 				} else {
 					await DisplayAlert ("Not Found", "Couldn't find that place", "OK");
@@ -188,7 +189,7 @@ namespace RayvMobileApp.iOS
 				searchPosition = new Position (53.1, -1.5);
 				Console.WriteLine ("AddMenu.SearchSomewhere DEBUG_ON_SIMULATOR");
 			}
-			DoSearch ((sender as Button).Text);
+			DoSearch ((sender as Button).Text, true);
 			SetHistoryButton ();
 		}
 
@@ -202,7 +203,7 @@ namespace RayvMobileApp.iOS
 		{
 
 			searchPosition = Persist.Instance.GpsPosition;
-			DoSearch (SearchBox.Text);
+			DoSearch (SearchBox.Text, false);
 		}
 
 		async void SearchMap (object sender, EventArgs e)
