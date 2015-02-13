@@ -305,11 +305,11 @@ namespace RayvMobileApp.iOS
 				Padding = 4,
 				Children = {
 					SearchBox,
+					PlaceHistoryFrame,
 					NearMeBtn,
 					FromMapBtn,
 					PlaceHistoryCombo,
 					Spinner,
-					PlaceHistoryFrame,
 				}
 			};
 			StackLayout tools = new BottomToolbar (this, "add");

@@ -225,6 +225,10 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("GetUserData: Response NULL");
 					return;
 				}
+				if (resp.ResponseStatus != ResponseStatus.Completed) {
+					Console.WriteLine ("GetUserData: Bad Response {0}", resp.ResponseStatus);
+					return;
+				}
 				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
 					//TODO: This doesn't work
 					Device.BeginInvokeOnMainThread (() => {
