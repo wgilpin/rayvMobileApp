@@ -206,6 +206,38 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
+		public async void  DoFilterMine (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.Mine;
+			await FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+		public async void  DoFilterAll (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.All;
+			FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+		public async void  DoFilterWish (object sim, EventArgs e)
+		{
+			MainFilter = FilterKind.Wishlist;
+			FilterList ();
+			filters.IsVisible = currentPlaces.Count () == 0;
+		}
+
+		void ClearFilter (object s, EventArgs e)
+		{ 
+			FilterCuisinePicker.SelectedIndex = -1;
+			FilterSearchBox.Text = "";
+			FilterAreaSearchBox.Text = "";
+			filters.IsVisible = false;
+			MainFilter = FilterKind.All;
+			FilterList ();
+		}
+
+
 		void DoTextSearch (object sender, EventArgs e)
 		{
 			FilterList ();
@@ -249,27 +281,6 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public async void  DoFilterMine (object sim, EventArgs e)
-		{
-			MainFilter = FilterKind.Mine;
-			await FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
-		}
-
-		public async void  DoFilterAll (object sim, EventArgs e)
-		{
-			MainFilter = FilterKind.All;
-			FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
-		}
-
-		public async void  DoFilterWish (object sim, EventArgs e)
-		{
-			MainFilter = FilterKind.Wishlist;
-			FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
-		}
-
 
 
 		void ResetCuisinePicker ()
@@ -279,15 +290,7 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 		}
 
-		void ClearFilter (object s, EventArgs e)
-		{ 
-			FilterCuisinePicker.SelectedIndex = -1;
-			FilterSearchBox.Text = "";
-			FilterAreaSearchBox.Text = "";
-			filters.IsVisible = currentPlaces.Count () == 0;
-			MainFilter = FilterKind.All;
-			FilterList ();
-		}
+
 
 		async Task FilterList ()
 		{
@@ -364,10 +367,16 @@ namespace RayvMobileApp.iOS
 			else {
 				lock (Persist.Instance.Lock) {
 					try {
-						Console.WriteLine ("SetList");
+						Console.WriteLine ("SetList {0}", list.Count);
+						if (list.Count == 0) {
+							listView.IsVisible = false;
+							return;
+						}
+						listView.IsVisible = true;
 						ItemsSource = null;
 						list.Sort ();
 						ItemsSource = list;
+
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
