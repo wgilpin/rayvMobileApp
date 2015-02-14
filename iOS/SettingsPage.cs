@@ -11,7 +11,7 @@ namespace RayvMobileApp.iOS
 
 		void DoLogout (object sender, EventArgs e)
 		{
-			Persist.Instance.SetConfig ("pwd", "");
+			//Persist.Instance.SetConfig ("pwd", "");
 			Debug.WriteLine ("SettingsPage.DoLogout: Push LoginPage");
 			this.Navigation.PushModalAsync (new LoginPage ());
 		}

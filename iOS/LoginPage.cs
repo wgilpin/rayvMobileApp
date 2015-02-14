@@ -48,7 +48,7 @@ namespace RayvMobileApp.iOS
 			picker.Items.Add ("Local");
 			picker.Items.Add ("Dev");
 			picker.Items.Add ("Pre-Prod");
-			picker.Items.Add ("Prod V2");
+			picker.Items.Add ("Production");
 			picker.SelectedIndexChanged += (sender, args) => {
 				string server_url = "";
 				switch (picker.SelectedIndex) {
@@ -92,11 +92,13 @@ namespace RayvMobileApp.iOS
 			UserName = new Entry { 
 				Placeholder = "Username",
 				VerticalOptions = LayoutOptions.Start,
+				Text = Persist.Instance.GetConfig ("username"),
 			};
 			Password = new Entry {
 				VerticalOptions = LayoutOptions.Start,
 				Placeholder = "Password", 
-				IsPassword = true
+				IsPassword = true,
+				Text = Persist.Instance.GetConfig ("pwd"), 
 			};
 
 			this.Content = new StackLayout {
