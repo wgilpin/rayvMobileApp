@@ -68,7 +68,7 @@ namespace RayvMobileApp.iOS
 					restConnection.Instance.setBaseUrl (server_url);
 					break;
 				case 3:
-					server_url = "https://2-test.rayv-app.appspot.com/";
+					server_url = "https://rayv-app.appspot.com/";
 					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 					restConnection.Instance.setBaseUrl (server_url);
 					break;

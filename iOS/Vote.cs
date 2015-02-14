@@ -9,7 +9,9 @@ namespace RayvMobileApp.iOS
 
 		#region sqlLite columns
 
-		[PrimaryKey]
+		[PrimaryKey, AutoIncrement]
+		public int Id { get; set; }
+
 		public string key { get; set; }
 
 		public string voter { get; set; }
