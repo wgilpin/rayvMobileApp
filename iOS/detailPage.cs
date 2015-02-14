@@ -270,7 +270,16 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-
+			var CuisineAndDistanceGrid = new Grid {
+				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+				}
+			};
+		
 			DisplayPlace = place;
 			this.Appearing += DoLoadPage;
 
@@ -288,11 +297,16 @@ namespace RayvMobileApp.iOS
 			Place_name.FontAttributes = FontAttributes.Bold;
 			MainGrid.Children.Add (Place_name, 0, 3, IMAGE_HEIGHT, IMAGE_HEIGHT + 1);
 			Category = new LabelWide { };
-			MainGrid.Children.Add (Category, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
+			distance = new LabelWide {
+				FontAttributes = FontAttributes.Italic,
+			};
+			CuisineAndDistanceGrid.Children.Add (Category, 0, 0);
+			CuisineAndDistanceGrid.Children.Add (distance, 1, 0);
+
+			MainGrid.Children.Add (CuisineAndDistanceGrid, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
 			Address = new LabelWide ();
 			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
 
-			distance = new LabelWide ();
 			WebBtn = new ButtonWide ();
 			MainGrid.Children.Add (WebBtn, 0, 3, IMAGE_HEIGHT + 3, IMAGE_HEIGHT + 4);
 

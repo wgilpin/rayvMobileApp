@@ -32,8 +32,11 @@ namespace RayvMobileApp.iOS
 		void ShowFriends (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Friends button - NOT IMPLEMENTED");
-			if (this.Parent.Parent is Page)
-				(this.Parent.Parent as Page).DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
+			object page = this;
+			while (!(page is Page))
+				page = (page as View).Parent;
+			if (page is Page)
+				(page as Page).DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
 //			this.Navigation.PushModalAsync (new NavigationPage (new FriendsPage ()), false);
 		}
 
