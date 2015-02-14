@@ -77,7 +77,7 @@ namespace RayvMobileApp.iOS
 
 
 			};
-			picker.SelectedIndex = 2;
+			picker.SelectedIndex = 3;
 
 			RayvButton loginButton = new RayvButton {
 
