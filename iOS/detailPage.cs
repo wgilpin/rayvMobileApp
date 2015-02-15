@@ -299,6 +299,7 @@ namespace RayvMobileApp.iOS
 			Category = new LabelWide { };
 			distance = new LabelWide {
 				FontAttributes = FontAttributes.Italic,
+				HorizontalOptions = LayoutOptions.End,
 			};
 			CuisineAndDistanceGrid.Children.Add (Category, 0, 0);
 			CuisineAndDistanceGrid.Children.Add (distance, 1, 0);

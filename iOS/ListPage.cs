@@ -37,6 +37,7 @@ namespace RayvMobileApp.iOS
 		List<Place> currentPlaces;
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
+		Label NothingFound;
 		Page Caller;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
@@ -75,7 +76,9 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 				
 
-			var FiltersCloseBtn = new RayvButton ("Clear Filter");
+			var FiltersCloseBtn = new RayvButton ("Clear Filter") {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+			};
 			FiltersCloseBtn.Clicked += ClearFilter;
 
 			var FilterNewBtn = new ButtonWide ("New Places");
@@ -101,6 +104,7 @@ namespace RayvMobileApp.iOS
 			};
 
 			filters = new Grid {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
@@ -135,19 +139,45 @@ namespace RayvMobileApp.iOS
 				this.Navigation.PushAsync (new DetailPage (e.Item as Place));
 			};
 			StackLayout tools = new BottomToolbar (this, "list");
+			NothingFound = new LabelWide ("Nothing Found") {
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+			};
+			Grid grid = new Grid {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = GridLength.Auto },
+				}
+			};
+
 			StackLayout inner = new StackLayout {
 				Children = {
 					filters,
 					listView,
-					tools
+					NothingFound,
+//					new StackLayout {
+//						VerticalOptions = LayoutOptions.End,
+//						Children = {
+//							tools,
+//						},
+//					},
 				}
 			};
+
+			grid.Children.Add (inner, 0, 0);
+			grid.Children.Add (tools, 0, 1);
 			filters.IsVisible = false;
-			this.Content = new StackLayout {
-				Children = {
-					inner
-				}
-			};
+			this.Content = grid;
+//			new StackLayout {;
+//
+//				Children = {
+//					inner
+//				}
+//			};
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
@@ -370,8 +400,11 @@ namespace RayvMobileApp.iOS
 						Console.WriteLine ("SetList {0}", list.Count);
 						if (list.Count == 0) {
 							listView.IsVisible = false;
+							NothingFound.IsVisible = true;
 							return;
 						}
+						NothingFound.WidthRequest = this.Width;
+						NothingFound.IsVisible = false;
 						listView.IsVisible = true;
 						ItemsSource = null;
 						list.Sort ();

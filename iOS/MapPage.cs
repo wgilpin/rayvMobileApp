@@ -100,6 +100,8 @@ namespace RayvMobileApp.iOS
 			SetupMapList (map.VisibleRegion.Center);
 		}
 
+		#region constructors
+
 		public MapPage ()
 		{
 			Xamarin.FormsMaps.Init ();
@@ -154,6 +156,8 @@ namespace RayvMobileApp.iOS
 			map.Pins.Add (pin);
 
 		}
+
+		#endregion
 	}
 }
 
