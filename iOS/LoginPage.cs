@@ -13,22 +13,29 @@ namespace RayvMobileApp.iOS
 	{
 		Entry UserName;
 		Entry Password;
+		ActivityIndicator Spinner;
 
 		void DoLogin (object sender, EventArgs e)
 		{
-			Persist.Instance.SetConfig ("username", UserName.Text);
-			Persist.Instance.SetConfig ("pwd", Password.Text);
-			restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
-			Persist.Instance.Wipe ();
-			Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
-			try {
-				String user = Persist.Instance.GetConfig ("username");
-				Insights.Identify (user, "email", user);
-				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
-			this.Navigation.PushModalAsync (new MainMenu ());
+			Spinner.IsRunning = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				Persist.Instance.SetConfig ("username", UserName.Text);
+				Persist.Instance.SetConfig ("pwd", Password.Text);
+				restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
+				Persist.Instance.Wipe ();
+				Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
+				try {
+					String user = Persist.Instance.GetConfig ("username");
+					Insights.Identify (user, "email", user);
+					Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
+				} catch (Exception ex) {
+					Insights.Report (ex);
+				}
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsRunning = false;
+					this.Navigation.PushModalAsync (new MainMenu ());
+				});
+			})).Start ();
 		}
 
 
@@ -44,7 +51,7 @@ namespace RayvMobileApp.iOS
 				Title = "Server",
 				VerticalOptions = LayoutOptions.Start
 			};
-
+			Spinner = new ActivityIndicator ();
 			picker.Items.Add ("Local");
 			picker.Items.Add ("Dev");
 			picker.Items.Add ("Pre-Prod");
@@ -112,6 +119,7 @@ namespace RayvMobileApp.iOS
 					picker,
 					UserName,
 					Password,
+					Spinner,
 					loginButton
 				}
 			};
