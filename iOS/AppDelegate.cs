@@ -4,6 +4,7 @@ using Foundation;
 using UIKit;
 using CoreLocation;
 using Xamarin;
+using Google.Maps;
 
 
 namespace RayvMobileApp.iOS
@@ -28,6 +29,7 @@ namespace RayvMobileApp.iOS
 		{
 			global::Xamarin.Forms.Forms.Init ();
 			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
+			MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
 
 			LoadApplication (new App ());
 			IdentifyToAnalytics ();

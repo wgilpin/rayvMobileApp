@@ -133,6 +133,9 @@
     <Reference Include="Xamarin.Insights">
       <HintPath>..\Components\xamarin-insights-1.8.2\lib\ios-unified\Xamarin.Insights.dll</HintPath>
     </Reference>
+    <Reference Include="GoogleMaps">
+      <HintPath>..\Components\googlemapsios-1.9.1\lib\ios-unified\GoogleMaps.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Icon-60%402x.png" />
@@ -203,6 +206,15 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
+    <None Include="Scripts\lodash.js" />
+    <None Include="Scripts\lodash.min.js" />
+    <None Include="packages.config" />
+    <None Include="scripts\angular-mocks.js" />
+    <None Include="scripts\angular.js" />
+    <None Include="scripts\angular.min.js" />
+    <None Include="scripts\angular.min.js.map" />
+    <None Include="Scripts\angular-google-maps.js" />
+    <None Include="Scripts\angular-google-maps.min.js" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -238,6 +250,10 @@
     <Compile Include="ProfilePage.cs" />
     <Compile Include="BottomToolbar.cs" />
     <Compile Include="EntryWithButton.cs" />
+    <Compile Include="MapGooglePage.cs" />
+    <Compile Include="MapPlace.cs" />
+    <Compile Include="GoogleMapsRenderer.cs" />
+    <Compile Include="GoogleMaps.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />
@@ -257,6 +273,10 @@
     </XamarinComponentReference>
     <XamarinComponentReference Include="xamarin-insights">
       <Version>1.8.2</Version>
+      <Visible>False</Visible>
+    </XamarinComponentReference>
+    <XamarinComponentReference Include="googlemapsios">
+      <Version>1.9.1</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>
   </ItemGroup>

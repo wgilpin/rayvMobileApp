@@ -184,8 +184,12 @@ namespace RayvMobileApp.iOS
 				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
-					Debug.WriteLine ("ListPage Toolbar Map: Push MapPage");
-					Navigation.PushAsync (new MapPage ());
+					Debug.WriteLine ("ListPage Toolbar Map: Push GOOGLE MapPage");
+					if (settings.USE_XAMARIN_MAPS) {
+						Navigation.PushAsync (new MapPage ());
+					} else {
+						Navigation.PushAsync (new MapGooglePage ());
+					}
 				})
 			});
 

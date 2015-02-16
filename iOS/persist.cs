@@ -534,27 +534,32 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public void SetConfig (string key, string value)
+		void innerSetConfig (string key, string value, SQLiteConnection Db)
 		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = DbTimeout;
-				try {
-					Db.InsertOrReplace (new Configuration (key, value));
-				} catch (Exception ex) {
-					Insights.Report (ex);
+			Db.BusyTimeout = DbTimeout;
+			try {
+				Db.InsertOrReplace (new Configuration (key, value));
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+		}
+
+		public void SetConfig (string key, string value, SQLiteConnection db = null)
+		{
+			if (db != null) {
+				innerSetConfig (key, value, db);
+			} else
+				using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+					innerSetConfig (key, value, Db);
 				}
-			}
 		}
 
-		public void SetConfig (string key, int value)
+		public void SetConfig (string key, int value, SQLiteConnection db = null)
 		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = DbTimeout;
-				Db.InsertOrReplace (new Configuration (key, value.ToString ()));
-			}
+			SetConfig (key, value.ToString (), db);
 		}
 
-		public void SetConfigDouble (string key, Double value)
+		public void SetConfigDouble (string key, Double value, SQLiteConnection db = null)
 		{
 			SetConfig (key, Convert.ToString (value));
 		}
@@ -573,9 +578,9 @@ namespace RayvMobileApp.iOS
 							Db.DropTable<SearchHistory> ();
 							Db.CreateTable<SearchHistory> ();
 							db_version = 1;
-							SetConfig (DB_VERSION, db_version);
 							Console.WriteLine ("Schema updated to 1");
 							Db.Commit ();
+							SetConfig (DB_VERSION, db_version, Db);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
@@ -590,9 +595,9 @@ namespace RayvMobileApp.iOS
 							Db.DropTable<Vote> ();
 							Db.CreateTable<Vote> ();
 							db_version = 2;
-							SetConfig (DB_VERSION, db_version);
 							Console.WriteLine ("Schema updated to 2");
 							Db.Commit ();
+							SetConfig (DB_VERSION, db_version, Db);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
@@ -609,12 +614,12 @@ namespace RayvMobileApp.iOS
 
 		public void LoadFromDb (String onlyWithCuisineType = null)
 		{
+			UpdateSchema ();
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
 					//load the data from the db
 					Console.WriteLine ("Persist.LoadFromDb loading");
 
-					UpdateSchema ();
 					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 					Places.Clear ();
 					var place_q = Db.Table<Place> ();

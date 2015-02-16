@@ -24,6 +24,7 @@ namespace RayvMobileApp.iOS
 
 		static ListView listView;
 		bool FirstTime;
+		Label NothingFound;
 
 		#endregion
 
@@ -44,7 +45,7 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("ListView()");
 			FirstTime = true;
-			this.Title = "List";
+			this.Title = "Add...";
 			this.Icon = "bars-black.png";
 
 			// Define template for displaying each item.
@@ -63,20 +64,35 @@ namespace RayvMobileApp.iOS
 				await Navigation.PushAsync (new AddMapPage ());
 			};
 
-			StackLayout tools = new BottomToolbar (this);
+			Grid grid = new Grid {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = GridLength.Auto },
+				}
+			};
+
+			NothingFound = new LabelWide ("Nothing Found") {
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+			};
+
 			StackLayout inner = new StackLayout {
 				Children = {
 					addFromMapBtn,
 					listView,
-					tools
+					NothingFound,
 				}
 			};
 
-			this.Content = new StackLayout {
-				Children = {
-					inner
-				}
-			};
+			StackLayout tools = new BottomToolbar (this, "add");
+			grid.Children.Add (inner, 0, 0);
+			grid.Children.Add (tools, 0, 1);
+			this.Content = grid;
+
 			this.Appearing += (object sender, EventArgs e) => {
 				if (!FirstTime)
 					this.Navigation.PopToRootAsync ();
@@ -91,16 +107,17 @@ namespace RayvMobileApp.iOS
 		 */
 		public AddResultsPage (List<Place> source) : this ()
 		{
-			listView.ItemsSource = source;
+			ItemsSource = source;
 		}
 
 		#endregion
 
 		#region Properties
 
-		public static IEnumerable ItemsSource {
+		public  IEnumerable ItemsSource {
 			set {
 				listView.ItemsSource = value;
+				NothingFound.IsVisible = (value as List<Place>).Count > 0;
 			}
 		}
 
