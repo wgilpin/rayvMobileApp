@@ -254,6 +254,8 @@
     <Compile Include="MapPlace.cs" />
     <Compile Include="GoogleMapsRenderer.cs" />
     <Compile Include="GoogleMaps.cs" />
+    <Compile Include="RegisterPage.cs" />
+    <Compile Include="ServerPicker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

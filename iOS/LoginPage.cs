@@ -47,52 +47,11 @@ namespace RayvMobileApp.iOS
 		public LoginPage ()
 		{
 			Console.WriteLine ("LoginPage()");
-			Picker picker = new Picker {
-				Title = "Server",
-				VerticalOptions = LayoutOptions.Start
-			};
 			Spinner = new ActivityIndicator ();
-			picker.Items.Add ("Local");
-			picker.Items.Add ("Dev");
-			picker.Items.Add ("Pre-Prod");
-			picker.Items.Add ("Production");
-			picker.SelectedIndexChanged += (sender, args) => {
-				string server_url = "";
-				switch (picker.SelectedIndex) {
-				case 0:
-					server_url = "http://localhost:8080/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 1:
-					server_url = "http://192.168.1.9:8080/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 2:
-					server_url = "https://shout-about.appspot.com/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 3:
-					server_url = "https://rayv-app.appspot.com/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				}
-				Persist.Instance.SetConfig ("server", server_url);
-
-
-			};
-			picker.SelectedIndex = 3;
 
 			RayvButton loginButton = new RayvButton {
-
 				Text = " Login ",
 				Font = Font.SystemFontOfSize (NamedSize.Large),
-
-				HorizontalOptions = LayoutOptions.Center,
-				VerticalOptions = LayoutOptions.Start,
 			};
 			loginButton.Clicked += this.DoLogin;
 
@@ -107,7 +66,10 @@ namespace RayvMobileApp.iOS
 				IsPassword = true,
 				Text = Persist.Instance.GetConfig ("pwd"), 
 			};
-
+			RayvButton Register = new RayvButton ("Register New Account"){ BackgroundColor = Color.Yellow, };
+			Register.Clicked += (s, e) => {
+				this.Navigation.PushModalAsync (new RegisterPage ());
+			};
 			this.Content = new StackLayout {
 				Padding = 20,
 				Children = {
@@ -116,11 +78,12 @@ namespace RayvMobileApp.iOS
 						VerticalOptions = LayoutOptions.Start,
 						HorizontalOptions = LayoutOptions.CenterAndExpand,
 					},
-					picker,
+					new ServerPicker (),
 					UserName,
 					Password,
 					Spinner,
-					loginButton
+					loginButton,
+					Register,
 				}
 			};
 
