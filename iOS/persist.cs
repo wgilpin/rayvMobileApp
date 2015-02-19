@@ -31,7 +31,7 @@ namespace RayvMobileApp.iOS
 
 		public List<SearchHistory> SearchHistoryList;
 		private List<string> _categories;
-		public Dictionary<string,string> Friends;
+		public Dictionary<string, Friend> Friends;
 		public Position GpsPosition;
 		private static Persist _instance;
 
@@ -119,7 +119,7 @@ namespace RayvMobileApp.iOS
 						foreach (JObject fr in obj ["friendsData"]) {
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
-							Friends [fr_id] = name;
+							Friends [fr_id] = new Friend (name, fr_id);
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
 							if (vote_list != null) {
 								foreach (KeyValuePair<string, Vote> v in vote_list) {
@@ -171,7 +171,7 @@ namespace RayvMobileApp.iOS
 						foreach (JObject fr in obj ["friendsData"]) {
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
-							Friends [fr_id] = name;
+							Friends [fr_id] = new Friend (name, fr_id);
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
 							if (vote_list != null)
 								foreach (KeyValuePair<string, Vote> v in vote_list) {
@@ -333,12 +333,13 @@ namespace RayvMobileApp.iOS
 					}
 				}
 			
-				foreach (KeyValuePair<string, string> f in Friends) {
+				foreach (KeyValuePair<string, Friend> f in Friends) {
 					try {
-						db.InsertOrReplace (new Friend { id = f.Key, name = f.Value });
+						db.InsertOrReplace (f.Value);
+						Debug.WriteLine (f.Value.Name);
 					} catch (Exception ex) {
 						Insights.Report (ex);
-						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex.Message);
+						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);
 					}
 				}
 			}
@@ -605,6 +606,23 @@ namespace RayvMobileApp.iOS
 							return;
 						}
 					}
+					if (db_version == 2) {
+						//Migration 3 - Freind is now a class
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<Friend> ();
+							Db.CreateTable<Friend> ();
+							db_version = 3;
+							Console.WriteLine ("Schema updated to 2");
+							Db.Commit ();
+							SetConfig (DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 3 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
 					Console.WriteLine ("Schema Up To Date");
 				} catch (Exception ex) {
 					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
@@ -646,7 +664,7 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("Persist.LoadFromDb loaded");
 					var friends_q = Db.Table<Friend> ();
 					foreach (var friend in friends_q)
-						Friends [friend.id] = friend.name;
+						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
 				} catch (Exception ex) {
 					Insights.Report (ex);
 					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
@@ -662,7 +680,7 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("Persist()");
 			Votes = new List<Vote> ();
 			Places = new List<Place> ();
-			Friends = new Dictionary<string, string> ();
+			Friends = new Dictionary<string, Friend> ();
 			DataIsLive = false;
 			DbPath = Path.Combine (
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),

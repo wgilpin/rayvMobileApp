@@ -67,7 +67,7 @@ namespace RayvMobileApp.iOS
 					try {
 						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
-						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter];
+						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
 						grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
 						grid.Children.Add (new Label { 
 							Text = voteList [row].PrettyHowLongAgo,

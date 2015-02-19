@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using System.Text;
 
 namespace RayvMobileApp.iOS
 {
@@ -22,6 +23,34 @@ namespace RayvMobileApp.iOS
 //			HorizontalOptions = LayoutOptions.FillAndExpand;
 //			HorizontalOptions = LayoutOptions.CenterAndExpand;
 		}
+	}
+
+
+
+	public class ColorButtonFromName : Button
+	{
+		public static readonly BindableProperty NameProperty = BindableProperty.Create<ColorButtonFromName, String> (p => p.Name, "");
+		Color _color;
+		String _name;
+
+		public String Name { 
+			get { 
+				return (String)GetValue (NameProperty); 
+			}
+			set {
+				SetValue (NameProperty, value);
+			}
+		}
+
+		public ColorButtonFromName () : base ()
+		{
+			WidthRequest = 30;
+			Font = Font.SystemFontOfSize (NamedSize.Large);
+			BorderRadius = 15;
+			Text = "";
+		}
+
+
 	}
 
 	public class ButtonWide : Button
@@ -86,4 +115,5 @@ namespace RayvMobileApp.iOS
 		}
 	}
 }
+
 

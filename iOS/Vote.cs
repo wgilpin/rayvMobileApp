@@ -1,6 +1,8 @@
 ﻿using System;
 using SQLite;
 using Xamarin.Forms;
+using System.Text;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -39,7 +41,7 @@ namespace RayvMobileApp.iOS
 		[Ignore]
 		public string VoterName {
 			get {
-				return Persist.Instance.Friends [voter];
+				return Persist.Instance.Friends [voter].Name;
 			}
 		}
 
@@ -92,6 +94,38 @@ namespace RayvMobileApp.iOS
 				}
 				//seconds
 				return "a few seconds ago";
+			}
+		}
+
+		[Ignore]
+		public Color RandomColor {
+			get {
+				try {
+					string name = Persist.Instance.Friends [voter].Name.ToLower ();
+					if (name.Length > 3) {
+						int i1 = ((Encoding.ASCII.GetBytes (name) [0] - 97) % 26) * 10;
+						int i2 = ((Encoding.ASCII.GetBytes (name) [1] - 97) % 26) * 10;
+						int i3 = ((Encoding.ASCII.GetBytes (name) [2] - 97) % 26) * 10;
+						Color c = Color.FromRgb (i1, i2, i3);
+						Console.WriteLine ("{0} {1}", name, c);
+						return c;
+					}
+					return Color.Black;
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					return Color.Black;
+				}
+			}
+		}
+
+		[Ignore]
+		public string FirstLetter {
+			get {
+				try {
+					return Persist.Instance.Friends [voter].Name.Remove (1); 
+				} catch (Exception ex) {
+					return "?";
+				}
 			}
 		}
 

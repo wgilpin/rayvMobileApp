@@ -38,12 +38,25 @@ namespace RayvMobileApp.iOS
 							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
 						},
 						ColumnDefinitions = {
-							new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
-							new ColumnDefinition { Width = new GridLength (20, GridUnitType.Absolute) },
+							new ColumnDefinition { Width = new GridLength (33, GridUnitType.Absolute) },
 							new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+							new ColumnDefinition { Width = new GridLength (80, GridUnitType.Absolute) },
 							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 10, GridUnitType.Absolute) },
 						}
 					};
+
+					Button LetterBtn = new Button {
+						WidthRequest = 30,
+						HeightRequest = 30,
+						Font = Font.SystemFontOfSize (NamedSize.Large),
+						BorderRadius = 15,
+						BackgroundColor = Color.Red,
+						Text = "X",
+						TextColor = Color.White,
+						VerticalOptions = LayoutOptions.Start,
+					};
+					LetterBtn.SetBinding (Button.TextProperty, "FirstLetter");
+					LetterBtn.SetBinding (Button.BackgroundColorProperty, "RandomColor");
 
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
@@ -56,6 +69,7 @@ namespace RayvMobileApp.iOS
 						FontAttributes = FontAttributes.Italic,
 						Font = Font.SystemFontOfSize (NamedSize.Small),
 						TextColor = Color.FromHex ("#606060"),
+						HorizontalOptions = LayoutOptions.End,
 					};
 					TimeLbl.SetBinding (Label.TextProperty, "PrettyHowLongAgo");
 
@@ -78,10 +92,12 @@ namespace RayvMobileApp.iOS
 
 					Label PlaceLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
+						HorizontalOptions = LayoutOptions.Center,
 					};
 					PlaceLbl.SetBinding (Label.TextProperty, "place_name");
 
 					Label CommentLbl = new Label {
+						Font = Font.SystemFontOfSize (NamedSize.Small),
 						FontAttributes = FontAttributes.Italic,
 						BackgroundColor = Color.White,
 						TextColor = Color.FromHex ("#606060"),
@@ -90,12 +106,12 @@ namespace RayvMobileApp.iOS
 					};
 					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
 
-					grid.Children.Add (CommenterLbl, 0, 2, 0, 1);
+					grid.Children.Add (CommenterLbl, 1, 3, 0, 1);
 					grid.Children.Add (TimeLbl, 2, 3, 0, 1);
-					grid.Children.Add (VoteImg, 0, 1, 1, 2);
+					grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 2, }, 0, 1, 0, 2);
 					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
-					grid.Children.Add (PlaceImg, 3, 4, 0, 4);
-					grid.Children.Add (CommentLbl, 0, 3, 2, 3);
+					grid.Children.Add (PlaceImg, 3, 4, 0, 3);
+					grid.Children.Add (CommentLbl, 1, 3, 2, 3);
 
 					return new ViewCell {
 						View = grid,
