@@ -64,6 +64,12 @@ namespace RayvMobileApp.iOS
 			Image friendsImg = new Image {
 				Source = "big-btn-friends.png"
 			};
+			var clickFriends = new TapGestureRecognizer ();
+			clickFriends.Tapped += (s, e) => {
+				Console.WriteLine ("MainMenu: friends button - not implemented");
+				DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
+			};
+			friendsImg.GestureRecognizers.Add (clickFriends);
 
 			// NEWS
 			Image newsImg = new Image {
