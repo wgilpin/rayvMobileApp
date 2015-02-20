@@ -11,7 +11,10 @@ namespace RayvMobileApp.iOS
 	{
 		const int NEWS_IMAGE_SIZE = 60;
 		const int NEWS_ICON_SIZE = 20;
-		const int ROW_HEIGHT = 79;
+		const int ROW1 = 21;
+		const int ROW2 = 23;
+		const int ROW3 = 35;
+		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + 13;
 		const int PAGE_SIZE = 10;
 
 		ListView list;
@@ -33,15 +36,14 @@ namespace RayvMobileApp.iOS
 					Grid grid = new Grid {
 						VerticalOptions = LayoutOptions.FillAndExpand,
 						RowDefinitions = {
-							new RowDefinition { Height = new GridLength (21, GridUnitType.Absolute)  },
-							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
-							new RowDefinition { Height = new GridLength (23, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (ROW1, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (ROW2, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (ROW3, GridUnitType.Absolute)  },
 						},
 						ColumnDefinitions = {
-							new ColumnDefinition { Width = new GridLength (33, GridUnitType.Absolute) },
+							new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
 							new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-							new ColumnDefinition { Width = new GridLength (80, GridUnitType.Absolute) },
-							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 10, GridUnitType.Absolute) },
+							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE, GridUnitType.Absolute) },
 						}
 					};
 
@@ -60,8 +62,8 @@ namespace RayvMobileApp.iOS
 
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
-						TextColor = Color.Blue,
-						TranslationX = 2,
+						TranslationX = 0,
+						TextColor = Color.FromHex ("#444444"),
 					};
 					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
 
@@ -72,6 +74,14 @@ namespace RayvMobileApp.iOS
 						HorizontalOptions = LayoutOptions.End,
 					};
 					TimeLbl.SetBinding (Label.TextProperty, "PrettyHowLongAgo");
+
+					Label VoteLbl = new Label {
+						HorizontalOptions = LayoutOptions.Start,
+						Font = Font.SystemFontOfSize (NamedSize.Small),
+						TranslationY = 2,
+					};
+					VoteLbl.SetBinding (Label.TextProperty, "VoteVerb");
+
 
 					Image VoteImg = new Image { 
 						Aspect = Aspect.AspectFit,
@@ -93,6 +103,7 @@ namespace RayvMobileApp.iOS
 					Label PlaceLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
 						HorizontalOptions = LayoutOptions.Center,
+						LineBreakMode = LineBreakMode.TailTruncation,
 					};
 					PlaceLbl.SetBinding (Label.TextProperty, "place_name");
 
@@ -102,16 +113,30 @@ namespace RayvMobileApp.iOS
 						BackgroundColor = Color.White,
 						TextColor = Color.FromHex ("#606060"),
 						HorizontalOptions = LayoutOptions.Start,
-						LineBreakMode = LineBreakMode.TailTruncation,
+						LineBreakMode = LineBreakMode.WordWrap,
 					};
 					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
 
-					grid.Children.Add (CommenterLbl, 1, 3, 0, 1);
-					grid.Children.Add (TimeLbl, 2, 3, 0, 1);
-					grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 2, }, 0, 1, 0, 2);
+					Label AddressLbl = new Label {
+						Font = Font.SystemFontOfSize (NamedSize.Small),
+						LineBreakMode = LineBreakMode.TailTruncation,
+					};
+					//TODO: Get address from vote
+					AddressLbl.SetBinding (Label.TextProperty, "address");
+
+
 					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
-					grid.Children.Add (PlaceImg, 3, 4, 0, 3);
-					grid.Children.Add (CommentLbl, 1, 3, 2, 3);
+					grid.Children.Add (TimeLbl, 1, 3, 0, 1);
+					grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 1, }, 0, 1, 0, 2);
+					grid.Children.Add (new StackLayout {
+						Orientation = StackOrientation.Horizontal,
+						Children = {
+							CommenterLbl,
+							VoteLbl,
+						}
+					}, 1, 2, 0, 1);
+					grid.Children.Add (PlaceImg, 2, 3, 2, 3);
+					grid.Children.Add (CommentLbl, 0, 2, 2, 3);
 
 					return new ViewCell {
 						View = grid,

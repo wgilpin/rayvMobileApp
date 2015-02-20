@@ -67,6 +67,17 @@ namespace RayvMobileApp.iOS
 		}
 
 		[Ignore]
+		public string VoteVerb {
+			get {
+				if (vote == 1)
+					return "Liked";
+				if (vote == -1)
+					return "Disliked";
+				return "Starred";
+			}
+		}
+
+		[Ignore]
 		public string PrettyComment {
 			get {
 				if (comment != null && comment.Length > 0)
@@ -82,15 +93,15 @@ namespace RayvMobileApp.iOS
 				TimeSpan d = DateTime.UtcNow - when;
 				if (d.TotalDays > 1.0) {
 					// days
-					return MakeString (d.TotalDays, "days");
+					return MakeString (d.TotalDays, "day");
 				}
 				if (d.TotalHours > 1.0) {
 					// hours
-					return MakeString (d.TotalHours, "hours");
+					return MakeString (d.TotalHours, "hour");
 				}
 				if (d.TotalMinutes > 1.0) {
 					// days
-					return MakeString (d.TotalMinutes, "minutes");
+					return MakeString (d.TotalMinutes, "min");
 				}
 				//seconds
 				return "a few seconds ago";
@@ -133,7 +144,11 @@ namespace RayvMobileApp.iOS
 
 		String MakeString (Double n, String unit)
 		{
-			return String.Format ("{0} {1} ago", Math.Truncate (n), unit);
+			int intn = (int)Math.Truncate (n);
+			string plural = "";
+			if (intn > 1)
+				plural = "s";
+			return String.Format ("{0} {1}{2} ago", intn, unit, plural);
 		}
 
 		// Default comparer for Vote type.
