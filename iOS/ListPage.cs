@@ -388,7 +388,7 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("ListPage.Setup");
 			// fire off a thread to get the data
 			System.Threading.ThreadPool.QueueUserWorkItem (delegate {
-				Persist.Instance.GetUserData (caller);
+				Persist.Instance.GetUserData (caller, incremental: true);
 			}, null);
 
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");

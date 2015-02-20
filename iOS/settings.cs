@@ -11,6 +11,15 @@ namespace RayvMobileApp.iOS
 		public static Double GEO_FILTER_BOX_SIZE_DEG = 0.017;
 		public static bool USE_XAMARIN_MAPS = true;
 		// = 1mile
+		//Config
+		public static string USERNAME = "username";
+		public static string PASSWORD = "pwd";
+		public static string DB_VERSION = "db_version";
+		public static string LAST_LAT = "LastLat";
+		public static string LAST_LNG = "LastLng";
+		public static string SERVER = "server";
+		public static string LAST_SYNC = "last_sync";
+		
 	}
 }
 

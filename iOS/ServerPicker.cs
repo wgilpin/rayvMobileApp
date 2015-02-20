@@ -30,7 +30,7 @@ namespace RayvMobileApp.iOS
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			}
-			Persist.Instance.SetConfig ("server", server_url);
+			Persist.Instance.SetConfig (settings.SERVER, server_url);
 
 		}
 

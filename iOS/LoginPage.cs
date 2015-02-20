@@ -19,13 +19,13 @@ namespace RayvMobileApp.iOS
 		{
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				Persist.Instance.SetConfig ("username", UserName.Text);
-				Persist.Instance.SetConfig ("pwd", Password.Text);
+				Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
+				Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
 				restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
 				Persist.Instance.Wipe ();
 				Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 				try {
-					String user = Persist.Instance.GetConfig ("username");
+					String user = Persist.Instance.GetConfig (settings.USERNAME);
 					Insights.Identify (user, "email", user);
 					Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
 				} catch (Exception ex) {
@@ -58,13 +58,13 @@ namespace RayvMobileApp.iOS
 			UserName = new Entry { 
 				Placeholder = "Username",
 				VerticalOptions = LayoutOptions.Start,
-				Text = Persist.Instance.GetConfig ("username"),
+				Text = Persist.Instance.GetConfig (settings.USERNAME),
 			};
 			Password = new Entry {
 				VerticalOptions = LayoutOptions.Start,
 				Placeholder = "Password", 
 				IsPassword = true,
-				Text = Persist.Instance.GetConfig ("pwd"), 
+				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
 			};
 			RayvButton Register = new RayvButton ("Register New Account"){ BackgroundColor = Color.Yellow, };
 			Register.Clicked += (s, e) => {

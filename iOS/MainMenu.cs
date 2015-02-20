@@ -11,7 +11,7 @@ namespace RayvMobileApp.iOS
 		{
 			Persist.Instance.LoadFromDb ();
 			Console.WriteLine ("loadDataFromServer");
-			Persist.Instance.GetUserData (this);
+			Persist.Instance.GetUserData (this, incremental: true);
 //			ListPage.Setup (caller);
 		}
 
@@ -21,8 +21,8 @@ namespace RayvMobileApp.iOS
 				                       e.Location.Coordinate.Latitude,
 				                       e.Location.Coordinate.Longitude);
 			Persist.Instance.GpsPosition = NewPosition;
-			Persist.Instance.SetConfigDouble ("LastLat", e.Location.Coordinate.Latitude);
-			Persist.Instance.SetConfigDouble ("LastLng", e.Location.Coordinate.Longitude);
+			Persist.Instance.SetConfig (settings.LAST_LAT, e.Location.Coordinate.Latitude);
+			Persist.Instance.SetConfig (settings.LAST_LNG, e.Location.Coordinate.Longitude);
 //			Console.WriteLine (String.Format (
 //				"GPS: {0:0.0000},{1:0.0000}",
 //				Persist.Instance.GpsPosition.Latitude, 

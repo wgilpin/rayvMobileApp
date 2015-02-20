@@ -45,8 +45,8 @@ namespace RayvMobileApp.iOS
 			}
 			if (result == "OK") {
 				Console.WriteLine ("New user Registered");
-				Persist.Instance.SetConfig ("pwd", Pwd1Ed.Text);
-				Persist.Instance.SetConfig ("username", UserNameEd.Text);
+				Persist.Instance.SetConfig (settings.PASSWORD, Pwd1Ed.Text);
+				Persist.Instance.SetConfig (settings.USERNAME, UserNameEd.Text);
 				restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
 				this.Navigation.PushModalAsync (new ProfilePage ());
 			} else

@@ -40,8 +40,6 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		const string DB_VERSION = "DB_VERSION";
-
 		#region Properties
 
 		public bool UnsyncedPlaces {
@@ -81,6 +79,112 @@ namespace RayvMobileApp.iOS
 
 		#region Methods
 
+		private void UpdateSchema ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					int db_version;
+					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
+						db_version = 0;
+					}
+					if (db_version == 0) {
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<SearchHistory> ();
+							Db.CreateTable<SearchHistory> ();
+							db_version = 1;
+							Console.WriteLine ("Schema updated to 1");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
+					if (db_version == 1) {
+						//Migration 2 - add When field to votes
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<Vote> ();
+							Db.CreateTable<Vote> ();
+							db_version = 2;
+							Console.WriteLine ("Schema updated to 2");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
+					if (db_version == 2) {
+						//Migration 3 - Freind is now a class
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<Friend> ();
+							Db.CreateTable<Friend> ();
+							db_version = 3;
+							Console.WriteLine ("Schema updated to 2");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 3 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
+					Console.WriteLine ("Schema Up To Date");
+				} catch (Exception ex) {
+					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
+				}
+			}
+		}
+
+		public void LoadFromDb (String onlyWithCuisineType = null)
+		{
+			UpdateSchema ();
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					//load the data from the db
+					Console.WriteLine ("Persist.LoadFromDb loading");
+
+					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
+					Places.Clear ();
+					var place_q = Db.Table<Place> ();
+					if (onlyWithCuisineType == null) {
+						// all cuisine types
+						Places.AddRange (place_q);
+						foreach (var p in Places)
+							p.CalculateDistanceFromPlace ();
+					} else
+						//TODO: LINQ
+						foreach (Place p in place_q) {
+							if (p.category == onlyWithCuisineType) {
+								Places.Add (p);
+								p.CalculateDistanceFromPlace ();
+							}
+						}
+					Places.Sort ();
+					Votes.Clear ();
+					var votes_q = Db.Table<Vote> ();
+					foreach (var vote in votes_q)
+						Votes.Add (vote);
+					LoadSearchHistoryFromDb ();
+
+					Console.WriteLine ("Persist.LoadFromDb loaded");
+					var friends_q = Db.Table<Friend> ();
+					foreach (var friend in friends_q)
+						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
+				}
+			}
+		}
 
 		bool UdpdateNextUnsynced ()
 		{
@@ -200,6 +304,7 @@ namespace RayvMobileApp.iOS
 					}
 				}
 				DataIsLive = true;
+
 				Console.WriteLine ("ListPage.Setup loaded");
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -208,8 +313,16 @@ namespace RayvMobileApp.iOS
 		}
 
 
-		public void GetUserData (Page caller, DateTime? since = null)
+		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false)
 		{
+			if (incremental) {
+				if (since == null) {
+					DateTime? last = GetConfigDateTime (settings.LAST_SYNC);
+					if (last != null) {
+						since = last;
+					}
+				}
+			}
 			restConnection webReq = restConnection.Instance;
 			string server = GetConfig ("server");
 			if (server.Length == 0) {
@@ -254,6 +367,7 @@ namespace RayvMobileApp.iOS
 				} else {
 					StoreFullUserRecord (resp);
 				}
+				Persist.Instance.SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
 			}
 		}
 
@@ -509,6 +623,10 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		#endregion
+
+		#region Settings
+
 		public string GetConfig (string key)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
@@ -532,6 +650,15 @@ namespace RayvMobileApp.iOS
 				return Convert.ToDouble (GetConfig (key));
 			} catch {
 				return 0.0;
+			}
+		}
+
+		public DateTime? GetConfigDateTime (string key)
+		{
+			try {
+				return Convert.ToDateTime (GetConfig (key));
+			} catch {
+				return null;
 			}
 		}
 
@@ -560,116 +687,14 @@ namespace RayvMobileApp.iOS
 			SetConfig (key, value.ToString (), db);
 		}
 
-		public void SetConfigDouble (string key, Double value, SQLiteConnection db = null)
+		public void SetConfig (string key, Double value, SQLiteConnection db = null)
 		{
 			SetConfig (key, Convert.ToString (value));
 		}
 
-		private void UpdateSchema ()
+		public void SetConfig (string key, DateTime value, SQLiteConnection db = null)
 		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				try {
-					int db_version;
-					if (!int.TryParse (GetConfig (DB_VERSION), out db_version)) {
-						db_version = 0;
-					}
-					if (db_version == 0) {
-						Db.BeginTransaction ();
-						try {
-							Db.DropTable<SearchHistory> ();
-							Db.CreateTable<SearchHistory> ();
-							db_version = 1;
-							Console.WriteLine ("Schema updated to 1");
-							Db.Commit ();
-							SetConfig (DB_VERSION, db_version, Db);
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
-							Db.Rollback ();
-							return;
-						}
-					}
-					if (db_version == 1) {
-						//Migration 2 - add When field to votes
-						Db.BeginTransaction ();
-						try {
-							Db.DropTable<Vote> ();
-							Db.CreateTable<Vote> ();
-							db_version = 2;
-							Console.WriteLine ("Schema updated to 2");
-							Db.Commit ();
-							SetConfig (DB_VERSION, db_version, Db);
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
-							Db.Rollback ();
-							return;
-						}
-					}
-					if (db_version == 2) {
-						//Migration 3 - Freind is now a class
-						Db.BeginTransaction ();
-						try {
-							Db.DropTable<Friend> ();
-							Db.CreateTable<Friend> ();
-							db_version = 3;
-							Console.WriteLine ("Schema updated to 2");
-							Db.Commit ();
-							SetConfig (DB_VERSION, db_version, Db);
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							restConnection.LogErrorToServer ("UpdateSchema to 3 {0}", ex);
-							Db.Rollback ();
-							return;
-						}
-					}
-					Console.WriteLine ("Schema Up To Date");
-				} catch (Exception ex) {
-					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
-				}
-			}
-		}
-
-		public void LoadFromDb (String onlyWithCuisineType = null)
-		{
-			UpdateSchema ();
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				try {
-					//load the data from the db
-					Console.WriteLine ("Persist.LoadFromDb loading");
-
-					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
-					Places.Clear ();
-					var place_q = Db.Table<Place> ();
-					if (onlyWithCuisineType == null) {
-						// all cuisine types
-						Places.AddRange (place_q);
-						foreach (var p in Places)
-							p.CalculateDistanceFromPlace ();
-					} else
-				//TODO: LINQ
-				foreach (Place p in place_q) {
-							if (p.category == onlyWithCuisineType) {
-								Places.Add (p);
-								p.CalculateDistanceFromPlace ();
-							}
-						}
-					Places.Sort ();
-					Votes.Clear ();
-					var votes_q = Db.Table<Vote> ();
-					foreach (var vote in votes_q)
-						Votes.Add (vote);
-					LoadSearchHistoryFromDb ();
-			
-					Console.WriteLine ("Persist.LoadFromDb loaded");
-					var friends_q = Db.Table<Friend> ();
-					foreach (var friend in friends_q)
-						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
-				}
-			}
+			SetConfig (key, value.ToUniversalTime ().ToString ("s"));
 		}
 
 

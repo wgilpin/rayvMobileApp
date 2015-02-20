@@ -10,9 +10,9 @@ namespace RayvMobileApp
 		public App ()
 		{
 			// The root page of your application
-			if (Persist.Instance.GetConfig ("pwd").Length *
-			    Persist.Instance.GetConfig ("username").Length *
-			    Persist.Instance.GetConfig ("server").Length > 0) {
+			if (Persist.Instance.GetConfig (settings.PASSWORD).Length *
+			    Persist.Instance.GetConfig (settings.USERNAME).Length *
+			    Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
 				MainPage = MainMenu.Instance;
 				return;
 			}

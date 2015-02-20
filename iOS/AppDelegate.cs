@@ -17,7 +17,7 @@ namespace RayvMobileApp.iOS
 		private void IdentifyToAnalytics ()
 		{
 			try {
-				String user = Persist.Instance.GetConfig ("username");
+				String user = Persist.Instance.GetConfig (settings.USERNAME);
 				Insights.Identify (user, "email", user);
 				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
 			} catch (Exception ex) {
