@@ -276,6 +276,7 @@ namespace RayvMobileApp.iOS
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = new Friend (name, fr_id);
+							Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
 							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
 							if (vote_list != null)
 								foreach (KeyValuePair<string, Vote> v in vote_list) {
@@ -583,6 +584,7 @@ namespace RayvMobileApp.iOS
 		public void AddSearchHistoryItem (string item)
 		{
 			try {
+				Console.WriteLine ("Persist.AddSearchHistoryItem: {0}", item);
 				var found = SearchHistoryList.FirstOrDefault (h => h.PlaceName == item);
 				if (found != null) {
 					SearchHistoryList.Remove (found);

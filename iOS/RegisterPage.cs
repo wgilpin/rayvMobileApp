@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -32,8 +33,16 @@ namespace RayvMobileApp.iOS
 			Dictionary<String,String> parameters = new Dictionary<String,String> ();
 			parameters ["username"] = UserNameEd.Text;
 			parameters ["email"] = EmailEd.Text;
-			parameters ["password"] = Pwd1Ed.Text;
+			parameters ["fn"] = FirstNameEd.Text;
+			parameters ["ln"] = LastNameEd.Text;
 			parameters ["screenname"] = ScreenNameEd.Text;
+			try {
+				if (ScreenNameEd.Text == "")
+					parameters ["screenname"] = String.Format ("{0} {1}.", FirstNameEd.Text, LastNameEd.Text.Remove (2));
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+			;
 			String result = restConnection.Instance.post ("/api/register", parameters);
 			if (result == "BAD_USERNAME") {
 				DisplayAlert (
@@ -48,7 +57,7 @@ namespace RayvMobileApp.iOS
 				Persist.Instance.SetConfig (settings.PASSWORD, Pwd1Ed.Text);
 				Persist.Instance.SetConfig (settings.USERNAME, UserNameEd.Text);
 				restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
-				this.Navigation.PushModalAsync (new ProfilePage ());
+				this.Navigation.PushModalAsync (new MainMenu ());
 			} else
 				DisplayAlert ("Failed", "Got an error: " + result, "OK");
 

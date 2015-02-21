@@ -11,9 +11,9 @@ namespace RayvMobileApp.iOS
 	{
 		const int NEWS_IMAGE_SIZE = 60;
 		const int NEWS_ICON_SIZE = 20;
-		const int ROW1 = 21;
-		const int ROW2 = 23;
-		const int ROW3 = 35;
+		const int ROW1 = 20;
+		const int ROW2 = 20;
+		const int ROW3 = 45;
 		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + 13;
 		const int PAGE_SIZE = 10;
 
@@ -43,7 +43,7 @@ namespace RayvMobileApp.iOS
 						ColumnDefinitions = {
 							new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
 							new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE, GridUnitType.Absolute) },
+							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 20, GridUnitType.Absolute) },
 						}
 					};
 
@@ -68,16 +68,18 @@ namespace RayvMobileApp.iOS
 					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
 
 					Label TimeLbl = new Label {
+						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						FontAttributes = FontAttributes.Italic,
-						Font = Font.SystemFontOfSize (NamedSize.Small),
-						TextColor = Color.FromHex ("#606060"),
+						//TextColor = Color.FromHex ("#606060"),
 						HorizontalOptions = LayoutOptions.End,
 					};
 					TimeLbl.SetBinding (Label.TextProperty, "PrettyHowLongAgo");
 
 					Label VoteLbl = new Label {
+						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+						FontAttributes = FontAttributes.Italic,
+						TextColor = Color.FromHex ("#444444"),
 						HorizontalOptions = LayoutOptions.Start,
-						Font = Font.SystemFontOfSize (NamedSize.Small),
 						TranslationY = 2,
 					};
 					VoteLbl.SetBinding (Label.TextProperty, "VoteVerb");
@@ -97,6 +99,7 @@ namespace RayvMobileApp.iOS
 						HeightRequest = ROW_HEIGHT,
 						TranslationX = 0,
 						VerticalOptions = LayoutOptions.Start,
+						Opacity = 0.35,
 					};
 					PlaceImg.SetBinding (Image.SourceProperty, "PlaceImage");
 
@@ -135,8 +138,8 @@ namespace RayvMobileApp.iOS
 							VoteLbl,
 						}
 					}, 1, 2, 0, 1);
-					grid.Children.Add (PlaceImg, 2, 3, 2, 3);
-					grid.Children.Add (CommentLbl, 0, 2, 2, 3);
+					grid.Children.Add (PlaceImg, 2, 3, 0, 3);
+					grid.Children.Add (CommentLbl, 1, 2, 2, 3);
 
 					return new ViewCell {
 						View = grid,
@@ -163,15 +166,26 @@ namespace RayvMobileApp.iOS
 				}
 			};
 			Clicked = false;
-			list.ItemTapped += (object sender, ItemTappedEventArgs e) => {
+			list.ItemTapped += async (object sender, ItemTappedEventArgs e) => {
 				if (Clicked) {
 					Console.WriteLine ("Click ignored");
 					return;
 				}
-				Clicked = true;
+//				Clicked = true;
 				Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
 				Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
-				this.Navigation.PushAsync (new DetailPage (p));
+				string action = await DisplayActionSheet (
+					                p.place_name, 
+					                "Cancel",
+					                null, 
+					                "Show Detail", 
+					                "Like", 
+					                "Dislike",
+					                "Add to Wishlist");
+				if (action == "Show Detail") {
+					this.Navigation.PushAsync (new DetailPage (p));
+				}
+				//TODO: do votes
 			};
 			this.Appearing += CheckForUpdates;
 			SetSource ();

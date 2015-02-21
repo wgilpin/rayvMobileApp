@@ -100,8 +100,10 @@ namespace RayvMobileApp.iOS
 						point.CalculateDistanceFromPlace ();
 					}
 					points.Sort ();
-					if (addToHistory)
+					if (addToHistory) {
 						Persist.Instance.AddSearchHistoryItem (searchPlace);
+						Console.WriteLine ("DoSearch: SearchHistory += {0}", searchPlace);
+					}
 					Device.BeginInvokeOnMainThread (() => {
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddMenu.DoSearch: Activity Over. push AddResultsPage");
