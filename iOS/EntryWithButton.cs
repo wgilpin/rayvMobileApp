@@ -29,6 +29,7 @@ namespace RayvMobileApp.iOS
 
 		public EntryWithButton () : base ()
 		{
+			Padding = 2;
 			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20.0) });

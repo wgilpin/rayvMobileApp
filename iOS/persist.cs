@@ -77,7 +77,7 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		#region Methods
+		#region Db Methods
 
 		private void UpdateSchema ()
 		{
@@ -185,6 +185,68 @@ namespace RayvMobileApp.iOS
 				}
 			}
 		}
+
+		public void Wipe ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BeginTransaction ();
+				try {
+					Places.Clear ();
+					Db.DeleteAll<Place> ();
+					Votes.Clear ();
+					Db.DeleteAll<Vote> ();
+					Friends.Clear ();
+					Db.DeleteAll<Friend> ();
+					Db.Commit ();
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Db.Rollback ();
+				}
+			}
+		}
+
+		void LoadCategories ()
+		{
+			Dictionary<string, string> parameters = new Dictionary<string, string> ();
+			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
+			lock (Lock) {
+				try {
+					JObject obj = JObject.Parse (result);
+					_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					restConnection.LogErrorToServer ("Persist.LoadCategories Exception {0}", ex);
+					_categories = new List<string> ();
+				}
+			}
+		}
+
+		static void createDb ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.CreateTable<Vote> ();
+				Db.CreateTable<Place> ();
+				Db.CreateTable<Friend> ();
+				Db.CreateTable<SearchHistory> ();
+				Db.CreateTable<Configuration> ();
+			}
+		}
+
+
+
+		public void updateVotes ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = DbTimeout;
+				foreach (Vote v in Votes) {
+					Db.InsertOrReplace (v);
+				}
+			}
+		}
+
+		#endregion
+
+		#region Sync Methods
 
 		bool UdpdateNextUnsynced ()
 		{
@@ -382,50 +444,33 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		#endregion
 
-		public void Wipe ()
+		#region Place methods
+
+		public void DeletePlace (Place place)
 		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BeginTransaction ();
-				try {
-					Places.Clear ();
-					Db.DeleteAll<Place> ();
-					Votes.Clear ();
-					Db.DeleteAll<Vote> ();
-					Friends.Clear ();
-					Db.DeleteAll<Friend> ();
-					Db.Commit ();
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					Db.Rollback ();
+			try {
+				Place StoredPlace = (from p in Places
+				                     where p.key == place.key
+				                     select p).FirstOrDefault ();
+				if (StoredPlace != null) {
+					Places.Remove (StoredPlace);
+					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+						try {
+							Db.BeginTransaction ();
+							var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
+							cmd.ExecuteNonQuery ();
+							Db.Commit ();
+						} catch (Exception ex) {
+							Db.Rollback ();
+							Insights.Report (ex);
+						}
+					}
 				}
-			}
-		}
-
-		void LoadCategories ()
-		{
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
-			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
-			lock (Lock) {
-				try {
-					JObject obj = JObject.Parse (result);
-					_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					restConnection.LogErrorToServer ("Persist.LoadCategories Exception {0}", ex);
-					_categories = new List<string> ();
-				}
-			}
-		}
-
-		static void createDb ()
-		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.CreateTable<Vote> ();
-				Db.CreateTable<Place> ();
-				Db.CreateTable<Friend> ();
-				Db.CreateTable<SearchHistory> ();
-				Db.CreateTable<Configuration> ();
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("DeletePlace", ex);
 			}
 		}
 
@@ -510,9 +555,17 @@ namespace RayvMobileApp.iOS
 			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
 			place.CalculateDistanceFromPlace ();
+			string myIdString = MyId.ToString ();
 			for (int i = 0; i < Places.Count (); i++) {
 				if (Places [i].key == place.key) {
 					try {
+						var myVote = (from v in Votes
+						              where v.voter == myIdString
+						              select v).FirstOrDefault ();
+						if (myVote != null) {
+							myVote.vote = Convert.ToInt32 (Places [i].vote);
+							myVote.untried = Places [i].untried;
+						}
 						StorePlace (place, Places [i]);
 						return;
 					} catch (Exception e) { 
@@ -524,41 +577,23 @@ namespace RayvMobileApp.iOS
 			StorePlace (place);
 		}
 
-		public void DeletePlace (Place place)
+		public Place GetPlace (string key)
 		{
-			try {
-				Place StoredPlace = (from p in Places
-				                     where p.key == place.key
-				                     select p).FirstOrDefault ();
-				if (StoredPlace != null) {
-					Places.Remove (StoredPlace);
-					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-						try {
-							Db.BeginTransaction ();
-							var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
-							cmd.ExecuteNonQuery ();
-							Db.Commit ();
-						} catch (Exception ex) {
-							Db.Rollback ();
-							Insights.Report (ex);
-						}
-					}
-				}
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				restConnection.LogErrorToServer ("DeletePlace", ex);
+			return Places.FirstOrDefault (p => p.key == key);
+		}
+
+		public Place GetPlaceFromDb (string key)
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				return (from p in Db.Table<Place> ()
+				        where p.key == key
+				        select p).FirstOrDefault ();
 			}
 		}
 
-		public void updateVotes ()
-		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				Db.BusyTimeout = DbTimeout;
-				foreach (Vote v in Votes) {
-					Db.InsertOrReplace (v);
-				}
-			}
-		}
+		#endregion
+
+		#region Search History
 
 		private void SaveSearchHistoryToDB ()
 		{
@@ -621,19 +656,7 @@ namespace RayvMobileApp.iOS
 		//
 		//		}
 
-		public Place GetPlace (string key)
-		{
-			return Places.FirstOrDefault (p => p.key == key);
-		}
 
-		public Place GetPlaceFromDb (string key)
-		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				return (from p in Db.Table<Place> ()
-				        where p.key == key
-				        select p).FirstOrDefault ();
-			}
-		}
 
 		#endregion
 

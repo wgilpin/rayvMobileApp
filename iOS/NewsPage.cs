@@ -166,29 +166,56 @@ namespace RayvMobileApp.iOS
 				}
 			};
 			Clicked = false;
-			list.ItemTapped += async (object sender, ItemTappedEventArgs e) => {
-				if (Clicked) {
-					Console.WriteLine ("Click ignored");
-					return;
-				}
-//				Clicked = true;
-				Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
-				Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
-				string action = await DisplayActionSheet (
-					                p.place_name, 
-					                "Cancel",
-					                null, 
-					                "Show Detail", 
-					                "Like", 
-					                "Dislike",
-					                "Add to Wishlist");
-				if (action == "Show Detail") {
-					this.Navigation.PushAsync (new DetailPage (p));
-				}
-				//TODO: do votes
-			};
+			list.ItemTapped += DoListItemTap;
+		
+
+
 			this.Appearing += CheckForUpdates;
 			SetSource ();
+		}
+
+		async void DoListItemTap (object sender, ItemTappedEventArgs e)
+		{
+			if (Clicked) {
+				Console.WriteLine ("Click ignored");
+				return;
+			}
+			//				Clicked = true;
+			Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
+			Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
+			string action = await DisplayActionSheet (
+				                p.place_name, 
+				                "Cancel",
+				                null, 
+				                "Show Detail", 
+				                "Like", 
+				                "Dislike",
+				                "Add to Wishlist");
+			string errorMsg = "";
+			switch (action) {
+			case "Show Detail":
+				this.Navigation.PushAsync (new DetailPage (p));
+				break;
+			case "Like":
+				p.vote = "1";
+				p.untried = false;
+				p.Save (out errorMsg);
+				break;
+			case "Dislike":
+				p.vote = "-1";
+				p.untried = false;
+				p.Save (out errorMsg);
+				break;
+			case "Add to Wishlist":
+				p.vote = "0";
+				p.untried = true;
+				p.Save (out errorMsg);
+				break;
+			}
+			if (errorMsg.Length > 0) {
+				await DisplayAlert ("Error Saving", errorMsg, "OK");
+				Console.WriteLine ("NewsPage.DoListItemTap Error: {0}", errorMsg);
+			}
 		}
 
 		void DoShowMore (object sender, EventArgs e)

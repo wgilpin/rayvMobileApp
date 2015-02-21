@@ -91,14 +91,14 @@ namespace RayvMobileApp.iOS
 
 			FilterSearchBox = new EntryWithButton {
 				Placeholder = "Search for text",
-				Source = "06-magnify@2x.png",
+				Source = "icon-06-magnify@2x.png",
 				OnClick = DoTextSearch,
 				Text = "",
 			};
 
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",
-				Source = "06-magnify@2x.png",
+				Source = "icon-06-magnify@2x.png",
 				OnClick = DoTextSearch,
 				Text = "",
 			};
@@ -181,7 +181,7 @@ namespace RayvMobileApp.iOS
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
-				Icon = "icon-map.png",
+//				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Debug.WriteLine ("ListPage Toolbar Map: Push GOOGLE MapPage");
@@ -195,7 +195,7 @@ namespace RayvMobileApp.iOS
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Filter",
-				Icon = "filter.png",
+//				Icon = "filter.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Debug.WriteLine ("ListPage Toolbar Filter");
