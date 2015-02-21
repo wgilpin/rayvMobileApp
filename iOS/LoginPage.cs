@@ -21,6 +21,8 @@ namespace RayvMobileApp.iOS
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
 				Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
+				//Delete Last Sync time to force a full refresh
+				Persist.Instance.SetConfig (settings.LAST_SYNC, null);
 				restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
 				Persist.Instance.Wipe ();
 				Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");

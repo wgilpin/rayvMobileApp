@@ -233,8 +233,10 @@ namespace RayvMobileApp.iOS
 				                   select v)
 					.OrderByDescending (x => x.when)
 					.ToList ();
-				MoreBtn.IsVisible = News.Count > ShowRows;
 				list.ItemsSource = News.Take (ShowRows);
+				Device.BeginInvokeOnMainThread (() => {
+					MoreBtn.IsVisible = News.Count > ShowRows;
+				});
 			}
 
 

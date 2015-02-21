@@ -210,7 +210,7 @@ namespace RayvMobileApp.iOS
 		void StoreFullUserRecord (IRestResponse resp)
 		{
 			try {
-				Console.WriteLine ("GetFullData: lock get full");
+				Console.WriteLine ("StoreFullUserRecord: lock get full");
 				JObject obj = JObject.Parse (resp.Content);
 				MyId = obj ["id"].Value<Int64> ();
 				string placeStr = obj ["places"].ToString ();
@@ -236,14 +236,14 @@ namespace RayvMobileApp.iOS
 						updatePlaces ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
-						restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
+						restConnection.LogErrorToServer ("StoreFullUserRecord lock Exception {0}", ex);
 					}
 				}
 				DataIsLive = true;
-				Console.WriteLine ("ListPage.Setup loaded");
+				Console.WriteLine ("StoreFullUserRecord loaded");
 			} catch (Exception ex) {
 				Insights.Report (ex);
-				restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
+				restConnection.LogErrorToServer ("StoreFullUserRecord Exception {0}", ex);
 			}
 		}
 
@@ -301,18 +301,33 @@ namespace RayvMobileApp.iOS
 						updatePlaces ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
-						restConnection.LogErrorToServer ("ListPage.GetFullData lock Exception {0}", ex);
+						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
 					}
 				}
 				DataIsLive = true;
 
-				Console.WriteLine ("ListPage.Setup loaded");
+				Console.WriteLine ("StoreUpdatedUserRecord loaded");
 			} catch (Exception ex) {
 				Insights.Report (ex);
-				restConnection.LogErrorToServer ("GetFullData Exception {0}", ex);
+				restConnection.LogErrorToServer ("StoreUpdatedUserRecord Exception {0}", ex);
 			}
 		}
 
+		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq)
+		{
+			IRestResponse resp;
+			Dictionary<String, String> paramList = new Dictionary<String, String> ();
+			if (since != null) {
+				paramList.Add ("since", ((DateTime)since).ToString ("s"));
+			}
+			resp = webReq.get ("/getFullUserRecord", paramList);
+			if (resp.ResponseStatus == ResponseStatus.Error) {
+				//unable to contact server
+				Console.WriteLine ("InnerGetUserData - NO RESPONSE");
+				return null;
+			}
+			return resp;
+		}
 
 		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false)
 		{
@@ -352,19 +367,14 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				}
-				Dictionary<String, String> paramList = new Dictionary<String, String> ();
-				if (since != null) {
-					paramList.Add ("since", ((DateTime)since).ToString ("s"));
-				}
-				resp = webReq.get ("/getFullUserRecord", paramList);
-				if (resp.ResponseStatus == ResponseStatus.Error) {
-					//unable to contact server
-					Console.WriteLine ("GetUserData - NO RESPONSE");
-					return;
-				}
+				resp = InnerGetUserData (since, webReq);
 				if (since != null) {
 					// incremental
 					StoreUpdatedUserRecord (resp);
+					if (Persist.Instance.Places.Count == 0) {
+						resp = InnerGetUserData (null, webReq);
+						StoreFullUserRecord (resp);
+					}
 				} else {
 					StoreFullUserRecord (resp);
 				}
@@ -668,7 +678,12 @@ namespace RayvMobileApp.iOS
 		{
 			Db.BusyTimeout = DbTimeout;
 			try {
-				Db.InsertOrReplace (new Configuration (key, value));
+				if (value == null) {
+					//delete
+					Db.Delete (key);
+				} else {
+					Db.InsertOrReplace (new Configuration (key, value));
+				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
