@@ -38,7 +38,7 @@ namespace RayvMobileApp.iOS
 			parameters ["screenname"] = ScreenNameEd.Text;
 			try {
 				if (ScreenNameEd.Text == "")
-					parameters ["screenname"] = String.Format ("{0} {1}.", FirstNameEd.Text, LastNameEd.Text.Remove (2));
+					parameters ["screenname"] = String.Format ("{0} {1}.", FirstNameEd.Text, LastNameEd.Text.Remove (1));
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
