@@ -7,16 +7,35 @@ namespace RayvMobileApp.iOS
 {
 	public class ChoicePage : ContentPage
 	{
+		string ANY_PLACE = "Anything";
+		PersistantQueue history;
+
+		void DoListChoice (object s, ItemTappedEventArgs e)
+		{
+			string item = (e.Item as string);
+			if (item == ANY_PLACE) {
+				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+			} else {
+				history.Add (item);
+				this.Navigation.PushModalAsync (new NavigationPage (new ListPage (item)));
+			}
+		}
+
 		public ChoicePage ()
 		{
+			history = new PersistantQueue (3, "ChoicePageCusine");
 			Title = "Find me a...";
 			ListView list = new ListView ();
 			List<string> data = new List<string> ();
-			data.Add ("Anything");
+			data.Add (ANY_PLACE);
+			for (int i = 0; i < history.Length; i++) {
+				data.Add (history.GetItem (i));
+			}
 			foreach (string cat in Persist.Instance.Categories) {
 				data.Add (cat);
 			}
 			list.ItemsSource = data;
+			list.ItemTapped += DoListChoice;
 			StackLayout tools = new BottomToolbar (this, "add");
 			Content = new StackLayout {
 				Children = {

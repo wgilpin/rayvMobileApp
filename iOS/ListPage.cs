@@ -24,6 +24,7 @@ namespace RayvMobileApp.iOS
 		Cuisine,
 		Wishlist,
 		New,
+		Go,
 	}
 
 	public class ListPage : ContentPage
@@ -223,6 +224,16 @@ namespace RayvMobileApp.iOS
 			listView.ItemsSource = source;
 		}
 
+		/**
+		 * Constructor when a cuisine is supplied
+		 */
+		public ListPage (string cuisine) : this ()
+		{
+			MainFilter = FilterKind.Go;
+			FilterCuisineKind = cuisine;
+			FilterList ();
+		}
+
 		private static NavigationPage _instance;
 
 		public static NavigationPage Instance {
@@ -332,6 +343,15 @@ namespace RayvMobileApp.iOS
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
 				switch (MainFilter) {
+				case FilterKind.Go:
+					ResetCuisinePicker ();
+					currentPlaces = (
+					    from p in data.Places
+					    where
+					        p.vote != "-1" &&
+					        p.category == FilterCuisineKind
+					    select p).ToList ();
+					break;
 				case FilterKind.Mine:
 					ResetCuisinePicker ();
 					currentPlaces = (

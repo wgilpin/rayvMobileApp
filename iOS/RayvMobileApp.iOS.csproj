@@ -258,6 +258,7 @@
     <Compile Include="RegisterPage.cs" />
     <Compile Include="ServerPicker.cs" />
     <Compile Include="ChoicePage.cs" />
+    <Compile Include="PersistantQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

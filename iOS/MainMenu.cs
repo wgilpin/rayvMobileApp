@@ -36,7 +36,7 @@ namespace RayvMobileApp.iOS
 			loadDataFromServer (this);
 
 			Grid grid = new Grid {
-				Padding = 5,
+				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
