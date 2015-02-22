@@ -19,6 +19,7 @@ namespace RayvMobileApp.iOS
 		Entry EmailEd;
 		Entry ScreenNameEd;
 		RayvButton GoBtn;
+		ActivityIndicator Spinner;
 
 		async void  DoRegister (object sender, EventArgs e)
 		{
@@ -58,30 +59,51 @@ namespace RayvMobileApp.iOS
 					string fn = FirstNameEd.Text;
 					fn = fn [0].ToString ().ToUpper () [0] + fn.Substring (1);
 					parameters ["screenname"] = String.Format (
-						"{0} {1}.", fn, LastNameEd.Text.Remove (1)).ToUpper ();
+						"{0} {1}.", fn, LastNameEd.Text.Remove (1).ToUpper ());
 				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				await DisplayAlert ("Invalid Name", "Please supply valid first & last names", "OK");
 				return;
 			}
-			String result = restConnection.Instance.post ("/api/register", parameters);
-			if (result == "BAD_USERNAME") {
-				DisplayAlert (
-					"Try Again",
-					String.Format ("The user name {0} is already taken", UserNameEd.Text),
-					"OK");
-				Console.WriteLine ("New user Registration failed - Username in use");
-				return;
-			}
-			if (result == "OK") {
-				Console.WriteLine ("New user Registered");
-				Persist.Instance.SetConfig (settings.PASSWORD, Pwd1Ed.Text);
-				Persist.Instance.SetConfig (settings.USERNAME, UserNameEd.Text);
-				restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
-				this.Navigation.PushModalAsync (new MainMenu ());
-			} else
-				DisplayAlert ("Failed", "Got an error: " + result, "OK");
+			Spinner.IsRunning = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				String result = restConnection.Instance.post ("/api/register", parameters);
+				if (result == "BAD_USERNAME") {
+					Device.BeginInvokeOnMainThread (() => {
+						Console.WriteLine ("New user Registration failed - Username in use");
+						DisplayAlert (
+							"Try Again",
+							String.Format ("The user name {0} is already taken", UserNameEd.Text),
+							"OK");
+						return;
+					});
+				}
+				if (result == "OK") {
+					Console.WriteLine ("New user Registered");
+					Persist.Instance.SetConfig (settings.PASSWORD, Pwd1Ed.Text);
+					Persist.Instance.SetConfig (settings.USERNAME, UserNameEd.Text);
+					restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
+					Persist.Instance.Wipe ();
+					try {
+						Insights.Identify (UserNameEd.Text, "email", EmailEd.Text);
+						Console.WriteLine ("AppDelegate Analytics ID: {0}", UserNameEd.Text);
+					} catch (Exception ex) {
+						Insights.Report (ex);
+					}
+					Device.BeginInvokeOnMainThread (() => {
+						this.Navigation.PushModalAsync (new MainMenu ());
+					});
+				} else {
+					Device.BeginInvokeOnMainThread (() => {
+						DisplayAlert ("Failed", "Got an error: " + result, "OK");
+					});
+				}
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsRunning = false;
+				});
+			})).Start ();
+
 
 		}
 
@@ -89,6 +111,10 @@ namespace RayvMobileApp.iOS
 		{
 		
 			Title = "Register";
+
+			Spinner = new ActivityIndicator {
+				IsRunning = false,
+			};
 
 			FirstNameEd = new Entry {
 				Placeholder = "First Name",
@@ -135,6 +161,7 @@ namespace RayvMobileApp.iOS
 					Pwd1Ed,
 					Pwd2Ed,
 					new ServerPicker (),
+					Spinner,
 					GoBtn,
 				}
 			};
