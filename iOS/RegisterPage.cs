@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using Xamarin;
+using System.Net.Mail;
 
 namespace RayvMobileApp.iOS
 {
@@ -30,19 +31,40 @@ namespace RayvMobileApp.iOS
 				await DisplayAlert ("Passwords don't match", "Enter the same password in both boxes", "OK");
 				return;
 			}
+			if (UserNameEd.Text.Length == 0) {
+				await DisplayAlert ("User Name Missing ", "Please supply a User Name", "OK");
+				return;
+			}
+			if (FirstNameEd.Text.Length == 0 || LastNameEd.Text.Length == 0) {
+				await DisplayAlert ("Full Name Needed", "Please supply a first & a last name", "OK");
+				return;
+			}
+			try {
+				MailAddress m = new MailAddress (EmailEd.Text);
+				//good email
+			} catch (FormatException) {
+				await DisplayAlert ("Invalid Email", "Please supply a valid email address", "OK");
+				return;
+			}
 			Dictionary<String,String> parameters = new Dictionary<String,String> ();
 			parameters ["username"] = UserNameEd.Text;
+			parameters ["password"] = Pwd1Ed.Text;
 			parameters ["email"] = EmailEd.Text;
 			parameters ["fn"] = FirstNameEd.Text;
 			parameters ["ln"] = LastNameEd.Text;
 			parameters ["screenname"] = ScreenNameEd.Text;
 			try {
-				if (ScreenNameEd.Text == "")
-					parameters ["screenname"] = String.Format ("{0} {1}.", FirstNameEd.Text, LastNameEd.Text.Remove (1));
+				if (ScreenNameEd.Text == "") {
+					string fn = FirstNameEd.Text;
+					fn = fn [0].ToString ().ToUpper () [0] + fn.Substring (1);
+					parameters ["screenname"] = String.Format (
+						"{0} {1}.", fn, LastNameEd.Text.Remove (1)).ToUpper ();
+				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
+				await DisplayAlert ("Invalid Name", "Please supply valid first & last names", "OK");
+				return;
 			}
-			;
 			String result = restConnection.Instance.post ("/api/register", parameters);
 			if (result == "BAD_USERNAME") {
 				DisplayAlert (

@@ -93,6 +93,18 @@ namespace RayvMobileApp.iOS
 			};
 			placesImg.GestureRecognizers.Add (clickList);
 
+			//  FIND ME A...
+			Image choiceImg = new Image {
+				Source = "big-btn-find.png",
+			};
+			var clickChoice = new TapGestureRecognizer ();
+			clickChoice.Tapped += (s, e) => {
+				Console.WriteLine ("MainMenu: choice button - push choicePage");
+				this.Navigation.PushModalAsync (new NavigationPage (new ChoicePage ()));
+			};
+			choiceImg.GestureRecognizers.Add (clickChoice);
+
+
 			// SHARE
 			Image profileImg = new Image {
 				Source = "big-btn-profile.png"
@@ -104,7 +116,7 @@ namespace RayvMobileApp.iOS
 			};
 			profileImg.GestureRecognizers.Add (clickProfile);
 
-			grid.Children.Add (placesImg, 0, 0);
+			grid.Children.Add (choiceImg, 0, 0);
 			grid.Children.Add (newsImg, 0, 1);
 			grid.Children.Add (addImg, 0, 2);
 			grid.Children.Add (friendsImg, 0, 3);

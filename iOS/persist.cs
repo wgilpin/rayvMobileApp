@@ -29,6 +29,8 @@ namespace RayvMobileApp.iOS
 
 		public bool DataIsLive;
 
+		public List<string> CuisineHistory;
+
 		public List<SearchHistory> SearchHistoryList;
 		private List<string> _categories;
 		public Dictionary<string, Friend> Friends;

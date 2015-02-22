@@ -199,6 +199,7 @@
     <BundleResource Include="Resources\54-lock%402x.png" />
     <BundleResource Include="Resources\298-circlex%402x.png" />
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
+    <BundleResource Include="Resources\big-btn-find.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -256,6 +257,7 @@
     <Compile Include="GoogleMaps.cs" />
     <Compile Include="RegisterPage.cs" />
     <Compile Include="ServerPicker.cs" />
+    <Compile Include="ChoicePage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />
