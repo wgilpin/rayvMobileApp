@@ -176,10 +176,8 @@
     <BundleResource Include="Resources\Default.png" />
     <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\rayvcircle.gif" />
-    <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-profile.png" />
     <BundleResource Include="Resources\big-btn-friends.png" />
-    <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\big-btn-places.png" />
     <BundleResource Include="Resources\icon-news-pressed.png" />
     <BundleResource Include="Resources\icon-news.png" />
@@ -199,6 +197,8 @@
     <BundleResource Include="Resources\54-lock%402x.png" />
     <BundleResource Include="Resources\298-circlex%402x.png" />
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
+    <BundleResource Include="Resources\big-btn-news.png" />
+    <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-find.png" />
   </ItemGroup>
   <ItemGroup>

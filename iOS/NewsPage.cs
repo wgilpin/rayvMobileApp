@@ -264,17 +264,18 @@ namespace RayvMobileApp.iOS
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				List<Vote> News;
 				switch (Filter) {
-				case NewsFilterKind.All:
-					News = (from v in Persist.Instance.Votes
-					        where v.voter != MyStringId
-					        select v)
-					.OrderByDescending (x => x.when)
-					.ToList ();
-					break;
+
 				case NewsFilterKind.Good:
 					News = (from v in Persist.Instance.Votes
 					        where v.voter != MyStringId
 					            && v.vote == 1
+					        select v)
+						.OrderByDescending (x => x.when)
+						.ToList ();
+					break;
+				default:
+					News = (from v in Persist.Instance.Votes
+					        where v.voter != MyStringId
 					        select v)
 						.OrderByDescending (x => x.when)
 						.ToList ();
