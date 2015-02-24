@@ -37,13 +37,13 @@ namespace RayvMobileApp.iOS
 
 			Grid grid = new Grid {
 				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
-				VerticalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.Center,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -99,8 +99,8 @@ namespace RayvMobileApp.iOS
 			};
 			var clickChoice = new TapGestureRecognizer ();
 			clickChoice.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: choice button - push choicePage");
-				this.Navigation.PushModalAsync (new NavigationPage (new ChoicePage ()));
+				Console.WriteLine ("MainMenu: choice button - push ListPage");
+				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
 			};
 			choiceImg.GestureRecognizers.Add (clickChoice);
 
@@ -117,10 +117,10 @@ namespace RayvMobileApp.iOS
 			profileImg.GestureRecognizers.Add (clickProfile);
 
 			grid.Children.Add (choiceImg, 0, 0);
-			grid.Children.Add (newsImg, 0, 1);
-			grid.Children.Add (addImg, 0, 2);
-			grid.Children.Add (friendsImg, 0, 3);
-			grid.Children.Add (profileImg, 0, 4);
+			grid.Children.Add (addImg, 0, 1);
+			grid.Children.Add (newsImg, 0, 2);
+//			grid.Children.Add (friendsImg, 0, 3);
+//			grid.Children.Add (profileImg, 0, 4);
 			this.Content = grid;
 
 			AppDelegate.locationMgr = new LocationManager ();

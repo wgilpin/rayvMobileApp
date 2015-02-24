@@ -4,6 +4,50 @@ using System.Text;
 
 namespace RayvMobileApp.iOS
 {
+	public class LabelWithChangeButton: Grid
+	{
+		private Button ButtonChange;
+		Label ButtonLabel;
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { ButtonChange.Clicked += value; }
+		}
+
+		public string Text {
+			get { return ButtonLabel.Text; }
+			set { ButtonLabel.Text = value; }
+		}
+
+		public string ButtonText {
+			get { return ButtonChange.Text; }
+			set { ButtonChange.Text = value; }
+		}
+
+		public LabelWithChangeButton () : base ()
+		{
+			ButtonChange = new Button {
+				Text = "Change",
+				HorizontalOptions = LayoutOptions.End,
+			};
+			ButtonChange.HeightRequest = 20;
+			ButtonLabel = new Label {
+				Text = "",
+				TextColor = Color.FromHex ("#666"),
+				FontAttributes = FontAttributes.Italic,
+				HorizontalOptions = LayoutOptions.Start,
+			};
+
+			Padding = new Thickness (5, 5, 2, 5);
+			HorizontalOptions = LayoutOptions.StartAndExpand;
+			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			Children.Add (ButtonLabel, 0, 1, 0, 1);
+			Children.Add (ButtonChange, 1, 2, 0, 1);
+		}
+	}
+
 	public class RayvButton : Button
 	{
 		public EventHandler OnClick {

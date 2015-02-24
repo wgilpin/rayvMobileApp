@@ -7,6 +7,12 @@ using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
+	enum NewsFilterKind: short
+	{
+		Good,
+		All,
+	}
+
 	public class NewsPage: ContentPage
 	{
 		const int NEWS_IMAGE_SIZE = 60;
@@ -24,6 +30,8 @@ namespace RayvMobileApp.iOS
 		int ShowRows;
 		StackLayout Toolbar;
 		ActivityIndicator Spinner;
+
+		NewsFilterKind Filter = NewsFilterKind.All;
 
 		public NewsPage ()
 		{
@@ -254,12 +262,24 @@ namespace RayvMobileApp.iOS
 				list.ItemsSource = null;
 				Persist.Instance.Votes.Sort (); 
 				string MyStringId = Persist.Instance.MyId.ToString ();
-				List<Vote> News = (from v in Persist.Instance.Votes
-				                   where v.voter != MyStringId
-				                       && v.vote == 1
-				                   select v)
+				List<Vote> News;
+				switch (Filter) {
+				case NewsFilterKind.All:
+					News = (from v in Persist.Instance.Votes
+					        where v.voter != MyStringId
+					        select v)
 					.OrderByDescending (x => x.when)
 					.ToList ();
+					break;
+				case NewsFilterKind.Good:
+					News = (from v in Persist.Instance.Votes
+					        where v.voter != MyStringId
+					            && v.vote == 1
+					        select v)
+						.OrderByDescending (x => x.when)
+						.ToList ();
+					break;
+				}
 				list.ItemsSource = News.Take (ShowRows);
 				Device.BeginInvokeOnMainThread (() => {
 					MoreBtn.IsVisible = News.Count > ShowRows;

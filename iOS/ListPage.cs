@@ -38,6 +38,12 @@ namespace RayvMobileApp.iOS
 		List<Place> currentPlaces;
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
+		EntryWithButton AreaBox;
+		LabelWithChangeButton LocationButton;
+		LabelWithChangeButton CuisineButton;
+		Position SearchPosition;
+		ActivityIndicator Spinner;
+
 		Label NothingFound;
 		Page Caller;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
@@ -76,6 +82,13 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.SelectedIndex = FilterCuisinePicker.Items.IndexOf (FilterCuisineKind);
 			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 				
+			AreaBox = new EntryWithButton {
+				Placeholder = "Enter Area to Search",
+				Source = "icon-06-magnify@2x.png",
+				OnClick = DoPlaceSearch,
+				Text = "",
+				HeightRequest = 30,
+			};
 
 			var FiltersCloseBtn = new RayvButton ("Clear Filter") {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -126,10 +139,21 @@ namespace RayvMobileApp.iOS
 			filters.Children.Add (FilterAllBtn, 1, 2, 1, 2);
 			filters.Children.Add (FilterWishBtn, 0, 1, 2, 3);
 			filters.Children.Add (FilterNewBtn, 1, 2, 2, 3);
-			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
-			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
+//			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
+//			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
 			filters.Children.Add (FiltersCloseBtn, 0, 2, 5, 6);
 
+
+			LocationButton = new LabelWithChangeButton {
+				Text = "Near My Location",
+				OnClick = DoPickLocation,
+				Padding = new Thickness (5, 15, 5, 5),
+			};
+
+			CuisineButton = new LabelWithChangeButton {
+				Text = "All Types of Food",
+				OnClick = DoPickCuisine,
+			};
 
 
 			listView = new PlacesListView {
@@ -147,6 +171,8 @@ namespace RayvMobileApp.iOS
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (30, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (30, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
 				},
@@ -168,10 +194,29 @@ namespace RayvMobileApp.iOS
 //					},
 				}
 			};
-
-			grid.Children.Add (inner, 0, 0);
-			grid.Children.Add (tools, 0, 1);
+			Spinner = new ActivityIndicator {
+				IsRunning = false,
+			};
+			grid.Children.Add (new StackLayout {
+				HorizontalOptions = LayoutOptions.StartAndExpand,
+				Children = {
+					LocationButton,
+					AreaBox,
+					Spinner,
+				}
+			}, 0, 0);
+			grid.Children.Add (new StackLayout {
+				HorizontalOptions = LayoutOptions.StartAndExpand,
+				Children = {
+					CuisineButton,
+					FilterCuisinePicker,
+				}
+			}, 0, 1);
+			grid.Children.Add (inner, 0, 2);
+			grid.Children.Add (tools, 0, 3);
 			filters.IsVisible = false;
+			FilterCuisinePicker.IsVisible = false;
+			AreaBox.IsVisible = false;
 			this.Content = grid;
 //			new StackLayout {;
 //
@@ -203,6 +248,9 @@ namespace RayvMobileApp.iOS
 					filters.IsVisible = !filters.IsVisible;
 				})
 			});
+
+
+			SearchPosition = Persist.Instance.GpsPosition;
 
 			FilterList ();
 			this.Appearing += (object sender, EventArgs e) => {
@@ -251,21 +299,74 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
-		public async void  DoFilterMine (object sim, EventArgs e)
+		async public void DoPickLocation (object s, EventArgs e)
+		{
+			if (AreaBox.IsVisible) {
+				AreaBox.IsVisible = false;
+				LocationButton.ButtonText = "Change";
+				SearchPosition = Persist.Instance.GpsPosition;
+				Spinner.IsRunning = true;
+				Console.WriteLine ("Spin");
+				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+
+					FilterList ();
+
+				})).Start ();
+			} else {
+				AreaBox.IsVisible = true;
+				LocationButton.ButtonText = "Clear";
+			}
+		}
+
+		async public void DoPlaceSearch (object s, EventArgs e)
+		{
+			Spinner.IsRunning = true;
+			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (AreaBox.Text));
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				var positions = geoCodePositions.ToList ();
+				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
+					Console.WriteLine ("AddMenu.SearchHere: Got");
+					if (DEBUG_ON_SIMULATOR) {
+						SearchPosition = new Position (53.1, -1.5);
+						Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
+					} else {
+						SearchPosition = positions.First ();
+					}
+				}
+				FilterList ();
+
+			})).Start ();
+		}
+
+		public void DoPickCuisine (object s, EventArgs e)
+		{
+			if (FilterCuisinePicker.IsVisible) {
+				// Hide if
+				FilterCuisinePicker.IsVisible = false;
+				CuisineButton.ButtonText = "Change";
+				FilterCuisinePicker.SelectedIndex = -1;
+			} else {
+				// Show it
+				FilterCuisinePicker.IsVisible = true;
+				CuisineButton.ButtonText = "Clear";
+			}
+		}
+
+		public async void  DoFilterMine (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.Mine;
 			await FilterList ();
 			filters.IsVisible = currentPlaces.Count () == 0;
 		}
 
-		public async void  DoFilterAll (object sim, EventArgs e)
+		public async void  DoFilterAll (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.All;
 			FilterList ();
 			filters.IsVisible = currentPlaces.Count () == 0;
 		}
 
-		public async void  DoFilterWish (object sim, EventArgs e)
+		public async void  DoFilterWish (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.Wishlist;
 			FilterList ();
@@ -295,7 +396,12 @@ namespace RayvMobileApp.iOS
 				FilterCuisineKind = FilterCuisinePicker.Items [FilterCuisinePicker.SelectedIndex];
 			else
 				FilterCuisineKind = null;
-			FilterList ();
+			Spinner.IsRunning = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+
+				FilterList ();
+
+			})).Start ();
 			filters.IsVisible = false;
 		}
 
@@ -340,10 +446,12 @@ namespace RayvMobileApp.iOS
 		async Task FilterList ()
 		{
 			Persist data = Persist.Instance;
+			data.updatePlaces (SearchPosition);
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
 				switch (MainFilter) {
 				case FilterKind.Go:
+					// places to go - from cuisine string constructorWill
 					ResetCuisinePicker ();
 					currentPlaces = (
 					    from p in data.Places
@@ -398,8 +506,11 @@ namespace RayvMobileApp.iOS
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
-			SetList (currentPlaces);
-			FilterSearchBox.Unfocus ();
+			Device.BeginInvokeOnMainThread (() => {
+				SetList (currentPlaces);
+				FilterSearchBox.Unfocus ();
+				Spinner.IsRunning = false;
+			});
 		}
 
 

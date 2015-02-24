@@ -479,12 +479,12 @@ namespace RayvMobileApp.iOS
 		/**
 		 * Sort Places by Distance from me and update DB
 		 */
-		public void updatePlaces ()
+		public void updatePlaces (Position? searchCentre = null)
 		{
 			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
 				db.BusyTimeout = DbTimeout;
 				foreach (Place p in Places) {
-					p.CalculateDistanceFromPlace ();
+					p.CalculateDistanceFromPlace (searchCentre);
 					db.InsertOrReplace (p);
 					// it is synced because it has just come from the server
 					p.IsSynced = true;
@@ -522,11 +522,12 @@ namespace RayvMobileApp.iOS
 		 */
 		public void SortPlaces (List<Place> placeList = null)
 		{
+			Console.WriteLine ("SortPlaces");
 			if (placeList == null)
 				placeList = Places;
-			foreach (Place p in placeList) {
-				p.CalculateDistanceFromPlace ();
-			}
+//			foreach (Place p in placeList) {
+//				p.CalculateDistanceFromPlace ();
+//			}
 			placeList.Sort ();
 		}
 
