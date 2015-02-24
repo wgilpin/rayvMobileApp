@@ -345,7 +345,7 @@ namespace RayvMobileApp.iOS
 			};
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
-				Icon = "icon-map.png",
+//				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Debug.WriteLine ("detailPage Map Toolbar: Push MapPage");
@@ -354,7 +354,7 @@ namespace RayvMobileApp.iOS
 			});
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Edit",
-				Icon = "187-pencil@2x.png",
+//				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => { 
 					Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
