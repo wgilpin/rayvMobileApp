@@ -57,11 +57,11 @@ namespace RayvMobileApp.iOS
 			get {
 				String imageUrl = "";
 				if (vote == 1)
-					imageUrl = "heart-lg.png";
+					imageUrl = "Liked";
 				if (vote == -1)
-					imageUrl = "no-entry-lg.png";
+					imageUrl = "Diskliked";
 				if (untried)
-					imageUrl = "star-lg.png";
+					imageUrl = "Saved";
 				return imageUrl;
 			}
 		}

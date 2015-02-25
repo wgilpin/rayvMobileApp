@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Forms;
 
 namespace RayvMobileApp.iOS
 {
@@ -19,6 +20,9 @@ namespace RayvMobileApp.iOS
 		public static string LAST_LNG = "LastLng";
 		public static string SERVER = "server";
 		public static string LAST_SYNC = "last_sync";
+		public static Color ColorLight = Color.FromHex ("afb4f5");
+		public static Color ColorDark = Color.FromHex ("4F487A");
+
 		
 	}
 }

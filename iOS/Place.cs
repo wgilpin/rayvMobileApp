@@ -229,13 +229,13 @@ namespace RayvMobileApp.iOS
 			get {
 				String imageUrl = "";
 				if (_vote == "1")
-					imageUrl = "heart-lg.png";
+					imageUrl = "Liked";
 				if (_vote == "-1")
-					imageUrl = "no-entry-lg.png";
+					imageUrl = "Disliked";
 				if (_untried)
-					imageUrl = "star-lg.png";
+					imageUrl = "Saved";
 				if (imageUrl == "")
-					imageUrl = "two-smileys-lg.png";
+					imageUrl = "Liked   Disliked";
 				return imageUrl;
 			}
 		}

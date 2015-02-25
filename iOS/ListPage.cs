@@ -239,15 +239,15 @@ namespace RayvMobileApp.iOS
 				})
 			});
 
-			ToolbarItems.Add (new ToolbarItem {
-				Text = "Filter",
-//				Icon = "filter.png",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					Debug.WriteLine ("ListPage Toolbar Filter");
-					filters.IsVisible = !filters.IsVisible;
-				})
-			});
+//			ToolbarItems.Add (new ToolbarItem {
+//				Text = "Filter",
+////				Icon = "filter.png",
+//				Order = ToolbarItemOrder.Primary,
+//				Command = new Command (() => {
+//					Debug.WriteLine ("ListPage Toolbar Filter");
+//					filters.IsVisible = !filters.IsVisible;
+//				})
+//			});
 
 
 			SearchPosition = Persist.Instance.GpsPosition;
