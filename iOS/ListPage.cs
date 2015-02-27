@@ -147,7 +147,7 @@ namespace RayvMobileApp.iOS
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
 				OnClick = DoPickLocation,
-				Padding = new Thickness (5, 15, 5, 5),
+				Padding = new Thickness (5, 15, 5, 0),
 			};
 
 			CuisineButton = new LabelWithChangeButton {

@@ -200,6 +200,8 @@
     <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-find.png" />
+    <BundleResource Include="Resources\big-btn-add-place.png" />
+    <BundleResource Include="Resources\big-btn-add-friend.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -259,6 +261,7 @@
     <Compile Include="ServerPicker.cs" />
     <Compile Include="ChoicePage.cs" />
     <Compile Include="PersistantQueue.cs" />
+    <Compile Include="AddWhatPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

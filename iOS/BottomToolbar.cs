@@ -29,7 +29,7 @@ namespace RayvMobileApp.iOS
 		void ShowAdd (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Add button - push AddMenu");
-			this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()), false);
+			this.Navigation.PushModalAsync (new NavigationPage (new AddWhatPage ()), false);
 		}
 
 		void ShowFriends (object s, EventArgs e)

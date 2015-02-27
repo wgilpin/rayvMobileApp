@@ -8,10 +8,19 @@ namespace RayvMobileApp.iOS
 	{
 		private Button ButtonChange;
 		Label ButtonLabel;
+		private TapGestureRecognizer ClickLabel;
+
 
 		public EventHandler OnClick {
 			get { return null; }
-			set { ButtonChange.Clicked += value; }
+			set { 
+				//the button
+				ButtonChange.Clicked += value; 
+				//the label
+				ClickLabel = new TapGestureRecognizer ();
+				ClickLabel.Tapped += value;
+				ButtonLabel.GestureRecognizers.Add (ClickLabel);
+			}
 		}
 
 		public string Text {
