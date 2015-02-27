@@ -33,6 +33,7 @@ namespace RayvMobileApp.iOS
 
 		public List<SearchHistory> SearchHistoryList;
 		private List<string> _categories;
+		private Dictionary<string, int> _categoryCounts;
 		public Dictionary<string, Friend> Friends;
 		public Position GpsPosition;
 		private static Persist _instance;
@@ -75,6 +76,10 @@ namespace RayvMobileApp.iOS
 		public Int64 MyId {
 			get;
 			set;
+		}
+
+		public Dictionary<string, int> CategoryCounts {
+			get { return _categoryCounts; }
 		}
 
 		#endregion
@@ -377,6 +382,18 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		void UpdateCategoryCounts ()
+		{
+//			_categoryCounts
+			var x = Places.GroupBy (p => p.category);
+			var y = x.Select (group => new { 
+				Metric = group.Key, 
+				Count = group.Count () 
+			})
+				.OrderBy (counted => counted.Metric);
+			_categoryCounts = y.ToDictionary (item => item.Metric, item => item.Count);
+		}
+
 		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq)
 		{
 			IRestResponse resp;
@@ -489,7 +506,8 @@ namespace RayvMobileApp.iOS
 					// it is synced because it has just come from the server
 					p.IsSynced = true;
 				}
-			
+				UpdateCategoryCounts ();
+
 				Places.Sort ();
 				foreach (Vote v in Votes) {
 					try {

@@ -44,14 +44,14 @@ namespace RayvMobileApp.iOS
 				Text = "",
 				TextColor = Color.FromHex ("#666"),
 				FontAttributes = FontAttributes.Italic,
-				HorizontalOptions = LayoutOptions.Start,
+				HorizontalOptions = LayoutOptions.FillAndExpand
 			};
 
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;
-			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
 			Children.Add (ButtonLabel, 0, 1, 0, 1);
 			Children.Add (ButtonChange, 1, 2, 0, 1);
 		}

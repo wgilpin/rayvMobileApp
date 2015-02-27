@@ -86,6 +86,7 @@ namespace RayvMobileApp.iOS
 					myVote.SetBinding (Label.IsVisibleProperty, "iVoted");
 					myVote.SetBinding (Label.TextProperty, "voteImage");
 
+
 					Image myVoteImg = new Image { 
 						Aspect = Aspect.AspectFit,
 						WidthRequest = 28, 

@@ -34,7 +34,7 @@ namespace RayvMobileApp.iOS
 		static ListView listView;
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisineKind;
-		Picker FilterCuisinePicker;
+		ListView FilterCuisinePicker;
 		List<Place> currentPlaces;
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
@@ -67,33 +67,18 @@ namespace RayvMobileApp.iOS
 			this.Title = "List";
 			this.Icon = "bars-black.png";
 
-			var FilterMineBtn = new ButtonWide ("My Places");
-			FilterMineBtn.Clicked += DoFilterMine;
-
-			var FilterAllBtn = new ButtonWide ("All Places");
-			FilterAllBtn.Clicked += DoFilterAll;
-
-			FilterCuisinePicker = new Picker {
-				Title = "Filter by Cuisine",
-			};
-			foreach (string cat in Persist.Instance.Categories) {
-				FilterCuisinePicker.Items.Add (cat);
-			}
-			FilterCuisinePicker.SelectedIndex = FilterCuisinePicker.Items.IndexOf (FilterCuisineKind);
-			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
-				
-			AreaBox = new EntryWithButton {
-				Placeholder = "Enter Area to Search",
-				Source = "icon-06-magnify@2x.png",
-				OnClick = DoPlaceSearch,
-				Text = "",
-				HeightRequest = 30,
-			};
+			// FILTER BOX
 
 			var FiltersCloseBtn = new RayvButton ("Clear Filter") {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 			};
 			FiltersCloseBtn.Clicked += ClearFilter;
+
+			var FilterMineBtn = new ButtonWide ("My Places");
+			FilterMineBtn.Clicked += DoFilterMine;
+
+			var FilterAllBtn = new ButtonWide ("All Places");
+			FilterAllBtn.Clicked += DoFilterAll;
 
 			var FilterNewBtn = new ButtonWide ("New Places");
 			FilterNewBtn.Clicked += (object sender, EventArgs e) => {
@@ -126,8 +111,6 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
-
-
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -139,10 +122,45 @@ namespace RayvMobileApp.iOS
 			filters.Children.Add (FilterAllBtn, 1, 2, 1, 2);
 			filters.Children.Add (FilterWishBtn, 0, 1, 2, 3);
 			filters.Children.Add (FilterNewBtn, 1, 2, 2, 3);
-//			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
-//			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
+			//			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
+			//			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
 			filters.Children.Add (FiltersCloseBtn, 0, 2, 5, 6);
 
+
+			// CONTROLS
+
+			FilterCuisinePicker = new ListView {
+				ItemsSource = Persist.Instance.CategoryCounts,
+				RowHeight = 30,
+			};
+			FilterCuisinePicker.ItemTemplate = new DataTemplate (() => {
+
+				Label cuisineType = new Label ();
+				cuisineType.SetBinding (Label.TextProperty, "Key");
+				Label cuisineCount = new Label ();
+				cuisineCount.SetBinding (Label.TextProperty, "Value");
+				return new ViewCell {
+					View = new StackLayout {
+						Padding = new Thickness (5, 2, 0, 0),
+						VerticalOptions = LayoutOptions.Center,
+						Orientation = StackOrientation.Horizontal,
+						Children = {
+							cuisineType, cuisineCount,
+						}
+					},
+				};
+			});
+
+
+			FilterCuisinePicker.ItemTapped += UpdateCuisine;
+				
+			AreaBox = new EntryWithButton {
+				Placeholder = "Enter Area to Search",
+				Source = "icon-06-magnify@2x.png",
+				OnClick = DoPlaceSearch,
+				Text = "",
+				HeightRequest = 30,
+			};
 
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
@@ -186,12 +204,6 @@ namespace RayvMobileApp.iOS
 					filters,
 					listView,
 					NothingFound,
-//					new StackLayout {
-//						VerticalOptions = LayoutOptions.End,
-//						Children = {
-//							tools,
-//						},
-//					},
 				}
 			};
 			Spinner = new ActivityIndicator {
@@ -218,12 +230,6 @@ namespace RayvMobileApp.iOS
 			FilterCuisinePicker.IsVisible = false;
 			AreaBox.IsVisible = false;
 			this.Content = grid;
-//			new StackLayout {;
-//
-//				Children = {
-//					inner
-//				}
-//			};
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
@@ -249,17 +255,8 @@ namespace RayvMobileApp.iOS
 //				})
 //			});
 
+			this.Appearing += OnPageAppearing;
 
-			SearchPosition = Persist.Instance.GpsPosition;
-
-			FilterList ();
-			this.Appearing += (object sender, EventArgs e) => {
-				//SetList (Persist.Instance.Places);
-				FilterList ();
-			};
-			StartTimerIfNoGPS ();
-
-			System.Diagnostics.Debug.WriteLine ("ListPage() Done");
 		}
 
 
@@ -299,6 +296,13 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
+		async void OnPageAppearing (object sender, EventArgs e)
+		{
+			SearchPosition = Persist.Instance.GpsPosition;
+			await FilterList ();
+			StartTimerIfNoGPS ();
+		}
+
 		async public void DoPickLocation (object s, EventArgs e)
 		{
 			if (AreaBox.IsVisible) {
@@ -334,22 +338,20 @@ namespace RayvMobileApp.iOS
 					}
 				}
 				FilterList ();
-
 			})).Start ();
 		}
 
-		public void DoPickCuisine (object s, EventArgs e)
+		async public void DoPickCuisine (object s, EventArgs e)
 		{
+			FilterCuisinePicker.IsVisible = !FilterCuisinePicker.IsVisible;
+			FilterCuisineKind = "";
 			if (FilterCuisinePicker.IsVisible) {
-				// Hide if
-				FilterCuisinePicker.IsVisible = false;
-				CuisineButton.ButtonText = "Change";
-				FilterCuisinePicker.SelectedIndex = -1;
-			} else {
 				// Show it
-				FilterCuisinePicker.IsVisible = true;
 				CuisineButton.ButtonText = "Clear";
-			}
+			} else {
+				CuisineButton.Text = "All Types of Food";
+				await FilterList ();
+			} 
 		}
 
 		public async void  DoFilterMine (object s, EventArgs e)
@@ -362,20 +364,19 @@ namespace RayvMobileApp.iOS
 		public async void  DoFilterAll (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.All;
-			FilterList ();
+			await FilterList ();
 			filters.IsVisible = currentPlaces.Count () == 0;
 		}
 
 		public async void  DoFilterWish (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.Wishlist;
-			FilterList ();
+			await FilterList ();
 			filters.IsVisible = currentPlaces.Count () == 0;
 		}
 
 		void ClearFilter (object s, EventArgs e)
 		{ 
-			FilterCuisinePicker.SelectedIndex = -1;
 			FilterSearchBox.Text = "";
 			FilterAreaSearchBox.Text = "";
 			filters.IsVisible = false;
@@ -389,13 +390,13 @@ namespace RayvMobileApp.iOS
 			FilterList ();
 		}
 
-		void UpdateCuisine (Object sender, System.EventArgs e)
+		void UpdateCuisine (Object sender, ItemTappedEventArgs e)
 		{
 			MainFilter = FilterKind.Cuisine;
-			if (FilterCuisinePicker.SelectedIndex >= 0)
-				FilterCuisineKind = FilterCuisinePicker.Items [FilterCuisinePicker.SelectedIndex];
-			else
-				FilterCuisineKind = null;
+			string cuisine = ((KeyValuePair<string,int>)e.Item).Key;
+			FilterCuisineKind = cuisine;
+			CuisineButton.Text = cuisine;
+			FilterCuisinePicker.IsVisible = false;
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 
@@ -436,9 +437,9 @@ namespace RayvMobileApp.iOS
 
 		void ResetCuisinePicker ()
 		{
-			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
-			FilterCuisinePicker.SelectedIndex = -1;
-			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
+//			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
+//			FilterCuisinePicker.SelectedIndex = -1;
+//			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 		}
 
 
