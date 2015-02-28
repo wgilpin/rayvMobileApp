@@ -67,8 +67,8 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (22, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (12, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (25, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.FromHex ("#554FD9"),
@@ -84,8 +84,8 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (40, GridUnitType.Absolute) },
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (22, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (12, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (25, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.FromHex ("#554FD9"),
@@ -126,6 +126,7 @@ namespace RayvMobileApp.iOS
 				TextColor = Color.White,
 				FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Button)),
 				HorizontalOptions = LayoutOptions.End,
+				VerticalOptions = LayoutOptions.End,
 			};
 			MoreBtn.Clicked += (sender, e) => {
 				gridMain.IsVisible = false;
@@ -208,14 +209,14 @@ namespace RayvMobileApp.iOS
 			if (pressed == "add")
 				AddBtn.TextColor = Color.White;
 			gridMain.Children.Add (AddBtn, 2, 3, 1, 2);
-			gridMain.Children.Add (MoreBtn, 4, 5, 1, 2);
+			gridMain.Children.Add (MoreBtn, 4, 5, 0, 2);
 			gridSecond.Children.Add (new ToolbarButton ("Friends") { 
 				OnClick = ShowFriends,
 			}, 1, 2, 1, 2);
 			gridSecond.Children.Add (new ToolbarButton ("Profile") { 
 				OnClick = ShowProfile,
 			}, 2, 3, 1, 2);
-			gridSecond.Children.Add (BackBtn, 0, 1, 1, 2);
+			gridSecond.Children.Add (BackBtn, 0, 1, 0, 2);
 			this.Children.Add (gridMain);
 			this.Children.Add (gridSecond);
 

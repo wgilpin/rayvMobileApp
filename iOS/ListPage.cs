@@ -137,7 +137,12 @@ namespace RayvMobileApp.iOS
 
 				Label cuisineType = new Label ();
 				cuisineType.SetBinding (Label.TextProperty, "Key");
-				Label cuisineCount = new Label ();
+				Label cuisineCount = new Label {
+					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
+					FontAttributes = FontAttributes.Italic,
+					TranslationY = 4,
+					TextColor = Color.Gray,
+				};
 				cuisineCount.SetBinding (Label.TextProperty, "Value");
 				return new ViewCell {
 					View = new StackLayout {
@@ -170,7 +175,7 @@ namespace RayvMobileApp.iOS
 
 			CuisineButton = new LabelWithChangeButton {
 				Text = "All Types of Food",
-				OnClick = DoPickCuisine,
+				OnClick = DoChangeCuisine,
 			};
 
 
@@ -341,14 +346,17 @@ namespace RayvMobileApp.iOS
 			})).Start ();
 		}
 
-		async public void DoPickCuisine (object s, EventArgs e)
+		async public void DoChangeCuisine (object s, EventArgs e)
 		{
-			FilterCuisinePicker.IsVisible = !FilterCuisinePicker.IsVisible;
-			FilterCuisineKind = "";
-			if (FilterCuisinePicker.IsVisible) {
-				// Show it
+			if (String.IsNullOrEmpty (FilterCuisineKind)) {
 				CuisineButton.ButtonText = "Clear";
+				if (FilterCuisinePicker.IsVisible) {
+					CuisineButton.ButtonText = "Change";
+				} 
+				FilterCuisinePicker.IsVisible = !FilterCuisinePicker.IsVisible;
+				// Show it
 			} else {
+				FilterCuisineKind = "";
 				CuisineButton.Text = "All Types of Food";
 				await FilterList ();
 			} 
