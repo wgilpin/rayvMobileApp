@@ -114,7 +114,7 @@ namespace RayvMobileApp.iOS
 				parameters ["level"] = Convert.ToString ((int)level);
 				parameters ["message"] = message;
 				try {
-					restConnection.Instance.post ("/api/log", parameters);
+					restConnection.Instance.post ("LogToServer: /api/log", parameters);
 				} catch (Exception ex) {
 					Console.Error.WriteLine ("LogToServer Exception {0}", ex);
 				}

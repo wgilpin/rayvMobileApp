@@ -18,7 +18,7 @@ namespace RayvMobileApp.iOS
 		{
 			try {
 				String user = Persist.Instance.GetConfig (settings.USERNAME);
-				Insights.Identify (user, "email", user);
+				Insights.Identify (user, "server", Persist.Instance.GetConfig (settings.SERVER));
 				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -29,10 +29,12 @@ namespace RayvMobileApp.iOS
 		{
 			global::Xamarin.Forms.Forms.Init ();
 			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
-			MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
+				IdentifyToAnalytics ();
+			})).Start ();
 
 			LoadApplication (new App ());
-			IdentifyToAnalytics ();
 
 			return base.FinishedLaunching (app, options);
 		}

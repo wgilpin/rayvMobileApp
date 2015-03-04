@@ -86,7 +86,7 @@ namespace RayvMobileApp.iOS
 					restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
 					Persist.Instance.Wipe ();
 					try {
-						Insights.Identify (UserNameEd.Text, "email", EmailEd.Text);
+						Insights.Identify (UserNameEd.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
 						Console.WriteLine ("AppDelegate Analytics ID: {0}", UserNameEd.Text);
 					} catch (Exception ex) {
 						Insights.Report (ex);

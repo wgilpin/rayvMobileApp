@@ -23,14 +23,14 @@ namespace RayvMobileApp.iOS
 			hereBtn.Clicked += SearchHere;
 
 			StackLayout history = new StackLayout ();
-			if (Persist.Instance.SearchHistoryList.Count == 0) {
+			if (Persist.Instance.SearchHistory.Length == 0) {
 				history.Children.Add (new LabelWide {
 					Text = "No History",
 				});
 			} else {
-				foreach (SearchHistory item in Persist.Instance.SearchHistoryList) {
+				for (int i = 0; i <= Persist.Instance.SearchHistory.Length; i++) {
 					Button clickItem = new Button {
-						Text = item.PlaceName,
+						Text = Persist.Instance.SearchHistory.GetItem (i),
 						HorizontalOptions = LayoutOptions.Center
 					};
 					clickItem.Clicked += (object sender, EventArgs e) => {
@@ -59,7 +59,7 @@ namespace RayvMobileApp.iOS
 			Xamarin.FormsMaps.Init ();
 			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (locationName.Text)).ToList ();
 			Console.WriteLine ("SearchHere: Got");
-			Persist.Instance.AddSearchHistoryItem (locationName.Text);
+			Persist.Instance.SearchHistory.Add (locationName.Text);
 			// save and return
 			_caller.searchPosition = positions.First ();
 			Debug.WriteLine ("ChoosePlacePage.SearchHere: Pop");

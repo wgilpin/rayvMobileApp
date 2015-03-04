@@ -28,7 +28,7 @@ namespace RayvMobileApp.iOS
 				Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 				try {
 					String user = Persist.Instance.GetConfig (settings.USERNAME);
-					Insights.Identify (user, "email", user);
+					Insights.Identify (user, "server", Persist.Instance.GetConfig (settings.SERVER));
 					Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
 				} catch (Exception ex) {
 					Insights.Report (ex);

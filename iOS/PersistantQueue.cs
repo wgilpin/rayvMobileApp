@@ -8,10 +8,11 @@ namespace RayvMobileApp.iOS
 		private int _size;
 		private string _kind;
 
-		public PersistantQueue (int size, string kind)
+		// usage: new PersistantQueue (nSize, "Name Identfying this queue")
+		public PersistantQueue (int size, string queueName)
 		{
 			_size = size;
-			_kind = kind;
+			_kind = queueName;
 		}
 
 		public int Length {

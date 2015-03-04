@@ -41,16 +41,8 @@ namespace RayvMobileApp.iOS
 
 		void SetHistoryButton ()
 		{
-			var HistoryList = Persist.Instance.SearchHistoryList;
-			while (HistoryList.Count > 0 && HistoryList [0] != null && HistoryList [0].PlaceName == null)
-				HistoryList.RemoveAt (0);
-
-			if (HistoryList.Count > 0 &&
-			    HistoryList [0] != null &&
-			    HistoryList [0].PlaceName != null &&
-			    HistoryList [0].PlaceName.Length > 0) {
-
-				PlaceHistoryBtn.Text = Persist.Instance.SearchHistoryList [0].PlaceName;
+			if (Persist.Instance.SearchHistory.Length > 0) {
+				PlaceHistoryBtn.Text = Persist.Instance.SearchHistory.GetItem (0);
 				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
 				PlaceHistoryBtn.Clicked -= SearchSomewhere;
 				PlaceHistoryBtn.Clicked += SearchSomewhere;
@@ -101,7 +93,7 @@ namespace RayvMobileApp.iOS
 					}
 					points.Sort ();
 					if (addToHistory) {
-						Persist.Instance.AddSearchHistoryItem (searchPlace);
+						Persist.Instance.SearchHistory.Add (searchPlace);
 						Console.WriteLine ("DoSearch: SearchHistory += {0}", searchPlace);
 					}
 					Device.BeginInvokeOnMainThread (() => {
@@ -123,16 +115,16 @@ namespace RayvMobileApp.iOS
 		void SetupSearchHistory ()
 		{
 			historyBox.Children.Clear ();
-			Persist.Instance.LoadSearchHistoryFromDb ();
-			if (Persist.Instance.SearchHistoryList.Count == 0) {
+			if (Persist.Instance.SearchHistory.Length == 0) {
 				historyBox.Children.Add (new LabelWide {
 					Text = NO_SEARCH_HISTORY,
 				});
 			} else {
-				foreach (SearchHistory item in Persist.Instance.SearchHistoryList) {
-					if (item.PlaceName != null && item.PlaceName.Length > 0) {
+				for (int i = 0; i <= Persist.Instance.SearchHistory.Length; i++) {
+					string item = Persist.Instance.SearchHistory.GetItem (i);
+					if (!String.IsNullOrEmpty (item)) {
 						Button clickItem = new Button {
-							Text = item.PlaceName,
+							Text = item,
 							HorizontalOptions = LayoutOptions.Center,
 						};
 						clickItem.Clicked += SearchSomewhere;
@@ -158,7 +150,7 @@ namespace RayvMobileApp.iOS
 				var positions = geoCodePositions.ToList ();
 				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
 					Console.WriteLine ("AddMenu.SearchHere: Got");
-					Persist.Instance.AddSearchHistoryItem (PlaceHistoryBox.Text);
+					Persist.Instance.SearchHistory.Add (PlaceHistoryBox.Text);
 					//TODO: remove DEBUG_LOGIC
 					if (DEBUG_ON_SIMULATOR) {
 						searchPosition = new Position (53.1, -1.5);
