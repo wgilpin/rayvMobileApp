@@ -3,6 +3,9 @@ using RestSharp;
 using System.Collections.Generic;
 using System.Text;
 using Xamarin;
+using System.Net;
+using Xamarin.Forms;
+using System.Threading;
 
 namespace RayvMobileApp.iOS
 {
@@ -53,41 +56,89 @@ namespace RayvMobileApp.iOS
 			} 
 		}
 
-		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET)
+		IRestResponse innerGet (string url, Dictionary<string, string> parameters, Method method)
 		{
-
-			//TODO: retries
+			var request = new RestRequest (url);
+			request.Method = method;
+			if (parameters != null) {
+				foreach (KeyValuePair<string, string> kvp in parameters) {
+					request.AddParameter (kvp.Key, kvp.Value, ParameterType.GetOrPost);
+				}
+			}
+			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
+			IRestResponse response = client.Execute (request);
+			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 			try {
-				var request = new RestRequest (url);
-				request.Method = method;
-				if (parameters != null) {
-					foreach (KeyValuePair<string, string> kvp in parameters) {
-						request.AddParameter (kvp.Key, kvp.Value, ParameterType.GetOrPost);
-					}
-				}
-				Console.WriteLine (String.Format ("get: {0}{1}", client.BaseUrl, request.Resource));
-
-				IRestResponse response = client.Execute (request);
-				Console.WriteLine (String.Format (
-					"get: response: {0}", 
-					response.Content.Substring (0, Math.Min (100, response.Content.Length))));
-				try {
-					int code = (int)response.StatusCode.GetTypeCode ();
-					if (code > 400)
-						throw new InvalidOperationException (
-							String.Format (
-								"Status {0} {1}", 
-								response.StatusCode, 
-								response.StatusDescription));
-				} catch {
-					return null;
-				}
-				return response;
-			} catch (Exception E) {
-				Insights.Report (E);
-				restConnection.LogErrorToServer (String.Format ("get: exception {0}", E));
+				int code = (int)response.StatusCode.GetTypeCode ();
+				if (code > 400)
+					throw new InvalidOperationException (
+						String.Format (
+							"Status {0} {1}", 
+							response.StatusCode, 
+							response.StatusDescription));
+			} catch {
 				return null;
 			}
+			return response;
+		}
+
+		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET)
+		{
+			const int MAX_RETRIES = 3;
+			//TODO: retries
+			for (int try_number = 0; try_number < MAX_RETRIES; try_number++) {
+				try {
+					if (try_number > 0)
+						Thread.Sleep (1000);
+					var response = innerGet (url, parameters, method);
+					if (response == null) {
+						// try again soon
+
+						continue;
+					}
+					if (response.Content == "LOGIN") {
+						// retry
+						string server = Persist.Instance.GetConfig ("server");
+						if (server.Length == 0) {
+							Console.WriteLine ("GetUserData: No server");
+							return null;
+						} else {
+							client.BaseUrl = new Uri (server);
+							setCredentials (
+								Persist.Instance.GetConfig ("username"), 
+								Persist.Instance.GetConfig ("pwd"), "");
+							IRestResponse resp;
+							Console.WriteLine ("get Login");
+							resp = innerGet ("/api/login", null, Method.GET);
+							if (resp == null) {
+								Console.WriteLine ("get login: Response NULL");
+								return null;
+							}
+							if (resp.ResponseStatus != ResponseStatus.Completed) {
+								Console.WriteLine ("get login: Bad Response {0}", resp.ResponseStatus);
+								return null;
+							}
+							if (resp.StatusCode == HttpStatusCode.Unauthorized) {
+								//TODO: This doesn't work
+								Device.BeginInvokeOnMainThread (() => {
+									Console.WriteLine ("get: Need to login");
+								});
+								return null;
+
+							}
+						}
+						continue;
+					}
+					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut)
+						continue;
+					return response;
+				} catch (Exception E) {
+					Insights.Report (E);
+					restConnection.LogErrorToServer (String.Format ("get: exception {0}", E));
+					continue;
+				}
+			}
+			return null;
 		}
 
 		public string post (string url, Dictionary<string,string> parameters = null)
@@ -114,7 +165,7 @@ namespace RayvMobileApp.iOS
 				parameters ["level"] = Convert.ToString ((int)level);
 				parameters ["message"] = message;
 				try {
-					restConnection.Instance.post ("LogToServer: /api/log", parameters);
+					restConnection.Instance.post ("/api/log", parameters);
 				} catch (Exception ex) {
 					Console.Error.WriteLine ("LogToServer Exception {0}", ex);
 				}

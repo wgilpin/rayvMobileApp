@@ -30,6 +30,14 @@ namespace RayvMobileApp.iOS
 				distLabel.Font = Font.SystemFontOfSize (NamedSize.Small);
 				distLabel.SetBinding (Label.TextProperty, "distance");
 
+				Label addressLabel = new Label {
+					Font = Font.SystemFontOfSize (NamedSize.Micro),
+					FontAttributes = FontAttributes.Italic,
+					TranslationX = 65,
+				};
+				addressLabel.SetBinding (Label.TextProperty, "address");
+
+
 				Image webImage = new Image { 
 					Aspect = Aspect.AspectFill,
 					WidthRequest = IMAGE_SIZE, 
@@ -56,6 +64,8 @@ namespace RayvMobileApp.iOS
 				grid.Children.Add (nameLabel, 1, 4, 0, 1);
 				grid.Children.Add (catLabel, 1, 2, 1, 2);
 				grid.Children.Add (distLabel, 1, 2, 2, 3);
+				if (!ShowVotes)
+					grid.Children.Add (addressLabel, 1, 4, 2, 3);
 
 
 				// votes are shown on the main list, not on the Add lists

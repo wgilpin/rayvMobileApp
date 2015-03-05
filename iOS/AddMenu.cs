@@ -289,7 +289,8 @@ namespace RayvMobileApp.iOS
 				IsRunning = false,
 				Color = Color.Blue,
 				VerticalOptions = LayoutOptions.CenterAndExpand,
-				HorizontalOptions = LayoutOptions.CenterAndExpand
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 30,
 			};
 
 			this.Title = "Add a place";

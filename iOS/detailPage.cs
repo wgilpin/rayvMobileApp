@@ -56,7 +56,7 @@ namespace RayvMobileApp.iOS
 			Grid grid = new Grid {
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (20.0) },
+					new ColumnDefinition { Width = new GridLength (50.0) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
@@ -65,6 +65,7 @@ namespace RayvMobileApp.iOS
 			for (int row = 0; row < voteList.Count (); row++) {
 				if (voteList [row].voter != MyStringId) {
 					try {
+
 						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
@@ -75,16 +76,17 @@ namespace RayvMobileApp.iOS
 							FontAttributes = FontAttributes.Italic,
 							TextColor = Color.FromHex ("#606060"),
 						}, 2, 4, whichRow * 2, whichRow * 2 + 1);
-						grid.Children.Add (new Label { 
-							Text = voteList [row].PrettyComment,
-							FontAttributes = FontAttributes.Italic,
-						}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
-						Image img = new Image {
-							WidthRequest = 20,
-							Aspect = Aspect.AspectFit,
-							Source = voteList [row].GetIconName,
+						String comment_text = voteList [row].PrettyComment;
+						if (!String.IsNullOrEmpty (comment_text)) {
+							grid.Children.Add (new Label { 
+								Text = comment_text,
+								FontAttributes = FontAttributes.Italic,
+							}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
+						}
+						Label vote = new Label {
+							Text = voteList [row].GetIconName,
 						};
-						grid.Children.Add (img, 1, 2, whichRow * 2, whichRow * 2 + 1);
+						grid.Children.Add (vote, 1, 2, whichRow * 2, whichRow * 2 + 1);
 						whichRow++;
 					} catch (Exception ex) {
 						Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);

@@ -117,7 +117,7 @@ namespace RayvMobileApp.iOS
 		public  IEnumerable ItemsSource {
 			set {
 				listView.ItemsSource = value;
-				NothingFound.IsVisible = (value as List<Place>).Count > 0;
+				NothingFound.IsVisible = (value as List<Place>).Count == 0;
 			}
 		}
 
