@@ -20,18 +20,17 @@ namespace RayvMobileApp.iOS
 
 		#region Fields
 
-		Entry SearchBox;
+		Entry SearchNameBox;
 		RayvButton NearMeBtn;
 		RayvButton FromMapBtn;
 		RayvButton PlaceHistoryBtn;
-		Entry PlaceHistoryBox;
+		Entry SearchLocationBox;
 		Boolean _dirty = false;
 		Position _searchPosition;
 		Frame PlaceHistoryFrame;
 		Grid PlaceHistoryCombo;
 		RayvButton HereBtn;
 		ActivityIndicator Spinner;
-		bool FirstTime;
 		StackLayout historyBox;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 
@@ -44,11 +43,11 @@ namespace RayvMobileApp.iOS
 			if (Persist.Instance.SearchHistory.Length > 0) {
 				PlaceHistoryBtn.Text = Persist.Instance.SearchHistory.GetItem (0);
 				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
-				PlaceHistoryBtn.Clicked -= SearchSomewhere;
-				PlaceHistoryBtn.Clicked += SearchSomewhere;
+				PlaceHistoryBtn.Clicked -= SearchHistoryItemClicked;
+				PlaceHistoryBtn.Clicked += SearchHistoryItemClicked;
 			} else {
 				PlaceHistoryBtn.Text = " Choose Where... ";
-				PlaceHistoryBtn.Clicked -= SearchSomewhere;
+				PlaceHistoryBtn.Clicked -= SearchHistoryItemClicked;
 				PlaceHistoryBtn.Clicked -= ShowPlaceHistory;
 				PlaceHistoryBtn.Clicked += ShowPlaceHistory;
 			}
@@ -62,7 +61,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		void DoSearch (String searchPlace, bool addToHistory = false)
+		void DoSearch (String searchName, String searchLocation)
 		{
 			if (!_dirty) {
 				Console.WriteLine ("AddMenu.DoSearch - Not Dirty");
@@ -77,11 +76,11 @@ namespace RayvMobileApp.iOS
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();
 				parameters ["lat"] = searchPosition.Latitude.ToString ();
 				parameters ["lng"] = searchPosition.Longitude.ToString ();
-				if (SearchBox.Text != null) {
-					parameters ["addr"] = searchPlace;
+				if (SearchNameBox.Text != null) {
+					parameters ["addr"] = searchLocation;
 				}
-				if (SearchBox.Text != null) {
-					parameters ["place_name"] = searchPlace;
+				if (SearchLocationBox.Text != null) {
+					parameters ["place_name"] = searchName;
 				}
 				parameters ["near_me"] = "1";
 				try {
@@ -92,11 +91,13 @@ namespace RayvMobileApp.iOS
 						point.CalculateDistanceFromPlace ();
 					}
 					points.Sort ();
-					if (addToHistory) {
-						Persist.Instance.SearchHistory.Add (searchPlace);
-						Console.WriteLine ("DoSearch: SearchHistory += {0}", searchPlace);
+					if (!String.IsNullOrEmpty (searchLocation)) {
+						Persist.Instance.SearchHistory.Add (searchLocation, unique: true);
+						Console.WriteLine ("DoSearch: SearchHistory += {0}", searchLocation);
 					}
 					Device.BeginInvokeOnMainThread (() => {
+						Console.WriteLine ("AddMenu.DoSearch: MainThread");
+						SetupSearchHistory ();
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddMenu.DoSearch: Activity Over. push AddResultsPage");
 						this.Navigation.PushAsync (new AddResultsPage (points));
@@ -105,6 +106,7 @@ namespace RayvMobileApp.iOS
 					Insights.Report (e);
 					restConnection.LogErrorToServer ("AddMenu.DoSearch: Exception {0}", e);
 					Device.BeginInvokeOnMainThread (() => {
+						Console.WriteLine ("AddMenu.DoSearch: MainThread Exception");
 						Spinner.IsRunning = false;
 						DisplayAlert ("Oops", "Unable to search. Network problems?", "Close");
 					});
@@ -114,26 +116,31 @@ namespace RayvMobileApp.iOS
 
 		void SetupSearchHistory ()
 		{
-			historyBox.Children.Clear ();
-			if (Persist.Instance.SearchHistory.Length == 0) {
-				historyBox.Children.Add (new LabelWide {
-					Text = NO_SEARCH_HISTORY,
-				});
-			} else {
-				for (int i = 0; i <= Persist.Instance.SearchHistory.Length; i++) {
-					string item = Persist.Instance.SearchHistory.GetItem (i);
-					if (!String.IsNullOrEmpty (item)) {
-						Button clickItem = new Button {
-							Text = item,
-							HorizontalOptions = LayoutOptions.Center,
-						};
-						clickItem.Clicked += SearchSomewhere;
-						historyBox.Children.Add (clickItem);
+			try {
+				Console.WriteLine ("AddMenu.SetupSearchHistory");
+				historyBox.Children.Clear ();
+				if (Persist.Instance.SearchHistory.Length == 0) {
+					historyBox.Children.Add (new LabelWide {
+						Text = NO_SEARCH_HISTORY,
+					});
+				} else {
+					for (int i = 0; i <= Persist.Instance.SearchHistory.Length; i++) {
+						string item = Persist.Instance.SearchHistory.GetItem (i);
+						if (!String.IsNullOrEmpty (item)) {
+							Button clickItem = new Button {
+								Text = item,
+								HorizontalOptions = LayoutOptions.Center,
+							};
+							clickItem.Clicked += SearchHistoryItemClicked;
+							historyBox.Children.Add (clickItem);
+						}
 					}
 				}
+				historyBox.Children.Add (SearchLocationBox);
+				historyBox.Children.Add (HereBtn);
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
-			historyBox.Children.Add (PlaceHistoryBox);
-			historyBox.Children.Add (HereBtn);
 		}
 
 
@@ -141,16 +148,16 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
-		async void SearchHere (object sender, EventArgs e)
+		async void SearchNearTown (object sender, EventArgs e)
 		{
 			// geocode
 			try {
+				Console.WriteLine ("AddMenu.SearchNearTown");
 				Xamarin.FormsMaps.Init ();
-				var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (PlaceHistoryBox.Text));
+				var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (SearchLocationBox.Text));
 				var positions = geoCodePositions.ToList ();
 				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
-					Console.WriteLine ("AddMenu.SearchHere: Got");
-					Persist.Instance.SearchHistory.Add (PlaceHistoryBox.Text);
+//					Persist.Instance.SearchHistory.Add (SearchLocationBox.Text, unique: true);
 					//TODO: remove DEBUG_LOGIC
 					if (DEBUG_ON_SIMULATOR) {
 						searchPosition = new Position (53.1, -1.5);
@@ -158,8 +165,8 @@ namespace RayvMobileApp.iOS
 					} else {
 						searchPosition = positions.First ();
 					}
-					DoSearch (SearchBox.Text, true);
-					SetupSearchHistory ();
+					DoSearch (SearchNameBox.Text, SearchLocationBox.Text);
+//					SetupSearchHistory ();
 				} else {
 					await DisplayAlert ("Not Found", "Couldn't find that place", "OK");
 				}
@@ -170,7 +177,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		async void SearchSomewhere (object sender, EventArgs e)
+		async void SearchHistoryItemClicked (object sender, EventArgs e)
 		{
 			// A History button click event
 			// geocode
@@ -183,7 +190,7 @@ namespace RayvMobileApp.iOS
 				searchPosition = new Position (53.1, -1.5);
 				Console.WriteLine ("AddMenu.SearchSomewhere DEBUG_ON_SIMULATOR");
 			}
-			DoSearch ((sender as Button).Text, true);
+			DoSearch (SearchNameBox.Text, (sender as Button).Text);
 			SetHistoryButton ();
 		}
 
@@ -197,7 +204,7 @@ namespace RayvMobileApp.iOS
 		{
 
 			searchPosition = Persist.Instance.GpsPosition;
-			DoSearch (SearchBox.Text, false);
+			DoSearch (SearchNameBox.Text, "");
 		}
 
 		async void SearchMap (object sender, EventArgs e)
@@ -208,7 +215,7 @@ namespace RayvMobileApp.iOS
 
 		void SearchLocationEdited (object sender, EventArgs e)
 		{
-			HereBtn.IsVisible = PlaceHistoryBox.Text.Length > 0;
+			HereBtn.IsVisible = SearchLocationBox.Text.Length > 0;
 		}
 
 
@@ -222,16 +229,15 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("AddMenu()");
 			Persist.Instance.HaveAdded = false;
-			FirstTime = true;
-			SearchBox = new Entry {
-				Placeholder = "Name to find"
+			SearchNameBox = new Entry {
+				Placeholder = "Place Name to find"
 			};
 			PlaceHistoryBtn = new RayvButton ();
 			SetHistoryButton ();
-			PlaceHistoryBox = new Entry {
-				Placeholder = "Enter a Search Location...",
+			SearchLocationBox = new Entry {
+				Placeholder = "Enter a town or Location...",
 			};
-			PlaceHistoryBox.TextChanged += SearchLocationEdited;
+			SearchLocationBox.TextChanged += SearchLocationEdited;
 			var PlaceHistoryOpenBtn = new Image {
 				Source = ImageSource.FromFile ("216-compose.png"),
 				HorizontalOptions = LayoutOptions.Center,
@@ -247,7 +253,7 @@ namespace RayvMobileApp.iOS
 				Text = " Search Here ",
 				IsVisible = false,
 			};
-			HereBtn.Clicked += SearchHere;
+			HereBtn.Clicked += SearchNearTown;
 
 			historyBox = new StackLayout ();
 			SetupSearchHistory ();
@@ -299,12 +305,12 @@ namespace RayvMobileApp.iOS
 				Spacing = 10,
 				Padding = 4,
 				Children = {
-					SearchBox,
+					SearchNameBox,
+					Spinner,
 					PlaceHistoryFrame,
 					NearMeBtn,
 					FromMapBtn,
 					PlaceHistoryCombo,
-					Spinner,
 				}
 			};
 			StackLayout tools = new BottomToolbar (this, "add");
@@ -315,7 +321,7 @@ namespace RayvMobileApp.iOS
 				}
 			};
 			this.Appearing += (object sender, EventArgs e) => {
-				PlaceHistoryBox.Text = "";
+				SearchLocationBox.Text = "";
 				// if we have come from saving a place then we go back to the list
 				if (Persist.Instance.HaveAdded)
 					this.Navigation.PushAsync (new ListPage ());

@@ -33,9 +33,9 @@ namespace RayvMobileApp.iOS
 				Label addressLabel = new Label {
 					Font = Font.SystemFontOfSize (NamedSize.Micro),
 					FontAttributes = FontAttributes.Italic,
-					TranslationX = 65,
+					TranslationX = 85,
 				};
-				addressLabel.SetBinding (Label.TextProperty, "address");
+				addressLabel.SetBinding (Label.TextProperty, "ShortAddress");
 
 
 				Image webImage = new Image { 

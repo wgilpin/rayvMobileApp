@@ -16,25 +16,38 @@ namespace RayvMobileApp.iOS
 		}
 
 		public int Length {
-			get { 
-				for (int idx = 0; idx < _size; idx++) {
-					if (GetItem (idx) == "")
-						return idx;
+			get {
+				int len = 0;
+				for (int idx = _size - 1; idx >= 0; idx--) {
+					if (GetItem (idx).Length > 0) {
+						len = idx + 1;
+						break;
+					}
 				}
-				return 0;
+				return len;
 			}
 		}
 
-		public void Add (string item)
+		public void Add (string item, bool unique = false)
 		{
 			// ripple
-			Console.WriteLine ("length: {0}", Length);
+			Console.WriteLine ("Queue Add: {0}", item);
 			for (int idx = Length; idx > 0; idx--) {
 				// thingy1 is set to val(thingy0)
-				Console.WriteLine ("Moving {0} at {1} to {2}", GetItem (idx - 1), idx - 1, idx);
+				string item_i = GetItem (idx - 1);
+				if (unique) {
+					if (item_i == item) {
+						return;
+					}
+				}
+				if (unique) {
+					if (GetItem (0) == item)
+						return;
+				}
+				Console.WriteLine ("Moving {0} at {1} to {2}", item_i, idx - 1, idx);
 				Persist.Instance.SetConfig (
 					String.Format ("{0}{1}", _kind, idx), 
-					GetItem (idx - 1)
+					item_i
 				);
 			}
 			//now 0

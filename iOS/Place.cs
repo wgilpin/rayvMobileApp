@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Linq;
 using Xamarin;
+using System.Text.RegularExpressions;
 
 namespace RayvMobileApp.iOS
 {
@@ -186,6 +187,19 @@ namespace RayvMobileApp.iOS
 		public string CategoryLowerCase {
 			get {
 				return _category.ToLower ();
+			}
+		}
+
+		[Ignore]
+		public string ShortAddress {
+			get {
+				// number then anything
+				string pattern = @"^(\d+[-\d+]* )(.*)";
+				MatchCollection matches = Regex.Matches (_address, pattern);
+				if (matches.Count < 1) {
+					return _address;
+				}
+				return matches [0].Groups [2].ToString ();
 			}
 		}
 
