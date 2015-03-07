@@ -48,6 +48,7 @@ namespace RayvMobileApp.iOS
 		Page Caller;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
+		public bool NeedsReload = true;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -182,10 +183,7 @@ namespace RayvMobileApp.iOS
 			listView = new PlacesListView {
 				//ItemsSource = Persist.Instance.Places,
 			};
-			listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
-				Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
-				this.Navigation.PushAsync (new DetailPage (e.Item as Place));
-			};
+			listView.ItemTapped += DoSelectListItem;
 			StackLayout tools = new BottomToolbar (this, "list");
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
@@ -260,8 +258,9 @@ namespace RayvMobileApp.iOS
 				})
 			});
 
+			NeedsReload = true;
+			SearchPosition = Persist.Instance.GpsPosition;
 			this.Appearing += OnPageAppearing;
-
 		}
 
 
@@ -301,11 +300,20 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
+		void DoSelectListItem (object sender, ItemTappedEventArgs e)
+		{
+			Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
+			this.Navigation.PushAsync (new DetailPage (e.Item as Place));
+		}
+
 		async void OnPageAppearing (object sender, EventArgs e)
 		{
-			SearchPosition = Persist.Instance.GpsPosition;
-			await FilterList ();
-			StartTimerIfNoGPS ();
+			if (NeedsReload) {
+
+				await FilterList ();
+				StartTimerIfNoGPS ();
+				NeedsReload = false;
+			}
 		}
 
 		async public void DoPickLocation (object s, EventArgs e)
@@ -389,6 +397,7 @@ namespace RayvMobileApp.iOS
 			FilterAreaSearchBox.Text = "";
 			filters.IsVisible = false;
 			MainFilter = FilterKind.All;
+			SearchPosition = Persist.Instance.GpsPosition;
 			FilterList ();
 		}
 

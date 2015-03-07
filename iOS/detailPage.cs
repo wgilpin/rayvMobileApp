@@ -213,6 +213,15 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
+		void DoEdit ()
+		{
+			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
+			if (Navigation.NavigationStack [0] is ListPage) {
+				(Navigation.NavigationStack [0] as ListPage).NeedsReload = true;
+			}
+			Navigation.PushAsync (new EditPage (DisplayPlace));
+		}
+
 		public void DoLoadPage (object sender, EventArgs e)
 		{
 			LoadPage (DisplayPlace.key);
@@ -359,8 +368,7 @@ namespace RayvMobileApp.iOS
 //				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => { 
-					Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
-					Navigation.PushAsync (new EditPage (DisplayPlace));
+					DoEdit ();
 				})
 			});
 		}
