@@ -84,9 +84,9 @@ namespace RayvMobileApp.iOS
 
 		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET)
 		{
-			const int MAX_RETRIES = 3;
-			//TODO: retries
-			for (int try_number = 0; try_number < MAX_RETRIES; try_number++) {
+			// only retry a Get
+			int MaxRetries = method == Method.GET ? 3 : 1;
+			for (int try_number = 0; try_number < MaxRetries; try_number++) {
 				try {
 					if (try_number > 0)
 						Thread.Sleep (1000);

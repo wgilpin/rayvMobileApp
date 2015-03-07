@@ -30,11 +30,18 @@ namespace RayvMobileApp.iOS
 			friendsImg.GestureRecognizers.Add (clickFriends);
 
 
-			Content = new StackLayout { 
-				VerticalOptions = LayoutOptions.CenterAndExpand,
+			StackLayout buttons = new StackLayout { 
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					addImg,
 					friendsImg,
+				}
+			};
+			StackLayout tools = new BottomToolbar (this, "add");
+			Content = new StackLayout {
+				Children = {
+					buttons,
+					tools
 				}
 			};
 		}
