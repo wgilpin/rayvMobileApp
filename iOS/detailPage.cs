@@ -52,6 +52,7 @@ namespace RayvMobileApp.iOS
 			List<Vote> voteList = (from v in Persist.Instance.Votes
 			                       where v.key == DisplayPlace.key
 			                           && v.voter != MyStringId
+			                           && v.VoterName.Length > 0
 			                       select v).OrderBy (x => x.comment).ToList ();
 			Grid grid = new Grid {
 				ColumnDefinitions = {
