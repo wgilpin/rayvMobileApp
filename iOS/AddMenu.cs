@@ -119,6 +119,16 @@ namespace RayvMobileApp.iOS
 			try {
 				Console.WriteLine ("AddMenu.SetupSearchHistory");
 				historyBox.Children.Clear ();
+				Button BackBtn = new Button {
+					Text = "Close",
+					HorizontalOptions = LayoutOptions.End,
+				};
+				BackBtn.Clicked += (sender, e) => {
+					SearchLocationBox.Unfocus ();
+					PlaceHistoryFrame.IsVisible = false;
+					PlaceHistoryCombo.IsVisible = true;
+				}; 
+				historyBox.Children.Add (BackBtn);
 				if (Persist.Instance.SearchHistory.Length == 0) {
 					historyBox.Children.Add (new LabelWide {
 						Text = NO_SEARCH_HISTORY,
@@ -235,7 +245,7 @@ namespace RayvMobileApp.iOS
 			PlaceHistoryBtn = new RayvButton ();
 			SetHistoryButton ();
 			SearchLocationBox = new Entry {
-				Placeholder = "Enter a town or Location...",
+				Placeholder = "Search in a Town or Location...",
 			};
 			SearchLocationBox.TextChanged += SearchLocationEdited;
 			var PlaceHistoryOpenBtn = new Image {
@@ -259,6 +269,7 @@ namespace RayvMobileApp.iOS
 			SetupSearchHistory ();
 
 			PlaceHistoryFrame = new Frame {
+				Padding = new Thickness (2, 0, 2, 2),
 				OutlineColor = Color.Silver,
 				IsVisible = false,
 				Content = historyBox,
