@@ -197,11 +197,11 @@
     <BundleResource Include="Resources\54-lock%402x.png" />
     <BundleResource Include="Resources\298-circlex%402x.png" />
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
-    <BundleResource Include="Resources\big-btn-news.png" />
-    <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-add-place.png" />
     <BundleResource Include="Resources\big-btn-add-friend.png" />
     <BundleResource Include="Resources\big-btn-find.png" />
+    <BundleResource Include="Resources\big-btn-news.png" />
+    <BundleResource Include="Resources\big-btn-add.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
