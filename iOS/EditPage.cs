@@ -30,6 +30,7 @@ namespace RayvMobileApp.iOS
 		Place EditPlace;
 		Entry Comment;
 		bool IsNew;
+		bool Voted;
 
 		#endregion
 
@@ -52,18 +53,23 @@ namespace RayvMobileApp.iOS
 			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
+			WebSite.IsEnabled = EditPlace.website.Length == 0;
 			PhoneNo.Text = EditPlace.telephone;
-			switch (EditPlace.vote) {
-			case "-1":
-				SetVoteButton (VoteDislike);
-				break;
-			case "1":
-				SetVoteButton (VoteLike);
-				break;
-			default:
-				EditPlace.vote = "0";
-				SetVoteButton (VoteWishlist);
-				break;
+			PhoneNo.IsEnabled = EditPlace.telephone.Length == 0;
+			if (EditPlace.category.Length > 0) {
+				switch (EditPlace.vote) {
+				case "-1":
+					SetVoteButton (VoteDislike);
+					break;
+				case "1":
+					SetVoteButton (VoteLike);
+					break;
+				default:
+					EditPlace.vote = "0";
+					SetVoteButton (VoteWishlist);
+					break;
+				}
+				Voted = true;
 			}
 		}
 
@@ -236,6 +242,7 @@ namespace RayvMobileApp.iOS
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
 			voteBtn.BackgroundColor = Color.Olive;
 			voteBtn.TextColor = Color.White;
+			Voted = true;
 		}
 
 		async void DeletePlace (object sender, EventArgs e)
@@ -271,6 +278,10 @@ namespace RayvMobileApp.iOS
 		{
 			if (Category.SelectedIndex == -1) {
 				await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+				return;
+			}
+			if (!Voted) {
+				await DisplayAlert ("Warning", "You must vote", "OK");
 				return;
 			}
 			EditPlace.category = Category.Items [Category.SelectedIndex];

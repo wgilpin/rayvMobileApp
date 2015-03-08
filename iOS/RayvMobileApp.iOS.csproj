@@ -262,6 +262,7 @@
     <Compile Include="ChoicePage.cs" />
     <Compile Include="PersistantQueue.cs" />
     <Compile Include="AddWhatPage.cs" />
+    <Compile Include="AddPage1.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

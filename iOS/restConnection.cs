@@ -18,7 +18,7 @@ namespace RayvMobileApp.iOS
 		DEBUG = 10
 	}
 
-
+	
 	public class restConnection
 	{
 

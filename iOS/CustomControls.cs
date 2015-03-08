@@ -57,6 +57,62 @@ namespace RayvMobileApp.iOS
 		}
 	}
 
+	public class EntryWithChangeButton: Grid
+	{
+		private Button ButtonChange;
+		Entry TextEntry;
+		private TapGestureRecognizer ClickLabel;
+
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { 
+				//the button
+				ButtonChange.Clicked += value; 
+				//the label
+				ClickLabel = new TapGestureRecognizer ();
+				ClickLabel.Tapped += value;
+			}
+		}
+
+		public string Text {
+			get { return TextEntry.Text; }
+			set { TextEntry.Text = value; }
+		}
+
+		public string PlaceHolder {
+			get { return TextEntry.Placeholder; }
+			set { TextEntry.Placeholder = value; }
+		}
+
+		public string ButtonText {
+			get { return ButtonChange.Text; }
+			set { ButtonChange.Text = value; }
+		}
+
+		public EntryWithChangeButton () : base ()
+		{
+			ButtonChange = new Button {
+				Text = "Change",
+				HorizontalOptions = LayoutOptions.End,
+			};
+			ButtonChange.HeightRequest = 30;
+			TextEntry = new Entry {
+				Text = "",
+				TextColor = Color.FromHex ("#666"),
+				HorizontalOptions = LayoutOptions.FillAndExpand
+			};
+
+			Padding = new Thickness (5, 5, 2, 5);
+			HorizontalOptions = LayoutOptions.StartAndExpand;
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
+			Children.Add (TextEntry, 0, 1, 0, 1);
+			Children.Add (ButtonChange, 1, 2, 0, 1);
+		}
+	}
+
 	public class RayvButton : Button
 	{
 		public EventHandler OnClick {
@@ -142,6 +198,54 @@ namespace RayvMobileApp.iOS
 
 		}
 	}
+
+	public class ButtonWithImage: Grid
+	{
+		private Button ButtonLeft;
+		Image ImageRight;
+		private TapGestureRecognizer ClickImage;
+
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { 
+				//the button
+				ButtonLeft.Clicked += value; 
+				//the label
+				ClickImage = new TapGestureRecognizer ();
+				ClickImage.Tapped += value;
+				ImageRight.GestureRecognizers.Add (ClickImage);
+			}
+		}
+
+		public string Text {
+			get { return ButtonLeft.Text; }
+			set { ButtonLeft.Text = value; }
+		}
+
+		public ImageSource ImageSource {
+			set { ImageRight.Source = value; }
+		}
+
+		public  ButtonWithImage () : base ()
+		{
+			ButtonLeft = new Button {
+				Text = "Change",
+				HorizontalOptions = LayoutOptions.End,
+			};
+			ButtonLeft.HeightRequest = 30;
+
+
+			Padding = new Thickness (5, 5, 2, 5);
+			HorizontalOptions = LayoutOptions.StartAndExpand;
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
+			Children.Add (ButtonLeft, 0, 1, 0, 1);
+			Children.Add (ImageRight, 1, 2, 0, 1);
+		}
+	}
+
 }
 
 

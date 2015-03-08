@@ -14,7 +14,7 @@ namespace RayvMobileApp.iOS
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
-				this.Navigation.PushModalAsync (new NavigationPage (new AddMenu ()));
+				this.Navigation.PushModalAsync (new NavigationPage (new AddPage1 ()));
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
 
