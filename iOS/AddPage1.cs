@@ -131,6 +131,7 @@ namespace RayvMobileApp.iOS
 			ResetLocationBtn.IsVisible = false;
 			LocationSearchedBox.IsVisible = false;
 			LocationEditBox.IsVisible = true;
+			LocationResultsView.IsVisible = false;
 			DoSearch (PlaceNameBox.Text, "");
 		}
 
