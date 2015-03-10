@@ -50,6 +50,7 @@ namespace RayvMobileApp.iOS
 			Place_name.Text = EditPlace.place_name;
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
 			Address.Text = EditPlace.address;
+			Address.IsEnabled = !String.IsNullOrEmpty (EditPlace.address);
 			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
@@ -291,6 +292,7 @@ namespace RayvMobileApp.iOS
 			string Message = "";
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
+				DisplayAlert ("Saved", "Details Saved", "OK");
 				Persist.Instance.HaveAdded = this.IsNew;
 				if (IsNew)
 					this.Navigation.PopToRootAsync ();
