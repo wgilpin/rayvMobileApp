@@ -52,7 +52,7 @@ namespace RayvMobileApp.iOS
 			Place_name.Text = EditPlace.place_name;
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
 			Address.Text = EditPlace.address;
-			Address.IsEnabled = !String.IsNullOrEmpty (EditPlace.address);
+			Address.IsEnabled = String.IsNullOrEmpty (EditPlace.address);
 			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
@@ -100,6 +100,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = new GridLength (60, GridUnitType.Absolute) },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -211,10 +212,11 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
 			Row++;
 			ButtonWide DeleteButton = new ButtonWide {
-				Text = "Delete",
+				Text = "Remove from my lists",
 				BackgroundColor = Color.Red,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
+				VerticalOptions = LayoutOptions.End,
 			};
 			DeleteButton.Font = Font.SystemFontOfSize (NamedSize.Large);
 			DeleteButton.Clicked += DeletePlace;
@@ -267,7 +269,8 @@ namespace RayvMobileApp.iOS
 			             where v.key == EditPlace.key
 			             select v).FirstOrDefault ();
 			if (vote != null) {
-				bool confirm_delete = await DisplayAlert ("Delete", "Remove this place from your list?", "Yes", "No");
+				bool confirm_delete = await DisplayAlert (
+					                      "Delete", "Remove this place from your list? This cannot be undone", "Yes", "No");
 				if (confirm_delete) {
 					string res = restConnection.Instance.post (
 						             "api/delete",
@@ -278,9 +281,9 @@ namespace RayvMobileApp.iOS
 						Persist.Instance.Places.Remove (EditPlace);
 						Insights.Track ("EditPage.DeletePlace", "Place", name);
 					}
+					await Navigation.PopToRootAsync ();
 				}
 			}
-			await Navigation.PopToRootAsync ();
 		}
 
 		#endregion

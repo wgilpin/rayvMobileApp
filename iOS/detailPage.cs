@@ -49,12 +49,6 @@ namespace RayvMobileApp.iOS
 
 		Grid GetFriendsComments ()
 		{
-			string MyStringId = Persist.Instance.MyId.ToString ();
-			List<Vote> voteList = (from v in Persist.Instance.Votes
-			                       where v.key == DisplayPlace.key
-			                           && v.voter != MyStringId
-			                           && v.VoterName.Length > 0
-			                       select v).OrderBy (x => x.comment).ToList ();
 			Grid grid = new Grid {
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -63,38 +57,49 @@ namespace RayvMobileApp.iOS
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-			int whichRow = 0;
-			for (int row = 0; row < voteList.Count (); row++) {
-				if (voteList [row].voter != MyStringId) {
-					try {
+			try {
+				string MyStringId = Persist.Instance.MyId.ToString ();
+				List<Vote> voteList = (from v in Persist.Instance.Votes
+				                       where v.key == DisplayPlace.key
+				                           && v.voter != MyStringId
+				                           && v.VoterName.Length > 0
+				                       select v).OrderBy (x => x.comment).ToList ();
 
-						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
-						grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
-						string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
-						grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
-						grid.Children.Add (new Label { 
-							Text = voteList [row].PrettyHowLongAgo,
-							Font = Font.SystemFontOfSize (NamedSize.Small),
-							FontAttributes = FontAttributes.Italic,
-							TextColor = Color.FromHex ("#606060"),
-						}, 2, 4, whichRow * 2, whichRow * 2 + 1);
-						String comment_text = voteList [row].PrettyComment;
-						if (!String.IsNullOrEmpty (comment_text)) {
+				int whichRow = 0;
+				for (int row = 0; row < voteList.Count (); row++) {
+					if (voteList [row].voter != MyStringId) {
+						try {
+
+							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
+							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
+							string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
+							grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
 							grid.Children.Add (new Label { 
-								Text = comment_text,
+								Text = voteList [row].PrettyHowLongAgo,
+								Font = Font.SystemFontOfSize (NamedSize.Small),
 								FontAttributes = FontAttributes.Italic,
-							}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
+								TextColor = Color.FromHex ("#606060"),
+							}, 2, 4, whichRow * 2, whichRow * 2 + 1);
+							String comment_text = voteList [row].PrettyComment;
+							if (!String.IsNullOrEmpty (comment_text)) {
+								grid.Children.Add (new Label { 
+									Text = comment_text,
+									FontAttributes = FontAttributes.Italic,
+								}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
+							}
+							Label vote = new Label {
+								Text = voteList [row].GetIconName,
+							};
+							grid.Children.Add (vote, 1, 2, whichRow * 2, whichRow * 2 + 1);
+							whichRow++;
+						} catch (Exception ex) {
+							Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
+							Insights.Report (ex);
 						}
-						Label vote = new Label {
-							Text = voteList [row].GetIconName,
-						};
-						grid.Children.Add (vote, 1, 2, whichRow * 2, whichRow * 2 + 1);
-						whichRow++;
-					} catch (Exception ex) {
-						Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
-						Insights.Report (ex);
 					}
 				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
 			return grid;
 		}
