@@ -363,6 +363,7 @@ namespace RayvMobileApp.iOS
 				//			JObject obj = JObject.Parse (result);
 				Place place = JsonConvert.DeserializeObject<Place> (result);
 				place.IsSynced = true;
+				this.key = place.key;
 				lock (Persist.Instance.Lock) {
 					// no try..catch as it's inside one
 					Persist.Instance.UpdatePlace (place);

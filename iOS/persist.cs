@@ -562,6 +562,7 @@ namespace RayvMobileApp.iOS
 					}
 					Places.Add (place);
 				} catch (Exception ex) {
+					Console.WriteLine ("StorePlace ROLLBACK");
 					Db.Rollback ();
 					Insights.Report (ex);
 				}

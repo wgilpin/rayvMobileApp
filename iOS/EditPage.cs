@@ -15,7 +15,7 @@ namespace RayvMobileApp.iOS
 		#region Fields
 
 		Entry Place_name;
-		Image Img;
+		//		Image Img;
 		Picker Category;
 		ButtonWide VoteLike;
 		ButtonWide VoteDislike;
@@ -307,8 +307,14 @@ namespace RayvMobileApp.iOS
 			string Message = "";
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
+				Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
+					{ "PlaceName", EditPlace.place_name },
+					{ "Lat", EditPlace.lat.ToString () },
+					{ "Lng", EditPlace.lng.ToString () },
+					{ "Vote", EditPlace.vote },
+				});
+				await DisplayAlert ("Saved", "Details Saved", "OK");
 				#pragma warning disable 4014
-				DisplayAlert ("Saved", "Details Saved", "OK");
 				Persist.Instance.HaveAdded = this.IsNew;
 				if (AddingNewPlace) {
 					this.Navigation.PushModalAsync (new DetailPage (EditPlace, true));
@@ -323,12 +329,7 @@ namespace RayvMobileApp.iOS
 			} else {
 				await DisplayAlert ("Error", Message, "OK");
 			}
-			Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
-				{ "PlaceName", EditPlace.place_name },
-				{ "Lat", EditPlace.lat.ToString () },
-				{ "Lng", EditPlace.lng.ToString () },
-				{ "Vote", EditPlace.vote },
-			});
+
 
 		}
 

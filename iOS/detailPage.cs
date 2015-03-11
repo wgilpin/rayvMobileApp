@@ -139,7 +139,7 @@ namespace RayvMobileApp.iOS
 
 		}
 
-		void SetVoteButton (Button voteBtn)
+		void ResetVoteButtons ()
 		{
 			VoteLike.TextColor = Color.Black;
 			VoteDislike.TextColor = Color.Black;
@@ -147,6 +147,11 @@ namespace RayvMobileApp.iOS
 			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+		}
+
+		void SetVoteButton (Button voteBtn)
+		{
+			ResetVoteButtons ();
 			voteBtn.BackgroundColor = Color.Olive;
 			voteBtn.TextColor = Color.White;
 		}
@@ -208,6 +213,8 @@ namespace RayvMobileApp.iOS
 					default:
 						if (DisplayPlace.vote == "0" && DisplayPlace.untried == true)
 							SetVoteButton (VoteWishlist);
+						else
+							ResetVoteButtons ();
 						break;
 					}
 				} catch (Exception ex) {
@@ -366,6 +373,7 @@ namespace RayvMobileApp.iOS
 			if (ShowToolbar) {
 				StackLayout tools = new BottomToolbar (this, "add");
 				Content = new StackLayout {
+					Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
 					Children = {
 						EditGrid,
 						tools
