@@ -108,7 +108,6 @@ namespace RayvMobileApp.iOS
 		void DoSelectPlace (object s, ItemTappedEventArgs e)
 		{
 			Place p = (Place)e.Item;
-			Debug.WriteLine ("AddPage1.DoSelectPlace Push EditPage");
 			// get google db stuff
 			Parameters parameters = new Parameters ();
 			parameters ["place_id"] = p.place_id;
@@ -119,7 +118,8 @@ namespace RayvMobileApp.iOS
 					p.website = obj ["website"].ToString ();
 				if (obj ["telephone"] != null)
 					p.telephone = obj ["telephone"].ToString ();
-				this.Navigation.PushAsync (new EditPage (p));
+				Debug.WriteLine ("AddPage1.DoSelectPlace Push EditPage");
+				this.Navigation.PushAsync (new EditPage (p, addingNewPlace: true));
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}

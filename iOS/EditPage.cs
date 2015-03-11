@@ -20,25 +20,27 @@ namespace RayvMobileApp.iOS
 		ButtonWide VoteLike;
 		ButtonWide VoteDislike;
 		ButtonWide VoteWishlist;
-		Button NewImgBtn;
 		ButtonWide SaveBtn;
 		Entry PhoneNo;
 		Entry WebSite;
 		Entry Address;
-		Image ImgRotL;
-		Image ImgRotR;
 		Place EditPlace;
-		Entry Comment;
+		Editor Comment;
 		bool IsNew;
 		bool Voted;
+
+		// if adding a new place, on save we show the detaiPage, else it is just Pop
+		private bool AddingNewPlace = false;
 
 		#endregion
 
 		#region Constructors
 
-		public EditPage (Place place) : this ()
+		public EditPage (Place place, bool addingNewPlace = false) : this ()
 		{
-			IsNew = place.category == null || place.category.Length == 0;
+			AddingNewPlace = addingNewPlace;
+			IsNew = String.IsNullOrEmpty (place.category);
+
 			EditPlace = place;
 //			if (EditPlace.img.Length > 0) {
 //				Img.Source = ImageSource.FromUri (new Uri (EditPlace.img));
@@ -54,10 +56,10 @@ namespace RayvMobileApp.iOS
 			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
-			WebSite.IsEnabled = EditPlace.website.Length == 0;
+			WebSite.IsEnabled = String.IsNullOrEmpty (EditPlace.website);
 			PhoneNo.Text = EditPlace.telephone;
-			PhoneNo.IsEnabled = EditPlace.telephone.Length == 0;
-			if (EditPlace.category.Length > 0) {
+			PhoneNo.IsEnabled = String.IsNullOrEmpty (EditPlace.telephone);
+			if (!IsNew) {
 				switch (EditPlace.vote) {
 				case "-1":
 					SetVoteButton (VoteDislike);
@@ -74,8 +76,9 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public EditPage ()
+		public EditPage (bool addingNewPlace = false)
 		{
+			AddingNewPlace = addingNewPlace;
 			IsNew = true;
 			var MainGrid = new Grid {
 				RowDefinitions = {
@@ -96,6 +99,7 @@ namespace RayvMobileApp.iOS
 
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -104,6 +108,7 @@ namespace RayvMobileApp.iOS
 				}
 			};
 
+			int Row = 6;
 //			Img = new Image ();
 //			try {
 //				Img.HorizontalOptions = LayoutOptions.CenterAndExpand;
@@ -134,8 +139,8 @@ namespace RayvMobileApp.iOS
 			Place_name = new Entry {
 				Text = "",
 			};
-			MainGrid.Children.Add (Place_name, 0, 3, 6, 7);
-
+			MainGrid.Children.Add (Place_name, 0, 3, Row, Row + 1);
+			Row++;
 			Category = new Picker {
 				Title = "Cuisine",
 			};
@@ -144,20 +149,24 @@ namespace RayvMobileApp.iOS
 			}
 
 
-			MainGrid.Children.Add (Category, 0, 3, 7, 8);
+			MainGrid.Children.Add (Category, 0, 3, Row, Row + 1);
+			Row++;
 			Address = new Entry {
 				Text = "",
 				Placeholder = "Address",
 			};
-			MainGrid.Children.Add (Address, 0, 3, 8, 9);
+			MainGrid.Children.Add (Address, 0, 3, Row, Row + 1);
+			Row++;
 			WebSite = new Entry {
 				Placeholder = "Website",
 			};
-			MainGrid.Children.Add (WebSite, 0, 3, 9, 10);
+			MainGrid.Children.Add (WebSite, 0, 3, Row, Row + 1);
+			Row++;
 			PhoneNo = new Entry {
 				Placeholder = "Phone",
 			};
-			MainGrid.Children.Add (PhoneNo, 0, 3, 10, 11);
+			MainGrid.Children.Add (PhoneNo, 0, 3, Row, Row + 1);
+			Row++;
 			VoteLike = new ButtonWide {
 				Text = "Like",
 			};
@@ -180,16 +189,17 @@ namespace RayvMobileApp.iOS
 				SetVoteButton (VoteWishlist);
 			};
 
-			MainGrid.Children.Add (VoteLike, 0, 11);
-			MainGrid.Children.Add (VoteWishlist, 1, 11);
-			MainGrid.Children.Add (VoteDislike, 2, 11);
-
-			Comment = new Entry {
-				Placeholder = "Comment",
-			};
+			MainGrid.Children.Add (VoteLike, 0, Row);
+			MainGrid.Children.Add (VoteWishlist, 1, Row);
+			MainGrid.Children.Add (VoteDislike, 2, Row);
+			Row++;
+			Comment = new Editor ();
 			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck);
 
-			MainGrid.Children.Add (Comment, 0, 3, 12, 13);
+			MainGrid.Children.Add (new Label { Text = "Comments" }, 0, 3, Row, Row + 1);
+			Row++;
+			MainGrid.Children.Add (Comment, 0, 3, Row, Row + 1);
+			Row++;
 			SaveBtn = new ButtonWide {
 				Text = "Save",
 				BackgroundColor = Color.Blue,
@@ -198,7 +208,8 @@ namespace RayvMobileApp.iOS
 			};
 			SaveBtn.Font = Font.SystemFontOfSize (NamedSize.Large);
 			SaveBtn.Clicked += DoSave;
-			MainGrid.Children.Add (SaveBtn, 0, 3, 13, 14);
+			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
+			Row++;
 			ButtonWide DeleteButton = new ButtonWide {
 				Text = "Delete",
 				BackgroundColor = Color.Red,
@@ -207,8 +218,8 @@ namespace RayvMobileApp.iOS
 			};
 			DeleteButton.Font = Font.SystemFontOfSize (NamedSize.Large);
 			DeleteButton.Clicked += DeletePlace;
-			MainGrid.Children.Add (DeleteButton, 0, 3, 14, 15);
-		
+			MainGrid.Children.Add (DeleteButton, 0, 3, Row, Row + 1);
+			Row++;
 			this.Content = new ScrollView {
 				Content = MainGrid,
 			};
@@ -219,8 +230,9 @@ namespace RayvMobileApp.iOS
 			};
 		}
 
-		public EditPage (Position position, String address) : this ()
+		public EditPage (Position position, String address, bool addingNewPlace = false) : this ()
 		{
+			AddingNewPlace = addingNewPlace;
 			IsNew = true;
 			EditPlace = new Place ();
 			EditPlace.lat = position.Latitude;
@@ -292,12 +304,19 @@ namespace RayvMobileApp.iOS
 			string Message = "";
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
+				#pragma warning disable 4014
 				DisplayAlert ("Saved", "Details Saved", "OK");
 				Persist.Instance.HaveAdded = this.IsNew;
-				if (IsNew)
-					this.Navigation.PopToRootAsync ();
-				else
-					this.Navigation.PopAsync ();
+				if (AddingNewPlace) {
+					this.Navigation.PushModalAsync (new DetailPage (EditPlace, true));
+				} else {
+					if (IsNew) {
+						this.Navigation.PopToRootAsync ();
+					} else {
+						this.Navigation.PopAsync ();
+					}
+				}
+				#pragma warning restore 4014
 			} else {
 				await DisplayAlert ("Error", Message, "OK");
 			}
@@ -307,6 +326,7 @@ namespace RayvMobileApp.iOS
 				{ "Lng", EditPlace.lng.ToString () },
 				{ "Vote", EditPlace.vote },
 			});
+
 		}
 
 		#endregion

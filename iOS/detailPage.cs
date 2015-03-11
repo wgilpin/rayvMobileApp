@@ -41,6 +41,7 @@ namespace RayvMobileApp.iOS
 		Label distance;
 		Label Address;
 		Label descr;
+		private bool ShowToolbar;
 
 		#endregion
 
@@ -257,8 +258,9 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-		public DetailPage (Place place)
+		public DetailPage (Place place, bool showToolbar = false)
 		{
+			ShowToolbar = showToolbar;
 			const int IMAGE_HEIGHT = 0;
 
 			var MainGrid = new Grid {
@@ -346,7 +348,8 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 6);
 			LoadPage (DisplayPlace.key);
 
-			this.Content = new ScrollView {
+			ScrollView EditGrid = new ScrollView {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Content = new StackLayout {
 					Children = {
 						Img,
@@ -355,6 +358,17 @@ namespace RayvMobileApp.iOS
 					}
 				},
 			};
+			if (ShowToolbar) {
+				StackLayout tools = new BottomToolbar (this, "add");
+				Content = new StackLayout {
+					Children = {
+						EditGrid,
+						tools
+					}
+				};
+			} else {
+				Content = EditGrid;
+			}
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
 //				Icon = "icon-map.png",
