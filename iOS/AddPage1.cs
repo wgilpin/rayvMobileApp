@@ -36,6 +36,7 @@ namespace RayvMobileApp.iOS
 		EntryWithChangeButton LocationEditBox;
 		LabelWithChangeButton LocationSearchedBox;
 		Button ResetLocationBtn;
+		Button AddManualAddress;
 		List<GeoLocation> LocationList;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 
@@ -194,6 +195,7 @@ namespace RayvMobileApp.iOS
 						PlacesListView.ItemsSource = points;
 						PlacesListView.IsVisible = points.Count > 0;
 						NothingFound.IsVisible = points.Count == 0;
+						AddManualAddress.IsVisible = true;
 					});
 				} catch (Exception e) {
 					Insights.Report (e);
@@ -267,6 +269,14 @@ namespace RayvMobileApp.iOS
 				ButtonText = "Search",
 				IsVisible = false,
 			};
+			AddManualAddress = new RayvButton {
+				HeightRequest = 30,
+				Text = "Add unlisted place",
+				OnClick = (s, e) => {
+					this.Navigation.PushAsync (new AddPage4 (SearchPosition));
+				},
+				IsVisible = false,
+			};
 			SearchPosition = Persist.Instance.GpsPosition;
 			StackLayout menu = new StackLayout { 
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -280,6 +290,7 @@ namespace RayvMobileApp.iOS
 					Spinner,
 					LocationResultsView,
 					PlacesListView,
+					AddManualAddress,
 					NothingFound,
 				}
 			};

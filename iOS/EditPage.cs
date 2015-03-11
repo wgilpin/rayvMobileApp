@@ -21,6 +21,7 @@ namespace RayvMobileApp.iOS
 		ButtonWide VoteDislike;
 		ButtonWide VoteWishlist;
 		ButtonWide SaveBtn;
+		ButtonWide DeleteButton;
 		Entry PhoneNo;
 		Entry WebSite;
 		Entry Address;
@@ -39,6 +40,7 @@ namespace RayvMobileApp.iOS
 		public EditPage (Place place, bool addingNewPlace = false) : this ()
 		{
 			AddingNewPlace = addingNewPlace;
+			DeleteButton.IsVisible = !addingNewPlace;
 			IsNew = String.IsNullOrEmpty (place.category);
 
 			EditPlace = place;
@@ -139,6 +141,7 @@ namespace RayvMobileApp.iOS
 
 			Place_name = new Entry {
 				Text = "",
+				Placeholder = "Name of place",
 			};
 			MainGrid.Children.Add (Place_name, 0, 3, Row, Row + 1);
 			Row++;
@@ -211,12 +214,13 @@ namespace RayvMobileApp.iOS
 			SaveBtn.Clicked += DoSave;
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
 			Row++;
-			ButtonWide DeleteButton = new ButtonWide {
+			DeleteButton = new ButtonWide {
 				Text = "Remove from my lists",
 				BackgroundColor = Color.Red,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.End,
+				IsVisible = false,
 			};
 			DeleteButton.Font = Font.SystemFontOfSize (NamedSize.Large);
 			DeleteButton.Clicked += DeletePlace;
@@ -235,6 +239,7 @@ namespace RayvMobileApp.iOS
 		public EditPage (Position position, String address, bool addingNewPlace = false) : this ()
 		{
 			AddingNewPlace = addingNewPlace;
+			DeleteButton.IsVisible = false;
 			IsNew = true;
 			EditPlace = new Place ();
 			EditPlace.lat = position.Latitude;
@@ -292,12 +297,22 @@ namespace RayvMobileApp.iOS
 
 		async private void DoSave (object sender, EventArgs e)
 		{
+			if (String.IsNullOrEmpty (Place_name.Text)) {
+				await DisplayAlert ("Warning", "You must name the place", "OK");
+				Place_name.Focus ();
+				return;
+			}
 			if (Category.SelectedIndex == -1) {
 				await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
 				return;
 			}
 			if (!Voted) {
 				await DisplayAlert ("Warning", "You must vote", "OK");
+				return;
+			}
+			if (String.IsNullOrEmpty (Comment.Text)) {
+				await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
+				Comment.Focus ();
 				return;
 			}
 			EditPlace.category = Category.Items [Category.SelectedIndex];

@@ -90,6 +90,10 @@ namespace RayvMobileApp.iOS
 			set { ButtonChange.Text = value; }
 		}
 
+		public Entry Entry {
+			get { return TextEntry; }
+		}
+
 		public EntryWithChangeButton () : base ()
 		{
 			ButtonChange = new Button {
