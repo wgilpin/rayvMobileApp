@@ -259,7 +259,6 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("NewsPage.SetSource");
 			lock (Persist.Instance.Lock) {
-				list.ItemsSource = null;
 				Persist.Instance.Votes.Sort (); 
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				List<Vote> News;
@@ -281,7 +280,10 @@ namespace RayvMobileApp.iOS
 						.ToList ();
 					break;
 				}
-				list.ItemsSource = News.Take (ShowRows);
+				Device.BeginInvokeOnMainThread (() => {
+					list.ItemsSource = null;
+					list.ItemsSource = News.Take (ShowRows);
+				});
 				Device.BeginInvokeOnMainThread (() => {
 					MoreBtn.IsVisible = News.Count > ShowRows;
 				});
