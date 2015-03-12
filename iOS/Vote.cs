@@ -87,6 +87,20 @@ namespace RayvMobileApp.iOS
 		}
 
 		[Ignore]
+		public string ShortAddress {
+			get {
+				return Persist.Instance.GetPlace (key).ShortAddress;
+			}
+		}
+
+		[Ignore]
+		public Place Place {
+			get {
+				return Persist.Instance.GetPlace (key);
+			}
+		}
+
+		[Ignore]
 		public string PrettyHowLongAgo {
 			// e.g. "A few seconds ago","10 mins ago", "2 hours ago", "24 days ago"
 			get {

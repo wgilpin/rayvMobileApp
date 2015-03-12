@@ -19,8 +19,9 @@ namespace RayvMobileApp.iOS
 		const int NEWS_ICON_SIZE = 20;
 		const int ROW1 = 20;
 		const int ROW2 = 20;
-		const int ROW3 = 45;
-		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + 13;
+		const int ROW3 = 15;
+		const int ROW4 = 45;
+		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + ROW4 + 13;
 		const int PAGE_SIZE = 10;
 
 		ListView list;
@@ -47,6 +48,7 @@ namespace RayvMobileApp.iOS
 							new RowDefinition { Height = new GridLength (ROW1, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (ROW2, GridUnitType.Absolute)  },
 							new RowDefinition { Height = new GridLength (ROW3, GridUnitType.Absolute)  },
+							new RowDefinition { Height = new GridLength (ROW4, GridUnitType.Absolute)  },
 						},
 						ColumnDefinitions = {
 							new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
@@ -70,7 +72,7 @@ namespace RayvMobileApp.iOS
 
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
-						TranslationX = 0,
+						TranslationY = 2,
 						TextColor = Color.FromHex ("#444444"),
 					};
 					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
@@ -107,7 +109,7 @@ namespace RayvMobileApp.iOS
 						HeightRequest = ROW_HEIGHT,
 						TranslationX = 0,
 						VerticalOptions = LayoutOptions.Start,
-						Opacity = 0.35,
+						Opacity = 0.45,
 					};
 					PlaceImg.SetBinding (Image.SourceProperty, "PlaceImage");
 
@@ -129,12 +131,15 @@ namespace RayvMobileApp.iOS
 					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
 
 					Label AddressLbl = new Label {
-						Font = Font.SystemFontOfSize (NamedSize.Small),
+						Font = Font.SystemFontOfSize (NamedSize.Micro),
 						LineBreakMode = LineBreakMode.TailTruncation,
+						TextColor = Color.FromHex ("#808080"),
 					};
 					//TODO: Get address from vote
-					AddressLbl.SetBinding (Label.TextProperty, "address");
-
+//					AddressLbl.SetBinding (Label.TextProperty, "ShortAddress");
+					AddressLbl.SetBinding (
+						Label.TextProperty, 
+						new Binding ("Place", converter: new AddressToShortAddressConverter ()));
 
 					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
 					grid.Children.Add (TimeLbl, 1, 3, 0, 1);
@@ -146,8 +151,9 @@ namespace RayvMobileApp.iOS
 							VoteLbl,
 						}
 					}, 1, 2, 0, 1);
-					grid.Children.Add (PlaceImg, 2, 3, 0, 3);
-					grid.Children.Add (CommentLbl, 1, 2, 2, 3);
+					grid.Children.Add (PlaceImg, 2, 3, 0, 4);
+					grid.Children.Add (AddressLbl, 1, 2, 2, 3);
+					grid.Children.Add (CommentLbl, 1, 2, 3, 4);
 
 					return new ViewCell {
 						View = grid,
@@ -284,6 +290,8 @@ namespace RayvMobileApp.iOS
 					list.ItemsSource = null;
 					list.ItemsSource = News.Take (ShowRows);
 				});
+
+
 				Device.BeginInvokeOnMainThread (() => {
 					MoreBtn.IsVisible = News.Count > ShowRows;
 				});

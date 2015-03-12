@@ -190,6 +190,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		//TODO: All of these view properties should be value converters in the template binding
 		[Ignore]
 		public string ShortAddress {
 			get {

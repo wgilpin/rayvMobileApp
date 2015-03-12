@@ -331,7 +331,9 @@ namespace RayvMobileApp.iOS
 			CuisineAndDistanceGrid.Children.Add (distance, 1, 0);
 
 			MainGrid.Children.Add (CuisineAndDistanceGrid, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
-			Address = new LabelWide ();
+			Address = new LabelWide {
+				TextColor = Color.FromHex ("707070"),
+			};
 			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
 
 			WebBtn = new ButtonWide ();
