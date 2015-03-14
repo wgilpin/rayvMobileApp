@@ -40,7 +40,8 @@ namespace RayvMobileApp.iOS
 		ButtonWide WebBtn;
 		Label distance;
 		Label Address;
-		Label descr;
+		LabelWithImageButton Comment;
+		EntryWithButton CommentEditor;
 		private bool ShowToolbar;
 
 		#endregion
@@ -185,9 +186,9 @@ namespace RayvMobileApp.iOS
 					Category.Text = DisplayPlace.category;
 					var comment = DisplayPlace.Comment ();
 					if (comment != null && comment.Length > 0)
-						descr.Text = '"' + DisplayPlace.Comment () + '"';
+						Comment.Text = '"' + DisplayPlace.Comment () + '"';
 					else {
-						descr.Text = null;
+						Comment.Text = null;
 					}
 					distance.Text = DisplayPlace.distance;
 					if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
@@ -226,6 +227,25 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Events
+
+		void DoClickComment (object o, EventArgs e)
+		{
+			Comment.IsVisible = false;
+			CommentEditor.IsVisible = true;
+			CommentEditor.Text = DisplayPlace.Comment ();
+		}
+
+		void DoSaveComment (object o, EventArgs e)
+		{
+			DisplayPlace.setComment (CommentEditor.Text);
+			CommentEditor.IsVisible = false;
+			string msg;
+			if (DisplayPlace.Save (out msg)) {
+				Comment.IsVisible = true;
+				Comment.Text = DisplayPlace.Comment ();
+			} else
+				DisplayAlert ("Error", "Couldn't save comment", "OK");
+		}
 
 		void DoEdit ()
 		{
@@ -343,8 +363,17 @@ namespace RayvMobileApp.iOS
 			CallBtn.Clicked += DoMakeCall;
 			MainGrid.Children.Add (CallBtn, 0, 3, IMAGE_HEIGHT + 4, IMAGE_HEIGHT + 5);
 
-			descr = new LabelWide ();
-			MainGrid.Children.Add (descr, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
+			Comment = new LabelWithImageButton {
+				Source = "187-pencil@2x.png",
+				OnClick = DoClickComment,
+			};
+			CommentEditor = new EntryWithButton {
+				Source = "26-checkmark@2x.png",
+				OnClick = DoSaveComment,
+				IsVisible = false,
+			};
+			MainGrid.Children.Add (CommentEditor, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (Comment, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
 			VoteLike = new ButtonWide {
 				Text = LIKE_TEXT,
 			};

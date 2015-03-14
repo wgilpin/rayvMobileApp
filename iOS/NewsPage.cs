@@ -90,7 +90,7 @@ namespace RayvMobileApp.iOS
 						FontAttributes = FontAttributes.Italic,
 						TextColor = Color.FromHex ("#444444"),
 						HorizontalOptions = LayoutOptions.Start,
-						TranslationY = 2,
+						TranslationY = 4,
 					};
 					VoteLbl.SetBinding (Label.TextProperty, "VoteVerb");
 

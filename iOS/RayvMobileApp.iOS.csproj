@@ -202,6 +202,7 @@
     <BundleResource Include="Resources\big-btn-find.png" />
     <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-news.png" />
+    <BundleResource Include="Resources\26-checkmark%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -252,7 +253,6 @@
     <Compile Include="NewsPage.cs" />
     <Compile Include="ProfilePage.cs" />
     <Compile Include="BottomToolbar.cs" />
-    <Compile Include="EntryWithButton.cs" />
     <Compile Include="MapGooglePage.cs" />
     <Compile Include="MapPlace.cs" />
     <Compile Include="GoogleMapsRenderer.cs" />
