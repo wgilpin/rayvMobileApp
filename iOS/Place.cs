@@ -197,10 +197,13 @@ namespace RayvMobileApp.iOS
 				// number then anything
 				string pattern = @"^(\d+[-\d+]* )(.*)";
 				MatchCollection matches = Regex.Matches (_address, pattern);
-				if (matches.Count < 1) {
-					return _address;
-				}
-				return matches [0].Groups [2].ToString ();
+				return (matches.Count < 1) ?
+					_address :
+					matches [0].Groups [2].ToString ();
+//				if (matches.Count < 1) {
+//					return _address;
+//				}
+//				return matches [0].Groups [2].ToString ();
 			}
 		}
 
@@ -209,7 +212,7 @@ namespace RayvMobileApp.iOS
 			get{ return _isSynced; }
 			set { 
 				_isSynced = value;
-				if (value = false)
+				if (value == false)
 					Persist.Instance.UnsyncedPlaces = true;
 			}
 		}

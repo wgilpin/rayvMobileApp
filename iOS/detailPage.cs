@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Xamarin;
 using System.Collections.Generic;
 using System.Linq;
+using Xamarin.Forms.Labs;
 
 namespace RayvMobileApp.iOS
 {
@@ -184,12 +185,11 @@ namespace RayvMobileApp.iOS
 						Img.HeightRequest = this.Height / 3;
 					}
 					Category.Text = DisplayPlace.category;
-					var comment = DisplayPlace.Comment ();
-					if (comment != null && comment.Length > 0)
+					string comment = DisplayPlace.Comment ();
+					if (String.IsNullOrEmpty (comment))
+						Comment.Text = "Click to Comment";
+					else
 						Comment.Text = '"' + DisplayPlace.Comment () + '"';
-					else {
-						Comment.Text = null;
-					}
 					distance.Text = DisplayPlace.distance;
 					if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
 						WebBtn.Text = "Go To Website";
@@ -199,11 +199,7 @@ namespace RayvMobileApp.iOS
 					WebBtn.Clicked += GotoWebPage;
 					CallBtn.Text = DisplayPlace.telephone;
 					VoteLike.TextColor = Color.Black;
-					VoteDislike.TextColor = Color.Black;
-					VoteWishlist.TextColor = Color.Black;
-					VoteLike.BackgroundColor = Color.FromHex ("#444111111");
-					VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
-					VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+					ResetVoteButtons ();
 					switch (DisplayPlace.vote) {
 					case "-1":
 						SetVoteButton (VoteDislike);
@@ -417,7 +413,7 @@ namespace RayvMobileApp.iOS
 				Content = EditGrid;
 			}
 			ToolbarItems.Add (new ToolbarItem {
-				Text = "Map",
+				Text = "Map ",
 //				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
@@ -426,7 +422,7 @@ namespace RayvMobileApp.iOS
 				})
 			});
 			ToolbarItems.Add (new ToolbarItem {
-				Text = "Edit",
+				Text = " Edit",
 //				Icon = "187-pencil@2x.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => { 

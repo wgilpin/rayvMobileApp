@@ -78,6 +78,11 @@ namespace RayvMobileApp.iOS
 			set;
 		}
 
+		public bool IsAdmin {
+			get { return this.GetConfigBool ("is_admin"); }
+			set { this.SetConfig ("is_admin", true); }
+		}
+
 		public Dictionary<string, int> CategoryCounts {
 			get { return _categoryCounts; }
 		}
@@ -279,6 +284,7 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine ("StoreFullUserRecord: lock get full");
 				JObject obj = JObject.Parse (resp.Content);
 				MyId = obj ["id"].Value<Int64> ();
+				SetConfig ("is_admin", obj ["admin"].ToString ());
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 				lock (Lock) {
@@ -320,6 +326,7 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine ("StoreUpdatedUserRecord: lock ");
 				JObject obj = JObject.Parse (resp.Content);
 				MyId = obj ["id"].Value<Int64> ();
+				SetConfig ("is_admin", obj ["admin"].ToString ());
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 				lock (Lock) {
@@ -641,6 +648,32 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public bool GetConfigBool (string key)
+		{
+			try {
+				string value = GetConfig (key);
+				switch (value) {
+				case "true":
+				case "True":
+				case "Yes":
+				case "yes":
+				case "1":
+					return true;
+					break;
+				case "false":
+				case "False":
+				case "No":
+				case "no":
+				case "0":
+				default:
+					return false;
+					break;
+				}
+			} catch {
+				return false;
+			}
+		}
+
 		public DateTime? GetConfigDateTime (string key)
 		{
 			try {
@@ -690,6 +723,10 @@ namespace RayvMobileApp.iOS
 			SetConfig (key, value.ToUniversalTime ().ToString ("s"));
 		}
 
+		public void SetConfig (string key, bool value, SQLiteConnection db = null)
+		{
+			SetConfig (key, value.ToString ());
+		}
 
 		#endregion
 

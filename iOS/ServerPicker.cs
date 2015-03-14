@@ -44,7 +44,7 @@ namespace RayvMobileApp.iOS
 			Items.Add ("Production");
 			SelectedIndexChanged += DoSelect;
 			SelectedIndex = 3;
-				
+			IsVisible = Persist.Instance.IsAdmin;
 		}
 	}
 }

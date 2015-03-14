@@ -134,12 +134,10 @@ namespace RayvMobileApp.iOS
 			};
 			Pwd1Ed = new Entry {
 				Placeholder = "Password",
-				IsPassword = true,
 				Text = "",
 			};
 			Pwd2Ed = new Entry {
 				Placeholder = "Password (again)",
-				IsPassword = true,
 				Text = "",
 			};
 			EmailEd = new Entry {
