@@ -311,9 +311,12 @@ namespace RayvMobileApp.iOS
 				return;
 			}
 			if (String.IsNullOrEmpty (Comment.Text)) {
-				await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
-				Comment.Focus ();
-				return;
+				if (EditPlace.vote == "1" || EditPlace.vote == "-1") {
+					// need to comment unless its a wishlist item
+					await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
+					Comment.Focus ();
+					return;
+				}
 			}
 			EditPlace.category = Category.Items [Category.SelectedIndex];
 			EditPlace.setComment (Comment.Text);
