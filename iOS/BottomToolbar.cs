@@ -196,7 +196,7 @@ namespace RayvMobileApp.iOS
 			gridSecond.Children.Add (friendsImg, 1, 2, 0, 1);
 			gridSecond.Children.Add (settingsImg, 2, 3, 0, 1);
 
-			gridMain.Children.Add (new ToolbarButton ("List") { 
+			gridMain.Children.Add (new ToolbarButton ("Find") { 
 				OnClick = ShowList,
 			}, 1, 2, 1, 2);
 			gridMain.Children.Add (new ToolbarButton ("News") { 

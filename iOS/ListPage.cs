@@ -65,7 +65,7 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("ListView()");
 			Xamarin.FormsMaps.Init ();
-			this.Title = "List";
+			this.Title = "Find Food";
 			this.Icon = "bars-black.png";
 
 			// FILTER BOX
@@ -210,7 +210,7 @@ namespace RayvMobileApp.iOS
 				}
 			};
 			Spinner = new ActivityIndicator {
-				IsRunning = false,
+				IsRunning = true,
 			};
 			grid.Children.Add (new StackLayout {
 				HorizontalOptions = LayoutOptions.StartAndExpand,
@@ -271,6 +271,7 @@ namespace RayvMobileApp.iOS
 		public ListPage (List<Place> source) : this ()
 		{
 			listView.ItemsSource = source;
+			Spinner.IsRunning = false;
 		}
 
 		/**
@@ -562,6 +563,7 @@ namespace RayvMobileApp.iOS
 						ItemsSource = null;
 						list.Sort ();
 						ItemsSource = list;
+						Spinner.IsRunning = false;
 
 					} catch (Exception ex) {
 						Insights.Report (ex);

@@ -43,7 +43,7 @@ namespace RayvMobileApp.iOS
 		{
 			Console.WriteLine ("App entering background state.");
 			locationMgr.StopUpdatingLocation ();
-			Insights.Track ("AppDelegate.DidEnterBackground");
+//			Insights.Track ("AppDelegate.DidEnterBackground");
 		}
 
 		public override void WillEnterForeground (UIApplication application)
@@ -51,7 +51,7 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("App will enter foreground");
 			locationMgr.StartLocationUpdates ();
 			IdentifyToAnalytics ();
-			Insights.Track ("AppDelegate.WillEnterForeground");
+//			Insights.Track ("AppDelegate.WillEnterForeground");
 		}
 	}
 }

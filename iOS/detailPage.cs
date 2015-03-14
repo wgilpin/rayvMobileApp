@@ -363,17 +363,7 @@ namespace RayvMobileApp.iOS
 			CallBtn.Clicked += DoMakeCall;
 			MainGrid.Children.Add (CallBtn, 0, 3, IMAGE_HEIGHT + 4, IMAGE_HEIGHT + 5);
 
-			Comment = new LabelWithImageButton {
-				Source = "187-pencil@2x.png",
-				OnClick = DoClickComment,
-			};
-			CommentEditor = new EntryWithButton {
-				Source = "26-checkmark@2x.png",
-				OnClick = DoSaveComment,
-				IsVisible = false,
-			};
-			MainGrid.Children.Add (CommentEditor, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
-			MainGrid.Children.Add (Comment, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
+
 			VoteLike = new ButtonWide {
 				Text = LIKE_TEXT,
 			};
@@ -386,9 +376,22 @@ namespace RayvMobileApp.iOS
 				Text = WISH_TEXT,
 			};
 			VoteWishlist.Clicked += SetVote;
-			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 6);
-			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 6);
-			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 6);
+			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 5);
+			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 5);
+			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 5);
+
+			Comment = new LabelWithImageButton {
+				Source = "187-pencil@2x.png",
+				OnClick = DoClickComment,
+			};
+			CommentEditor = new EntryWithButton {
+				Source = "26-checkmark@2x.png",
+				OnClick = DoSaveComment,
+				IsVisible = false,
+			};
+			MainGrid.Children.Add (CommentEditor, 0, 3, IMAGE_HEIGHT + 6, IMAGE_HEIGHT + 7);
+			MainGrid.Children.Add (Comment, 0, 3, IMAGE_HEIGHT + 6, IMAGE_HEIGHT + 7);
+
 			LoadPage (DisplayPlace.key);
 
 			ScrollView EditGrid = new ScrollView {

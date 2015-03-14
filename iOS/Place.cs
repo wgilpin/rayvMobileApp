@@ -257,7 +257,7 @@ namespace RayvMobileApp.iOS
 
 		public string Comment ()
 		{
-			if (_descr != null && _descr.Length > 0)
+			if (!String.IsNullOrEmpty (_descr))
 				return _descr;
 			if (_commentSet != null)
 				return _commentSet;
