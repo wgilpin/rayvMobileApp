@@ -59,7 +59,7 @@ namespace RayvMobileApp.iOS
 				if (vote == 1)
 					imageUrl = "Liked";
 				if (vote == -1)
-					imageUrl = "Diskliked";
+					imageUrl = "Disliked";
 				if (untried)
 					imageUrl = "Saved";
 				return imageUrl;

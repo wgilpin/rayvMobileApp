@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 			Grid grid = new Grid {
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (50.0) },
+					new ColumnDefinition { Width = new GridLength (70) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
