@@ -52,7 +52,9 @@ namespace RayvMobileApp.iOS
 
 		public static IEnumerable ItemsSource {
 			set {
-				listView.ItemsSource = value;
+				lock (Persist.Instance.Lock) {
+					listView.ItemsSource = value;
+				}
 			}
 		}
 
@@ -270,8 +272,10 @@ namespace RayvMobileApp.iOS
 		 */
 		public ListPage (List<Place> source) : this ()
 		{
-			listView.ItemsSource = source;
-			Spinner.IsRunning = false;
+			lock (Persist.Instance.Lock) {
+				listView.ItemsSource = source;
+				Spinner.IsRunning = false;
+			}
 		}
 
 		/**

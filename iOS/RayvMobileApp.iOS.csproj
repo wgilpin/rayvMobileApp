@@ -209,6 +209,16 @@
     <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
     <BundleResource Include="Resources\big-btn-find.png" />
+    <BundleResource Include="Resources\toolbar-right-news.png" />
+    <BundleResource Include="Resources\toolbar-left-list.png" />
+    <BundleResource Include="Resources\toolbar-centre-add.png" />
+    <BundleResource Include="Resources\toolbar-right-news-pressed.png" />
+    <BundleResource Include="Resources\toolbar-centre-add-pressed.png" />
+    <BundleResource Include="Resources\toolbar-left-list-pressed.png" />
+    <BundleResource Include="Resources\toolbar-left-friends-pressed.png" />
+    <BundleResource Include="Resources\toolbar-left-friends.png" />
+    <BundleResource Include="Resources\toolbar-right-profile.png" />
+    <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

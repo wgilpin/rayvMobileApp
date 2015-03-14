@@ -44,21 +44,13 @@ namespace RayvMobileApp.iOS
 		}
 
 
-		void SetAddBtnYellow (string pressed, Grid gridMain, Grid selectedGrid)
-		{
-			if (pressed != "add") {
-				// yellow behind the add button
-				topYellow.Color = Color.FromHex ("#F3E90A");
-				bottomYellow.Color = Color.FromHex ("#F3E90A");
-			}
-		}
 
 		public BottomToolbar (Page page, String pressed = null)
 		{
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			Grid gridMain = new Grid {
-				Padding = 2,
+				Padding = 0,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -72,10 +64,10 @@ namespace RayvMobileApp.iOS
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.FromHex ("#554FD9"),
+				ColumnSpacing = 0,
 			};
-
 			Grid gridSecond = new Grid {
-				Padding = 2,
+				Padding = 0,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (40, GridUnitType.Absolute) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -91,35 +83,11 @@ namespace RayvMobileApp.iOS
 				BackgroundColor = Color.FromHex ("#554FD9"),
 			};
 
-			Image addImg = new ImageButton {
-				Source = "icon-add.png",
-				OnClick = ShowAdd,
-			};
-
-			// FRIENDS
-			Image friendsImg = new ImageButton {
-				Source = "icon-friends.png",
-				OnClick = ShowFriends,
-			};
-
-
-			// NEWS
-			Image newsImg = new ImageButton {
-				Source = "icon-news.png",
-				OnClick = ShowNews,
-			};
-
-			//  LIST
-			Image ListImg = new ImageButton {
-				Source = "icon-grid.png",
-				OnClick = ShowList,
-			};
-
-			// PROFILE
-			Image settingsImg = new ImageButton {
-				Source = "icon-profile.png",
-				OnClick = ShowProfile,
-			};
+			Image addImg = new ImageButton ("toolbar-centre-add.png", ShowAdd);
+			Image friendsImg = new ImageButton ("toolbar-left-friends.png", ShowFriends);
+			Image newsImg = new ImageButton ("toolbar-right-news.png", ShowNews);
+			Image ListImg = new ImageButton ("toolbar-left-list.png", ShowList);
+			Image settingsImg = new ImageButton ("toolbar-right-profile.png", ShowProfile);
 
 			Button MoreBtn = new Button {
 				Text = "more",
@@ -131,7 +99,7 @@ namespace RayvMobileApp.iOS
 			MoreBtn.Clicked += (sender, e) => {
 				gridMain.IsVisible = false;
 				gridSecond.IsVisible = true;
-				SetAddBtnYellow (pressed, gridMain, gridSecond);
+				//SetAddBtnYellow (pressed, gridMain, gridSecond);
 			};
 
 			Button BackBtn = new Button {
@@ -143,7 +111,7 @@ namespace RayvMobileApp.iOS
 			BackBtn.Clicked += (sender, e) => {
 				gridMain.IsVisible = true;
 				gridSecond.IsVisible = false;
-				SetAddBtnYellow (pressed, gridMain, gridSecond);
+				//SetAddBtnYellow (pressed, gridMain, gridSecond);
 			};
 
 			gridMain.IsVisible = true;
@@ -153,48 +121,48 @@ namespace RayvMobileApp.iOS
 			if (pressed != null) {
 				switch (pressed) {
 				case "news":
-					newsImg.Source = "icon-news-pressed.png";
+					newsImg.Source = "toolbar-right-news-pressed.png";
 					selectedColumn = 3;
 					break;
 				case "list":
-					ListImg.Source = "icon-grid-pressed.png";
+					ListImg.Source = "toolbar-left-list-pressed.png";
 					selectedColumn = 1;
 					break;
 				case "profile":
 					selectedGrid = gridSecond;
-					settingsImg.Source = "icon-profile-pressed.png";
+					settingsImg.Source = "toolbar-right-profile-pressed.png";
 					selectedColumn = 2;
 					break;
 				case "friends":
 					selectedGrid = gridSecond;
-					friendsImg.Source = "icon-friends-pressed.png";
+					friendsImg.Source = "toolbar-left-friends-pressed.png";
 					selectedColumn = 1;
 					break;
 				case "add":
-					addImg.Source = "icon-add-pressed.png";
+					addImg.Source = "toolbar-centre-add-pressed.png";
 					selectedColumn = 2;
 					break;
 				}
 				gridMain.IsVisible = selectedGrid == gridMain;
 				gridSecond.IsVisible = selectedGrid == gridSecond;
-				topYellow = new BackgroundBox ("#F3E90A");
-				bottomYellow = new BackgroundBox ("#F3E90A");
-				gridMain.Children.Add (topYellow, 2, 3, 0, 1);
-				gridMain.Children.Add (bottomYellow, 2, 3, 1, 2);
-				SetAddBtnYellow (pressed, gridMain, selectedGrid);
+				//topYellow = new BackgroundBox ("#F3E90A");
+				//bottomYellow = new BackgroundBox ("#F3E90A");
+				//gridMain.Children.Add (topYellow, 2, 3, 0, 1);
+				//gridMain*/.Children.Add (bottomYellow, 2, 3, 1, 2);
+				//SetAddBtnYellow (pressed, gridMain, selectedGrid);
 				// grey behind the current page
-				selectedGrid.Children.Add (
-					new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 0, 1);
-				selectedGrid.Children.Add (
-					new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 1, 2);
+				//selectedGrid.Children.Add (
+				//	new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 0, 1);
+				//selectedGrid.Children.Add (
+				//	new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 1, 2);
 			}
 			gridMain.RowSpacing = 0;
 			gridSecond.RowSpacing = 0;
-			gridMain.Children.Add (ListImg, 1, 2, 0, 1);
-			gridMain.Children.Add (addImg, 2, 3, 0, 1);
-			gridMain.Children.Add (newsImg, 3, 4, 0, 1);
-			gridSecond.Children.Add (friendsImg, 1, 2, 0, 1);
-			gridSecond.Children.Add (settingsImg, 2, 3, 0, 1);
+			gridMain.Children.Add (ListImg, 1, 2, 0, 2);
+			gridMain.Children.Add (addImg, 2, 3, 0, 2);
+			gridMain.Children.Add (newsImg, 3, 4, 0, 2);
+			gridSecond.Children.Add (friendsImg, 1, 2, 0, 2);
+			gridSecond.Children.Add (settingsImg, 2, 3, 0, 2);
 
 			gridMain.Children.Add (new ToolbarButton ("Find") { 
 				OnClick = ShowList,
@@ -203,11 +171,8 @@ namespace RayvMobileApp.iOS
 				OnClick = ShowNews,
 			}, 3, 4, 1, 2);
 			ButtonWide AddBtn = new ToolbarButton ("Add") { 
-				TextColor = Color.Black,
 				OnClick = ShowAdd,
 			};
-			if (pressed == "add")
-				AddBtn.TextColor = Color.White;
 			gridMain.Children.Add (AddBtn, 2, 3, 1, 2);
 			gridMain.Children.Add (MoreBtn, 4, 5, 0, 2);
 			gridSecond.Children.Add (new ToolbarButton ("Friends") { 

@@ -502,38 +502,40 @@ namespace RayvMobileApp.iOS
 		 */
 		public void updatePlaces (Position? searchCentre = null)
 		{
-			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
-				db.BusyTimeout = DbTimeout;
-				foreach (Place p in Places) {
-					p.CalculateDistanceFromPlace (searchCentre);
-					db.InsertOrReplace (p);
-					// it is synced because it has just come from the server
-					p.IsSynced = true;
-				}
-				UpdateCategoryCounts ();
-
-				Places.Sort ();
-				foreach (Vote v in Votes) {
-					try {
-						var found_v = (from fv in db.Table<Vote> ()
-						               where fv.key == v.key
-						               select fv);
-						if (found_v.Count () == 0)
-							db.Insert (v);
-						//Db.InsertOrReplace (v);
-					} catch (Exception E) {
-						Insights.Report (E);
-						restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
+			lock (this.Lock) {
+				using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
+					db.BusyTimeout = DbTimeout;
+					foreach (Place p in Places) {
+						p.CalculateDistanceFromPlace (searchCentre);
+						db.InsertOrReplace (p);
+						// it is synced because it has just come from the server
+						p.IsSynced = true;
 					}
-				}
-			
-				foreach (KeyValuePair<string, Friend> f in Friends) {
-					try {
-						db.InsertOrReplace (f.Value);
-						Debug.WriteLine (f.Value.Name);
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);
+					UpdateCategoryCounts ();
+					
+					Places.Sort ();
+					foreach (Vote v in Votes) {
+						try {
+							var found_v = (from fv in db.Table<Vote> ()
+							               where fv.key == v.key
+							               select fv);
+							if (found_v.Count () == 0)
+								db.Insert (v);
+							//Db.InsertOrReplace (v);
+						} catch (Exception E) {
+							Insights.Report (E);
+							restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
+						}
+					}
+					
+					foreach (KeyValuePair<string, Friend> f in Friends) {
+						try {
+							db.InsertOrReplace (f.Value);
+							Debug.WriteLine (f.Value.Name);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);
+						}
 					}
 				}
 			}

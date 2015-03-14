@@ -291,6 +291,12 @@ namespace RayvMobileApp.iOS
 		{
 
 		}
+
+		public ImageButton (string source, EventHandler onClick) : this ()
+		{
+			Source = source;
+			OnClick = onClick;
+		}
 	}
 
 	public class ButtonWithImage: Grid
