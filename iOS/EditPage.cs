@@ -26,7 +26,7 @@ namespace RayvMobileApp.iOS
 		Entry WebSite;
 		Entry Address;
 		Place EditPlace;
-		Editor Comment;
+		Entry Comment;
 		bool IsNew;
 		bool Voted;
 
@@ -197,10 +197,10 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (VoteWishlist, 1, Row);
 			MainGrid.Children.Add (VoteDislike, 2, Row);
 			Row++;
-			Comment = new Editor ();
+			Comment = new Entry ();
 			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck);
 
-			MainGrid.Children.Add (new Label { Text = "Comments" }, 0, 3, Row, Row + 1);
+			MainGrid.Children.Add (new Label { Text = "My Comment" }, 0, 3, Row, Row + 1);
 			Row++;
 			MainGrid.Children.Add (Comment, 0, 3, Row, Row + 1);
 			Row++;
