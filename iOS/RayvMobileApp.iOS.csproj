@@ -199,10 +199,10 @@
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
     <BundleResource Include="Resources\big-btn-add-place.png" />
     <BundleResource Include="Resources\big-btn-add-friend.png" />
-    <BundleResource Include="Resources\big-btn-find.png" />
     <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
+    <BundleResource Include="Resources\big-btn-find.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
