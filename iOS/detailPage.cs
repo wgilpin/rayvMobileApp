@@ -181,9 +181,9 @@ namespace RayvMobileApp.iOS
 						Img.HorizontalOptions = LayoutOptions.FillAndExpand;
 						//Img.VerticalOptions = LayoutOptions.Start;
 						Img.Aspect = Aspect.AspectFill;
-						Img.WidthRequest = this.Width;
-						Img.HeightRequest = this.Height / 3;
 					}
+					Img.WidthRequest = this.Width;
+					Img.HeightRequest = this.Height / 3;
 					Category.Text = DisplayPlace.category;
 					string comment = DisplayPlace.Comment ();
 					if (String.IsNullOrEmpty (comment))
