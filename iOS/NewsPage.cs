@@ -57,18 +57,23 @@ namespace RayvMobileApp.iOS
 						}
 					};
 
+
 					Button LetterBtn = new Button {
 						WidthRequest = 30,
 						HeightRequest = 30,
-						Font = Font.SystemFontOfSize (NamedSize.Large),
+						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
 						BorderRadius = 15,
 						BackgroundColor = Color.Red,
 						Text = "X",
 						TextColor = Color.White,
 						VerticalOptions = LayoutOptions.Start,
 					};
-					LetterBtn.SetBinding (Button.TextProperty, "FirstLetter");
-					LetterBtn.SetBinding (Button.BackgroundColorProperty, "RandomColor");
+					LetterBtn.SetBinding (
+						Button.TextProperty, 
+						new Binding ("voter", converter: new VoterToFirstLetterConverter ()));
+					LetterBtn.SetBinding (
+						Button.BackgroundColorProperty, 
+						new Binding ("voter", converter: new VoterToRandomColorConverter ()));
 
 					Label CommenterLbl = new Label {
 						FontAttributes = FontAttributes.Bold,
@@ -83,7 +88,9 @@ namespace RayvMobileApp.iOS
 						//TextColor = Color.FromHex ("#606060"),
 						HorizontalOptions = LayoutOptions.End,
 					};
-					TimeLbl.SetBinding (Label.TextProperty, "PrettyHowLongAgo");
+					TimeLbl.SetBinding (
+						Label.TextProperty, 
+						new Binding ("when", converter: new WhenToPrettyStringConverter ()));
 
 					Label VoteLbl = new Label {
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -92,7 +99,9 @@ namespace RayvMobileApp.iOS
 						HorizontalOptions = LayoutOptions.Start,
 						TranslationY = 4,
 					};
-					VoteLbl.SetBinding (Label.TextProperty, "VoteVerb");
+					VoteLbl.SetBinding (
+						Label.TextProperty, 
+						new Binding ("vote", converter: new VoteToVerbConverter ()));
 
 
 					Image VoteImg = new Image { 
@@ -121,26 +130,28 @@ namespace RayvMobileApp.iOS
 					PlaceLbl.SetBinding (Label.TextProperty, "place_name");
 
 					Label CommentLbl = new Label {
-						Font = Font.SystemFontOfSize (NamedSize.Small),
+						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						FontAttributes = FontAttributes.Italic,
 						BackgroundColor = Color.White,
 						TextColor = Color.FromHex ("#606060"),
 						HorizontalOptions = LayoutOptions.Start,
 						LineBreakMode = LineBreakMode.WordWrap,
 					};
-					CommentLbl.SetBinding (Label.TextProperty, "PrettyComment");
+					CommentLbl.SetBinding (
+						Label.TextProperty, 
+						new Binding ("comment", converter: new CommentToPrettyStringConverter ()));
 
+
+					//TODO: Get address from vote
 					Label AddressLbl = new Label {
-						Font = Font.SystemFontOfSize (NamedSize.Micro),
+						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 						LineBreakMode = LineBreakMode.TailTruncation,
 						TextColor = Color.FromHex ("#808080"),
 					};
-					//TODO: Get address from vote
-//					AddressLbl.SetBinding (Label.TextProperty, "ShortAddress");
 					AddressLbl.SetBinding (
 						Label.TextProperty, 
-						new Binding ("Place", converter: new AddressToShortAddressConverter ()));
-
+						new Binding ("key", converter: new KeyToShortAddressConverter ()));
+					
 					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
 					grid.Children.Add (TimeLbl, 1, 3, 0, 1);
 					grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 1, }, 0, 1, 0, 2);

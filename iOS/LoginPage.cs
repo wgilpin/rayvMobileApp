@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 
 			RayvButton loginButton = new RayvButton {
 				Text = " Login ",
-				Font = Font.SystemFontOfSize (NamedSize.Large),
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
 			};
 			loginButton.Clicked += this.DoLogin;
 

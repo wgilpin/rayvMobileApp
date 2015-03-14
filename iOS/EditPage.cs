@@ -210,7 +210,7 @@ namespace RayvMobileApp.iOS
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 			};
-			SaveBtn.Font = Font.SystemFontOfSize (NamedSize.Large);
+			SaveBtn.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			SaveBtn.Clicked += DoSave;
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
 			Row++;
@@ -222,7 +222,7 @@ namespace RayvMobileApp.iOS
 				VerticalOptions = LayoutOptions.End,
 				IsVisible = false,
 			};
-			DeleteButton.Font = Font.SystemFontOfSize (NamedSize.Large);
+			DeleteButton.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			DeleteButton.Clicked += DeletePlace;
 			MainGrid.Children.Add (DeleteButton, 0, 3, Row, Row + 1);
 			Row++;

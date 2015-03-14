@@ -281,6 +281,7 @@
     <Compile Include="AddPage1.cs" />
     <Compile Include="AddPage4.cs" />
     <Compile Include="VoteConverters.cs" />
+    <Compile Include="PlaceConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

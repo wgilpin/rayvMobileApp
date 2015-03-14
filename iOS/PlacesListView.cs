@@ -24,19 +24,21 @@ namespace RayvMobileApp.iOS
 
 				Label catLabel = new Label ();
 				catLabel.SetBinding (Label.TextProperty, "category");
-				catLabel.Font = Font.SystemFontOfSize (NamedSize.Small);
+				catLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
 
 				Label distLabel = new Label ();
-				distLabel.Font = Font.SystemFontOfSize (NamedSize.Small);
+				distLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
 				distLabel.SetBinding (Label.TextProperty, "distance");
 
 				Label addressLabel = new Label {
-					Font = Font.SystemFontOfSize (NamedSize.Micro),
+					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
 					TranslationX = 85,
 				};
-				addressLabel.SetBinding (Label.TextProperty, "ShortAddress");
-
+				//addressLabel.SetBinding (Label.TextProperty, "ShortAddress");
+				addressLabel.SetBinding (
+					Label.TextProperty, 
+					new Binding ("address", converter: new AddressToShortAddressConverter ()));
 
 				Image webImage = new Image { 
 					Aspect = Aspect.AspectFill,
@@ -140,26 +142,6 @@ namespace RayvMobileApp.iOS
 					View = grid,
 				};
 				// Return an assembled ViewCell.
-				return new ViewCell {
-					View = new StackLayout {
-						Padding = new Thickness (1, 1),
-						Spacing = 1,
-						Orientation = StackOrientation.Horizontal,
-						Children = {
-							webImage,
-							new StackLayout {
-								Spacing = 0,
-								Orientation = StackOrientation.Vertical,
-								Children = {
-									nameLabel,
-									catLabel,
-									distLabel,
-								}
-							}
-						}
-
-					}
-				};
 			});
 			VerticalOptions = LayoutOptions.FillAndExpand;
 		}

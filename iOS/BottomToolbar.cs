@@ -63,7 +63,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = Color.FromHex ("#554FD9"),
+				BackgroundColor = Color.FromHex ("404040"),//.FromHex ("#554FD9"),
 				ColumnSpacing = 0,
 			};
 			Grid gridSecond = new Grid {
@@ -80,7 +80,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = Color.FromHex ("#554FD9"),
+				BackgroundColor = Color.FromHex ("#404040"),
 			};
 
 			Image addImg = new ImageButton ("toolbar-centre-add.png", ShowAdd);

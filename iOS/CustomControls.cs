@@ -220,7 +220,7 @@ namespace RayvMobileApp.iOS
 			//BorderColor = Color.FromHex ("#4444AA");
 			BorderRadius = 0;
 			BackgroundColor = Color.FromHex ("#ddddff");
-			Font = Font.SystemFontOfSize (NamedSize.Large);
+			FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			if (text != null)
 				Text = text;
 //			HorizontalOptions = LayoutOptions.FillAndExpand;

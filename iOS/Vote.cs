@@ -53,7 +53,7 @@ namespace RayvMobileApp.iOS
 		}
 
 		[Ignore]
-		public string GetIconName {
+		public string GetVoteAsString {
 			get {
 				String imageUrl = "";
 				if (vote == 1)
@@ -86,12 +86,12 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		[Ignore]
-		public string ShortAddress {
-			get {
-				return Persist.Instance.GetPlace (key).ShortAddress;
-			}
-		}
+		//		[Ignore]
+		//		public string ShortAddress {
+		//			get {
+		//				return Persist.Instance.GetPlace (key).ShortAddress;
+		//			}
+		//		}
 
 		[Ignore]
 		public Place Place {

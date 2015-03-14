@@ -78,7 +78,7 @@ namespace RayvMobileApp.iOS
 							grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
 							grid.Children.Add (new Label { 
 								Text = voteList [row].PrettyHowLongAgo,
-								Font = Font.SystemFontOfSize (NamedSize.Small),
+								FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 								FontAttributes = FontAttributes.Italic,
 								TextColor = Color.FromHex ("#606060"),
 							}, 2, 4, whichRow * 2, whichRow * 2 + 1);
@@ -90,7 +90,7 @@ namespace RayvMobileApp.iOS
 								}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
 							}
 							Label vote = new Label {
-								Text = voteList [row].GetIconName,
+								Text = voteList [row].GetVoteAsString,
 							};
 							grid.Children.Add (vote, 1, 2, whichRow * 2, whichRow * 2 + 1);
 							whichRow++;
@@ -229,11 +229,13 @@ namespace RayvMobileApp.iOS
 			Comment.IsVisible = false;
 			CommentEditor.IsVisible = true;
 			CommentEditor.Text = DisplayPlace.Comment ();
+			CommentEditor.Focus ();
 		}
 
 		void DoSaveComment (object o, EventArgs e)
 		{
 			DisplayPlace.setComment (CommentEditor.Text);
+			CommentEditor.Unfocus ();
 			CommentEditor.IsVisible = false;
 			string msg;
 			if (DisplayPlace.Save (out msg)) {

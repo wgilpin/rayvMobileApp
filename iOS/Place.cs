@@ -191,21 +191,17 @@ namespace RayvMobileApp.iOS
 		}
 
 		//TODO: All of these view properties should be value converters in the template binding
-		[Ignore]
-		public string ShortAddress {
-			get {
-				// number then anything
-				string pattern = @"^(\d+[-\d+]* )(.*)";
-				MatchCollection matches = Regex.Matches (_address, pattern);
-				return (matches.Count < 1) ?
-					_address :
-					matches [0].Groups [2].ToString ();
-//				if (matches.Count < 1) {
-//					return _address;
-//				}
-//				return matches [0].Groups [2].ToString ();
-			}
-		}
+		//		[Ignore]
+		//		public string ShortAddress {
+		//			get {
+		//				// number then anything
+		//				string pattern = @"^(\d+[-\d+]* )(.*)";
+		//				MatchCollection matches = Regex.Matches (_address, pattern);
+		//				return (matches.Count < 1) ?
+		//					_address :
+		//					matches [0].Groups [2].ToString ();
+		//			}
+		//		}
 
 		[Ignore]
 		public bool IsSynced {

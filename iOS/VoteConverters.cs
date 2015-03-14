@@ -3,24 +3,28 @@ using Xamarin.Forms;
 using System.Globalization;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Xamarin;
+using System.Text;
 
 namespace RayvMobileApp.iOS
 {
 	#region Address-ShortAddress
-	public class AddressToShortAddressConverter: IValueConverter
+	public class KeyToShortAddressConverter: IValueConverter
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var place = value as Place;
-			if (place == null)
+			var key = value as string;
+			if (String.IsNullOrEmpty (key))
 				return null;
 
+			Place p = Persist.Instance.GetPlace (key);
+			string address = p.address;
 			string res;
 			// number then anything
 			string pattern = @"^(\d+[-\d+]* )(.*)";
-			MatchCollection matches = Regex.Matches (place.address, pattern);
+			MatchCollection matches = Regex.Matches (address, pattern);
 			if (matches.Count < 1) {
-				res = place.address;
+				res = address;
 			} else {
 				res = matches [0].Groups [2].ToString ();
 			}
@@ -33,6 +37,180 @@ namespace RayvMobileApp.iOS
 			throw new NotImplementedException ();
 		}
 	}
+
+	public class VoterToNameConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var voter = value as string;
+			if (string.IsNullOrEmpty (voter))
+				return null;
+			return Persist.Instance.Friends [voter].Name;
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class VoterToFirstLetterConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var voter = value as string;
+			if (string.IsNullOrEmpty (voter))
+				return null;
+			return Persist.Instance.Friends [voter].Name.Remove (1); 
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class VoteToVerbConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			int? vote;
+			try {
+				vote = value as int?;
+			} catch (Exception) { 
+				return null;
+			}
+			if (vote == 1)
+				return "Liked";
+			if (vote == -1)
+				return "Disliked";
+			return "Starred";
+		
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class KeyToThumbUrlConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var key = value as string;
+			if (string.IsNullOrEmpty (key))
+				return null;
+			return Persist.Instance.GetPlace (key).thumb_url;
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class CommentToPrettyStringConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var comment = value as string;
+			if (string.IsNullOrEmpty (comment))
+				return "";
+			return String.Format ("\"{0}\"", comment);
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class WhenToPrettyStringConverter: IValueConverter
+	{
+		private String MakeString (Double n, String unit)
+		{
+			int intn = (int)Math.Truncate (n);
+			string plural = "";
+			if (intn > 1)
+				plural = "s";
+			return String.Format ("{0} {1}{2} ago", intn, unit, plural);
+		}
+
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			DateTime? when;
+			try {
+				when = value as DateTime?;
+				if (when == null) {
+					return null;
+				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				return "";
+			}
+
+			TimeSpan d = DateTime.UtcNow - (DateTime)when;
+			if (d.TotalDays > 1.0) {
+				// days
+				return MakeString (d.TotalDays, "day");
+			}
+			if (d.TotalHours > 1.0) {
+				// hours
+				return MakeString (d.TotalHours, "hour");
+			}
+			if (d.TotalMinutes > 1.0) {
+				// days
+				return MakeString (d.TotalMinutes, "min");
+			}
+			//seconds
+			return "a few seconds ago";
+		
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class VoterToRandomColorConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var voter = value as string;
+			if (string.IsNullOrEmpty (voter))
+				return null;
+			try {
+				string name = Persist.Instance.Friends [voter].Name.ToLower ();
+				if (name.Length > 3) {
+					int i1 = ((Encoding.ASCII.GetBytes (name) [0] - 97) % 26) * 10;
+					int i2 = ((Encoding.ASCII.GetBytes (name) [1] - 97) % 26) * 10;
+					int i3 = ((Encoding.ASCII.GetBytes (name) [2] - 97) % 26) * 10;
+					Color c = Color.FromRgb (i1, i2, i3);
+					Console.WriteLine ("{0} {1}", name, c);
+					return c;
+				}
+				return Color.Black;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				return Color.Black;
+			}
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
 	#endregion
 }
 
