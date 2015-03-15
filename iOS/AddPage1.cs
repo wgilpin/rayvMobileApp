@@ -47,6 +47,7 @@ namespace RayvMobileApp.iOS
 			LocationSearchedBox.IsVisible = false;
 			ResetLocationBtn.IsVisible = false;
 			LocationEditBox.IsVisible = true;
+			PlaceNameBox.ButtonText = " ";
 		}
 
 		void DoSearchForPlace (object s, EventArgs e)
@@ -130,10 +131,12 @@ namespace RayvMobileApp.iOS
 		{
 			SearchPosition = Persist.Instance.GpsPosition;
 			ResetLocationBtn.IsVisible = false;
-			LocationSearchedBox.IsVisible = false;
-			LocationEditBox.IsVisible = true;
+			LocationSearchedBox.IsVisible = true;
+			LocationSearchedBox.Text = "Searching current location";
+			LocationEditBox.IsVisible = false;
 			LocationResultsView.IsVisible = false;
 			DoSearch (PlaceNameBox.Text, "");
+			PlaceNameBox.ButtonText = "Search";
 		}
 
 		void DoSelectLocation (object s, ItemTappedEventArgs e)
@@ -147,6 +150,7 @@ namespace RayvMobileApp.iOS
 			DoSearch (PlaceNameBox.Text, LocationSearchedBox.Text);
 			PlacesListView.IsVisible = false;
 			LocationResultsView.IsVisible = false;
+			PlaceNameBox.ButtonText = "Search";
 		}
 
 		#endregion
@@ -163,6 +167,9 @@ namespace RayvMobileApp.iOS
 
 			Console.WriteLine ("AddPage1.DoSearch: Activity");
 			Spinner.IsRunning = true;
+			if (PlaceNameBox.ButtonText == "Search" && LocationSearchedBox.ButtonText == "Search") {
+				PlaceNameBox.ButtonText = " ";
+			}
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Console.WriteLine ("AddPage1.DoSearch: Thread");
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();

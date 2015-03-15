@@ -15,6 +15,7 @@ namespace RayvMobileApp.iOS
 		private void PinClick (object send, EventArgs e)
 		{
 			Console.WriteLine ("PIN CLICKED");
+			DisplayAlert ("Success!", "Inform Will Immediately. This is working", "Yay!");
 			var actionButton1 = new Button { Text = "ActionSheet Simple" };
 			actionButton1.Clicked += async (sender, ev) => {
 				var action = await DisplayActionSheet ("ActionSheet: Send to?", "Cancel", null, "Email", "Twitter", "Facebook");
