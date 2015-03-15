@@ -53,6 +53,7 @@ namespace RayvMobileApp.iOS
 		{
 			Grid grid = new Grid {
 				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (31) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (70) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -68,31 +69,46 @@ namespace RayvMobileApp.iOS
 				                       select v).OrderBy (x => x.comment).ToList ();
 
 				int whichRow = 0;
+				//TODO: This should be a listview binding
 				for (int row = 0; row < voteList.Count (); row++) {
-					if (voteList [row].voter != MyStringId) {
+					Vote vote = voteList [row];
+					if (vote.voter != MyStringId) {
 						try {
 
 							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
 							string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
-							grid.Children.Add (new Label { Text = FriendName }, 0, 1, whichRow * 2, whichRow * 2 + 1);
+							Button LetterBtn = new Button {
+								WidthRequest = 30,
+								HeightRequest = 30,
+								FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+								BorderRadius = 15,
+								BackgroundColor = Color.Red,
+								Text = "X",
+								TextColor = Color.White,
+								VerticalOptions = LayoutOptions.Start,
+							};
+							LetterBtn.Text = vote.FirstLetter;
+							LetterBtn.BackgroundColor = vote.RandomColor;
+							grid.Children.Add (LetterBtn, 0, 1, whichRow * 2, whichRow * 2 + 1);
+							grid.Children.Add (new Label { Text = FriendName }, 1, 2, whichRow * 2, whichRow * 2 + 1);
 							grid.Children.Add (new Label { 
-								Text = voteList [row].PrettyHowLongAgo,
+								Text = vote.PrettyHowLongAgo,
 								FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 								FontAttributes = FontAttributes.Italic,
 								TextColor = Color.FromHex ("#606060"),
-							}, 2, 4, whichRow * 2, whichRow * 2 + 1);
-							String comment_text = voteList [row].PrettyComment;
+							}, 3, 5, whichRow * 2, whichRow * 2 + 1);
+							String comment_text = vote.PrettyComment;
 							if (!String.IsNullOrEmpty (comment_text)) {
 								grid.Children.Add (new Label { 
 									Text = comment_text,
 									FontAttributes = FontAttributes.Italic,
-								}, 0, 4, whichRow * 2 + 1, whichRow * 2 + 2);
+								}, 0, 5, whichRow * 2 + 1, whichRow * 2 + 2);
 							}
-							Label vote = new Label {
-								Text = voteList [row].GetVoteAsString,
+							Label voteLbl = new Label {
+								Text = vote.GetVoteAsString,
 							};
-							grid.Children.Add (vote, 1, 2, whichRow * 2, whichRow * 2 + 1);
+							grid.Children.Add (voteLbl, 2, 3, whichRow * 2, whichRow * 2 + 1);
 							whichRow++;
 						} catch (Exception ex) {
 							Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
