@@ -236,7 +236,7 @@ namespace RayvMobileApp.iOS
 			};
 		}
 
-		public EditPage (Position position, String address, bool addingNewPlace = false) : this ()
+		public EditPage (Position position, String address, string placeName = "", bool addingNewPlace = false) : this ()
 		{
 			AddingNewPlace = addingNewPlace;
 			DeleteButton.IsVisible = false;
@@ -245,6 +245,9 @@ namespace RayvMobileApp.iOS
 			EditPlace.lat = position.Latitude;
 			EditPlace.lng = position.Longitude;
 			EditPlace.address = address;
+			if (!string.IsNullOrEmpty (placeName)) {
+				EditPlace.place_name = placeName;
+			}
 			Address.Text = address;
 		}
 

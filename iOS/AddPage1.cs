@@ -168,7 +168,7 @@ namespace RayvMobileApp.iOS
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();
 				parameters ["lat"] = SearchPosition.Latitude.ToString ();
 				parameters ["lng"] = SearchPosition.Longitude.ToString ();
-				if (PlaceNameBox.Text != null) {
+				if (searchLocation != null) {
 					parameters ["addr"] = searchLocation;
 				}
 				if (PlaceNameBox.Text != null) {

@@ -282,6 +282,7 @@
     <Compile Include="AddPage4.cs" />
     <Compile Include="VoteConverters.cs" />
     <Compile Include="PlaceConverters.cs" />
+    <Compile Include="AddPage5bDeDup.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

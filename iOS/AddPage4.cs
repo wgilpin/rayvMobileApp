@@ -148,9 +148,9 @@ namespace RayvMobileApp.iOS
 
 		public void DoAdd (object sender, EventArgs e)
 		{
-			Console.WriteLine ("AddMapPage.DoAdd Push EditPage");
+			Console.WriteLine ("AddPage4.DoAdd Push DedupPage");
 			MapSpan span = map.VisibleRegion;
-			this.Navigation.PushAsync (new EditPage (span.Center, AddressEd.Text, addingNewPlace: true));
+			this.Navigation.PushAsync (new AddPage5bDeDup ("", AddressEd.Text, span.Center));
 		}
 
 		#endregion
