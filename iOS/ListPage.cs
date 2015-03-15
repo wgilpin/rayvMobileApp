@@ -46,6 +46,7 @@ namespace RayvMobileApp.iOS
 		ToolbarItem FilterTool;
 
 		Label NothingFound;
+		bool IsFiltered;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
 		public bool NeedsReload = true;
@@ -69,6 +70,7 @@ namespace RayvMobileApp.iOS
 			Xamarin.FormsMaps.Init ();
 			this.Title = "Find Food";
 			this.Icon = "bars-black.png";
+			IsFiltered = false;
 
 			// FILTER BOX
 
@@ -328,6 +330,7 @@ namespace RayvMobileApp.iOS
 				AreaBox.IsVisible = false;
 				LocationButton.ButtonText = "Change";
 				SearchPosition = Persist.Instance.GpsPosition;
+				IsFiltered = false;
 				Spinner.IsRunning = true;
 				Console.WriteLine ("Spin");
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
@@ -356,6 +359,7 @@ namespace RayvMobileApp.iOS
 						SearchPosition = positions.First ();
 					}
 				}
+				IsFiltered = true;
 				FilterList ();
 			})).Start ();
 		}
@@ -370,8 +374,10 @@ namespace RayvMobileApp.iOS
 				FilterCuisinePicker.IsVisible = !FilterCuisinePicker.IsVisible;
 				// Show it
 			} else {
+				CuisineButton.ButtonText = "Change";
 				FilterCuisineKind = "";
 				CuisineButton.Text = "All Types of Food";
+				IsFiltered = false;
 				await FilterList ();
 			} 
 		}
@@ -404,6 +410,7 @@ namespace RayvMobileApp.iOS
 			filters.IsVisible = false;
 			MainFilter = FilterKind.All;
 			SearchPosition = Persist.Instance.GpsPosition;
+			IsFiltered = false;
 			FilterList ();
 		}
 
@@ -473,6 +480,8 @@ namespace RayvMobileApp.iOS
 			data.updatePlaces (SearchPosition);
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
+				if (text.Length > 0)
+					IsFiltered = true;
 				switch (MainFilter) {
 				case FilterKind.Go:
 					// places to go - from cuisine string constructorWill
@@ -483,6 +492,7 @@ namespace RayvMobileApp.iOS
 					        p.vote != "-1" &&
 					        p.category == FilterCuisineKind
 					    select p).ToList ();
+					IsFiltered = true;
 					break;
 				case FilterKind.Mine:
 					ResetCuisinePicker ();
@@ -511,6 +521,7 @@ namespace RayvMobileApp.iOS
 						    select p).ToList ();
 					else
 						goto case FilterKind.All;
+					IsFiltered = true;
 					break;
 				case FilterKind.Wishlist:
 					currentPlaces = (
@@ -519,10 +530,13 @@ namespace RayvMobileApp.iOS
 					            p.place_name.ToLower ().Contains (text) ||
 					            p.CategoryLowerCase.Contains (text))
 					    select p).ToList ();
+					IsFiltered = true;
 					break;
 				}
-				if (FilterAreaSearchBox.Text.Length > 0)
+				if (FilterAreaSearchBox.Text.Length > 0) {
+					IsFiltered = true;
 					await NarrowGeoSearch ();
+				}
 				lock (Persist.Instance.Lock) {
 					data.SortPlaces (currentPlaces);
 				}
@@ -534,6 +548,11 @@ namespace RayvMobileApp.iOS
 				SetList (currentPlaces);
 				FilterSearchBox.Unfocus ();
 				Spinner.IsRunning = false;
+				if (IsFiltered) {
+					FilterTool.Text = "Filtered";
+				} else {
+					FilterTool.Text = "Filter";
+				}
 			});
 		}
 
