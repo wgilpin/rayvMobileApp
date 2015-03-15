@@ -100,6 +100,7 @@ namespace RayvMobileApp.iOS
 			};
 
 			ProposedDetails = new StackLayout {
+				Padding = 5,
 				Children = {
 					new Label {
 						Text = placeName,
@@ -111,7 +112,7 @@ namespace RayvMobileApp.iOS
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						FontAttributes = FontAttributes.Italic,
 					},
-					Spinner,
+
 					new RayvButton {
 						Text = "Confirm",
 						OnClick = DoConfirmed,
@@ -138,11 +139,12 @@ namespace RayvMobileApp.iOS
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 			};
-
 			StackLayout inner = new StackLayout {
+				Spacing = 5,
 				Children = {
 					ProposedDetails,
 					new LabelWide ("or pick one ...") { FontAttributes = FontAttributes.Bold },
+					Spinner,
 					listView,
 					NothingFound,
 				}
