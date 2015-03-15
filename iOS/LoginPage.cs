@@ -49,7 +49,7 @@ namespace RayvMobileApp.iOS
 		public LoginPage ()
 		{
 			Console.WriteLine ("LoginPage()");
-			Spinner = new ActivityIndicator ();
+			Spinner = new ActivityIndicator { Color = Color.Red, };
 
 			RayvButton loginButton = new RayvButton {
 				Text = " Login ",

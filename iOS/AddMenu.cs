@@ -304,7 +304,7 @@ namespace RayvMobileApp.iOS
 
 			Spinner = new ActivityIndicator {
 				IsRunning = false,
-				Color = Color.Blue,
+				Color = Color.Red,
 				VerticalOptions = LayoutOptions.CenterAndExpand,
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				HeightRequest = 30,
