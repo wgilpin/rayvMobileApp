@@ -97,6 +97,7 @@ namespace RayvMobileApp.iOS
 
 			Spinner = new ActivityIndicator {
 				IsRunning = true,
+				Color = Color.Red,
 			};
 
 			ProposedDetails = new StackLayout {

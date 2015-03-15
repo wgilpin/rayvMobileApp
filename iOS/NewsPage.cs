@@ -171,7 +171,7 @@ namespace RayvMobileApp.iOS
 					};
 				})
 			};
-			Spinner = new ActivityIndicator ();
+			Spinner = new ActivityIndicator { Color = Color.Red, };
 			Toolbar = new BottomToolbar (this, "news");
 			ShowRows = PAGE_SIZE;
 			MoreBtn = new RayvButton ("Show More...");

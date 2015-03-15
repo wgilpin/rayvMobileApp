@@ -215,6 +215,7 @@ namespace RayvMobileApp.iOS
 			};
 			Spinner = new ActivityIndicator {
 				IsRunning = true,
+				Color = Color.Red,
 			};
 			grid.Children.Add (new StackLayout {
 				HorizontalOptions = LayoutOptions.StartAndExpand,

@@ -239,6 +239,7 @@ namespace RayvMobileApp.iOS
 
 			Spinner = new ActivityIndicator {
 				IsRunning = false,
+				Color = Color.Red,
 			};
 
 			ResetLocationBtn = new Button {
