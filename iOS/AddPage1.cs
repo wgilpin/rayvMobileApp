@@ -260,7 +260,7 @@ namespace RayvMobileApp.iOS
 				ButtonText = "Search",
 			};
 			LocationSearchedBox = new LabelWithChangeButton {
-				Text = "searching Current Location",
+				Text = "Searching current location",
 				OnClick = DoChangeLocation,
 			};
 			LocationEditBox = new EntryWithChangeButton {

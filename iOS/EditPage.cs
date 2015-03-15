@@ -80,6 +80,7 @@ namespace RayvMobileApp.iOS
 
 		public EditPage (bool addingNewPlace = false)
 		{
+			Title = "Details";
 			AddingNewPlace = addingNewPlace;
 			IsNew = true;
 			var MainGrid = new Grid {
@@ -272,25 +273,13 @@ namespace RayvMobileApp.iOS
 		{
 			//delete the current item
 			//is it in my list?
-			String name = EditPlace.place_name;
-			Vote vote = (from v in Persist.Instance.Votes
-			             where v.key == EditPlace.key
-			             select v).FirstOrDefault ();
-			if (vote != null) {
-				bool confirm_delete = await DisplayAlert (
-					                      "Delete", "Remove this place from your list? This cannot be undone", "Yes", "No");
-				if (confirm_delete) {
-					string res = restConnection.Instance.post (
-						             "api/delete",
-						             new Dictionary<string, string> () {
-							{ "key", EditPlace.key }
-						});
-					if (res != null) {
-						Persist.Instance.Places.Remove (EditPlace);
-						Insights.Track ("EditPage.DeletePlace", "Place", name);
-					}
-					await Navigation.PopToRootAsync ();
-				}
+			bool confirm_delete = await DisplayAlert (
+				                      "Delete", "Remove this place from your list? This cannot be undone", "Yes", "No");
+			if (confirm_delete) {
+				String name = EditPlace.place_name;
+				EditPlace.Delete ();
+				Insights.Track ("EditPage.DeletePlace", "Place", name);
+				await Navigation.PopToRootAsync ();
 			}
 		}
 

@@ -294,6 +294,25 @@ namespace RayvMobileApp.iOS
 
 		#region Methods
 
+		public void Delete ()
+		{
+			Vote vote = (from v in Persist.Instance.Votes
+			             where v.key == _key
+			             select v).FirstOrDefault ();
+			if (vote != null) {
+				string res = restConnection.Instance.post (
+					             "api/delete",
+					             new Dictionary<string, string> () {
+						{ "key", _key }
+					});
+				if (res != null) {
+					Persist.Instance.Places.Remove (this);
+
+				}
+
+			}
+		}
+
 		public Position GetPosition ()
 		{
 			return new Position (lat, lng);

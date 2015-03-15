@@ -122,39 +122,51 @@ namespace RayvMobileApp.iOS
 			return grid;
 		}
 
-		void SetVote (object sender, EventArgs e)
+
+
+		async void SetVote (object sender, EventArgs e)
 		{
 			SetVoteButton (sender as ButtonWide);
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				// should NOT reference UILabel on background thread!
-				switch ((sender as ButtonWide).Text) {
-				case LIKE_TEXT:
-					DisplayPlace.vote = "1";
-					DisplayPlace.untried = false;
-					break;
-				case DISLIKE_TEXT:
-					DisplayPlace.vote = "-1";
-					DisplayPlace.untried = false;
-					break;
-				case WISH_TEXT:
-					DisplayPlace.vote = "0";
-					DisplayPlace.untried = true;
-					break;
+			// should NOT reference UILabel on background thread!
+			string previousVote = DisplayPlace.vote;
+			switch ((sender as ButtonWide).Text) {
+			case LIKE_TEXT:
+				DisplayPlace.vote = "1";
+				DisplayPlace.untried = false;
+				break;
+			case DISLIKE_TEXT:
+				DisplayPlace.vote = "-1";
+				DisplayPlace.untried = false;
+				break;
+			case WISH_TEXT:
+				DisplayPlace.vote = "0";
+				DisplayPlace.untried = true;
+				break;
+			}
+			string Message = "";
+			if (previousVote == DisplayPlace.vote) {
+				// have set to curren tsetting = unset
+				var answer = await DisplayAlert (
+					             "Remove Vote",
+					             "If you remove your vote the place will not be on ANY of your lists",
+					             "OK",
+					             "Cancel");
+				if (answer) {
+					Insights.Track ("EditPage.DeletePlace", "Place", DisplayPlace.place_name);
+					DisplayPlace.Delete ();
+					await Navigation.PopToRootAsync ();
 				}
-				string Message = "";
-				if (DisplayPlace.Save (out Message)) {
-					Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
-						{ "PlaceName", DisplayPlace.place_name },
-						{ "Vote", DisplayPlace.vote.ToString () },
-						{ "Untried", DisplayPlace.untried.ToString () }
-					});
-					Device.BeginInvokeOnMainThread (() => {
-						// manipulate UI controls
-						SetVoteButton (sender as ButtonWide);
-					});
-				}
-			})).Start ();
-
+			} else if (DisplayPlace.Save (out Message)) {
+				Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
+					{ "PlaceName", DisplayPlace.place_name },
+					{ "Vote", DisplayPlace.vote.ToString () },
+					{ "Untried", DisplayPlace.untried.ToString () }
+				});
+				Device.BeginInvokeOnMainThread (() => {
+					// manipulate UI controls
+					SetVoteButton (sender as ButtonWide);
+				});
+			}
 		}
 
 		void ResetVoteButtons ()

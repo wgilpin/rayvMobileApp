@@ -43,9 +43,9 @@ namespace RayvMobileApp.iOS
 		LabelWithChangeButton CuisineButton;
 		Position SearchPosition;
 		ActivityIndicator Spinner;
+		ToolbarItem FilterTool;
 
 		Label NothingFound;
-		Page Caller;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
 		public bool NeedsReload = true;
@@ -250,15 +250,16 @@ namespace RayvMobileApp.iOS
 				})
 			});
 
-			ToolbarItems.Add (new ToolbarItem {
+			FilterTool = new ToolbarItem {
 				Text = "Filter",
-//				Icon = "filter.png",
+				//				Icon = "filter.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Debug.WriteLine ("ListPage Toolbar Filter");
 					filters.IsVisible = !filters.IsVisible;
 				})
-			});
+			};
+			ToolbarItems.Add (FilterTool);
 
 			NeedsReload = true;
 			SearchPosition = Persist.Instance.GpsPosition;
