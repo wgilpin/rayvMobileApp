@@ -35,7 +35,7 @@ namespace RayvMobileApp.iOS
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisineKind;
 		ListView FilterCuisinePicker;
-		List<Place> currentPlaces;
+
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
 		EntryWithButton AreaBox;
@@ -243,14 +243,7 @@ namespace RayvMobileApp.iOS
 				Text = "Map",
 //				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					Debug.WriteLine ("ListPage Toolbar Map: Push GOOGLE MapPage");
-					if (settings.USE_XAMARIN_MAPS) {
-						Navigation.PushAsync (new MapPage ());
-					} else {
-						Navigation.PushAsync (new MapGooglePage ());
-					}
-				})
+				Command = new Command (ShowMap),
 			});
 
 			FilterTool = new ToolbarItem {
@@ -271,16 +264,6 @@ namespace RayvMobileApp.iOS
 
 
 
-		/**
-		 * Constructor when a list of Places is supplied
-		 */
-		public ListPage (List<Place> source) : this ()
-		{
-			lock (Persist.Instance.Lock) {
-				listView.ItemsSource = source;
-				Spinner.IsRunning = false;
-			}
-		}
 
 		/**
 		 * Constructor when a cuisine is supplied
@@ -387,21 +370,21 @@ namespace RayvMobileApp.iOS
 		{
 			MainFilter = FilterKind.Mine;
 			await FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterAll (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.All;
 			await FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterWish (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.Wishlist;
 			await FilterList ();
-			filters.IsVisible = currentPlaces.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		void ClearFilter (object s, EventArgs e)
@@ -441,6 +424,17 @@ namespace RayvMobileApp.iOS
 
 		#region Methods
 
+		void ShowMap ()
+		{
+			Debug.WriteLine ("ListPage ShowMap: Push GOOGLE MapPage");
+			if (settings.USE_XAMARIN_MAPS) {
+				MapPage map = new MapPage ();
+				Navigation.PushAsync (map);
+			} else {
+				Navigation.PushAsync (new MapGooglePage ());
+			}
+		}
+
 		public async Task  NarrowGeoSearch ()
 		{
 			try {
@@ -454,7 +448,7 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
 				}
 				var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
-				currentPlaces = currentPlaces.Where (
+				Persist.Instance.DisplayList = Persist.Instance.DisplayList.Where (
 					p => p.lat < centre.Latitude + delta &&
 					p.lat > centre.Latitude - delta &&
 					p.lng < centre.Longitude + delta &&
@@ -487,7 +481,7 @@ namespace RayvMobileApp.iOS
 				case FilterKind.Go:
 					// places to go - from cuisine string constructorWill
 					ResetCuisinePicker ();
-					currentPlaces = (
+					data.DisplayList = (
 					    from p in data.Places
 					    where
 					        p.vote != "-1" &&
@@ -497,7 +491,7 @@ namespace RayvMobileApp.iOS
 					break;
 				case FilterKind.Mine:
 					ResetCuisinePicker ();
-					currentPlaces = (
+					data.DisplayList = (
 					    from p in data.Places
 					    where p.iVoted == true && (
 					            p.place_name.ToLower ().Contains (text) ||
@@ -506,15 +500,15 @@ namespace RayvMobileApp.iOS
 					break;
 				case FilterKind.All:
 					ResetCuisinePicker ();
-					currentPlaces = (from p in data.Places
-					                 where
-					                     p.place_name.ToLower ().Contains (text) ||
-					                     p.CategoryLowerCase.Contains (text)
-					                 select p).ToList ();
+					data.DisplayList = (from p in data.Places
+					                    where
+					                        p.place_name.ToLower ().Contains (text) ||
+					                        p.CategoryLowerCase.Contains (text)
+					                    select p).ToList ();
 					break;
 				case FilterKind.Cuisine:
 					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
-						currentPlaces = (
+						data.DisplayList = (
 						    from p in data.Places
 						    where p.category == FilterCuisineKind && (
 						            p.place_name.ToLower ().Contains (text) ||
@@ -525,7 +519,7 @@ namespace RayvMobileApp.iOS
 					IsFiltered = true;
 					break;
 				case FilterKind.Wishlist:
-					currentPlaces = (
+					data.DisplayList = (
 					    from p in data.Places
 					    where p.untried == true && (
 					            p.place_name.ToLower ().Contains (text) ||
@@ -539,14 +533,14 @@ namespace RayvMobileApp.iOS
 					await NarrowGeoSearch ();
 				}
 				lock (Persist.Instance.Lock) {
-					data.SortPlaces (currentPlaces);
+					data.SortPlaces (data.DisplayList);
 				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
 			Device.BeginInvokeOnMainThread (() => {
-				SetList (currentPlaces);
+				SetList (data.DisplayList);
 				FilterSearchBox.Unfocus ();
 				Spinner.IsRunning = false;
 				if (IsFiltered) {

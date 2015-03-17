@@ -10,7 +10,7 @@ namespace RayvMobileApp.iOS
 	{
 		Button SearchHereBtn;
 		Map map;
-		List<MapPlace> mapPlaces;
+
 
 		private void PinClick (object send, EventArgs e)
 		{
@@ -26,21 +26,21 @@ namespace RayvMobileApp.iOS
 		private void SetupMapList (Position centre)
 		{
 			Console.WriteLine ("SetupMapList");
-			map.Pins.Clear ();
-			int debugCount = 0;
-			mapPlaces.Clear ();
-			foreach (Place p in Persist.Instance.Places) {
-				MapPlace mp = new MapPlace (p, centre);
-				mapPlaces.Add (mp);
-				debugCount++;
-			}
-			Console.WriteLine ("SetupMapList: Added {0} places", debugCount);
-			debugCount = 0;
-			mapPlaces.Sort ();
-			for (int i = 0; i < mapPlaces.Count; i++) {
+//			map.Pins.Clear ();
+//			int debugCount = 0;
+//			Persist.Instance.DisplayList.Clear ();
+//			foreach (Place p in Persist.Instance.Places) {
+//				MapPlace mp = new MapPlace (p, centre);
+//				Persist.Instance.DisplayList.Add (mp);
+//				debugCount++;
+//			}
+//			Console.WriteLine ("SetupMapList: Added {0} places", debugCount);
+//			debugCount = 0;
+			Persist.Instance.DisplayList.Sort ();
+			for (int i = 0; i < Persist.Instance.DisplayList.Count; i++) {
 				if (i > 9)
 					break;
-				Place p = mapPlaces [i].place;
+				Place p = Persist.Instance.DisplayList [i];
 				Pin pin = new Pin {
 					Type = PinType.SearchResult,
 					Position = p.GetPosition (),
@@ -52,9 +52,9 @@ namespace RayvMobileApp.iOS
 				map.Pins.Add (pin);
 				Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
 
-				debugCount++;
+//				debugCount++;
 			}
-			Console.WriteLine ("SetupMapList: Pinned {0} places, map has {1}", debugCount, map.Pins.Count);
+//			Console.WriteLine ("SetupMapList: Pinned {0} places, map has {1}", debugCount, map.Pins.Count);
 
 		}
 
@@ -67,6 +67,7 @@ namespace RayvMobileApp.iOS
 
 		public MapPage ()
 		{
+			Title = "Map";
 			Xamarin.FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
@@ -77,9 +78,6 @@ namespace RayvMobileApp.iOS
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 			map.IsShowingUser = true;
-			mapPlaces = new List<MapPlace> ();
-
-			//			var stack = new StackLayout { Spacing = 0 };
 
 			SearchHereBtn = new RayvButton (" Search Here ");
 			SearchHereBtn.Clicked += DoSearch;

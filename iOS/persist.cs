@@ -27,6 +27,8 @@ namespace RayvMobileApp.iOS
 
 		public List<Place> Places { get; set; }
 
+		public List<Place> DisplayList { get; set; }
+
 		public bool DataIsLive;
 
 		public List<string> CuisineHistory;
