@@ -65,7 +65,6 @@ namespace RayvMobileApp.iOS
 			Password = new Entry {
 				VerticalOptions = LayoutOptions.Start,
 				Placeholder = "Password", 
-				IsPassword = true,
 				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
 			};
 			RayvButton Register = new RayvButton ("Register New Account"){ BackgroundColor = Color.Yellow, };
