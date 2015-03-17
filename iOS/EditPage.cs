@@ -327,7 +327,7 @@ namespace RayvMobileApp.iOS
 				#pragma warning disable 4014
 				Persist.Instance.HaveAdded = this.IsNew;
 				if (AddingNewPlace) {
-					this.Navigation.PushModalAsync (new DetailPage (EditPlace, true));
+					this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (EditPlace, true)));
 				} else {
 					if (IsNew) {
 						this.Navigation.PopToRootAsync ();
