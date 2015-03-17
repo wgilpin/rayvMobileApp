@@ -167,7 +167,7 @@ namespace RayvMobileApp.iOS
 			gridMain.Children.Add (new ToolbarButton ("Find") { 
 				OnClick = ShowList,
 			}, 1, 2, 1, 2);
-			gridMain.Children.Add (new ToolbarButton ("News") { 
+			gridMain.Children.Add (new ToolbarButton ("Activity") { 
 				OnClick = ShowNews,
 			}, 3, 4, 1, 2);
 			ButtonWide AddBtn = new ToolbarButton ("Add") { 

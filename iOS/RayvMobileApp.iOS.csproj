@@ -206,7 +206,6 @@
     <BundleResource Include="Resources\big-btn-add-place.png" />
     <BundleResource Include="Resources\big-btn-add-friend.png" />
     <BundleResource Include="Resources\big-btn-add.png" />
-    <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
     <BundleResource Include="Resources\big-btn-find.png" />
     <BundleResource Include="Resources\toolbar-right-news.png" />
@@ -219,6 +218,7 @@
     <BundleResource Include="Resources\toolbar-left-friends.png" />
     <BundleResource Include="Resources\toolbar-right-profile.png" />
     <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
+    <BundleResource Include="Resources\big-btn-news.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

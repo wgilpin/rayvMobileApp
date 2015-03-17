@@ -36,7 +36,7 @@ namespace RayvMobileApp.iOS
 
 		public NewsPage ()
 		{
-			Title = "News";
+			Title = "Activity";
 			Insights.Track ("News Page");
 			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
