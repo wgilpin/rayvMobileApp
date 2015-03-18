@@ -10,6 +10,7 @@ namespace RayvMobileApp.iOS
 	{
 		Map map;
 		EntryWithChangeButton AddressEd;
+		Entry NameEd;
 		Button SaveBtn;
 
 		public AddPage4 (Position searchPosition)
@@ -31,12 +32,16 @@ namespace RayvMobileApp.iOS
 				},
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (500, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 				},
 			};
 
+			NameEd = new Entry {
+				Placeholder = "Place name",
+			};
 			AddressEd = new EntryWithChangeButton { 
 				PlaceHolder = "Find address on map", 
 				ButtonText = "Find",
@@ -102,10 +107,11 @@ namespace RayvMobileApp.iOS
 				}),
 				heightConstraint: Constraint.Constant (1));
 
-			grid.Children.Add (AddressEd, 0, 0);
-			grid.Children.Add (relativeLayout, 0, 1);
-			grid.Children.Add (HereBtn, 0, 2);
-			grid.Children.Add (SaveBtn, 0, 3);
+			grid.Children.Add (new Frame { HasShadow = false, Content = NameEd, Padding = new Thickness (5, 2), }, 0, 0);
+			grid.Children.Add (AddressEd, 0, 1);
+			grid.Children.Add (relativeLayout, 0, 2);
+			grid.Children.Add (HereBtn, 0, 3);
+			grid.Children.Add (SaveBtn, 0, 4);
 			this.Content = grid;
 		}
 
@@ -148,9 +154,13 @@ namespace RayvMobileApp.iOS
 
 		public void DoAdd (object sender, EventArgs e)
 		{
+			if (String.IsNullOrWhiteSpace (NameEd.Text)) {
+				DisplayAlert ("Error", "You must give a place name", "OK");
+				return;
+			}
 			Console.WriteLine ("AddPage4.DoAdd Push DedupPage");
 			MapSpan span = map.VisibleRegion;
-			this.Navigation.PushAsync (new AddPage5bDeDup ("", AddressEd.Text, span.Center));
+			this.Navigation.PushAsync (new AddPage5bDeDup (NameEd.Text, AddressEd.Text, span.Center));
 		}
 
 		#endregion

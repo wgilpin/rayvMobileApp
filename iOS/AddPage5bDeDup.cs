@@ -52,10 +52,10 @@ namespace RayvMobileApp.iOS
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();
 				parameters ["lat"] = LatLng.Latitude.ToString ();
 				parameters ["lng"] = LatLng.Longitude.ToString ();
-				if (Address != null) {
+				if (!string.IsNullOrWhiteSpace (Address)) {
 					parameters ["addr"] = Address;
 				}
-				if (PlaceName != null) {
+				if (!string.IsNullOrWhiteSpace (PlaceName)) {
 					parameters ["place_name"] = PlaceName;
 				}
 				parameters ["near_me"] = "1";
