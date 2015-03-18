@@ -36,6 +36,13 @@ namespace RayvMobileApp.iOS
 //			}
 //			Console.WriteLine ("SetupMapList: Added {0} places", debugCount);
 //			debugCount = 0;
+			if (Persist.Instance.DisplayPosition != centre) {
+				Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", centre.Latitude, centre.Longitude);
+				Persist.Instance.DisplayPosition = centre;
+				foreach (var p in Persist.Instance.DisplayList)
+					p.CalculateDistanceFromPlace (centre);
+			}
+			;
 			Persist.Instance.DisplayList.Sort ();
 			for (int i = 0; i < Persist.Instance.DisplayList.Count; i++) {
 				if (i > 9)
@@ -71,7 +78,7 @@ namespace RayvMobileApp.iOS
 			Xamarin.FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
-					Persist.Instance.GpsPosition, Distance.FromMiles (0.3))) {
+					Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {
 				IsShowingUser = true,
 				HeightRequest = 100,
 				WidthRequest = 960,
@@ -99,7 +106,7 @@ namespace RayvMobileApp.iOS
 			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
 				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 			Content = mapLayout;
-			SetupMapList (Persist.Instance.GpsPosition);
+			SetupMapList (Persist.Instance.DisplayPosition);
 		}
 
 		public MapPage (Place place) : this ()

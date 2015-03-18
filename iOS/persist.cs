@@ -29,6 +29,8 @@ namespace RayvMobileApp.iOS
 
 		public List<Place> DisplayList { get; set; }
 
+
+
 		public bool DataIsLive;
 
 		public List<string> CuisineHistory;
@@ -46,6 +48,17 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 		#region Properties
+
+		private Position _displayPosition;
+
+		public Position DisplayPosition { 
+			get {
+				if (_displayPosition == null)
+					_displayPosition = GpsPosition;
+				return _displayPosition;
+			}
+			set { _displayPosition = value; }
+		}
 
 		public bool UnsyncedPlaces {
 			get { return _unsyncedPlaces; }

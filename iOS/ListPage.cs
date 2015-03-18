@@ -41,10 +41,10 @@ namespace RayvMobileApp.iOS
 		EntryWithButton AreaBox;
 		LabelWithChangeButton LocationButton;
 		LabelWithChangeButton CuisineButton;
-		Position SearchPosition;
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
 
+		private Position lastPositionOnListPage;
 		Label NothingFound;
 		bool IsFiltered;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
@@ -202,7 +202,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
 				},
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = GridLength.Auto },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
 
@@ -258,7 +258,9 @@ namespace RayvMobileApp.iOS
 			ToolbarItems.Add (FilterTool);
 
 			NeedsReload = true;
-			SearchPosition = Persist.Instance.GpsPosition;
+			Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
+			Console.WriteLine ("ListPage.FilterList Constructor set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+
 			this.Appearing += OnPageAppearing;
 		}
 
@@ -300,8 +302,15 @@ namespace RayvMobileApp.iOS
 
 		async void OnPageAppearing (object sender, EventArgs e)
 		{
-			if (NeedsReload) {
-
+			if (NeedsReload || (lastPositionOnListPage != Persist.Instance.DisplayPosition)) {
+				Console.WriteLine (
+					"ListPage appearing reload {0},{1}", 
+					Persist.Instance.DisplayPosition.Latitude, 
+					Persist.Instance.DisplayPosition.Longitude);
+				if (lastPositionOnListPage == null)
+					lastPositionOnListPage = Persist.Instance.DisplayPosition;
+				if (Persist.Instance.DisplayList == null)
+					Persist.Instance.DisplayList = Persist.Instance.Places;
 				await FilterList ();
 				StartTimerIfNoGPS ();
 				NeedsReload = false;
@@ -313,7 +322,9 @@ namespace RayvMobileApp.iOS
 			if (AreaBox.IsVisible) {
 				AreaBox.IsVisible = false;
 				LocationButton.ButtonText = "Change";
-				SearchPosition = Persist.Instance.GpsPosition;
+				Console.WriteLine ("ListPage.FilterList pick location set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+
+				Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
 				IsFiltered = false;
 				Spinner.IsRunning = true;
 				Console.WriteLine ("Spin");
@@ -337,10 +348,12 @@ namespace RayvMobileApp.iOS
 				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
 					Console.WriteLine ("AddMenu.SearchHere: Got");
 					if (DEBUG_ON_SIMULATOR) {
-						SearchPosition = new Position (53.1, -1.5);
+						Persist.Instance.DisplayPosition = new Position (53.1, -1.5);
 						Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
 					} else {
-						SearchPosition = positions.First ();
+						Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+
+						Persist.Instance.DisplayPosition = positions.First ();
 					}
 				}
 				IsFiltered = true;
@@ -393,7 +406,9 @@ namespace RayvMobileApp.iOS
 			FilterAreaSearchBox.Text = "";
 			filters.IsVisible = false;
 			MainFilter = FilterKind.All;
-			SearchPosition = Persist.Instance.GpsPosition;
+			Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
+			Console.WriteLine ("ListPage.FilterList clearFilter set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+
 			IsFiltered = false;
 			FilterList ();
 		}
@@ -427,6 +442,8 @@ namespace RayvMobileApp.iOS
 		void ShowMap ()
 		{
 			Debug.WriteLine ("ListPage ShowMap: Push GOOGLE MapPage");
+			// keep last posn so we can tell if it changed
+			lastPositionOnListPage = Persist.Instance.DisplayPosition;
 			if (settings.USE_XAMARIN_MAPS) {
 				MapPage map = new MapPage ();
 				Navigation.PushAsync (map);
@@ -472,7 +489,12 @@ namespace RayvMobileApp.iOS
 		async Task FilterList ()
 		{
 			Persist data = Persist.Instance;
-			data.updatePlaces (SearchPosition);
+			if (Persist.Instance.DisplayPosition != lastPositionOnListPage) {
+				Console.WriteLine ("ListPage.FilterList set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+				lastPositionOnListPage = Persist.Instance.DisplayPosition;
+				foreach (var p in Persist.Instance.DisplayList)
+					p.CalculateDistanceFromPlace (Persist.Instance.DisplayPosition);
+			}
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
 				if (text.Length > 0)
