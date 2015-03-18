@@ -157,6 +157,7 @@ namespace RayvMobileApp.iOS
 					await Navigation.PopToRootAsync ();
 				}
 			} else if (DisplayPlace.Save (out Message)) {
+				RefreshListPage ();
 				Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
 					{ "PlaceName", DisplayPlace.place_name },
 					{ "Vote", DisplayPlace.vote.ToString () },
@@ -273,12 +274,17 @@ namespace RayvMobileApp.iOS
 				DisplayAlert ("Error", "Couldn't save comment", "OK");
 		}
 
-		void DoEdit ()
+		void RefreshListPage ()
 		{
-			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
 			if (Navigation.NavigationStack [0] is ListPage) {
 				(Navigation.NavigationStack [0] as ListPage).NeedsReload = true;
 			}
+		}
+
+		void DoEdit ()
+		{
+			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
+			RefreshListPage ();
 			Navigation.PushAsync (new EditPage (DisplayPlace));
 		}
 

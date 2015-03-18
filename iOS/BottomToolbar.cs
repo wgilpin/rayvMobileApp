@@ -165,20 +165,25 @@ namespace RayvMobileApp.iOS
 			gridSecond.Children.Add (settingsImg, 2, 3, 0, 2);
 
 			gridMain.Children.Add (new ToolbarButton ("Find") { 
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
 				OnClick = ShowList,
 			}, 1, 2, 1, 2);
 			gridMain.Children.Add (new ToolbarButton ("Activity") { 
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
 				OnClick = ShowNews,
 			}, 3, 4, 1, 2);
 			ButtonWide AddBtn = new ToolbarButton ("Add") { 
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
 				OnClick = ShowAdd,
 			};
 			gridMain.Children.Add (AddBtn, 2, 3, 1, 2);
 			gridMain.Children.Add (MoreBtn, 4, 5, 0, 2);
 			gridSecond.Children.Add (new ToolbarButton ("Friends") { 
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
 				OnClick = ShowFriends,
 			}, 1, 2, 1, 2);
 			gridSecond.Children.Add (new ToolbarButton ("Profile") { 
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
 				OnClick = ShowProfile,
 			}, 2, 3, 1, 2);
 			gridSecond.Children.Add (BackBtn, 0, 1, 0, 2);
