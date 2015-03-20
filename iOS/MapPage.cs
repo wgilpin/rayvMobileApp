@@ -89,6 +89,16 @@ namespace RayvMobileApp.iOS
 			SearchHereBtn = new RayvButton (" Search Here ");
 			SearchHereBtn.Clicked += DoSearch;
 
+			Image GoToHomeBtn = new Image { Source = "centre-button.png", };
+			var clickHome = new TapGestureRecognizer ();
+			clickHome.Tapped += (s, e) => {
+				map.MoveToRegion (MapSpan.FromCenterAndRadius (
+					Persist.Instance.GpsPosition, Distance.FromMiles (0.3)));
+				DoSearch (s, e);
+			};
+			GoToHomeBtn.GestureRecognizers.Add (clickHome);
+
+
 			AbsoluteLayout mapLayout = new AbsoluteLayout {
 				BackgroundColor = Color.Blue.WithLuminosity (0.9),
 				//				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -105,6 +115,12 @@ namespace RayvMobileApp.iOS
 				AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
 				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+
+			mapLayout.Children.Add (GoToHomeBtn);
+			AbsoluteLayout.SetLayoutFlags (GoToHomeBtn,
+				AbsoluteLayoutFlags.PositionProportional);
+			AbsoluteLayout.SetLayoutBounds (GoToHomeBtn,
+				new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 			Content = mapLayout;
 			SetupMapList (Persist.Instance.DisplayPosition);
 		}

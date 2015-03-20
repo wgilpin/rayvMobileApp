@@ -219,6 +219,7 @@
     <BundleResource Include="Resources\toolbar-right-profile.png" />
     <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
     <BundleResource Include="Resources\big-btn-news.png" />
+    <BundleResource Include="Resources\centre-button.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
