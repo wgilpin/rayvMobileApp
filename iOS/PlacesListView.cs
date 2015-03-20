@@ -26,8 +26,11 @@ namespace RayvMobileApp.iOS
 				catLabel.SetBinding (Label.TextProperty, "category");
 				catLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
 
-				Label distLabel = new Label ();
-				distLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
+				Label distLabel = new Label {
+					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+					FontAttributes = FontAttributes.Italic,
+					TextColor = Color.Gray,
+				};
 				distLabel.SetBinding (Label.TextProperty, "distance");
 
 				Label addressLabel = new Label {
