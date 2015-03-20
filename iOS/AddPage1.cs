@@ -57,54 +57,49 @@ namespace RayvMobileApp.iOS
 
 		void DoFindLocation (object sender, EventArgs e)
 		{
-			Parameters parameters = new Parameters ();
-			parameters ["address"] = LocationEditBox.Text;
-			try {
-				string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
-				JObject obj = JObject.Parse (result);
-				//obj["results"][1]["formatted_address"].ToString()
-				LocationList = new List<GeoLocation> ();
-				int count = obj ["results"].Count ();
-				if (count == 0) {
-					NothingFound.IsVisible = true;
-				} else {
-					Double placeLat;
-					Double placeLng;
-					for (int idx = 0; idx < count; idx++) {
-						Double.TryParse (
-							obj ["results"] [idx] ["geometry"] ["location"] ["lat"].ToString (), out placeLat);
-						Double.TryParse (
-							obj ["results"] [idx] ["geometry"] ["location"] ["lng"].ToString (), out placeLng);
-						LocationList.Add (
-							new GeoLocation {
-								Name = obj ["results"] [idx] ["formatted_address"].ToString (),
-								Lat = placeLat,
-								Lng = placeLng,
-							});
+			Spinner.IsRunning = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				Parameters parameters = new Parameters ();
+				parameters ["address"] = LocationEditBox.Text;
+				try {
+					string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
+					JObject obj = JObject.Parse (result);
+					//obj["results"][1]["formatted_address"].ToString()
+					LocationList = new List<GeoLocation> ();
+					int count = obj ["results"].Count ();
+					if (count == 0) {
+						NothingFound.IsVisible = true;
+					} else {
+						Double placeLat;
+						Double placeLng;
+						for (int idx = 0; idx < count; idx++) {
+							Double.TryParse (
+								obj ["results"] [idx] ["geometry"] ["location"] ["lat"].ToString (), out placeLat);
+							Double.TryParse (
+								obj ["results"] [idx] ["geometry"] ["location"] ["lng"].ToString (), out placeLng);
+							LocationList.Add (
+								new GeoLocation {
+									Name = obj ["results"] [idx] ["formatted_address"].ToString (),
+									Lat = placeLat,
+									Lng = placeLng,
+								});
+						}
+						Device.BeginInvokeOnMainThread (() => {
+							Spinner.IsRunning = false;
+							LocationResultsView.ItemsSource = LocationList;
+							LocationResultsView.IsVisible = true;
+							ResetLocationBtn.IsVisible = true;
+							LocationSearchedBox.IsVisible = false;
+							LocationEditBox.IsVisible = true;
+							NothingFound.IsVisible = false;
+							PlacesListView.IsVisible = false;
+						});
 					}
-					LocationResultsView.ItemsSource = LocationList;
-					LocationResultsView.IsVisible = true;
-					ResetLocationBtn.IsVisible = true;
-					LocationSearchedBox.IsVisible = false;
-					LocationEditBox.IsVisible = true;
-					NothingFound.IsVisible = false;
-					PlacesListView.IsVisible = false;
+				} catch (Exception ex) {
+					Insights.Report (ex);
 				}
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
 
-//			Xamarin.FormsMaps.Init ();
-//			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync ((sender as Button).Text)).ToList ();
-//			Console.WriteLine ("AddMenu.SearchSomewhere: Got");
-//			if (positions.Count > 0) {
-//				SearchPosition = positions.First ();
-//			} else if (DEBUG_ON_SIMULATOR) {
-//				SearchPosition = new Position (53.1, -1.5);
-//				Console.WriteLine ("AddMenu.SearchSomewhere DEBUG_ON_SIMULATOR");
-//			}
-//			DoSearch (PlaceNameBox.Text, (sender as Button).Text);
-			//SetHistoryButton ();
+			})).Start ();
 		}
 
 		void DoSelectPlace (object s, ItemTappedEventArgs e)

@@ -167,7 +167,7 @@ namespace RayvMobileApp.iOS
 				Source = "icon-06-magnify@2x.png",
 				OnClick = DoPlaceSearch,
 				Text = "",
-				HeightRequest = 30,
+//				HeightRequest = 30,
 			};
 
 			LocationButton = new LabelWithChangeButton {
@@ -195,10 +195,10 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (40, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) }
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },

@@ -87,7 +87,6 @@ namespace RayvMobileApp.iOS
 					upVotes.SetBinding (
 						Label.TextProperty, 
 						new Binding ("key", converter: new KeyToUpVotersConverter ()));
-
 					Label downVotes = new Label {
 						HorizontalOptions = LayoutOptions.End,
 						TextColor = Color.FromRgb (255, 128, 128),

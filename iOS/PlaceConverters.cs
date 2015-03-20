@@ -17,6 +17,9 @@ namespace RayvMobileApp.iOS
 			}
 			if (vote == "-1")
 				return Color.FromHex ("A22");
+			if (vote == "1") {
+				return settings.ColorDark;
+			}
 			return settings.ColorLight;
 		}
 
@@ -47,6 +50,9 @@ namespace RayvMobileApp.iOS
 			throw new NotImplementedException ();
 		}
 	}
+
+
+
 
 	// if up = 1, give the name. Else the number
 	public class KeyToUpVotersConverter: IValueConverter
