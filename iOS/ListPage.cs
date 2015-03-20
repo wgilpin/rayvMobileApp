@@ -44,7 +44,7 @@ namespace RayvMobileApp.iOS
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
 
-		private Position lastPositionOnListPage;
+		private Position? lastPositionOnListPage;
 		Label NothingFound;
 		bool IsFiltered;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
@@ -94,7 +94,7 @@ namespace RayvMobileApp.iOS
 			FilterWishBtn.Clicked += DoFilterWish;
 
 			FilterSearchBox = new EntryWithButton {
-				Placeholder = "Search for text",
+				Placeholder = "Search for place",
 				Source = "icon-06-magnify@2x.png",
 				OnClick = DoTextSearch,
 				Text = "",
@@ -115,21 +115,19 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-			filters.Children.Add (FilterSearchBox, 0, 2, 0, 1);
-			filters.Children.Add (FilterMineBtn, 0, 1, 1, 2);
-			filters.Children.Add (FilterAllBtn, 1, 2, 1, 2);
-			filters.Children.Add (FilterWishBtn, 0, 1, 2, 3);
-			filters.Children.Add (FilterNewBtn, 1, 2, 2, 3);
+			filters.Children.Add (FilterMineBtn, 0, 1, 0, 1);
+			filters.Children.Add (FilterAllBtn, 1, 2, 0, 1);
+			filters.Children.Add (FilterWishBtn, 0, 1, 1, 2);
+			filters.Children.Add (FilterNewBtn, 1, 2, 1, 2);
 			//			filters.Children.Add (FilterCuisinePicker, 0, 2, 3, 4);
 			//			filters.Children.Add (FilterAreaSearchBox, 0, 2, 4, 5);
-			filters.Children.Add (FiltersCloseBtn, 0, 2, 5, 6);
+			filters.Children.Add (FiltersCloseBtn, 0, 2, 4, 5);
 
 
 			// CONTROLS
@@ -175,7 +173,7 @@ namespace RayvMobileApp.iOS
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
 				OnClick = DoPickLocation,
-				Padding = new Thickness (5, 15, 5, 0),
+				Padding = new Thickness (5, 5, 5, 0),
 			};
 
 			CuisineButton = new LabelWithChangeButton {
@@ -196,8 +194,9 @@ namespace RayvMobileApp.iOS
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (40, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
 				},
@@ -217,23 +216,25 @@ namespace RayvMobileApp.iOS
 				IsRunning = true,
 				Color = Color.Red,
 			};
+			grid.Children.Add (FilterSearchBox, 0, 0);
 			grid.Children.Add (new StackLayout {
 				HorizontalOptions = LayoutOptions.StartAndExpand,
+				VerticalOptions = LayoutOptions.Start,
 				Children = {
 					LocationButton,
 					AreaBox,
 					Spinner,
 				}
-			}, 0, 0);
+			}, 0, 1);
 			grid.Children.Add (new StackLayout {
 				HorizontalOptions = LayoutOptions.StartAndExpand,
 				Children = {
 					CuisineButton,
 					FilterCuisinePicker,
 				}
-			}, 0, 1);
-			grid.Children.Add (inner, 0, 2);
-			grid.Children.Add (tools, 0, 3);
+			}, 0, 2);
+			grid.Children.Add (inner, 0, 3);
+			grid.Children.Add (tools, 0, 4);
 			filters.IsVisible = false;
 			FilterCuisinePicker.IsVisible = false;
 			AreaBox.IsVisible = false;
@@ -317,7 +318,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		async public void DoPickLocation (object s, EventArgs e)
+		public void DoPickLocation (object s, EventArgs e)
 		{
 			if (AreaBox.IsVisible) {
 				AreaBox.IsVisible = false;
