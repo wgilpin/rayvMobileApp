@@ -58,6 +58,8 @@ namespace RayvMobileApp.iOS
 				return null;
 			}
 			Place p = Persist.Instance.GetPlace (key);
+			if (p == null)
+				return null;
 			if (p.up == 0) {
 				if (p.down != 1)
 					return "No likes";

@@ -154,6 +154,7 @@ namespace RayvMobileApp.iOS
 				if (answer) {
 					Insights.Track ("EditPage.DeletePlace", "Place", DisplayPlace.place_name);
 					DisplayPlace.Delete ();
+					RefreshListPage ();
 					await Navigation.PopToRootAsync ();
 				}
 			} else if (DisplayPlace.Save (out Message)) {
