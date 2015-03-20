@@ -221,13 +221,18 @@ namespace RayvMobileApp.iOS
 					else
 						Comment.Text = '"' + DisplayPlace.Comment () + '"';
 					distance.Text = DisplayPlace.distance;
-					if (DisplayPlace.website != null && DisplayPlace.website.Length > 0)
+					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
+						WebBtn.Text = "No Website";
+						WebBtn.IsEnabled = false;
+					} else
 						WebBtn.Text = "Go To Website";
-					else
-						WebBtn.Text = "";
 					WebBtn.Clicked -= GotoWebPage;
 					WebBtn.Clicked += GotoWebPage;
-					CallBtn.Text = DisplayPlace.telephone;
+					if (string.IsNullOrWhiteSpace (DisplayPlace.telephone)) {
+						CallBtn.Text = "No Phone Number";
+						CallBtn.IsEnabled = false;
+					} else
+						CallBtn.Text = "Call Phone";
 					VoteLike.TextColor = Color.Black;
 					ResetVoteButtons ();
 					switch (DisplayPlace.vote) {
@@ -311,9 +316,11 @@ namespace RayvMobileApp.iOS
 				DisplayPlace.website));
 		}
 
-		void DoMakeCall (object sender, EventArgs e)
+		async void DoMakeCall (object sender, EventArgs e)
 		{
 			if (DisplayPlace.telephone == null)
+				return;
+			if (!await DisplayAlert (DisplayPlace.telephone, "Call this number?", "Yes", "No"))
 				return;
 			String EscapedNo = "";
 			EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
