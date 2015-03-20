@@ -256,6 +256,10 @@ namespace RayvMobileApp.iOS
 
 		void DoClickComment (object o, EventArgs e)
 		{
+			if (!DisplayPlace.iVoted) {
+				DisplayAlert ("Comment", "You need to vote if you want to comment", "OK");
+				return;
+			}
 			Comment.IsVisible = false;
 			CommentEditor.IsVisible = true;
 			CommentEditor.Text = DisplayPlace.Comment ();
@@ -264,15 +268,18 @@ namespace RayvMobileApp.iOS
 
 		void DoSaveComment (object o, EventArgs e)
 		{
-			DisplayPlace.setComment (CommentEditor.Text);
-			CommentEditor.Unfocus ();
-			CommentEditor.IsVisible = false;
-			string msg;
-			if (DisplayPlace.Save (out msg)) {
-				Comment.IsVisible = true;
-				Comment.Text = DisplayPlace.Comment ();
-			} else
-				DisplayAlert ("Error", "Couldn't save comment", "OK");
+			try {
+				DisplayPlace.setComment (CommentEditor.Text);
+				CommentEditor.IsVisible = false;
+				string msg;
+				if (DisplayPlace.Save (out msg)) {
+					Comment.IsVisible = true;
+					Comment.Text = DisplayPlace.Comment ();
+				} else
+					DisplayAlert ("Error", "Couldn't save comment", "OK");
+			} catch (Exception) {
+				CommentEditor.Unfocus ();
+			}
 		}
 
 		void RefreshListPage ()

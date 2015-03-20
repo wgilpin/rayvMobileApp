@@ -385,7 +385,11 @@ namespace RayvMobileApp.iOS
 				this.key = place.key;
 				lock (Persist.Instance.Lock) {
 					// no try..catch as it's inside one
-					Persist.Instance.UpdatePlace (place);
+					if (!Persist.Instance.UpdatePlace (place)) {
+						errorMessage = "Failed to update";
+						return false;
+					}
+
 				}
 				errorMessage = "";
 				return true;

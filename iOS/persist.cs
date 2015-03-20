@@ -593,7 +593,7 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
-		public void UpdatePlace (Place place)
+		public bool UpdatePlace (Place place)
 		{
 			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
@@ -610,14 +610,16 @@ namespace RayvMobileApp.iOS
 							myVote.untried = Places [i].untried;
 						}
 						StorePlace (place, Places [i]);
-						return;
+						return true;
 					} catch (Exception e) { 
 						Insights.Report (e);
 						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);
+						return false;
 					}
 				}
 			}
 			StorePlace (place);
+			return true;
 		}
 
 		public Place GetPlace (string key)
