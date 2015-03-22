@@ -10,7 +10,7 @@ namespace RayvMobileApp.iOS
 	{
 		Button SearchHereBtn;
 		Map map;
-
+		ToolbarItem ListBtn;
 
 		private void PinClick (object send, EventArgs e)
 		{
@@ -39,15 +39,15 @@ namespace RayvMobileApp.iOS
 			if (Persist.Instance.DisplayPosition != centre) {
 				Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", centre.Latitude, centre.Longitude);
 				Persist.Instance.DisplayPosition = centre;
-				foreach (var p in Persist.Instance.DisplayList)
+				foreach (var p in Persist.Instance.Places)
 					p.CalculateDistanceFromPlace (centre);
 			}
-			;
-			Persist.Instance.DisplayList.Sort ();
-			for (int i = 0; i < Persist.Instance.DisplayList.Count; i++) {
+
+			Persist.Instance.Places.Sort ();
+			for (int i = 0; i < Persist.Instance.Places.Count; i++) {
 				if (i > 9)
 					break;
-				Place p = Persist.Instance.DisplayList [i];
+				Place p = Persist.Instance.Places [i];
 				Pin pin = new Pin {
 					Type = PinType.SearchResult,
 					Position = p.GetPosition (),
@@ -67,6 +67,7 @@ namespace RayvMobileApp.iOS
 
 		private void DoSearch (object sender, EventArgs e)
 		{
+			ListBtn.Text = "View as List";
 			SetupMapList (map.VisibleRegion.Center);
 		}
 
@@ -122,12 +123,19 @@ namespace RayvMobileApp.iOS
 			AbsoluteLayout.SetLayoutBounds (GoToHomeBtn,
 				new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 			Content = mapLayout;
+			ListBtn = new ToolbarItem {
+				Text = "",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => {
+					this.Navigation.PushAsync (new MapListPage ());
+				}),
+			};
+			ToolbarItems.Add (ListBtn);
 			SetupMapList (Persist.Instance.DisplayPosition);
 		}
 
 		public MapPage (Place place) : this ()
 		{
-			//
 			map.MoveToRegion (MapSpan.FromCenterAndRadius (
 				place.GetPosition (), Distance.FromMiles (0.3)));
 			var pin = new Pin {

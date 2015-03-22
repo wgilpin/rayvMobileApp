@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Diagnostics;
 using System.Linq;
+using Xamarin;
 
 namespace RayvMobileApp.iOS
 {
@@ -34,14 +35,20 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			string key = (value as string);
-			if (key == null) {
+			try {
+				string key = (value as string);
+				if (key == null) {
+					return null;
+				}
+				Place p = Persist.Instance.GetPlace (key);
+				if (p.iVoted)
+					return false;
+				return p.down != 0;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("KeyToShowDownBoolConverter Exception");
 				return null;
 			}
-			Place p = Persist.Instance.GetPlace (key);
-			if (p.iVoted)
-				return false;
-			return p.down != 0;
 				
 		}
 
@@ -75,7 +82,7 @@ namespace RayvMobileApp.iOS
 				return String.Format ("{0} liked", p.up);
 			Vote vote = (from v in Persist.Instance.Votes
 			             where v.key == key
-			                 && v.VoterName.Length > 0
+			                 && !string.IsNullOrWhiteSpace (v.VoterName)
 			             select v).FirstOrDefault ();
 			if (vote != null)
 				return String.Format ("{0}\nlikes", vote.VoterName);

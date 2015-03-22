@@ -27,12 +27,7 @@ namespace RayvMobileApp.iOS
 
 		public List<Place> Places { get; set; }
 
-		public List<Place> DisplayList { get; set; }
-
-
-
 		public bool DataIsLive;
-
 		public List<string> CuisineHistory;
 
 		public PersistantQueue SearchHistory;
@@ -421,7 +416,7 @@ namespace RayvMobileApp.iOS
 				paramList.Add ("since", ((DateTime)since).ToString ("s"));
 			}
 			resp = webReq.get ("/getFullUserRecord", paramList);
-			if (resp.ResponseStatus == ResponseStatus.Error) {
+			if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
 				//unable to contact server
 				Console.WriteLine ("InnerGetUserData - NO RESPONSE");
 				return null;
@@ -559,14 +554,21 @@ namespace RayvMobileApp.iOS
 		/**
 		 * Sort Place by Distance from me
 		 */
-		public void SortPlaces (List<Place> placeList = null)
+		public void SortPlaces (List<Place> placeList = null, Position? updateDistancePosition = null)
 		{
 			Console.WriteLine ("SortPlaces");
 			if (placeList == null)
 				placeList = Places;
-//			foreach (Place p in placeList) {
-//				p.CalculateDistanceFromPlace ();
-//			}
+			if (updateDistancePosition != null) {
+				if (GpsPosition.Latitude == 0.0) {
+					GpsPosition = new Position (
+						Persist.Instance.GetConfigDouble (settings.LAST_LAT),
+						Persist.Instance.GetConfigDouble (settings.LAST_LNG));
+				}
+				foreach (Place p in placeList) {
+					p.CalculateDistanceFromPlace (updateDistancePosition);
+				}
+			}
 			placeList.Sort ();
 		}
 

@@ -15,7 +15,7 @@ namespace RayvMobileApp.iOS
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			case 1:
-				server_url = "http://192.168.1.9:8080/";
+				server_url = "http://192.168.1.6:8080/";
 				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 				restConnection.Instance.setBaseUrl (server_url);
 				break;

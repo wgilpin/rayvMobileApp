@@ -44,12 +44,13 @@ namespace RayvMobileApp.iOS
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
 
-		private Position? lastPositionOnListPage;
 		Label NothingFound;
 		bool IsFiltered;
 		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
 		Grid filters;
 		public bool NeedsReload = true;
+		List<Place> DisplayList;
+		Position DisplayPosition;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -198,7 +199,7 @@ namespace RayvMobileApp.iOS
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) }
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) }
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -259,8 +260,8 @@ namespace RayvMobileApp.iOS
 			ToolbarItems.Add (FilterTool);
 
 			NeedsReload = true;
-			Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
-			Console.WriteLine ("ListPage.FilterList Constructor set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+			DisplayPosition = Persist.Instance.GpsPosition;
+			Console.WriteLine ("ListPage.FilterList Constructor set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
 			this.Appearing += OnPageAppearing;
 		}
@@ -303,15 +304,7 @@ namespace RayvMobileApp.iOS
 
 		async void OnPageAppearing (object sender, EventArgs e)
 		{
-			if (NeedsReload || (lastPositionOnListPage != Persist.Instance.DisplayPosition)) {
-				Console.WriteLine (
-					"ListPage appearing reload {0},{1}", 
-					Persist.Instance.DisplayPosition.Latitude, 
-					Persist.Instance.DisplayPosition.Longitude);
-				if (lastPositionOnListPage == null)
-					lastPositionOnListPage = Persist.Instance.DisplayPosition;
-				if (Persist.Instance.DisplayList == null)
-					Persist.Instance.DisplayList = Persist.Instance.Places;
+			if (NeedsReload) {
 				await FilterList ();
 				StartTimerIfNoGPS ();
 				NeedsReload = false;
@@ -320,12 +313,14 @@ namespace RayvMobileApp.iOS
 
 		public void DoPickLocation (object s, EventArgs e)
 		{
-			if (AreaBox.IsVisible) {
+			if (AreaBox.IsVisible || !string.IsNullOrWhiteSpace (AreaBox.Text)) {
 				AreaBox.IsVisible = false;
+				AreaBox.Text = "";
+				LocationButton.Text = "Near My Location";
 				LocationButton.ButtonText = "Change";
-				Console.WriteLine ("ListPage.FilterList pick location set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+				Console.WriteLine ("ListPage.FilterList pick location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
-				Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
+				DisplayPosition = Persist.Instance.GpsPosition;
 				IsFiltered = false;
 				Spinner.IsRunning = true;
 				Console.WriteLine ("Spin");
@@ -342,19 +337,24 @@ namespace RayvMobileApp.iOS
 
 		async public void DoPlaceSearch (object s, EventArgs e)
 		{
+			Console.WriteLine ("DoPlaceSearch");
 			Spinner.IsRunning = true;
 			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (AreaBox.Text));
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				var positions = geoCodePositions.ToList ();
 				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
 					Console.WriteLine ("AddMenu.SearchHere: Got");
+					Device.BeginInvokeOnMainThread (() => {
+						LocationButton.Text = String.Format ("Near {0}", AreaBox.Text);
+						AreaBox.IsVisible = false;
+					});
 					if (DEBUG_ON_SIMULATOR) {
-						Persist.Instance.DisplayPosition = new Position (53.1, -1.5);
+						DisplayPosition = new Position (53.1, -1.5);
 						Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
 					} else {
-						Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+						Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
-						Persist.Instance.DisplayPosition = positions.First ();
+						DisplayPosition = positions.First ();
 					}
 				}
 				IsFiltered = true;
@@ -384,21 +384,21 @@ namespace RayvMobileApp.iOS
 		{
 			MainFilter = FilterKind.Mine;
 			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
+			filters.IsVisible = DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterAll (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.All;
 			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
+			filters.IsVisible = DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterWish (object s, EventArgs e)
 		{
 			MainFilter = FilterKind.Wishlist;
 			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
+			filters.IsVisible = DisplayList.Count () == 0;
 		}
 
 		void ClearFilter (object s, EventArgs e)
@@ -407,8 +407,8 @@ namespace RayvMobileApp.iOS
 			FilterAreaSearchBox.Text = "";
 			filters.IsVisible = false;
 			MainFilter = FilterKind.All;
-			Persist.Instance.DisplayPosition = Persist.Instance.GpsPosition;
-			Console.WriteLine ("ListPage.FilterList clearFilter set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
+			DisplayPosition = Persist.Instance.GpsPosition;
+			Console.WriteLine ("ListPage.FilterList clearFilter set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
 			IsFiltered = false;
 			FilterList ();
@@ -444,8 +444,8 @@ namespace RayvMobileApp.iOS
 		{
 			Debug.WriteLine ("ListPage ShowMap: Push GOOGLE MapPage");
 			// keep last posn so we can tell if it changed
-			lastPositionOnListPage = Persist.Instance.DisplayPosition;
 			if (settings.USE_XAMARIN_MAPS) {
+				Persist.Instance.DisplayPosition = DisplayPosition;
 				MapPage map = new MapPage ();
 				Navigation.PushAsync (map);
 			} else {
@@ -466,7 +466,7 @@ namespace RayvMobileApp.iOS
 					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
 				}
 				var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
-				Persist.Instance.DisplayList = Persist.Instance.DisplayList.Where (
+				DisplayList = DisplayList.Where (
 					p => p.lat < centre.Latitude + delta &&
 					p.lat > centre.Latitude - delta &&
 					p.lng < centre.Longitude + delta &&
@@ -490,12 +490,7 @@ namespace RayvMobileApp.iOS
 		async Task FilterList ()
 		{
 			Persist data = Persist.Instance;
-			if (Persist.Instance.DisplayPosition != lastPositionOnListPage) {
-				Console.WriteLine ("ListPage.FilterList set posn to {0},{1}", Persist.Instance.DisplayPosition.Latitude, Persist.Instance.DisplayPosition.Longitude);
-				lastPositionOnListPage = Persist.Instance.DisplayPosition;
-				foreach (var p in Persist.Instance.DisplayList)
-					p.CalculateDistanceFromPlace (Persist.Instance.DisplayPosition);
-			}
+			data.SortPlaces (updateDistancePosition: DisplayPosition);
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
 				if (text.Length > 0)
@@ -504,7 +499,7 @@ namespace RayvMobileApp.iOS
 				case FilterKind.Go:
 					// places to go - from cuisine string constructorWill
 					ResetCuisinePicker ();
-					data.DisplayList = (
+					DisplayList = (
 					    from p in data.Places
 					    where
 					        p.vote != "-1" &&
@@ -514,7 +509,7 @@ namespace RayvMobileApp.iOS
 					break;
 				case FilterKind.Mine:
 					ResetCuisinePicker ();
-					data.DisplayList = (
+					DisplayList = (
 					    from p in data.Places
 					    where p.iVoted == true && (
 					            p.place_name.ToLower ().Contains (text) ||
@@ -523,15 +518,15 @@ namespace RayvMobileApp.iOS
 					break;
 				case FilterKind.All:
 					ResetCuisinePicker ();
-					data.DisplayList = (from p in data.Places
-					                    where
-					                        p.place_name.ToLower ().Contains (text) ||
-					                        p.CategoryLowerCase.Contains (text)
-					                    select p).ToList ();
+					DisplayList = (from p in data.Places
+					               where
+					                   p.place_name.ToLower ().Contains (text) ||
+					                   p.CategoryLowerCase.Contains (text)
+					               select p).ToList ();
 					break;
 				case FilterKind.Cuisine:
 					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
-						data.DisplayList = (
+						DisplayList = (
 						    from p in data.Places
 						    where p.category == FilterCuisineKind && (
 						            p.place_name.ToLower ().Contains (text) ||
@@ -542,7 +537,7 @@ namespace RayvMobileApp.iOS
 					IsFiltered = true;
 					break;
 				case FilterKind.Wishlist:
-					data.DisplayList = (
+					DisplayList = (
 					    from p in data.Places
 					    where p.untried == true && (
 					            p.place_name.ToLower ().Contains (text) ||
@@ -556,14 +551,15 @@ namespace RayvMobileApp.iOS
 					await NarrowGeoSearch ();
 				}
 				lock (Persist.Instance.Lock) {
-					data.SortPlaces (data.DisplayList);
+					data.SortPlaces (DisplayList);
 				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
 			Device.BeginInvokeOnMainThread (() => {
-				SetList (data.DisplayList);
+				DisplayList.Sort ();
+				SetList (DisplayList);
 				FilterSearchBox.Unfocus ();
 				Spinner.IsRunning = false;
 				if (IsFiltered) {

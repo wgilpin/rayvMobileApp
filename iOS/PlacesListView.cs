@@ -93,6 +93,7 @@ namespace RayvMobileApp.iOS
 						XAlign = TextAlignment.End,
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						TranslationY = 2,
+						TranslationX = 2,
 					};
 //					downVotes.SetBinding (Label.IsVisibleProperty, "noVote");
 //					downVotes.SetBinding (Label.TextProperty, "down");
