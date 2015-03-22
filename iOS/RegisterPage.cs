@@ -109,7 +109,7 @@ namespace RayvMobileApp.iOS
 
 		public RegisterPage ()
 		{
-		
+			Analytics.TrackPage ("RegisterPage");
 			Title = "Register";
 
 			Spinner = new ActivityIndicator {

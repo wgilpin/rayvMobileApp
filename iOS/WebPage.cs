@@ -13,6 +13,7 @@ namespace RayvMobileApp.iOS
 
 		public WebPage (String placeName, String url) : this ()
 		{
+			Analytics.TrackPage ("WebPage");
 			ActivityIndicator WebSpinner = new ActivityIndicator { Color = Color.Red, };
 
 			Debug.WriteLine ("WebPage");

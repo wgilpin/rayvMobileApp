@@ -43,6 +43,7 @@ namespace RayvMobileApp.iOS
 
 		public AddResultsPage ()
 		{
+			Analytics.TrackPage ("AddResultsPage");
 			Console.WriteLine ("ListView()");
 			FirstTime = true;
 			this.Title = "Add...";

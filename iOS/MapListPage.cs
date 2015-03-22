@@ -43,6 +43,7 @@ namespace RayvMobileApp.iOS
 
 		public MapListPage ()
 		{
+			Analytics.TrackPage ("MapListPage");
 			Console.WriteLine ("ListView()");
 			Xamarin.FormsMaps.Init ();
 			this.Title = "Map Places";

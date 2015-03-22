@@ -75,6 +75,7 @@ namespace RayvMobileApp.iOS
 
 		public MapPage ()
 		{
+			Analytics.TrackPage ("MapPage");
 			Title = "Map";
 			Xamarin.FormsMaps.Init ();
 			map = new Map (

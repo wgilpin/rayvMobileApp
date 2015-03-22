@@ -80,6 +80,7 @@ namespace RayvMobileApp.iOS
 
 		public EditPage (bool addingNewPlace = false)
 		{
+			Analytics.TrackPage ("EditPage");
 			Title = "Details";
 			AddingNewPlace = addingNewPlace;
 			IsNew = true;

@@ -285,6 +285,7 @@
     <Compile Include="PlaceConverters.cs" />
     <Compile Include="AddPage5bDeDup.cs" />
     <Compile Include="MapListPage.cs" />
+    <Compile Include="Analytics.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

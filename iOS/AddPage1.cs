@@ -226,6 +226,7 @@ namespace RayvMobileApp.iOS
 
 		public AddPage1 ()
 		{
+			Analytics.TrackPage ("AddPage1");
 			Title = "Add a Place";
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,

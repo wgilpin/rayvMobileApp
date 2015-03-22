@@ -48,6 +48,7 @@ namespace RayvMobileApp.iOS
 
 		public LoginPage ()
 		{
+			Analytics.TrackPage ("LoginPage");
 			Console.WriteLine ("LoginPage()");
 			Spinner = new ActivityIndicator { Color = Color.Red, };
 

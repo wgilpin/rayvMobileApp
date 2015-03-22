@@ -32,6 +32,7 @@ namespace RayvMobileApp.iOS
 
 		public MainMenu ()
 		{
+			Analytics.TrackPage ("MainMenu");
 			Console.WriteLine ("MainMenu()");
 			loadDataFromServer (this);
 

@@ -67,6 +67,7 @@ namespace RayvMobileApp.iOS
 
 		public ListPage ()
 		{
+			Analytics.TrackPage ("ListPage");
 			Console.WriteLine ("ListView()");
 			Xamarin.FormsMaps.Init ();
 			this.Title = "Find Food";

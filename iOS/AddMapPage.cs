@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using CoreLocation;
 using Xamarin.Forms.Maps;
 using System.Collections.Generic;
+using Xamarin;
 
 
 namespace RayvMobileApp.iOS
@@ -64,6 +65,7 @@ namespace RayvMobileApp.iOS
 
 		public AddMapPage ()
 		{
+			Analytics.TrackPage ("AddMapPage");
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
 				Icon = "01-refresh@2x.png",
@@ -71,7 +73,7 @@ namespace RayvMobileApp.iOS
 				Command = new Command (() => SetupPage ())
 			});
 
-			Xamarin.FormsMaps.Init ();
+			FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.GpsPosition, Distance.FromMiles (0.3))) {

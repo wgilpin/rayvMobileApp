@@ -238,6 +238,7 @@ namespace RayvMobileApp.iOS
 		public AddMenu ()
 		{
 			Console.WriteLine ("AddMenu()");
+			Analytics.TrackPage ("AddMenu");
 			Persist.Instance.HaveAdded = false;
 			SearchNameBox = new Entry {
 				Placeholder = "Place Name to find"

@@ -8,6 +8,7 @@ namespace RayvMobileApp.iOS
 	{
 		public AddWhatPage ()
 		{
+			Analytics.TrackPage ("AddWhatPage");
 			Image addImg = new Image {
 				Source = "big-btn-add-place.png"
 			};

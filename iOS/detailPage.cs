@@ -339,6 +339,7 @@ namespace RayvMobileApp.iOS
 
 		public DetailPage (Place place, bool showToolbar = false)
 		{
+			Analytics.TrackPage ("DetailPage");
 			ShowToolbar = showToolbar;
 			const int IMAGE_HEIGHT = 0;
 

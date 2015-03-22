@@ -89,6 +89,7 @@ namespace RayvMobileApp.iOS
 
 		public AddPage5bDeDup (string placeName, string address, Position posn)
 		{
+			Analytics.TrackPage ("AddPage5bDeDup");
 			Console.WriteLine ("AddPage5bDeDup");
 			this.Title = "Confirm Address";
 			PlaceName = placeName;
