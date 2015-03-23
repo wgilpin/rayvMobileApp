@@ -286,6 +286,7 @@ namespace RayvMobileApp.iOS
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
 				Padding = 4,
+				BackgroundColor = settings.ColorDark,
 				Children = {
 					PlaceNameBox,
 					LocationSearchedBox,

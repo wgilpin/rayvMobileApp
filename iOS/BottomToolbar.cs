@@ -7,29 +7,34 @@ namespace RayvMobileApp.iOS
 	{
 		BackgroundBox topYellow;
 		BackgroundBox bottomYellow;
+		Grid grid;
 
 		void ShowList (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: List button - push ListPage");
-			this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()), false);
+			this.Navigation.PushModalAsync (
+				new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark }, false);
 		}
 
 		void ShowNews (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: News button - push NewsPage");
-			this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()), false);
+			this.Navigation.PushModalAsync (
+				new NavigationPage (new NewsPage ()){ BarBackgroundColor = settings.ColorDark }, false);
 		}
 
 		void ShowProfile (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
-			this.Navigation.PushModalAsync (new NavigationPage (new ProfilePage ()), false);
+			this.Navigation.PushModalAsync (
+				new NavigationPage (new ProfilePage ()){ BarBackgroundColor = settings.ColorDark }, false);
 		}
 
 		void ShowAdd (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Add button - push AddMenu");
-			this.Navigation.PushModalAsync (new NavigationPage (new AddWhatPage ()), false);
+			this.Navigation.PushModalAsync (
+				new NavigationPage (new AddWhatPage ()){ BarBackgroundColor = settings.ColorDark }, false);
 		}
 
 		void ShowFriends (object s, EventArgs e)
@@ -44,152 +49,67 @@ namespace RayvMobileApp.iOS
 		}
 
 
-
 		public BottomToolbar (Page page, String pressed = null)
 		{
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
-			Grid gridMain = new Grid {
+			grid = new Grid {
 				Padding = 0,
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (25, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+//					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = Color.FromHex ("404040"),//.FromHex ("#554FD9"),
+				BackgroundColor = settings.ColorDark,
 				ColumnSpacing = 0,
 			};
-			Grid gridSecond = new Grid {
-				Padding = 0,
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (40, GridUnitType.Absolute) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (40, GridUnitType.Absolute) },
-				},
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (25, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
-				},
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = Color.FromHex ("#404040"),
-			};
 
-			Image addImg = new ImageButton ("toolbar-centre-add.png", ShowAdd);
-			Image friendsImg = new ImageButton ("toolbar-left-friends.png", ShowFriends);
-			Image newsImg = new ImageButton ("toolbar-right-news.png", ShowNews);
-			Image ListImg = new ImageButton ("toolbar-left-list.png", ShowList);
-			Image settingsImg = new ImageButton ("toolbar-right-profile.png", ShowProfile);
+			Image addImg = new ImageButton ("TB default add.png", ShowAdd) { HorizontalOptions = LayoutOptions.Center };
+			Image friendsImg = new ImageButton ("TB default friends.png", ShowFriends) { HorizontalOptions = LayoutOptions.Center };
+			Image newsImg = new ImageButton ("TB default news.png", ShowNews) { HorizontalOptions = LayoutOptions.Center };
+			Image ListImg = new ImageButton ("TB default search.png", ShowList) { HorizontalOptions = LayoutOptions.Center };
+			Image settingsImg = new ImageButton ("TB default profile.png", ShowProfile) { HorizontalOptions = LayoutOptions.Center };
 
-			Button MoreBtn = new Button {
-				Text = "more",
-				TextColor = Color.White,
-				FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Button)),
-				HorizontalOptions = LayoutOptions.End,
-				VerticalOptions = LayoutOptions.End,
-			};
-			MoreBtn.Clicked += (sender, e) => {
-				gridMain.IsVisible = false;
-				gridSecond.IsVisible = true;
-				//SetAddBtnYellow (pressed, gridMain, gridSecond);
-			};
 
-			Button BackBtn = new Button {
-				Text = "< back",
-				TextColor = Color.White,
-				FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Button)),
-				HorizontalOptions = LayoutOptions.End,
-			};
-			BackBtn.Clicked += (sender, e) => {
-				gridMain.IsVisible = true;
-				gridSecond.IsVisible = false;
-				//SetAddBtnYellow (pressed, gridMain, gridSecond);
-			};
-
-			gridMain.IsVisible = true;
-			gridSecond.IsVisible = false;
-			Grid selectedGrid = gridMain;
 			int selectedColumn = 0;
 			if (pressed != null) {
 				switch (pressed) {
-				case "news":
-					newsImg.Source = "toolbar-right-news-pressed.png";
-					selectedColumn = 3;
-					break;
 				case "list":
-					ListImg.Source = "toolbar-left-list-pressed.png";
-					selectedColumn = 1;
-					break;
-				case "profile":
-					selectedGrid = gridSecond;
-					settingsImg.Source = "toolbar-right-profile-pressed.png";
-					selectedColumn = 2;
+					ListImg.Source = "TB active search.png";
+					selectedColumn = 0;
 					break;
 				case "friends":
-					selectedGrid = gridSecond;
-					friendsImg.Source = "toolbar-left-friends-pressed.png";
+					friendsImg.Source = "TB active friends.png";
 					selectedColumn = 1;
 					break;
 				case "add":
-					addImg.Source = "toolbar-centre-add-pressed.png";
+					addImg.Source = "TB active add.png";
 					selectedColumn = 2;
 					break;
+				case "news":
+					newsImg.Source = "TB active news.png";
+					selectedColumn = 3;
+					break;
+				case "profile":
+					settingsImg.Source = "TB active profile.png";
+					selectedColumn = 4;
+					break;
 				}
-				gridMain.IsVisible = selectedGrid == gridMain;
-				gridSecond.IsVisible = selectedGrid == gridSecond;
-				//topYellow = new BackgroundBox ("#F3E90A");
-				//bottomYellow = new BackgroundBox ("#F3E90A");
-				//gridMain.Children.Add (topYellow, 2, 3, 0, 1);
-				//gridMain*/.Children.Add (bottomYellow, 2, 3, 1, 2);
-				//SetAddBtnYellow (pressed, gridMain, selectedGrid);
-				// grey behind the current page
-				//selectedGrid.Children.Add (
-				//	new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 0, 1);
-				//selectedGrid.Children.Add (
-				//	new BackgroundBox ("#444444"), selectedColumn, selectedColumn + 1, 1, 2);
 			}
-			gridMain.RowSpacing = 0;
-			gridSecond.RowSpacing = 0;
-			gridMain.Children.Add (ListImg, 1, 2, 0, 2);
-			gridMain.Children.Add (addImg, 2, 3, 0, 2);
-			gridMain.Children.Add (newsImg, 3, 4, 0, 2);
-			gridSecond.Children.Add (friendsImg, 1, 2, 0, 2);
-			gridSecond.Children.Add (settingsImg, 2, 3, 0, 2);
-
-			gridMain.Children.Add (new ToolbarButton ("Find") { 
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
-				OnClick = ShowList,
-			}, 1, 2, 1, 2);
-			gridMain.Children.Add (new ToolbarButton ("Activity") { 
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
-				OnClick = ShowNews,
-			}, 3, 4, 1, 2);
-			ButtonWide AddBtn = new ToolbarButton ("Add") { 
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
-				OnClick = ShowAdd,
-			};
-			gridMain.Children.Add (AddBtn, 2, 3, 1, 2);
-			gridMain.Children.Add (MoreBtn, 4, 5, 0, 2);
-			gridSecond.Children.Add (new ToolbarButton ("Friends") { 
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
-				OnClick = ShowFriends,
-			}, 1, 2, 1, 2);
-			gridSecond.Children.Add (new ToolbarButton ("Profile") { 
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Button)),
-				OnClick = ShowProfile,
-			}, 2, 3, 1, 2);
-			gridSecond.Children.Add (BackBtn, 0, 1, 0, 2);
-			this.Children.Add (gridMain);
-			this.Children.Add (gridSecond);
-
+			grid.RowSpacing = 0;
+			grid.Children.Add (ListImg, 0, 0);
+			grid.Children.Add (friendsImg, 1, 0);
+			grid.Children.Add (addImg, 2, 0);
+			grid.Children.Add (newsImg, 3, 0);
+			grid.Children.Add (settingsImg, 4, 0);
+			Children.Add (grid);
 		}
 	}
 

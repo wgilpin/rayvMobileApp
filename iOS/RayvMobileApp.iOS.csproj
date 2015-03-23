@@ -220,6 +220,19 @@
     <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
     <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\centre-button.png" />
+    <BundleResource Include="Resources\Add Select right button.png" />
+    <BundleResource Include="Resources\TB active add.png" />
+    <BundleResource Include="Resources\TB active friends.png" />
+    <BundleResource Include="Resources\TB active news %281%29.png" />
+    <BundleResource Include="Resources\TB active news.png" />
+    <BundleResource Include="Resources\TB active profile.png" />
+    <BundleResource Include="Resources\TB active search.png" />
+    <BundleResource Include="Resources\TB default add.png" />
+    <BundleResource Include="Resources\TB default friends.png" />
+    <BundleResource Include="Resources\TB default news %281%29.png" />
+    <BundleResource Include="Resources\TB default news.png" />
+    <BundleResource Include="Resources\TB default profile.png" />
+    <BundleResource Include="Resources\TB default search.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

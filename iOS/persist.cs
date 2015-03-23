@@ -227,8 +227,12 @@ namespace RayvMobileApp.iOS
 
 		void LoadCategories ()
 		{
-			Dictionary<string, string> parameters = new Dictionary<string, string> ();
-			string result = restConnection.Instance.get ("/getCuisines_ajax", parameters).Content;
+			var response = restConnection.Instance.get ("/getCuisines_ajax");
+			if (response == null) {
+				//OFFLINE
+				return;
+			}
+			string result = response.Content;
 			lock (Lock) {
 				try {
 					JObject obj = JObject.Parse (result);

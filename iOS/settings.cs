@@ -21,7 +21,10 @@ namespace RayvMobileApp.iOS
 		public static string SERVER = "server";
 		public static string LAST_SYNC = "last_sync";
 		public static Color ColorLight = Color.FromHex ("afb4f5");
-		public static Color ColorDark = Color.FromHex ("4F487A");
+		public static Color ColorDark = Color.FromHex ("6883B5");
+		public static Color ColorVeryDark = Color.FromHex ("4863B5");
+		public static Color ColorLightGray = Color.FromHex ("EEE");
+		public static Color ColorDarkGray = Color.FromHex ("444");
 
 		
 	}

@@ -97,10 +97,11 @@ namespace RayvMobileApp.iOS
 
 			FilterSearchBox = new EntryWithButton {
 				Placeholder = "Search for place",
-				Source = "icon-06-magnify@2x.png",
+				Source = "TB active search.png",
 				OnClick = DoTextSearch,
 				Text = "",
 			};
+			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
 
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",
@@ -111,6 +112,7 @@ namespace RayvMobileApp.iOS
 
 			filters = new Grid {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
+				BackgroundColor = settings.ColorDark,
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
@@ -166,11 +168,12 @@ namespace RayvMobileApp.iOS
 				
 			AreaBox = new EntryWithButton {
 				Placeholder = "Enter Area to Search",
-				Source = "icon-06-magnify@2x.png",
+				Source = "TB active search.png",
 				OnClick = DoPlaceSearch,
 				Text = "",
 //				HeightRequest = 30,
 			};
+			AreaBox.TextEntry.BackgroundColor = settings.ColorLightGray;
 
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
@@ -195,8 +198,10 @@ namespace RayvMobileApp.iOS
 			Grid grid = new Grid {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
+				ColumnSpacing = 0,
+				RowSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },
@@ -218,8 +223,26 @@ namespace RayvMobileApp.iOS
 				IsRunning = true,
 				Color = Color.Red,
 			};
+			BoxView bg0 = new BoxView { 
+				BackgroundColor = settings.ColorDark,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+			};
+			BoxView bg1 = new BoxView { 
+				BackgroundColor = settings.ColorDark,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+			};
+			BoxView bg2 = new BoxView { 
+				BackgroundColor = settings.ColorDark,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+			};
+			grid.Children.Add (bg0, 0, 0);
 			grid.Children.Add (FilterSearchBox, 0, 0);
+			grid.Children.Add (bg1, 0, 1);
 			grid.Children.Add (new StackLayout {
+				BackgroundColor = settings.ColorDark,
 				HorizontalOptions = LayoutOptions.StartAndExpand,
 				VerticalOptions = LayoutOptions.Start,
 				Children = {
@@ -228,7 +251,9 @@ namespace RayvMobileApp.iOS
 					Spinner,
 				}
 			}, 0, 1);
+			grid.Children.Add (bg2, 0, 2);
 			grid.Children.Add (new StackLayout {
+				BackgroundColor = settings.ColorDark,
 				HorizontalOptions = LayoutOptions.StartAndExpand,
 				Children = {
 					CuisineButton,
@@ -236,11 +261,16 @@ namespace RayvMobileApp.iOS
 				}
 			}, 0, 2);
 			grid.Children.Add (inner, 0, 3);
-			grid.Children.Add (tools, 0, 4);
 			filters.IsVisible = false;
 			FilterCuisinePicker.IsVisible = false;
 			AreaBox.IsVisible = false;
-			this.Content = grid;
+			this.Content = new StackLayout {
+				Children = {
+					grid,
+					tools
+				},
+				Padding = 0,
+			};
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",

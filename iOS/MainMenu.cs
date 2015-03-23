@@ -57,20 +57,10 @@ namespace RayvMobileApp.iOS
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
-				this.Navigation.PushModalAsync (new NavigationPage (new AddWhatPage ()));
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new AddWhatPage ()){ BarBackgroundColor = settings.ColorDark });
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
-
-			// FRIENDS
-			Image friendsImg = new Image {
-				Source = "big-btn-friends.png"
-			};
-			var clickFriends = new TapGestureRecognizer ();
-			clickFriends.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: friends button - not implemented");
-				DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
-			};
-			friendsImg.GestureRecognizers.Add (clickFriends);
 
 			// NEWS
 			Image newsImg = new Image {
@@ -79,7 +69,8 @@ namespace RayvMobileApp.iOS
 			var clickNews = new TapGestureRecognizer ();
 			clickNews.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: news button - push NewsPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new NewsPage ()));
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new NewsPage ()){ BarBackgroundColor = settings.ColorDark });
 			};
 			newsImg.GestureRecognizers.Add (clickNews);
 
@@ -90,7 +81,8 @@ namespace RayvMobileApp.iOS
 			var clickList = new TapGestureRecognizer ();
 			clickList.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: list button - push ListPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark });
 			};
 			placesImg.GestureRecognizers.Add (clickList);
 
@@ -101,22 +93,13 @@ namespace RayvMobileApp.iOS
 			var clickChoice = new TapGestureRecognizer ();
 			clickChoice.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
-				this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark });
 			};
 			choiceImg.GestureRecognizers.Add (clickChoice);
 
 
 			// SHARE
-			Image profileImg = new Image {
-				Source = "big-btn-profile.png"
-			};
-			var clickProfile = new TapGestureRecognizer ();
-			clickProfile.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: profile button - push ProfilePage");
-				this.Navigation.PushModalAsync (new NavigationPage (new ProfilePage ()));
-			};
-			profileImg.GestureRecognizers.Add (clickProfile);
-
 			grid.Children.Add (choiceImg, 0, 0);
 			grid.Children.Add (addImg, 0, 1);
 			grid.Children.Add (newsImg, 0, 2);

@@ -4,6 +4,14 @@ using System.Text;
 
 namespace RayvMobileApp.iOS
 {
+	public class RayvNav: NavigationPage
+	{
+		public RayvNav (Page p) : base (p)
+		{
+			BarBackgroundColor = settings.ColorDark;
+		}
+	}
+
 	public class EntryWithButton : Grid
 	{
 		Entry _entry;
@@ -132,7 +140,7 @@ namespace RayvMobileApp.iOS
 			ButtonChange.HeightRequest = 20;
 			ButtonLabel = new Label {
 				Text = "",
-				TextColor = Color.FromHex ("#666"),
+				TextColor = Color.White,
 				FontAttributes = FontAttributes.Italic,
 				HorizontalOptions = LayoutOptions.FillAndExpand
 			};
@@ -219,7 +227,8 @@ namespace RayvMobileApp.iOS
 			//BorderWidth = 2;
 			//BorderColor = Color.FromHex ("#4444AA");
 			BorderRadius = 0;
-			BackgroundColor = Color.FromHex ("#ddddff");
+			TextColor = Color.White;
+			BackgroundColor = settings.ColorDark;
 			FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			if (text != null)
 				Text = text;
