@@ -36,13 +36,16 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("MainMenu()");
 			loadDataFromServer (this);
 
+			BackgroundColor = Color.FromHex ("E7E7E7");
 			Grid grid = new Grid {
-				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
+				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
 				VerticalOptions = LayoutOptions.Center,
+				RowSpacing = 0,
+				ColumnSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 				},
@@ -52,19 +55,24 @@ namespace RayvMobileApp.iOS
 			};
 			// ADD
 			Image addImg = new Image {
-				Source = "big-btn-add.png"
+				Source = "Big Add.png",
+				Aspect = Aspect.AspectFit,
 			};
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new AddWhatPage ()){ BarBackgroundColor = settings.ColorDark });
+					new NavigationPage (new AddWhatPage ()) { 
+						BarBackgroundColor = settings.ColorDark,
+						BarTextColor = Color.White,
+					});
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
 
 			// NEWS
 			Image newsImg = new Image {
-				Source = "big-btn-news.png"
+				Source = "Big activity.png",
+				Aspect = Aspect.AspectFit,
 			};
 			var clickNews = new TapGestureRecognizer ();
 			clickNews.Tapped += (s, e) => {
@@ -74,27 +82,21 @@ namespace RayvMobileApp.iOS
 			};
 			newsImg.GestureRecognizers.Add (clickNews);
 
-			//  LIST
-			Image placesImg = new Image {
-				Source = "big-btn-places.png",
-			};
-			var clickList = new TapGestureRecognizer ();
-			clickList.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: list button - push ListPage");
-				this.Navigation.PushModalAsync (
-					new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark });
-			};
-			placesImg.GestureRecognizers.Add (clickList);
+
 
 			//  FIND ME A...
 			Image choiceImg = new Image {
-				Source = "big-btn-find.png",
+				Source = "Big find food.png",
+				Aspect = Aspect.AspectFit,
 			};
 			var clickChoice = new TapGestureRecognizer ();
 			clickChoice.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark });
+					new NavigationPage (new ListPage ()) { 
+						BarBackgroundColor = settings.ColorDark,
+						BarTextColor = Color.White,
+					});
 			};
 			choiceImg.GestureRecognizers.Add (clickChoice);
 
@@ -112,16 +114,7 @@ namespace RayvMobileApp.iOS
 			AppDelegate.locationMgr.LocationUpdated += HandleLocationChanged;
 		}
 
-		private static NavigationPage _instance;
 
-		public static NavigationPage Instance {
-			get {
-				if (_instance == null) {
-					_instance = new NavigationPage (new MainMenu ());
-				}
-				return _instance;
-			}
-		}
 	}
 }
 

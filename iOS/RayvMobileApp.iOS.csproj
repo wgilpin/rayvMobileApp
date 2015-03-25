@@ -182,9 +182,6 @@
     <BundleResource Include="Resources\Default.png" />
     <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\rayvcircle.gif" />
-    <BundleResource Include="Resources\big-btn-profile.png" />
-    <BundleResource Include="Resources\big-btn-friends.png" />
-    <BundleResource Include="Resources\big-btn-places.png" />
     <BundleResource Include="Resources\icon-news-pressed.png" />
     <BundleResource Include="Resources\icon-news.png" />
     <BundleResource Include="Resources\icon-grid-pressed.png" />
@@ -205,9 +202,7 @@
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
     <BundleResource Include="Resources\big-btn-add-place.png" />
     <BundleResource Include="Resources\big-btn-add-friend.png" />
-    <BundleResource Include="Resources\big-btn-add.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
-    <BundleResource Include="Resources\big-btn-find.png" />
     <BundleResource Include="Resources\toolbar-right-news.png" />
     <BundleResource Include="Resources\toolbar-left-list.png" />
     <BundleResource Include="Resources\toolbar-centre-add.png" />
@@ -218,7 +213,6 @@
     <BundleResource Include="Resources\toolbar-left-friends.png" />
     <BundleResource Include="Resources\toolbar-right-profile.png" />
     <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
-    <BundleResource Include="Resources\big-btn-news.png" />
     <BundleResource Include="Resources\centre-button.png" />
     <BundleResource Include="Resources\Add Select right button.png" />
     <BundleResource Include="Resources\TB active add.png" />
@@ -233,6 +227,14 @@
     <BundleResource Include="Resources\TB default news.png" />
     <BundleResource Include="Resources\TB default profile.png" />
     <BundleResource Include="Resources\TB default search.png" />
+    <BundleResource Include="Resources\Big Add.png" />
+    <BundleResource Include="Resources\Big find food.png" />
+    <BundleResource Include="Resources\Add place.png" />
+    <BundleResource Include="Resources\Add friend.png" />
+    <BundleResource Include="Resources\Big activity.png" />
+    <BundleResource Include="Resources\Icon default directions.png" />
+    <BundleResource Include="Resources\Icon default directions1.png" />
+    <BundleResource Include="Resources\Icon default Website.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

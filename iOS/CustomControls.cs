@@ -136,6 +136,7 @@ namespace RayvMobileApp.iOS
 			ButtonChange = new Button {
 				Text = "Change",
 				HorizontalOptions = LayoutOptions.End,
+				TextColor = Color.White,
 			};
 			ButtonChange.HeightRequest = 20;
 			ButtonLabel = new Label {
@@ -341,6 +342,7 @@ namespace RayvMobileApp.iOS
 			ButtonLeft = new Button {
 				Text = "Change",
 				HorizontalOptions = LayoutOptions.End,
+				TextColor = Color.White,
 			};
 			ButtonLeft.HeightRequest = 30;
 
