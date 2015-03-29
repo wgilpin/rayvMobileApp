@@ -109,6 +109,8 @@ namespace RayvMobileApp.iOS
 					Label myVote = new Label {
 						TextColor = settings.ColorDark,
 						TranslationY = -5,
+						HorizontalOptions = LayoutOptions.FillAndExpand,
+						XAlign = TextAlignment.End,
 					};
 					myVote.SetBinding (Label.IsVisibleProperty, "iVoted");
 					myVote.SetBinding (Label.TextProperty, "voteImage");
