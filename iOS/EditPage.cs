@@ -7,6 +7,7 @@ using Xamarin.Forms.Maps;
 using System.Diagnostics;
 using Xamarin;
 using System.Linq;
+using System.Globalization;
 
 namespace RayvMobileApp.iOS
 {
@@ -22,9 +23,10 @@ namespace RayvMobileApp.iOS
 		ButtonWide VoteWishlist;
 		ButtonWide SaveBtn;
 		ButtonWide DeleteButton;
+		ButtonWide ConfirmAddressBtn;
 		Entry PhoneNo;
 		Entry WebSite;
-		Entry Address;
+		Entry AddressBox;
 		Place EditPlace;
 		Entry Comment;
 		bool IsNew;
@@ -34,6 +36,11 @@ namespace RayvMobileApp.iOS
 		private bool AddingNewPlace = false;
 
 		#endregion
+
+		public string Address {
+			get { return AddressBox.Text; }
+			set { AddressBox.Text = value; }
+		}
 
 		#region Constructors
 
@@ -53,8 +60,8 @@ namespace RayvMobileApp.iOS
 //			Img.Aspect = Aspect.AspectFill;
 			Place_name.Text = EditPlace.place_name;
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
-			Address.Text = EditPlace.address;
-			Address.IsEnabled = String.IsNullOrEmpty (EditPlace.address);
+			AddressBox.Text = EditPlace.address;
+			AddressBox.IsEnabled = String.IsNullOrEmpty (EditPlace.address);
 			Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
@@ -76,13 +83,20 @@ namespace RayvMobileApp.iOS
 				}
 				Voted = true;
 			}
+			if (EditPlace.IsDraft) {
+				ConfirmAddressBtn.IsVisible = true;
+			}
 		}
 
-		public EditPage (bool addingNewPlace = false)
+		public EditPage (bool addingNewPlace = false, bool editAsDraft = false)
 		{
 			Analytics.TrackPage ("EditPage");
 			Title = "Details";
 			AddingNewPlace = addingNewPlace;
+			if (addingNewPlace && editAsDraft) {
+				EditPlace = new Place ();
+				EditPlace.IsDraft = true;
+			}
 			IsNew = true;
 			var MainGrid = new Grid {
 				RowDefinitions = {
@@ -147,31 +161,53 @@ namespace RayvMobileApp.iOS
 			};
 			MainGrid.Children.Add (Place_name, 0, 3, Row, Row + 1);
 			Row++;
-			Category = new Picker {
-				Title = "Cuisine",
-			};
-			foreach (string cat in Persist.Instance.Categories) {
-				Category.Items.Add (cat);
+
+			if (Persist.Instance.Categories != null) {
+				Category = new Picker {
+					Title = "Cuisine",
+				};
+				foreach (Category cat in Persist.Instance.Categories) {
+					Category.Items.Add (cat.Title);
+				}
+
+				if (!editAsDraft)
+					MainGrid.Children.Add (Category, 0, 3, Row, Row + 1);
 			}
-
-
-			MainGrid.Children.Add (Category, 0, 3, Row, Row + 1);
 			Row++;
-			Address = new Entry {
+			AddressBox = new Entry {
 				Text = "",
 				Placeholder = "Address",
 			};
-			MainGrid.Children.Add (Address, 0, 3, Row, Row + 1);
-			Row++;
-			WebSite = new Entry {
-				Placeholder = "Website",
+			ConfirmAddressBtn = new ButtonWide { 
+				Text = "Confirm Location",
+				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
+				OnClick = DoConfirmAddress,
+				IsVisible = false,
+				BackgroundColor = settings.ColorDark,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
 			};
-			MainGrid.Children.Add (WebSite, 0, 3, Row, Row + 1);
-			Row++;
-			PhoneNo = new Entry {
-				Placeholder = "Phone",
+			var editAddress = new StackLayout {
+				Children = {
+					AddressBox,
+					ConfirmAddressBtn,
+				}
 			};
-			MainGrid.Children.Add (PhoneNo, 0, 3, Row, Row + 1);
+			MainGrid.Children.Add (editAddress, 0, 3, Row, Row + 1);
+			Row++;
+			if (!editAsDraft) {
+				WebSite = new Entry {
+					Placeholder = "Website",
+				};
+				MainGrid.Children.Add (WebSite, 0, 3, Row, Row + 1);
+			}
+			Row++;
+			if (!editAsDraft) {
+				PhoneNo = new Entry {
+					Placeholder = "Phone",
+				};
+				MainGrid.Children.Add (PhoneNo, 0, 3, Row, Row + 1);
+			}
 			Row++;
 			VoteLike = new ButtonWide {
 				Text = "Like",
@@ -208,7 +244,7 @@ namespace RayvMobileApp.iOS
 			Row++;
 			SaveBtn = new ButtonWide {
 				Text = "Save",
-				BackgroundColor = Color.Blue,
+				BackgroundColor = settings.ColorDark,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 			};
@@ -250,7 +286,7 @@ namespace RayvMobileApp.iOS
 			if (!string.IsNullOrEmpty (placeName)) {
 				EditPlace.place_name = placeName;
 			}
-			Address.Text = address;
+			AddressBox.Text = address;
 		}
 
 		#endregion
@@ -288,6 +324,21 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
+		async private void DoConfirmAddress (Object o, EventArgs e)
+		{
+			// click map
+			// geocode address
+			Xamarin.FormsMaps.Init ();
+			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
+			if (positions.Count > 0) {
+				// load map at that location
+				Navigation.PushAsync (new AddMapPage (positions.First ()));
+			} else {
+				// load map at my location
+				Navigation.PushAsync (new AddMapPage ());
+			}
+		}
+
 		async private void DoSave (object sender, EventArgs e)
 		{
 			if (String.IsNullOrEmpty (Place_name.Text)) {
@@ -295,10 +346,7 @@ namespace RayvMobileApp.iOS
 				Place_name.Focus ();
 				return;
 			}
-			if (Category.SelectedIndex == -1) {
-				await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
-				return;
-			}
+
 			if (!Voted) {
 				await DisplayAlert ("Warning", "You must vote", "OK");
 				return;
@@ -311,10 +359,19 @@ namespace RayvMobileApp.iOS
 					return;
 				}
 			}
-			EditPlace.category = Category.Items [Category.SelectedIndex];
+			if (!EditPlace.IsDraft) {
+				if (Category.SelectedIndex == -1) {
+					await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+					return;
+				}
+				EditPlace.category = Category.Items [Category.SelectedIndex];
+			}
 			EditPlace.setComment (Comment.Text);
-			EditPlace.address = Address.Text;
-			EditPlace.place_name = Place_name.Text;
+			// Creates a TextInfo based on the "en-US" culture.
+			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;
+			EditPlace.address = myTI.ToTitleCase (AddressBox.Text);
+			EditPlace.place_name = myTI.ToTitleCase (Place_name.Text);
+			;
 			string Message = "";
 			if (EditPlace.Save (out Message)) {
 				Console.WriteLine ("Saved - PopToRootAsync");
@@ -338,7 +395,10 @@ namespace RayvMobileApp.iOS
 				}
 				#pragma warning restore 4014
 			} else {
-				await DisplayAlert ("Error", Message, "OK");
+				EditPlace.IsDraft = true;
+				await DisplayAlert ("Not Saved", "Kept as draft", "OK");
+				Persist.Instance.Places.Add (EditPlace);
+				this.Navigation.PopToRootAsync ();
 			}
 
 

@@ -20,7 +20,7 @@ namespace RayvMobileApp.iOS
 
 		#region Events
 
-		async public void GetAddressFromMap ()
+		async public void GetAddressFromMap (bool flipButton = true)
 		{
 			var geo = new Geocoder ();
 			IEnumerable<string> addresses = await geo.GetAddressesForPositionAsync (map.VisibleRegion.Center);
@@ -31,7 +31,7 @@ namespace RayvMobileApp.iOS
 					firstAddress = addr;
 			}
 			AddressBox.Text = firstAddress;
-			CheckBottomButton (null, null);
+
 		}
 
 		void CheckBottomButton (object sender, EventArgs e)
@@ -50,13 +50,21 @@ namespace RayvMobileApp.iOS
 		public void DoGetAddress (object sender, EventArgs e)
 		{
 			GetAddressFromMap ();
+			CheckBottomButton (null, null);
 		}
 
 		public void DoAdd (object sender, EventArgs e)
 		{
-			Console.WriteLine ("AddMapPage.DoAdd Push EditPage");
-			MapSpan span = map.VisibleRegion;
-			this.Navigation.PushAsync (new EditPage (span.Center, AddressBox.Text));
+			// stack[count - 1] is top, stack[count-2] is parent
+			if (Navigation.NavigationStack [Navigation.NavigationStack.Count - 2] is EditPage) {
+				//go back there
+				(Navigation.NavigationStack [Navigation.NavigationStack.Count - 2] as EditPage).Address = AddressBox.Text;
+				Navigation.PopAsync ();
+			} else {
+				Console.WriteLine ("AddMapPage.DoAdd Push EditPage");
+				MapSpan span = map.VisibleRegion;
+				this.Navigation.PushAsync (new EditPage (span.Center, AddressBox.Text));
+			}
 		}
 
 		#endregion
@@ -137,8 +145,17 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine (String.Format ("vert {0},{1}:{2},{3}", vertical.X, vertical.Y, vertical.Width, vertical.Height));
 
 			Content = mapLayout;
+		}
 
-
+		public AddMapPage (Position posn) : this ()
+		{
+			map.MoveToRegion (MapSpan.FromCenterAndRadius (
+				posn, 
+				Distance.FromMiles (0.3)
+			));
+			Appearing += async (sender, e) => {
+				GetAddressFromMap ();
+			};
 		}
 
 		#endregion

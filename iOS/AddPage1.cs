@@ -202,10 +202,14 @@ namespace RayvMobileApp.iOS
 				} catch (Exception e) {
 					Insights.Report (e);
 					restConnection.LogErrorToServer ("AddPage1.DoSearch: Exception {0}", e);
-					Device.BeginInvokeOnMainThread (() => {
+					Device.BeginInvokeOnMainThread (async() => {
 						Console.WriteLine ("AddMenu.DoSearch: MainThread Exception");
 						Spinner.IsRunning = false;
-						DisplayAlert ("Oops", "Unable to search. Network problems?", "Close");
+						var editAsDraft = await DisplayAlert ("Oops", "Unable to search. Network problems?", "Edit as draft", "Cancel");
+						if (editAsDraft) {
+							Persist.Instance.Online = false;
+							await this.Navigation.PushAsync (new EditPage (editAsDraft: true, addingNewPlace: true));
+						}
 					});
 				}
 			})).Start ();

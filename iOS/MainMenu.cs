@@ -7,13 +7,7 @@ namespace RayvMobileApp.iOS
 	public class MainMenu: ContentPage
 	{
 
-		void loadDataFromServer (ContentPage caller)
-		{
-			Persist.Instance.LoadFromDb ();
-			Console.WriteLine ("loadDataFromServer");
-			Persist.Instance.GetUserData (this, incremental: true);
-//			ListPage.Setup (caller);
-		}
+
 
 		public void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
 		{
@@ -34,9 +28,8 @@ namespace RayvMobileApp.iOS
 		{
 			Analytics.TrackPage ("MainMenu");
 			Console.WriteLine ("MainMenu()");
-			loadDataFromServer (this);
 
-			BackgroundColor = Color.FromHex ("E7E7E7");
+			BackgroundColor = settings.ColorOffWhite;
 			Grid grid = new Grid {
 				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
 				VerticalOptions = LayoutOptions.Center,
@@ -63,8 +56,8 @@ namespace RayvMobileApp.iOS
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (
 					new NavigationPage (new AddWhatPage ()) { 
-						BarBackgroundColor = settings.ColorDark,
-						BarTextColor = Color.White,
+						BarBackgroundColor = settings.ColorOffWhite,
+						BarTextColor = settings.ColorDark,
 					});
 			};
 			addImg.GestureRecognizers.Add (clickAdd);

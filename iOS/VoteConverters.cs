@@ -13,22 +13,27 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var key = value as string;
-			if (String.IsNullOrEmpty (key))
+			try {
+				var key = value as string;
+				if (String.IsNullOrEmpty (key))
+					return null;
+				
+				Place p = Persist.Instance.GetPlace (key);
+				string address = p.address;
+				string res;
+				// number then anything
+				string pattern = @"^(\d+[-\d+]* )(.*)";
+				MatchCollection matches = Regex.Matches (address, pattern);
+				if (matches.Count < 1) {
+					res = address;
+				} else {
+					res = matches [0].Groups [2].ToString ();
+				}
+				return res;
+			} catch (Exception ex) {
+				Insights.Report (ex);
 				return null;
-
-			Place p = Persist.Instance.GetPlace (key);
-			string address = p.address;
-			string res;
-			// number then anything
-			string pattern = @"^(\d+[-\d+]* )(.*)";
-			MatchCollection matches = Regex.Matches (address, pattern);
-			if (matches.Count < 1) {
-				res = address;
-			} else {
-				res = matches [0].Groups [2].ToString ();
 			}
-			return res;
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -44,10 +49,15 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var voter = value as string;
-			if (string.IsNullOrEmpty (voter))
+			try {
+				var voter = value as string;
+				if (string.IsNullOrEmpty (voter))
+					return null;
+				return Persist.Instance.Friends [voter].Name;
+			} catch (Exception ex) {
+				Insights.Report (ex);
 				return null;
-			return Persist.Instance.Friends [voter].Name;
+			}
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -61,10 +71,15 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var voter = value as string;
-			if (string.IsNullOrEmpty (voter))
+			try {
+				var voter = value as string;
+				if (string.IsNullOrEmpty (voter))
+					return null;
+				return Persist.Instance.Friends [voter].Name.Remove (1);
+			} catch (Exception ex) {
+				Insights.Report (ex);
 				return null;
-			return Persist.Instance.Friends [voter].Name.Remove (1); 
+			} 
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -78,17 +93,22 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			int? vote;
 			try {
-				vote = value as int?;
-			} catch (Exception) { 
+				int? vote;
+				try {
+					vote = value as int?;
+				} catch (Exception) { 
+					return null;
+				}
+				if (vote == 1)
+					return "Liked";
+				if (vote == -1)
+					return "Disliked";
+				return "Starred";
+			} catch (Exception ex) {
+				Insights.Report (ex);
 				return null;
 			}
-			if (vote == 1)
-				return "Liked";
-			if (vote == -1)
-				return "Disliked";
-			return "Starred";
 		
 		}
 
@@ -103,10 +123,15 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var key = value as string;
-			if (string.IsNullOrEmpty (key))
+			try {
+				var key = value as string;
+				if (string.IsNullOrEmpty (key))
+					return null;
+				return Persist.Instance.GetPlace (key).thumb_url;
+			} catch (Exception ex) {
+				Insights.Report (ex);			
 				return null;
-			return Persist.Instance.GetPlace (key).thumb_url;
+			}
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -120,10 +145,15 @@ namespace RayvMobileApp.iOS
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var comment = value as string;
-			if (string.IsNullOrEmpty (comment))
-				return "";
-			return String.Format ("\"{0}\"", comment);
+			try {
+				var comment = value as string;
+				if (string.IsNullOrEmpty (comment))
+					return "";
+				return String.Format ("\"{0}\"", comment);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				return null;
+			}
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -137,11 +167,16 @@ namespace RayvMobileApp.iOS
 	{
 		private String MakeString (Double n, String unit)
 		{
-			int intn = (int)Math.Truncate (n);
-			string plural = "";
-			if (intn > 1)
-				plural = "s";
-			return String.Format ("{0} {1}{2} ago", intn, unit, plural);
+			try {
+				int intn = (int)Math.Truncate (n);
+				string plural = "";
+				if (intn > 1)
+					plural = "s";
+				return String.Format ("{0} {1}{2} ago", intn, unit, plural);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				return null;
+			}
 		}
 
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
@@ -152,27 +187,27 @@ namespace RayvMobileApp.iOS
 				if (when == null) {
 					return null;
 				}
+			
+
+				TimeSpan d = DateTime.UtcNow - (DateTime)when;
+				if (d.TotalDays > 1.0) {
+					// days
+					return MakeString (d.TotalDays, "day");
+				}
+				if (d.TotalHours > 1.0) {
+					// hours
+					return MakeString (d.TotalHours, "hour");
+				}
+				if (d.TotalMinutes > 1.0) {
+					// days
+					return MakeString (d.TotalMinutes, "min");
+				}
+				//seconds
+				return "a few seconds ago";
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return "";
 			}
-
-			TimeSpan d = DateTime.UtcNow - (DateTime)when;
-			if (d.TotalDays > 1.0) {
-				// days
-				return MakeString (d.TotalDays, "day");
-			}
-			if (d.TotalHours > 1.0) {
-				// hours
-				return MakeString (d.TotalHours, "hour");
-			}
-			if (d.TotalMinutes > 1.0) {
-				// days
-				return MakeString (d.TotalMinutes, "min");
-			}
-			//seconds
-			return "a few seconds ago";
-		
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)

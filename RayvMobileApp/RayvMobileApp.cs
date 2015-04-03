@@ -13,7 +13,8 @@ namespace RayvMobileApp
 			if (Persist.Instance.GetConfig (settings.PASSWORD).Length *
 			    Persist.Instance.GetConfig (settings.USERNAME).Length *
 			    Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
-				MainPage = new MainMenu ();
+
+				MainPage = new LoadingPage ();
 				return;
 			}
 			MainPage = new LoginPage ();

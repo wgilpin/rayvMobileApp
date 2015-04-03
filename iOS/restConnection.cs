@@ -82,10 +82,10 @@ namespace RayvMobileApp.iOS
 			return response;
 		}
 
-		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET)
+		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET, int getRetries = 3)
 		{
 			// only retry a Get
-			int MaxRetries = method == Method.GET ? 3 : 1;
+			int MaxRetries = method == Method.GET ? getRetries : 1;
 			for (int try_number = 0; try_number < MaxRetries; try_number++) {
 				try {
 					if (try_number > 0)
@@ -131,6 +131,7 @@ namespace RayvMobileApp.iOS
 					}
 					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut)
 						continue;
+					Persist.Instance.Online = false;
 					return response;
 				} catch (Exception E) {
 					Insights.Report (E);

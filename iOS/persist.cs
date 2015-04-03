@@ -27,22 +27,47 @@ namespace RayvMobileApp.iOS
 
 		public List<Place> Places { get; set; }
 
-		public bool DataIsLive;
 		public List<string> CuisineHistory;
 
 		public PersistantQueue SearchHistory;
-		private List<string> _categories;
+		private List<Category> _categories;
 		private Dictionary<string, int> _categoryCounts;
 		public Dictionary<string, Friend> Friends;
 		public Position GpsPosition;
 		private static Persist _instance;
 
 		public Object Lock = new Object ();
-		private bool _unsyncedPlaces;
+		private bool _online = false;
+		private System.Timers.Timer _onlineTimer;
 
 		#endregion
 
 		#region Properties
+
+		public bool Online {
+			get {
+				if (_online)
+					return true;
+				restConnection webReq = GetWebRequest ();
+				var resp = webReq.get ("/api/login", null, getRetries: 1);
+				if (resp == null) {
+					Console.WriteLine ("Online: Response NULL");
+					return false;
+				}
+				if (resp.ResponseStatus != ResponseStatus.Completed) {
+					Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
+					return false;
+				}
+				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
+					Console.WriteLine ("Online: No login");
+					return false;
+				}
+				_online = true;
+				return true;
+			}
+			set { _online = value; }
+
+		}
 
 		private Position _displayPosition;
 
@@ -55,18 +80,10 @@ namespace RayvMobileApp.iOS
 			set { _displayPosition = value; }
 		}
 
-		public bool UnsyncedPlaces {
-			get { return _unsyncedPlaces; }
-			set { 
-				_unsyncedPlaces = value; 
-				if (value)
-					TrickleUpdate ();
-			}
-		}
 
 		public bool HaveAdded { get; set; }
 
-		public List<string> Categories {
+		public List<Category> Categories {
 			get {
 				if (_categories == null || _categories.Count () == 0)
 					this.LoadCategories ();
@@ -148,12 +165,29 @@ namespace RayvMobileApp.iOS
 							Db.DropTable<Friend> ();
 							Db.CreateTable<Friend> ();
 							db_version = 3;
-							Console.WriteLine ("Schema updated to 2");
+							Console.WriteLine ("Schema updated to 3");
 							Db.Commit ();
 							SetConfig (settings.DB_VERSION, db_version, Db);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 3 {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
+					if (db_version == 3) {
+						//Migration 4 - Category table
+						Db.BeginTransaction ();
+						try {
+							Db.DropTable<Category> ();
+							Db.CreateTable<Category> ();
+							db_version = 4;
+							Console.WriteLine ("Schema updated to 4");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 4 failed {0}", ex);
 							Db.Rollback ();
 							return;
 						}
@@ -225,22 +259,46 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		void LoadCategoriesFromDb ()
+		{
+			Console.WriteLine ("LoadCategoriesFromDb");
+			_categories = new List<Category> ();
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				var cat_q = Db.Table<Category> ();
+				foreach (Category c in cat_q) {
+					_categories.Add (c);
+				}
+			}
+		}
+
 		void LoadCategories ()
 		{
-			var response = restConnection.Instance.get ("/getCuisines_ajax");
+			var response = restConnection.Instance.get ("/getCuisines_ajax", getRetries: 1);
 			if (response == null) {
 				//OFFLINE
+				LoadCategoriesFromDb ();
 				return;
 			}
 			string result = response.Content;
 			lock (Lock) {
 				try {
 					JObject obj = JObject.Parse (result);
-					_categories = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+					var cat_strings = JsonConvert.DeserializeObject<List<string>> (obj.SelectToken ("categories").ToString ());
+					if (cat_strings.Count == 0)
+						LoadCategoriesFromDb ();
+					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+						Db.DeleteAll<Category> ();
+						_categories = new List<Category> ();
+						foreach (string c in cat_strings) {
+							Category cat = new Category{ Title = c, };
+							Db.InsertOrReplace (cat);
+							_categories.Add (cat);
+						} 
+					}
+					Console.WriteLine ("LoadCategories OK");
 				} catch (Exception ex) {
 					Insights.Report (ex);
 					restConnection.LogErrorToServer ("Persist.LoadCategories Exception {0}", ex);
-					_categories = new List<string> ();
 				}
 			}
 		}
@@ -271,26 +329,38 @@ namespace RayvMobileApp.iOS
 
 		#region Sync Methods
 
-		bool UdpdateNextUnsynced ()
+		void StartTimerIfOffline ()
 		{
-			Console.WriteLine ("Persist UdpdateNextUnsynced Timer Event");
-			Place p = Places.Where (x => x.IsSynced == false).FirstOrDefault ();
-			if (p == null) {
-				return false;
-			} else {
-				string msg;
-				p.Save (out msg);
-				return true;
+			if (Online) {
+				_onlineTimer.Close ();
+				return;
+			}
+			Console.WriteLine ("StartTimerIfOffline START");
+			_onlineTimer = new System.Timers.Timer ();
+			//Trigger event every 5 second
+			_onlineTimer.Interval = 5000;
+			_onlineTimer.Elapsed += OnOnlineTimerTrigger;
+			_onlineTimer.Enabled = true;
+		}
+
+		private void OnOnlineTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if (Online) {
+				try {
+					_onlineTimer.Close ();
+					// update drafts
+					Console.WriteLine ("Persist StartTimerIfOffline  ONLINE");
+
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					Console.WriteLine ("OnOnlineTimerTrigger OFFLINE again?");
+					Online = false;
+					_onlineTimer.Start ();
+				}
 			}
 		}
 
-		void TrickleUpdate ()
-		{	
-			if (settings.OFFLINE_UPDATE_ENABLED) {
-				Console.WriteLine ("Persist starting TrickleUpdate");
-				Device.StartTimer (new TimeSpan (0, 0, 3), UdpdateNextUnsynced);
-			}
-		}
+
 
 		void StoreFullUserRecord (IRestResponse resp)
 		{
@@ -325,7 +395,7 @@ namespace RayvMobileApp.iOS
 						restConnection.LogErrorToServer ("StoreFullUserRecord lock Exception {0}", ex);
 					}
 				}
-				DataIsLive = true;
+				Online = true;
 				Console.WriteLine ("StoreFullUserRecord loaded");
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -391,7 +461,7 @@ namespace RayvMobileApp.iOS
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
 					}
 				}
-				DataIsLive = true;
+				Online = true;
 
 				Console.WriteLine ("StoreUpdatedUserRecord loaded");
 			} catch (Exception ex) {
@@ -428,6 +498,20 @@ namespace RayvMobileApp.iOS
 			return resp;
 		}
 
+		public restConnection GetWebRequest ()
+		{
+			restConnection webReq = restConnection.Instance;
+			string server = GetConfig ("server");
+			if (server.Length == 0) {
+				Console.WriteLine ("GetWebRequest: No server");
+				return null;
+			} else {
+				webReq.setBaseUrl (server);
+				webReq.setCredentials (GetConfig ("username"), GetConfig ("pwd"), "");
+				return webReq;
+			}
+		}
+
 		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false)
 		{
 			if (incremental) {
@@ -438,14 +522,8 @@ namespace RayvMobileApp.iOS
 					}
 				}
 			}
-			restConnection webReq = restConnection.Instance;
-			string server = GetConfig ("server");
-			if (server.Length == 0) {
-				Console.WriteLine ("GetUserData: No server");
-				return;
-			} else {
-				webReq.setBaseUrl (server);
-				webReq.setCredentials (GetConfig ("username"), GetConfig ("pwd"), "");
+			restConnection webReq = GetWebRequest ();
+			if (webReq != null) {
 				IRestResponse resp;
 				Console.WriteLine ("GetUserData Login");
 				resp = webReq.get ("/api/login", null);
@@ -523,7 +601,7 @@ namespace RayvMobileApp.iOS
 						p.CalculateDistanceFromPlace (searchCentre);
 						db.InsertOrReplace (p);
 						// it is synced because it has just come from the server
-						p.IsSynced = true;
+						p.IsDraft = false;
 					}
 					UpdateCategoryCounts ();
 					
@@ -578,6 +656,10 @@ namespace RayvMobileApp.iOS
 
 		void StorePlace (Place place, Place removePlace = null)
 		{
+			if (string.IsNullOrEmpty (place.key)) {
+				place.key = Guid.NewGuid ().ToString ();
+				place.IsDraft = true;
+			}
 
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
@@ -645,7 +727,7 @@ namespace RayvMobileApp.iOS
 		#endregion
 
 
-		#region Settings
+		#region Config Methods
 
 		public string GetConfig (string key)
 		{
@@ -762,7 +844,7 @@ namespace RayvMobileApp.iOS
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, Friend> ();
 			SearchHistory = new PersistantQueue (3, "Search-History");
-			DataIsLive = false;
+			Online = false;
 			DbPath = Path.Combine (
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),
 				"database.db3");

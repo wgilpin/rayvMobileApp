@@ -38,7 +38,6 @@ namespace RayvMobileApp.iOS
 					FontAttributes = FontAttributes.Italic,
 					TranslationX = 85,
 				};
-				//addressLabel.SetBinding (Label.TextProperty, "ShortAddress");
 				addressLabel.SetBinding (
 					Label.TextProperty, 
 					new Binding ("address", converter: new AddressToShortAddressConverter ()));
@@ -48,8 +47,17 @@ namespace RayvMobileApp.iOS
 					WidthRequest = IMAGE_SIZE, 
 					HeightRequest = IMAGE_SIZE
 				};
-//				Binding x = new Binding ("img");
 				webImage.SetBinding (Image.SourceProperty, "thumb_url");
+
+				StackLayout draftSign = new StackLayout {
+					BackgroundColor = Color.White,
+					VerticalOptions = LayoutOptions.CenterAndExpand,
+					Children = {
+						new Label { Text = "Draft", TextColor = Color.Red, },
+					}
+				};
+				draftSign.SetBinding (
+					StackLayout.IsVisibleProperty, "IsDraft");
 
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
@@ -65,12 +73,12 @@ namespace RayvMobileApp.iOS
 					}
 				};
 				grid.Children.Add (webImage, 0, 1, 0, 3);
+				grid.Children.Add (draftSign, 0, 1, 0, 3);
 				grid.Children.Add (nameLabel, 1, 3, 0, 1);
 				grid.Children.Add (catLabel, 1, 2, 1, 2);
 				grid.Children.Add (distLabel, 1, 2, 2, 3);
 				if (!ShowVotes)
 					grid.Children.Add (addressLabel, 1, 3, 2, 3);
-
 
 				// votes are shown on the main list, not on the Add lists
 				if (ShowVotes) {
@@ -83,7 +91,6 @@ namespace RayvMobileApp.iOS
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					};
 					upVotes.SetBinding (Label.IsVisibleProperty, "noVote");
-//					upVotes.SetBinding (Label.TextProperty, "up");
 					upVotes.SetBinding (
 						Label.TextProperty, 
 						new Binding ("key", converter: new KeyToUpVotersConverter ()));
@@ -95,8 +102,6 @@ namespace RayvMobileApp.iOS
 						TranslationY = 2,
 						TranslationX = 2,
 					};
-//					downVotes.SetBinding (Label.IsVisibleProperty, "noVote");
-//					downVotes.SetBinding (Label.TextProperty, "down");
 					downVotes.SetBinding (
 						Label.TextProperty, 
 						new Binding ("key", converter: new KeyToDownVotersConverter ()));
@@ -129,13 +134,8 @@ namespace RayvMobileApp.iOS
 					myVoteImg.SetBinding (Label.IsVisibleProperty, "iVoted");
 
 
-					Image smileysImg = new Image { 
-						Aspect = Aspect.AspectFit,
-						WidthRequest = 20, 
-						HeightRequest = 32,
-						Source = "two-smileys-lg.png",
-						TranslationX = 0,
-					};
+
+
 					Label noVoteLiked = new Label {
 						Text = "Liked",
 						TextColor = Color.FromHex ("888"),
@@ -151,7 +151,6 @@ namespace RayvMobileApp.iOS
 					noVoteDisliked.SetBinding (
 						Label.IsVisibleProperty, 
 						new Binding ("down", converter: new KeyToShowDownBoolConverter ()));
-					smileysImg.SetBinding (Label.IsVisibleProperty, "noVote");
 					grid.Children.Add (new Frame { HasShadow = false, Content = upVotes, Padding = new Thickness (3, 0), }, 2, 3, 0, 3);
 					grid.Children.Add (downVotes, 2, 3, 1, 3);
 					grid.Children.Add (myVote, 2, 3, 1, 3);

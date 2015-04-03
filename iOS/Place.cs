@@ -41,6 +41,7 @@ namespace RayvMobileApp.iOS
 		private string _pretty_dist;
 		private string _commentSet;
 		private bool _isSynced;
+		private bool _isDraft;
 
 		// boiler-plate
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -58,7 +59,6 @@ namespace RayvMobileApp.iOS
 				return false;
 			field = value;
 			OnPropertyChanged (propertyName);
-			IsSynced = false;
 			return true;
 		}
 
@@ -179,7 +179,11 @@ namespace RayvMobileApp.iOS
 		}
 
 		public string pretty_dist { 
-			get { return _pretty_dist; } 
+			get { 
+				if (_isDraft)
+					return "";
+				return _pretty_dist; 
+			}
 			set { SetField (ref _pretty_dist, value, "key"); } 
 		}
 
@@ -203,15 +207,15 @@ namespace RayvMobileApp.iOS
 		//			}
 		//		}
 
-		[Ignore]
-		public bool IsSynced {
-			get{ return _isSynced; }
-			set { 
-				_isSynced = value;
-				if (value == false)
-					Persist.Instance.UnsyncedPlaces = true;
+		public bool IsDraft {
+			get{ return _isDraft; }
+			set {
+				SetField (ref _isDraft, value, "isDraft");
 			}
 		}
+
+
+
 
 		public string distance {
 			get { 
@@ -278,14 +282,16 @@ namespace RayvMobileApp.iOS
 
 		public ImageSource thumb_url {
 			get { 
-				if (this.thumbnail.Length > 0)
-					return UriImageSource.FromUri (new Uri (this.thumbnail));
-				return null;
+				if (String.IsNullOrEmpty (this.thumbnail))
+					return null;
+				return UriImageSource.FromUri (new Uri (this.thumbnail));
 			}
 		}
 
 		public ImageSource img_url {
 			get { 
+				if (string.IsNullOrEmpty (this.img))
+					return null;
 				return UriImageSource.FromUri (new Uri (this.img));
 			}
 		}
@@ -355,41 +361,54 @@ namespace RayvMobileApp.iOS
 
 		public bool Save (out String errorMessage)
 		{
+			if (!Persist.Instance.Online) {
+				// offline
+
+			}
 			try {
-				Dictionary<string, string> parameters = new Dictionary<string, string> ();
-
-				parameters ["key"] = key;
-				parameters ["lat"] = lat.ToString ();
-				parameters ["lng"] = lng.ToString ();
-				parameters ["addr"] = address;
-				parameters ["place_name"] = place_name;
-				parameters ["myComment"] = Comment ();
-				parameters ["category"] = category;
-				parameters ["descr"] = "";
-				switch (vote) {
-				case "-1":
-					parameters ["voteScore"] = "dislike";
-					break;
-				case "1":
-					parameters ["voteScore"] = "like";
-					break;
-				default:
-					parameters ["untried"] = "true";
-					break;
-				}
-			
-				string result = restConnection.Instance.post ("/item", parameters);
-				//			JObject obj = JObject.Parse (result);
-				Place place = JsonConvert.DeserializeObject<Place> (result);
-				place.IsSynced = true;
-				this.key = place.key;
-				lock (Persist.Instance.Lock) {
-					// no try..catch as it's inside one
-					if (!Persist.Instance.UpdatePlace (place)) {
-						errorMessage = "Failed to update";
-						return false;
+				if (Persist.Instance.Online) {
+					Dictionary<string, string> parameters = new Dictionary<string, string> ();
+					
+					parameters ["key"] = IsDraft ? "" : key;
+					parameters ["lat"] = lat.ToString ();
+					parameters ["lng"] = lng.ToString ();
+					parameters ["addr"] = address;
+					parameters ["place_name"] = place_name;
+					parameters ["myComment"] = Comment ();
+					parameters ["category"] = category;
+					parameters ["descr"] = "";
+					switch (vote) {
+					case "-1":
+						parameters ["voteScore"] = "dislike";
+						break;
+					case "1":
+						parameters ["voteScore"] = "like";
+						break;
+					default:
+						parameters ["untried"] = "true";
+						break;
 					}
-
+					
+					string result = restConnection.Instance.post ("/item", parameters);
+					//			JObject obj = JObject.Parse (result);
+					Place place = JsonConvert.DeserializeObject<Place> (result);
+					place.IsDraft = false;
+					this.key = place.key;
+					lock (Persist.Instance.Lock) {
+						// no try..catch as it's inside one
+						if (!Persist.Instance.UpdatePlace (place)) {
+							errorMessage = "Failed to update";
+							return false;
+						}
+					}
+				} else {
+					lock (Persist.Instance.Lock) {
+						// no try..catch as it's inside one
+						if (!Persist.Instance.UpdatePlace (this)) {
+							errorMessage = "Failed to save draft";
+							return false;
+						}
+					}
 				}
 				errorMessage = "";
 				return true;
@@ -404,17 +423,20 @@ namespace RayvMobileApp.iOS
 
 		#endregion
 
-
-
-
 		// Default comparer for Place type.
 		public int CompareTo (Place comparePlace)
 		{
 			// A null value means that this object is greater. 
 			if (comparePlace == null)
 				return 1;
-			else
+			else {
+				// draft > not draft
+				if (this.IsDraft && !comparePlace.IsDraft)
+					return -1;
+				if (!this.IsDraft && comparePlace.IsDraft)
+					return 1;
 				return this.distance_double.CompareTo (comparePlace.distance_double);
+			}
 		}
 
 

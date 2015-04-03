@@ -177,6 +177,10 @@ namespace RayvMobileApp.iOS
 			Console.WriteLine ("ListPage.FilterList Constructor set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
 			this.Appearing += OnPageAppearing;
+			this.Disappearing += (sender, e) => {
+				if (_timer != null)
+					_timer.Close ();
+			};
 		}
 
 
@@ -636,28 +640,32 @@ namespace RayvMobileApp.iOS
 			if (Persist.Instance.Places.Count () == 0)
 				Setup (this);
 			else {
-				lock (Persist.Instance.Lock) {
-					try {
-						Console.WriteLine ("SetList {0}", list.Count);
-						if (list.Count == 0) {
-							listView.IsVisible = false;
-							NothingFound.IsVisible = true;
-							return;
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsVisible = true;
+					Spinner.IsRunning = true;
+					lock (Persist.Instance.Lock) {
+						try {
+							Console.WriteLine ("SetList {0}", list.Count);
+							if (list.Count == 0) {
+								listView.IsVisible = false;
+								NothingFound.IsVisible = true;
+								return;
+							}
+							NothingFound.WidthRequest = this.Width;
+							NothingFound.IsVisible = false;
+							listView.IsVisible = true;
+							ItemsSource = null;
+							list.Sort ();
+							ItemsSource = list;
+							Spinner.IsVisible = false;
+							Spinner.IsRunning = false;
+							
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
 						}
-						NothingFound.WidthRequest = this.Width;
-						NothingFound.IsVisible = false;
-						listView.IsVisible = true;
-						ItemsSource = null;
-						list.Sort ();
-						ItemsSource = list;
-						Spinner.IsVisible = false;
-						Spinner.IsRunning = false;
-
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
 					}
-				}
+				});
 			}
 		}
 
@@ -669,23 +677,26 @@ namespace RayvMobileApp.iOS
 
 		void StartTimerIfNoGPS ()
 		{
-			if (Persist.Instance.DataIsLive)
+			if (Persist.Instance.Online && Persist.Instance.GpsPosition.Latitude != 0.0)
 				return;
+			Console.WriteLine ("StartTimerIfNoGPS START");
+			if (_timer != null)
+				_timer.Close ();
 			_timer = new System.Timers.Timer ();
-			//Trigger event every second
-			_timer.Interval = 2000;
+			//Trigger event every 5 second
+			_timer.Interval = 5000;
 			_timer.Elapsed += OnTimerTrigger;
 			_timer.Enabled = true;
 		}
 
 		private void OnTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
 		{
-			if (!Persist.Instance.DataIsLive) {
+			if (!Persist.Instance.Online) {
 				// not ready yet
 				//Debug.WriteLine ("OnTimerTrigger - not live");
 				return;
 			}
-			Debug.WriteLine ("OnTimerTrigger - Live");
+			Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
 			lock (Persist.Instance.Lock) {
 				try {
 					SetList (Persist.Instance.Places);

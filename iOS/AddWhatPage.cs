@@ -54,7 +54,7 @@ namespace RayvMobileApp.iOS
 			grid.Children.Add (friendsImg, 0, 1);
 			grid.Children.Add (tools, 0, 2);
 			Content = grid;
-			BackgroundColor = settings.ColorDark;
+			BackgroundColor = settings.ColorOffWhite;
 		}
 	}
 }

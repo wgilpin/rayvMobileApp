@@ -31,8 +31,8 @@ namespace RayvMobileApp.iOS
 			for (int i = 0; i < history.Length; i++) {
 				data.Add (history.GetItem (i));
 			}
-			foreach (string cat in Persist.Instance.Categories) {
-				data.Add (cat);
+			foreach (Category cat in Persist.Instance.Categories) {
+				data.Add (cat.Title);
 			}
 			list.ItemsSource = data;
 			list.ItemTapped += DoListChoice;

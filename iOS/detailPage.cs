@@ -206,7 +206,7 @@ namespace RayvMobileApp.iOS
 					
 					Place_name.Text = DisplayPlace.place_name;
 					Address.Text = DisplayPlace.address;
-					if (DisplayPlace.img.Length > 0) {
+					if (!string.IsNullOrWhiteSpace (DisplayPlace.img)) {
 						Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
 						Img.HorizontalOptions = LayoutOptions.FillAndExpand;
 						//Img.VerticalOptions = LayoutOptions.Start;

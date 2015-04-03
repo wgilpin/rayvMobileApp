@@ -33,6 +33,9 @@ namespace RayvMobileApp.iOS
 				} catch (Exception ex) {
 					Insights.Report (ex);
 				}
+				Console.WriteLine ("LoginPage loadDataFromServer");
+				Persist.Instance.LoadFromDb ();
+				Persist.Instance.GetUserData (this, incremental: false);
 				Device.BeginInvokeOnMainThread (() => {
 					Spinner.IsRunning = false;
 					this.Navigation.PushModalAsync (new MainMenu ());
@@ -68,7 +71,11 @@ namespace RayvMobileApp.iOS
 				Placeholder = "Password", 
 				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
 			};
-			RayvButton Register = new RayvButton ("Register New Account"){ BackgroundColor = Color.Yellow, };
+			RayvButton Register = new RayvButton {
+				Text = "Register New Account", 
+				BackgroundColor = Color.Yellow, 
+				TextColor = settings.ColorDark,
+			};
 			Register.Clicked += (s, e) => {
 				this.Navigation.PushModalAsync (new RegisterPage ());
 			};

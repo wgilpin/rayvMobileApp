@@ -198,6 +198,7 @@ namespace RayvMobileApp.iOS
 			ButtonChange = new Button {
 				Text = "Change",
 				HorizontalOptions = LayoutOptions.End,
+				TextColor = Color.White,
 			};
 			ButtonChange.HeightRequest = 30;
 			TextEntry = new Entry {
