@@ -9,6 +9,7 @@
     <RootNamespace>RayvMobileApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
+    <ReleaseVersion>0.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +27,7 @@
     <MtouchDebug>true</MtouchDebug>
     <MtouchI18n>
     </MtouchI18n>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -255,54 +257,14 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="AddMapPage.cs" />
-    <Compile Include="AddMenu.cs" />
-    <Compile Include="AddResultsPage.cs" />
     <Compile Include="Carousel.cs" />
-    <Compile Include="ChoosePlacePage.cs" />
-    <Compile Include="Configuration.cs" />
-    <Compile Include="CustomControls.cs" />
-    <Compile Include="detailPage.cs" />
-    <Compile Include="EditPage.cs" />
-    <Compile Include="ListPage.cs" />
-    <Compile Include="LocationManager.cs" />
-    <Compile Include="MapPage.cs" />
-    <Compile Include="LocationUpdateEventArgs.cs" />
-    <Compile Include="LoginPage.cs" />
-    <Compile Include="MainMenu.cs" />
-    <Compile Include="persist.cs" />
-    <Compile Include="Place.cs" />
-    <Compile Include="PlacesListView.cs" />
-    <Compile Include="restConnection.cs" />
-    <Compile Include="settings.cs" />
-    <Compile Include="SettingsPage.cs" />
     <Compile Include="SQLite.cs" />
     <Compile Include="SQLiteAsync.cs" />
-    <Compile Include="Vote.cs" />
-    <Compile Include="Friend.cs" />
-    <Compile Include="WebPage.cs" />
-    <Compile Include="SearchHistory.cs" />
-    <Compile Include="NewsPage.cs" />
-    <Compile Include="ProfilePage.cs" />
-    <Compile Include="BottomToolbar.cs" />
     <Compile Include="MapGooglePage.cs" />
-    <Compile Include="MapPlace.cs" />
     <Compile Include="GoogleMapsRenderer.cs" />
     <Compile Include="GoogleMaps.cs" />
-    <Compile Include="RegisterPage.cs" />
-    <Compile Include="ServerPicker.cs" />
-    <Compile Include="ChoicePage.cs" />
-    <Compile Include="PersistantQueue.cs" />
-    <Compile Include="AddWhatPage.cs" />
-    <Compile Include="AddPage1.cs" />
-    <Compile Include="AddPage4.cs" />
-    <Compile Include="VoteConverters.cs" />
-    <Compile Include="PlaceConverters.cs" />
-    <Compile Include="AddPage5bDeDup.cs" />
-    <Compile Include="MapListPage.cs" />
-    <Compile Include="Analytics.cs" />
-    <Compile Include="LoadingPage.cs" />
-    <Compile Include="Category.cs" />
+    <Compile Include="LocationUpdateEventArgsIos.cs" />
+    <Compile Include="LocationManagerIos.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />

@@ -10,5 +10,47 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)RayvMobileApp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)persist.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vote.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Place.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PersistantQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddMapPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddPage1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddPage4.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddPage5bDeDup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddResultsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddWhatPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Analytics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BottomToolbar.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Category.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ChoicePage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ChoosePlacePage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CustomControls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)detailPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Friend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ListPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoadingPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoginPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MapListPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MapPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MapPlace.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NewsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlaceConverters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlacesListView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProfilePage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RegisterPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)restConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SearchHistory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerPicker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SettingsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VoteConverters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LocationUpdateEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ILocationManager.cs" />
   </ItemGroup>
 </Project>

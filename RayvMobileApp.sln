@@ -52,4 +52,8 @@ Global
 		{CDEC0839-6B80-4101-B072-1CA5788884AF}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{CDEC0839-6B80-4101-B072-1CA5788884AF}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		description = Ios & Android
+		version = 0.2
+	EndGlobalSection
 EndGlobal

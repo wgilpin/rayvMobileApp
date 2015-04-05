@@ -1,14 +1,16 @@
 ﻿using System;
 
 using Xamarin.Forms;
-using RayvMobileApp.iOS;
 
 namespace RayvMobileApp
 {
 	public class App : Xamarin.Forms.Application
 	{
+		public static ILocationManager locationMgr;
+
 		public App ()
 		{
+			locationMgr = DependencyService.Get<ILocationManager> ();
 			// The root page of your application
 			if (Persist.Instance.GetConfig (settings.PASSWORD).Length *
 			    Persist.Instance.GetConfig (settings.USERNAME).Length *

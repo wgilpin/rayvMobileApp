@@ -5,6 +5,7 @@ using UIKit;
 using CoreLocation;
 using Xamarin;
 using Google.Maps;
+using Xamarin.Forms;
 
 
 namespace RayvMobileApp.iOS
@@ -12,8 +13,7 @@ namespace RayvMobileApp.iOS
 	[Register ("AppDelegate")]
 	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
 	{
-		public static LocationManager locationMgr;
-
+		
 		private void IdentifyToAnalytics ()
 		{
 			try {
@@ -28,6 +28,7 @@ namespace RayvMobileApp.iOS
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init ();
+
 			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
@@ -42,14 +43,14 @@ namespace RayvMobileApp.iOS
 		public override void DidEnterBackground (UIApplication application)
 		{
 			Console.WriteLine ("App entering background state.");
-			locationMgr.StopUpdatingLocation ();
+			App.locationMgr.StopUpdatingLocation ();
 //			Insights.Track ("AppDelegate.DidEnterBackground");
 		}
 
 		public override void WillEnterForeground (UIApplication application)
 		{
 			Console.WriteLine ("App will enter foreground");
-			locationMgr.StartLocationUpdates ();
+			App.locationMgr.StartLocationUpdates ();
 			IdentifyToAnalytics ();
 //			Insights.Track ("AppDelegate.WillEnterForeground");
 		}
