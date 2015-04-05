@@ -55,10 +55,13 @@ namespace RayvMobileApp.iOS
 
 		public void DoAdd (object sender, EventArgs e)
 		{
+			Page parent = Navigation.NavigationStack [Navigation.NavigationStack.Count - 2];
 			// stack[count - 1] is top, stack[count-2] is parent
-			if (Navigation.NavigationStack [Navigation.NavigationStack.Count - 2] is EditPage) {
+			if (parent is EditPage) {
 				//go back there
-				(Navigation.NavigationStack [Navigation.NavigationStack.Count - 2] as EditPage).Address = AddressBox.Text;
+				(parent as EditPage).Address = AddressBox.Text;
+				(parent as EditPage).Lat = map.VisibleRegion.Center.Latitude;
+				(parent as EditPage).Lng = map.VisibleRegion.Center.Longitude;
 				Navigation.PopAsync ();
 			} else {
 				Console.WriteLine ("AddMapPage.DoAdd Push EditPage");

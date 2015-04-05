@@ -214,6 +214,10 @@ namespace RayvMobileApp.iOS
 			}
 		}
 
+		public string DraftComment {
+			get;
+			set;
+		}
 
 
 
@@ -260,6 +264,8 @@ namespace RayvMobileApp.iOS
 
 		public string Comment ()
 		{
+			if (IsDraft)
+				return DraftComment;
 			if (!String.IsNullOrEmpty (_descr))
 				return _descr;
 			if (_commentSet != null)
@@ -348,6 +354,10 @@ namespace RayvMobileApp.iOS
 		public string CalculateDistanceFromPlace (Position? point = null)
 		{
 			try {
+				if (IsDraft) {
+					this.distance_double = 0;
+					return "Draft";
+				}
 				Position calc_dist_from = point == null ? Persist.Instance.GpsPosition : (Position)point;
 				this.distance_double = approx_distance (
 					new Position (this.lat, this.lng),
@@ -361,10 +371,6 @@ namespace RayvMobileApp.iOS
 
 		public bool Save (out String errorMessage)
 		{
-			if (!Persist.Instance.Online) {
-				// offline
-
-			}
 			try {
 				if (Persist.Instance.Online) {
 					Dictionary<string, string> parameters = new Dictionary<string, string> ();
@@ -388,7 +394,9 @@ namespace RayvMobileApp.iOS
 						parameters ["untried"] = "true";
 						break;
 					}
-					
+
+					bool wasDraft = IsDraft;
+					string wasDraftKey = _key;
 					string result = restConnection.Instance.post ("/item", parameters);
 					//			JObject obj = JObject.Parse (result);
 					Place place = JsonConvert.DeserializeObject<Place> (result);
@@ -399,6 +407,10 @@ namespace RayvMobileApp.iOS
 						if (!Persist.Instance.UpdatePlace (place)) {
 							errorMessage = "Failed to update";
 							return false;
+						}
+						if (wasDraft) {
+							// delete the old one
+							Persist.RemovePlaceKeyFromDb (wasDraftKey);
 						}
 					}
 				} else {

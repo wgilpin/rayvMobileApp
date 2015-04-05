@@ -184,7 +184,7 @@ namespace RayvMobileApp.iOS
 		void SetVoteButton (Button voteBtn)
 		{
 			ResetVoteButtons ();
-			voteBtn.BackgroundColor = Color.Olive;
+			voteBtn.BackgroundColor = settings.ColorDark;
 			voteBtn.TextColor = Color.White;
 		}
 
@@ -215,7 +215,11 @@ namespace RayvMobileApp.iOS
 					Img.WidthRequest = this.Width;
 					Img.HeightRequest = this.Height / 3;
 					Category.Text = DisplayPlace.category;
-					string comment = DisplayPlace.Comment ();
+					string comment;
+					if (DisplayPlace.IsDraft)
+						comment = DisplayPlace.DraftComment;
+					else
+						comment = DisplayPlace.Comment ();
 					if (String.IsNullOrEmpty (comment))
 						Comment.Text = "Click to Comment";
 					else

@@ -42,7 +42,27 @@ namespace RayvMobileApp.iOS
 			set { AddressBox.Text = value; }
 		}
 
+		public Double Lat {
+			get { return EditPlace.lat; }
+			set { EditPlace.lat = value; }
+		}
+
+		public Double Lng {
+			get { return EditPlace.lng; }
+			set { EditPlace.lng = value; }
+		}
+
 		#region Constructors
+
+		void SetOfflineVisibility ()
+		{
+			bool online = Persist.Instance.Online;
+			WebSite.IsVisible = online;
+			PhoneNo.IsVisible = online;
+			Category.IsVisible = online;
+			ConfirmAddressBtn.IsVisible = online;
+			DeleteButton.Text = !online ? "Delete Draft" : "Remove from my lists";
+		}
 
 		public EditPage (Place place, bool addingNewPlace = false) : this ()
 		{
@@ -62,13 +82,16 @@ namespace RayvMobileApp.iOS
 			Category.SelectedIndex = Category.Items.IndexOf (EditPlace.category);
 			AddressBox.Text = EditPlace.address;
 			AddressBox.IsEnabled = String.IsNullOrEmpty (EditPlace.address);
-			Comment.Text = EditPlace.Comment (); 
+			if (EditPlace.IsDraft)
+				Comment.Text = EditPlace.DraftComment;
+			else
+				Comment.Text = EditPlace.Comment (); 
 
 			WebSite.Text = EditPlace.website;
 			WebSite.IsEnabled = String.IsNullOrEmpty (EditPlace.website);
 			PhoneNo.Text = EditPlace.telephone;
 			PhoneNo.IsEnabled = String.IsNullOrEmpty (EditPlace.telephone);
-			if (!IsNew) {
+			if (!IsNew || place.IsDraft) {
 				switch (EditPlace.vote) {
 				case "-1":
 					SetVoteButton (VoteDislike);
@@ -86,6 +109,8 @@ namespace RayvMobileApp.iOS
 			if (EditPlace.IsDraft) {
 				ConfirmAddressBtn.IsVisible = true;
 			}
+			SetOfflineVisibility ();
+				
 		}
 
 		public EditPage (bool addingNewPlace = false, bool editAsDraft = false)
@@ -253,7 +278,7 @@ namespace RayvMobileApp.iOS
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
 			Row++;
 			DeleteButton = new ButtonWide {
-				Text = "Remove from my lists",
+				Text = editAsDraft ? "Delete Draft" : "Remove from my lists",
 				BackgroundColor = Color.Red,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
@@ -272,6 +297,7 @@ namespace RayvMobileApp.iOS
 //				Img.HeightRequest = this.Width / 3;
 //				Img.Aspect = Aspect.AspectFill;
 			};
+			SetOfflineVisibility ();
 		}
 
 		public EditPage (Position position, String address, string placeName = "", bool addingNewPlace = false) : this ()
@@ -287,6 +313,7 @@ namespace RayvMobileApp.iOS
 				EditPlace.place_name = placeName;
 			}
 			AddressBox.Text = address;
+			SetOfflineVisibility ();
 		}
 
 		#endregion
@@ -301,7 +328,7 @@ namespace RayvMobileApp.iOS
 			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
-			voteBtn.BackgroundColor = Color.Olive;
+			voteBtn.BackgroundColor = settings.ColorDark;
 			voteBtn.TextColor = Color.White;
 			Voted = true;
 		}
@@ -359,13 +386,18 @@ namespace RayvMobileApp.iOS
 					return;
 				}
 			}
-			if (!EditPlace.IsDraft) {
+			if (EditPlace.IsDraft) {
+				EditPlace.DraftComment = Comment.Text;
+			}
+			if (Category.IsVisible) {
 				if (Category.SelectedIndex == -1) {
 					await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
 					return;
 				}
 				EditPlace.category = Category.Items [Category.SelectedIndex];
 			}
+		
+			// set the vote even if editing a draft, in case Save works
 			EditPlace.setComment (Comment.Text);
 			// Creates a TextInfo based on the "en-US" culture.
 			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;

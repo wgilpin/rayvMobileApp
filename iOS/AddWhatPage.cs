@@ -10,13 +10,13 @@ namespace RayvMobileApp.iOS
 		{
 			Analytics.TrackPage ("AddWhatPage");
 			Grid grid = new Grid {
-				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
+				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
 				VerticalOptions = LayoutOptions.Center,
 				RowSpacing = 0,
 				ColumnSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },

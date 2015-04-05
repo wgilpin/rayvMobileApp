@@ -36,9 +36,9 @@ namespace RayvMobileApp.iOS
 				RowSpacing = 0,
 				ColumnSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 				},

@@ -213,12 +213,17 @@ namespace RayvMobileApp.iOS
 					if (onlyWithCuisineType == null) {
 						// all cuisine types
 						Places.AddRange (place_q);
-						foreach (var p in Places)
+						foreach (var p in Places) {
+							if (string.IsNullOrEmpty (p.category))
+								p.IsDraft = true;
 							p.CalculateDistanceFromPlace ();
+						}
 					} else
 						//TODO: LINQ
 						foreach (Place p in place_q) {
 							if (p.category == onlyWithCuisineType) {
+								if (string.IsNullOrEmpty (p.category))
+									p.IsDraft = true;
 								Places.Add (p);
 								p.CalculateDistanceFromPlace ();
 							}
@@ -419,8 +424,14 @@ namespace RayvMobileApp.iOS
 						foreach (KeyValuePair<String,Place> kvp in place_list) {
 							Added = false;
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
-								if (Places [PlacesIdx].key == kvp.Key) {
-									Places [PlacesIdx] = kvp.Value;
+								Place p = Places [PlacesIdx];
+								if (string.IsNullOrEmpty (p.category)) {
+									p.IsDraft = true;
+									continue;
+								}
+								if (p.key == kvp.Key) {
+									p = kvp.Value;
+									p.IsDraft = false;
 									Added = true;
 									break;
 								}
@@ -441,9 +452,10 @@ namespace RayvMobileApp.iOS
 									NewVotes.Add (v.Value);
 								}
 						}
+						int votesCount = Votes.Count ();
 						foreach (Vote v in NewVotes) {
 							Added = false;
-							for (int VoteIdx = 0; VoteIdx < Votes.Count (); VoteIdx++) {
+							for (int VoteIdx = 0; VoteIdx < votesCount; VoteIdx++) {
 								if (Votes [VoteIdx].key == v.key && Votes [VoteIdx].voter == v.voter) {
 									Votes [VoteIdx] = v;
 									Added = true;
@@ -472,14 +484,22 @@ namespace RayvMobileApp.iOS
 
 		void UpdateCategoryCounts ()
 		{
-//			_categoryCounts
-			var x = Places.GroupBy (p => p.category);
-			var y = x.Select (group => new { 
-				Metric = group.Key, 
-				Count = group.Count () 
-			})
-				.OrderBy (counted => counted.Metric);
-			_categoryCounts = y.ToDictionary (item => item.Metric, item => item.Count);
+			try {
+				//			_categoryCounts
+				var withACat = (from p in Places
+				                where !string.IsNullOrEmpty (p.category)
+				                select p).ToList ();
+				var x = withACat.GroupBy (p => p.category);
+				var y = x.Select (group => new { 
+					Metric = group.Key, 
+					Count = group.Count () 
+				})
+					.OrderBy (counted => counted.Metric);
+				_categoryCounts = y.ToDictionary (item => item.Metric, item => item.Count);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("UpdateCategoryCounts Exception {0}", ex);
+			}
 		}
 
 		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq)
@@ -563,6 +583,21 @@ namespace RayvMobileApp.iOS
 
 		#region Place methods
 
+		public static void RemovePlaceKeyFromDb (string deleteKey)
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				try {
+					Db.BeginTransaction ();
+					var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", deleteKey));
+					cmd.ExecuteNonQuery ();
+					Db.Commit ();
+				} catch (Exception ex) {
+					Db.Rollback ();
+					Insights.Report (ex);
+				}
+			}
+		}
+
 		public void DeletePlace (Place place)
 		{
 			try {
@@ -570,18 +605,8 @@ namespace RayvMobileApp.iOS
 				                     where p.key == place.key
 				                     select p).FirstOrDefault ();
 				if (StoredPlace != null) {
-					Places.Remove (StoredPlace);
-					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-						try {
-							Db.BeginTransaction ();
-							var cmd = Db.CreateCommand (String.Format ("delete from Place where key='{0}'", StoredPlace.key));
-							cmd.ExecuteNonQuery ();
-							Db.Commit ();
-						} catch (Exception ex) {
-							Db.Rollback ();
-							Insights.Report (ex);
-						}
-					}
+					Places.Remove (place);
+					RemovePlaceKeyFromDb (StoredPlace.key);
 				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -600,8 +625,7 @@ namespace RayvMobileApp.iOS
 					foreach (Place p in Places) {
 						p.CalculateDistanceFromPlace (searchCentre);
 						db.InsertOrReplace (p);
-						// it is synced because it has just come from the server
-						p.IsDraft = false;
+
 					}
 					UpdateCategoryCounts ();
 					
@@ -690,12 +714,14 @@ namespace RayvMobileApp.iOS
 			for (int i = 0; i < Places.Count (); i++) {
 				if (Places [i].key == place.key) {
 					try {
-						var myVote = (from v in Votes
-						              where v.voter == myIdString
-						              select v).FirstOrDefault ();
-						if (myVote != null) {
-							myVote.vote = Convert.ToInt32 (Places [i].vote);
-							myVote.untried = Places [i].untried;
+						if (!string.IsNullOrEmpty (place.key)) {
+							var myVote = (from v in Votes
+							             where v.voter == myIdString
+							             select v).FirstOrDefault ();
+							if (myVote != null) {
+								myVote.vote = Convert.ToInt32 (Places [i].vote);
+								myVote.untried = Places [i].untried;
+							}
 						}
 						StorePlace (place, Places [i]);
 						return true;

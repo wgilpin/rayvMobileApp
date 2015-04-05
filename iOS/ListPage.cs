@@ -216,7 +216,13 @@ namespace RayvMobileApp.iOS
 		void DoSelectListItem (object sender, ItemTappedEventArgs e)
 		{
 			Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
-			this.Navigation.PushAsync (new DetailPage (e.Item as Place));
+			var place = e.Item as Place;
+			if (place.IsDraft) {
+				NeedsReload = true;
+				Navigation.PushAsync (new EditPage (place));
+			} else {
+				Navigation.PushAsync (new DetailPage (place));
+			}
 		}
 
 		async void OnPageAppearing (object sender, EventArgs e)
