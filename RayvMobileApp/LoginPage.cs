@@ -19,6 +19,8 @@ namespace RayvMobileApp
 		{
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
+					Persist.Instance.SetConfig (settings.SERVER, settings.DEFAULT_SERVER);
 				Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
 				Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
 				//Delete Last Sync time to force a full refresh

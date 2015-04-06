@@ -19,6 +19,7 @@ namespace RayvMobileApp
 		public static string LAST_LAT = "LastLat";
 		public static string LAST_LNG = "LastLng";
 		public static string SERVER = "server";
+		public static string DEFAULT_SERVER = "https://rayv-app.appspot.com/";
 		public static string LAST_SYNC = "last_sync";
 		public static Color ColorLight = Color.FromHex ("718CBE");
 		public static Color ColorDark = Color.FromHex ("6883B5");

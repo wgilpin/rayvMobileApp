@@ -192,6 +192,23 @@ namespace RayvMobileApp
 							return;
 						}
 					}
+					if (db_version == 4) {
+						//Migration 5 - Category table plus wipe
+						Db.BeginTransaction ();
+						try {
+							deleteDb ();
+							createDb ();
+							db_version = 5;
+							Console.WriteLine ("Schema updated to 5");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 5 failed {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
 					Console.WriteLine ("Schema Up To Date");
 				} catch (Exception ex) {
 					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
@@ -256,6 +273,8 @@ namespace RayvMobileApp
 					Db.DeleteAll<Vote> ();
 					Friends.Clear ();
 					Db.DeleteAll<Friend> ();
+					_categories.Clear ();
+					Db.DeleteAll<Category> ();
 					Db.Commit ();
 				} catch (Exception ex) {
 					Insights.Report (ex);
@@ -315,9 +334,20 @@ namespace RayvMobileApp
 				Db.CreateTable<Place> ();
 				Db.CreateTable<Friend> ();
 				Db.CreateTable<Configuration> ();
+				Db.CreateTable<Category> ();
 			}
 		}
 
+		static void deleteDb ()
+		{
+			// except config table
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.DropTable<Vote> ();
+				Db.DropTable<Place> ();
+				Db.DropTable<Friend> ();
+				Db.DropTable<Category> ();
+			}
+		}
 
 
 		public void updateVotes ()
@@ -521,15 +551,13 @@ namespace RayvMobileApp
 		public restConnection GetWebRequest ()
 		{
 			restConnection webReq = restConnection.Instance;
-			string server = GetConfig ("server");
-			if (server.Length == 0) {
-				Console.WriteLine ("GetWebRequest: No server");
-				return null;
-			} else {
-				webReq.setBaseUrl (server);
-				webReq.setCredentials (GetConfig ("username"), GetConfig ("pwd"), "");
-				return webReq;
-			}
+			string server = GetConfig (settings.SERVER);
+			if (string.IsNullOrEmpty (server)) {
+				server = settings.DEFAULT_SERVER;
+			} 
+			webReq.setBaseUrl (server);
+			webReq.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
+			return webReq;
 		}
 
 		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false)

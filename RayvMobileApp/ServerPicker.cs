@@ -25,7 +25,7 @@ namespace RayvMobileApp
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			case 3:
-				server_url = "https://rayv-app.appspot.com/";
+				server_url = settings.DEFAULT_SERVER;
 				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
