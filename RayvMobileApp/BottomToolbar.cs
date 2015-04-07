@@ -13,28 +13,40 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Toolbar: List button - push ListPage");
 			this.Navigation.PushModalAsync (
-				new NavigationPage (new ListPage ()){ BarBackgroundColor = settings.ColorDark }, false);
+				new NavigationPage (new ListPage ()) { 
+					BarBackgroundColor = settings.ColorDark,
+					BarTextColor = Color.White,
+				}, false);
 		}
 
 		void ShowNews (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: News button - push NewsPage");
 			this.Navigation.PushModalAsync (
-				new NavigationPage (new NewsPage ()){ BarBackgroundColor = settings.ColorDark }, false);
+				new NavigationPage (new NewsPage ()) { 
+					BarBackgroundColor = settings.ColorDark,
+					BarTextColor = Color.White,
+				}, false);
 		}
 
 		void ShowProfile (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
 			this.Navigation.PushModalAsync (
-				new NavigationPage (new ProfilePage ()){ BarBackgroundColor = settings.ColorDark }, false);
+				new NavigationPage (new ProfilePage ()) { 
+					BarBackgroundColor = settings.ColorDark,
+					BarTextColor = Color.White,
+				}, false);
 		}
 
 		void ShowAdd (object s, EventArgs e)
 		{
 			Console.WriteLine ("Toolbar: Add button - push AddMenu");
 			this.Navigation.PushModalAsync (
-				new NavigationPage (new AddWhatPage ()){ BarBackgroundColor = settings.ColorDark }, false);
+				new NavigationPage (new AddWhatPage ()) { 
+					BarBackgroundColor = settings.ColorDark,
+					BarTextColor = Color.White,
+				}, false);
 		}
 
 		void ShowFriends (object s, EventArgs e)

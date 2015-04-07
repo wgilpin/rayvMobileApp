@@ -187,14 +187,13 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (Place_name, 0, 3, Row, Row + 1);
 			Row++;
 
+			Category = new Picker {
+				Title = "Cuisine",
+			};
 			if (Persist.Instance.Categories != null) {
-				Category = new Picker {
-					Title = "Cuisine",
-				};
 				foreach (Category cat in Persist.Instance.Categories) {
 					Category.Items.Add (cat.Title);
 				}
-
 				if (!editAsDraft)
 					MainGrid.Children.Add (Category, 0, 3, Row, Row + 1);
 			}
@@ -220,17 +219,17 @@ namespace RayvMobileApp
 			};
 			MainGrid.Children.Add (editAddress, 0, 3, Row, Row + 1);
 			Row++;
+			WebSite = new Entry {
+				Placeholder = "Website",
+			};
 			if (!editAsDraft) {
-				WebSite = new Entry {
-					Placeholder = "Website",
-				};
 				MainGrid.Children.Add (WebSite, 0, 3, Row, Row + 1);
 			}
 			Row++;
+			PhoneNo = new Entry {
+				Placeholder = "Phone",
+			};
 			if (!editAsDraft) {
-				PhoneNo = new Entry {
-					Placeholder = "Phone",
-				};
 				MainGrid.Children.Add (PhoneNo, 0, 3, Row, Row + 1);
 			}
 			Row++;
