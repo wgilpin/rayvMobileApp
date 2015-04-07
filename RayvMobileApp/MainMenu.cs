@@ -101,8 +101,8 @@ namespace RayvMobileApp
 			this.Content = grid;
 
 //			AppDelegate.locationMgr = new LocationManager ();
-//			AppDelegate.locationMgr.StartLocationUpdates ();
-//			AppDelegate.locationMgr.LocationUpdated += HandleLocationChanged;
+			App.locationMgr.SetLocationUpdateHandler (HandleLocationChanged);
+			App.locationMgr.StartLocationUpdates ();
 		}
 
 

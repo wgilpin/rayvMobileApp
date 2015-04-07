@@ -19,7 +19,11 @@ namespace RayvMobileApp.iOS
 
 		public void SetLocationUpdateHandler (EventHandler<LocationUpdatedEventArgs> handler)
 		{
-			LocationUpdated += handler;
+			try {
+				LocationUpdated += handler;
+			} catch (Exception ex) {
+				Console.WriteLine ("SetLocationUpdateHandler: {0}", ex);
+			}
 		}
 
 		public LocationManagerIos ()

@@ -28,6 +28,7 @@ namespace RayvMobileApp.iOS
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init ();
+			global::Xamarin.FormsMaps.Init ();
 
 			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {

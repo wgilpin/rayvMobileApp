@@ -265,6 +265,8 @@
     <Compile Include="GoogleMaps.cs" />
     <Compile Include="LocationUpdateEventArgsIos.cs" />
     <Compile Include="LocationManagerIos.cs" />
+    <Compile Include="AppDataIos.cs" />
+    <Compile Include="DeviceSpecificIos.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="ITunesArtwork" />
