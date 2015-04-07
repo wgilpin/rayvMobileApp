@@ -55,8 +55,7 @@ namespace RayvMobileApp.iOS
 
 		async void SearchHere (object sender, EventArgs e)
 		{
-			// geocode
-			Xamarin.FormsMaps.Init ();
+			// geocode place name
 			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (locationName.Text)).ToList ();
 			Console.WriteLine ("SearchHere: Got");
 			Persist.Instance.SearchHistory.Add (locationName.Text);

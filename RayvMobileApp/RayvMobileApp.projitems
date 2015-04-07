@@ -52,5 +52,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LocationUpdateEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ILocationManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IAppData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IDeviceSpecific.cs" />
   </ItemGroup>
 </Project>

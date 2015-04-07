@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
-using Foundation;
+
+//using Foundation;
 using System.Diagnostics;
 
 namespace RayvMobileApp
@@ -30,9 +31,8 @@ namespace RayvMobileApp
 					LogoutBtn,
 					new Label {
 						Text = String.Format (
-							"Version {0}-{1}", 
-							NSBundle.MainBundle.InfoDictionary ["CFBundleShortVersionString"],
-							NSBundle.MainBundle.InfoDictionary ["CFBundleVersion"]),
+							"Version {0}", 
+							DependencyService.Get<IAppData> ().AppVersion ()),
 					},
 					new Label {
 						Text = String.Format (

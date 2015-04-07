@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
-using CoreLocation;
+
+//using CoreLocation;
 using Xamarin.Forms.Maps;
 using System.Collections.Generic;
 using Xamarin;
@@ -84,7 +85,6 @@ namespace RayvMobileApp
 				Command = new Command (() => SetupPage ())
 			});
 
-			FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.GpsPosition, Distance.FromMiles (0.3))) {

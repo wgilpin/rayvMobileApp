@@ -355,7 +355,6 @@ namespace RayvMobileApp
 		{
 			// click map
 			// geocode address
-			Xamarin.FormsMaps.Init ();
 			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
 			if (positions.Count > 0) {
 				// load map at that location

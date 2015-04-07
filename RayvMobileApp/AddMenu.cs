@@ -32,7 +32,7 @@ namespace RayvMobileApp
 		RayvButton HereBtn;
 		ActivityIndicator Spinner;
 		StackLayout historyBox;
-		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
+		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 
 		#endregion
 
@@ -163,7 +163,6 @@ namespace RayvMobileApp
 			// geocode
 			try {
 				Console.WriteLine ("AddMenu.SearchNearTown");
-				Xamarin.FormsMaps.Init ();
 				var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (SearchLocationBox.Text));
 				var positions = geoCodePositions.ToList ();
 				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
@@ -191,7 +190,7 @@ namespace RayvMobileApp
 		{
 			// A History button click event
 			// geocode
-			Xamarin.FormsMaps.Init ();
+
 			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync ((sender as Button).Text)).ToList ();
 			Console.WriteLine ("AddMenu.SearchSomewhere: Got");
 			if (positions.Count > 0) {

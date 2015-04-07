@@ -77,7 +77,6 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("MapPage");
 			Title = "Map";
-			Xamarin.FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {

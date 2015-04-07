@@ -44,7 +44,6 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("MapListPage");
 			Console.WriteLine ("ListView()");
-			Xamarin.FormsMaps.Init ();
 			this.Title = "Map Places";
 			this.Icon = "bars-black.png";
 

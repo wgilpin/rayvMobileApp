@@ -15,7 +15,6 @@ namespace RayvMobileApp
 
 		public AddPage4 (Position searchPosition)
 		{
-			Xamarin.FormsMaps.Init ();
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.GpsPosition, Distance.FromMiles (0.3))) {

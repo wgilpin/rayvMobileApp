@@ -38,7 +38,7 @@ namespace RayvMobileApp
 		Button ResetLocationBtn;
 		Button AddManualAddress;
 		List<GeoLocation> LocationList;
-		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
+		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 
 		#region Events
 

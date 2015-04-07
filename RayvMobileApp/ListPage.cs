@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections;
-using CoreLocation;
+
+//using CoreLocation;
 using RestSharp;
 using System.Linq;
 using System.Diagnostics;
@@ -46,7 +47,7 @@ namespace RayvMobileApp
 
 		Label NothingFound;
 		bool IsFiltered;
-		bool DEBUG_ON_SIMULATOR = (ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR);
+		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		Grid filters;
 		public bool NeedsReload = true;
 		List<Place> DisplayList;
@@ -70,7 +71,6 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("ListPage");
 			Console.WriteLine ("ListView()");
-			Xamarin.FormsMaps.Init ();
 			this.Title = "Find Food";
 			this.Icon = "bars-black.png";
 			IsFiltered = false;

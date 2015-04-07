@@ -1,13 +1,15 @@
 ﻿using System;
 using Xamarin.Forms;
-using Foundation;
-using UIKit;
+
+//using Foundation;
+//using UIKit;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using Xamarin;
 using System.Collections.Generic;
 using System.Linq;
-using Xamarin.Forms.Labs;
+
+//using Xamarin.Forms.Labs;
 
 namespace RayvMobileApp
 {
@@ -328,14 +330,9 @@ namespace RayvMobileApp
 				return;
 			String EscapedNo = "";
 			EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
-			var urlToSend = new NSUrl ("tel:" + EscapedNo); // phonenum is in the format 1231231234
-
-			if (UIApplication.SharedApplication.CanOpenUrl (urlToSend)) {
-				Console.WriteLine ("DoMakeCall: calling {0}", EscapedNo);
-				UIApplication.SharedApplication.OpenUrl (urlToSend);
-			} else {
+			if (!DependencyService.Get<IDeviceSpecific> ().MakeCall (EscapedNo)) {
 				// Url is not able to be opened.
-				DisplayAlert ("Error", "Unable to call", "OK");
+				await DisplayAlert ("Error", "Unable to call", "OK");
 			}
 		}
 
