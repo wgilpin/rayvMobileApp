@@ -357,10 +357,10 @@ namespace RayvMobileApp
 			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
 			if (positions.Count > 0) {
 				// load map at that location
-				Navigation.PushAsync (new AddMapPage (positions.First ()));
+				await Navigation.PushAsync (new AddMapPage (positions.First ()));
 			} else {
 				// load map at my location
-				Navigation.PushAsync (new AddMapPage ());
+				await Navigation.PushAsync (new AddMapPage ());
 			}
 		}
 
@@ -386,6 +386,12 @@ namespace RayvMobileApp
 			}
 			if (EditPlace.IsDraft) {
 				EditPlace.DraftComment = Comment.Text;
+			}
+			if (Persist.Instance.Online && Lat == 0.0 && Lng == 0.0) {
+				if (await DisplayAlert ("Draft", "You must confirm the location", "OK", "Cancel")) {
+					DoConfirmAddress (null, null);
+				}
+				return;
 			}
 			if (Category.IsVisible) {
 				if (Category.SelectedIndex == -1) {

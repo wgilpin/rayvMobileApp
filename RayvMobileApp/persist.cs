@@ -273,7 +273,8 @@ namespace RayvMobileApp
 					Db.DeleteAll<Vote> ();
 					Friends.Clear ();
 					Db.DeleteAll<Friend> ();
-					_categories.Clear ();
+					if (_categories != null)
+						_categories.Clear ();
 					Db.DeleteAll<Category> ();
 					Db.Commit ();
 				} catch (Exception ex) {
