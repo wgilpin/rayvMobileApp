@@ -226,6 +226,10 @@ namespace RayvMobileApp
 						Comment.Text = "Click to Comment";
 					else
 						Comment.Text = '"' + DisplayPlace.Comment () + '"';
+
+					CommentEditor.IsVisible = false;
+					Comment.IsVisible = true;
+
 					distance.Text = DisplayPlace.distance;
 					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
 						WebBtn.Text = "No Website";
