@@ -266,10 +266,10 @@ namespace RayvMobileApp
 		{
 			if (IsDraft)
 				return DraftComment;
+			if (!string.IsNullOrEmpty (_commentSet))
+				return _commentSet;
 			if (!String.IsNullOrEmpty (_descr))
 				return _descr;
-			if (_commentSet != null)
-				return _commentSet;
 			var myVote = (from v in Persist.Instance.Votes
 			              where v.key == _key &&
 			                  v.voter == Persist.Instance.MyId.ToString ()
