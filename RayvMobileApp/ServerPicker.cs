@@ -5,6 +5,8 @@ namespace RayvMobileApp
 {
 	public class ServerPicker: Picker
 	{
+		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
+
 		void DoSelect (object s, EventArgs e)
 		{
 			string server_url = "";
@@ -44,7 +46,7 @@ namespace RayvMobileApp
 			Items.Add ("Production");
 			SelectedIndexChanged += DoSelect;
 			SelectedIndex = 3;
-			IsVisible = Persist.Instance.IsAdmin;
+			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
 		}
 	}
 }

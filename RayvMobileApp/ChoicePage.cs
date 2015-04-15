@@ -23,8 +23,8 @@ namespace RayvMobileApp.iOS
 
 		public ChoicePage ()
 		{
-			history = new PersistantQueue (3, "ChoicePageCusine");
-			Title = "Find me a...";
+			
+			Title = "Type of food";
 			ListView list = new ListView ();
 			List<string> data = new List<string> ();
 			data.Add (ANY_PLACE);

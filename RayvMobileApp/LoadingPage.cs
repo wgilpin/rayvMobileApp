@@ -40,7 +40,7 @@ namespace RayvMobileApp
 			Content = new StackLayout { 
 				VerticalOptions = LayoutOptions.Center,
 				Children = {
-					new ActivityIndicator { IsRunning = true, Color = Color.Red, }
+					new ActivityIndicator { IsRunning = true, Color = Color.White, }
 				}
 			};
 			worker = new BackgroundWorker ();

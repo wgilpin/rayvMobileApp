@@ -35,7 +35,8 @@ namespace RayvMobileApp
 		static ListView listView;
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisineKind;
-		ListView FilterCuisinePicker;
+		StackLayout FilterCuisinePicker;
+		StackLayout MainContent;
 
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
@@ -44,6 +45,7 @@ namespace RayvMobileApp
 		LabelWithChangeButton CuisineButton;
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
+		string ALL_TYPES_OF_FOOD = "All Types of Food";
 
 		Label NothingFound;
 		bool IsFiltered;
@@ -74,12 +76,7 @@ namespace RayvMobileApp
 			this.Title = "Find Food";
 			this.Icon = "bars-black.png";
 			IsFiltered = false;
-
 			SetupFiltersBox ();
-
-
-
-
 			listView = new PlacesListView {
 				//ItemsSource = Persist.Instance.Places,
 			};
@@ -89,14 +86,13 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 			};
 			Grid grid = new Grid {
-//				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.StartAndExpand,
 				ColumnSpacing = 0,
 				RowSpacing = 0,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) }
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -120,39 +116,19 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
-			BoxView bg1 = new BoxView { 
-				BackgroundColor = settings.ColorDark,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
-			};
-			BoxView bg2 = new BoxView { 
-				BackgroundColor = settings.ColorDark,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
-			};
 			grid.Children.Add (bg0, 0, 0);
 			grid.Children.Add (FilterSearchBox, 0, 0);
 			grid.Children.Add (Spinner, 0, 1);
-//			grid.Children.Add (new StackLayout {
-//				BackgroundColor = settings.ColorDark,
-//				HorizontalOptions = LayoutOptions.StartAndExpand,
-//				Children = {
-//					new Label { Text = "SL1" },
-//					new Label { Text = "SL2" }
-//					filters,
-//					Spinner,
-//				}
-//			}, 0, 1);
 			grid.Children.Add (inner, 0, 2);
 			filters.IsVisible = false;
-			FilterCuisinePicker.IsVisible = false;
-			Content = new StackLayout {
+			MainContent = new StackLayout {
 				Children = {
 					grid,
 					tools
 				},
 				Padding = 0,
 			};
+			Content = MainContent;
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
@@ -166,7 +142,7 @@ namespace RayvMobileApp
 				//				Icon = "filter.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
-					Debug.WriteLine ("ListPage Toolbar Filter");
+					Console.WriteLine ("ListPage Toolbar Filter");
 					filters.IsVisible = !filters.IsVisible;
 				})
 			};
@@ -183,9 +159,6 @@ namespace RayvMobileApp
 			};
 		}
 
-
-
-
 		/**
 		 * Constructor when a cuisine is supplied
 		 */
@@ -196,26 +169,13 @@ namespace RayvMobileApp
 			FilterList ();
 		}
 
-		private static NavigationPage _instance;
-
-		public static NavigationPage Instance {
-			get {
-				if (_instance == null) {
-					Console.WriteLine ("ListPage: Instance create");
-					_instance = new NavigationPage (new ListPage ());
-				}
-				Console.WriteLine ("ListPage: Instance exists");
-				return _instance;
-			}
-		}
-
 		#endregion
 
 		#region Events
 
 		void DoSelectListItem (object sender, ItemTappedEventArgs e)
 		{
-			Debug.WriteLine ("Listpage.ItemTapped: Push DetailPage");
+			Console.WriteLine ("Listpage.DoSelectListItem");
 			var place = e.Item as Place;
 			if (place.IsDraft) {
 				NeedsReload = true;
@@ -227,6 +187,7 @@ namespace RayvMobileApp
 
 		async void OnPageAppearing (object sender, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.OnPageAppearing");
 			if (NeedsReload) {
 				await FilterList ();
 				StartTimerIfNoGPS ();
@@ -234,83 +195,81 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void DoPickLocation (object s, EventArgs e)
+		public void DoPickMyLocation (object s, EventArgs e)
 		{
-			if (!string.IsNullOrWhiteSpace (AreaBox.Text)) {
-				AreaBox.Text = "";
-				LocationButton.Text = "Near My Location";
-				LocationButton.ButtonText = "Change";
-				Console.WriteLine ("ListPage.FilterList pick location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
+			Console.WriteLine ("Listpage.DoPickMyLocation");
 
-				DisplayPosition = Persist.Instance.GpsPosition;
-				IsFiltered = false;
-				Spinner.IsVisible = true;
-				Spinner.IsRunning = true;
-				Console.WriteLine ("Spin");
-				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+			AreaBox.Text = "";
+			LocationButton.Text = "Near My Location";
+			Console.WriteLine ("ListPage.FilterList pick MY location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
-					FilterList ();
-
-				})).Start ();
-			} else {
-				LocationButton.ButtonText = "Clear";
-			}
-		}
-
-		async public void DoPlaceSearch (object s, EventArgs e)
-		{
-			Console.WriteLine ("DoPlaceSearch");
+			DisplayPosition = Persist.Instance.GpsPosition;
+			IsFiltered = false;
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
-			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (AreaBox.Text));
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				var positions = geoCodePositions.ToList ();
-				if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
-					Console.WriteLine ("AddMenu.SearchHere: Got");
-					Device.BeginInvokeOnMainThread (() => {
-						LocationButton.Text = String.Format ("Near {0}", AreaBox.Text);
-					});
-					if (DEBUG_ON_SIMULATOR) {
-						DisplayPosition = new Position (53.1, -1.5);
-						Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
-					} else {
-						Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
+			Console.WriteLine ("Spin");
 
-						DisplayPosition = positions.First ();
-					}
-				}
-				IsFiltered = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				FilterList ();
 			})).Start ();
 		}
 
+
+
+		async public void DoPlaceSearch (object s, EventArgs e)
+		{
+			Console.WriteLine ("ListPage.DoPlaceSearch");
+//			Spinner.IsVisible = true;
+//			Spinner.IsRunning = true;
+			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (AreaBox.Text));
+//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+			var positions = geoCodePositions.ToList ();
+			if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
+				Console.WriteLine ("AddMenu.SearchHere: Got");
+
+				if (DEBUG_ON_SIMULATOR) {
+					DisplayPosition = new Position (53.1, -1.5);
+					Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
+				} else {
+					Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
+
+					DisplayPosition = positions.First ();
+				}
+			}
+			IsFiltered = true;
+			FilterList ();
+//			})).Start ();
+		}
+
 		async public void DoChangeCuisine (object s, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.DoChangeCuisine");
+
 			if (String.IsNullOrEmpty (FilterCuisineKind)) {
-				CuisineButton.ButtonText = "Clear";
-				if (FilterCuisinePicker.IsVisible) {
-					CuisineButton.ButtonText = "Change";
-				} 
-				FilterCuisinePicker.IsVisible = !FilterCuisinePicker.IsVisible;
+				CuisineButton.ButtonText = "Change";
+				Content = FilterCuisinePicker;
 				// Show it
 			} else {
-				CuisineButton.ButtonText = "Change";
 				FilterCuisineKind = "";
 				CuisineButton.Text = "All Types of Food";
 				IsFiltered = false;
+				Content = MainContent;
 				await FilterList ();
 			} 
 		}
 
 		public async void  DoFilterMine (object s, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.DoFilterMine");
 			MainFilter = FilterKind.Mine;
+			IsFiltered = true;
 			await FilterList ();
 			filters.IsVisible = DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterAll (object s, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.DoFilterAll");
 			MainFilter = FilterKind.All;
 			await FilterList ();
 			filters.IsVisible = DisplayList.Count () == 0;
@@ -318,32 +277,37 @@ namespace RayvMobileApp
 
 		public async void  DoFilterWish (object s, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.DoChangeWish");
 			MainFilter = FilterKind.Wishlist;
+			IsFiltered = true;
 			await FilterList ();
 			filters.IsVisible = DisplayList.Count () == 0;
 		}
 
 		void ClearFilter (object s, EventArgs e)
 		{ 
+			Console.WriteLine ("Listpage.ClearFilter");
 			FilterSearchBox.Text = "";
 			FilterAreaSearchBox.Text = "";
-			filters.IsVisible = false;
+			FilterCuisineKind = "";
+			CuisineButton.Text = ALL_TYPES_OF_FOOD;
 			MainFilter = FilterKind.All;
 			DisplayPosition = Persist.Instance.GpsPosition;
-			Console.WriteLine ("ListPage.FilterList clearFilter set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
-
 			IsFiltered = false;
 			FilterList ();
+			filters.IsVisible = false;
 		}
 
 
 		void DoTextSearch (object sender, EventArgs e)
 		{
+			Console.WriteLine ("Listpage.DoTextSearch");
 			FilterList ();
 		}
 
 		void UpdateCuisine (Object sender, ItemTappedEventArgs e)
 		{
+			Debug.WriteLine ("Listpage.UpdateCuisine");
 			MainFilter = FilterKind.Cuisine;
 			string cuisine = ((KeyValuePair<string,int>)e.Item).Key;
 			FilterCuisineKind = cuisine;
@@ -351,11 +315,12 @@ namespace RayvMobileApp
 			FilterCuisinePicker.IsVisible = false;
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+			Content = MainContent;
+//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 
-				FilterList ();
+			FilterList ();
 
-			})).Start ();
+//			})).Start ();
 			filters.IsVisible = false;
 		}
 
@@ -378,6 +343,7 @@ namespace RayvMobileApp
 
 		public async Task  NarrowGeoSearch ()
 		{
+			Debug.WriteLine ("Listpage.NarrowGeoSearch");
 			try {
 				Position centre = new Position ();
 				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text)).ToList ();
@@ -399,19 +365,17 @@ namespace RayvMobileApp
 			}
 		}
 
-
-
 		void ResetCuisinePicker ()
 		{
 //			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
 //			FilterCuisinePicker.SelectedIndex = -1;
 //			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
+			Debug.WriteLine ("Listpage.ResetCuisinePicker");
 		}
-
-
 
 		async Task FilterList ()
 		{
+			Console.WriteLine ("Listpage.FilterList");
 			Persist data = Persist.Instance;
 			data.SortPlaces (updateDistancePosition: DisplayPosition);
 			try {
@@ -421,6 +385,7 @@ namespace RayvMobileApp
 				switch (MainFilter) {
 				case FilterKind.Go:
 					// places to go - from cuisine string constructorWill
+					Console.WriteLine ("FilterList - GO");
 					ResetCuisinePicker ();
 					DisplayList = (
 					    from p in data.Places
@@ -432,6 +397,7 @@ namespace RayvMobileApp
 					break;
 				case FilterKind.Mine:
 					ResetCuisinePicker ();
+					Console.WriteLine ("FilterList - MINE");
 					DisplayList = (
 					    from p in data.Places
 					    where p.iVoted == true && (
@@ -441,6 +407,7 @@ namespace RayvMobileApp
 					break;
 				case FilterKind.All:
 					ResetCuisinePicker ();
+					Console.WriteLine ("FilterList - ALL");
 					DisplayList = (from p in data.Places
 					               where
 					                   p.place_name.ToLower ().Contains (text) ||
@@ -448,24 +415,28 @@ namespace RayvMobileApp
 					               select p).ToList ();
 					break;
 				case FilterKind.Cuisine:
-					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0)
+					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0) {
+						Console.WriteLine ("FilterList - GO");
 						DisplayList = (
 						    from p in data.Places
 						    where p.category == FilterCuisineKind && (
 						            p.place_name.ToLower ().Contains (text) ||
 						            p.CategoryLowerCase.Contains (text))
 						    select p).ToList ();
-					else
+					} else {
 						goto case FilterKind.All;
+					}
 					IsFiltered = true;
 					break;
 				case FilterKind.Wishlist:
-					DisplayList = (
-					    from p in data.Places
-					    where p.untried == true && (
-					            p.place_name.ToLower ().Contains (text) ||
-					            p.CategoryLowerCase.Contains (text))
-					    select p).ToList ();
+					{
+						Console.WriteLine ("FilterList - GO");
+						DisplayList = (
+						    from p in data.Places
+						    where p.untried == true && (
+						            p.place_name.ToLower ().Contains (text) ||
+						            p.CategoryLowerCase.Contains (text))
+						    select p).ToList ();}
 					IsFiltered = true;
 					break;
 				}
@@ -480,22 +451,23 @@ namespace RayvMobileApp
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
-			Device.BeginInvokeOnMainThread (() => {
-				DisplayList.Sort ();
-				SetList (DisplayList);
-				FilterSearchBox.Unfocus ();
-				Spinner.IsVisible = false;
-				Spinner.IsRunning = false;
-				if (IsFiltered) {
-					FilterTool.Text = "Filtered";
-				} else {
-					FilterTool.Text = "Filter";
-				}
-			});
+//			Device.BeginInvokeOnMainThread (() => {
+//			DisplayList.Sort ();
+			SetList (DisplayList);
+			FilterSearchBox.Unfocus ();
+//			Spinner.IsVisible = false;
+//			Spinner.IsRunning = false;
+			if (IsFiltered) {
+				FilterTool.Text = "Filtered";
+			} else {
+				FilterTool.Text = "Filter";
+			}
+//			});
 		}
 
 		void SetupFiltersBox ()
 		{
+			Console.WriteLine ("Listpage.SetupFiltersBox");
 			// FILTER BOX
 			var FiltersCloseBtn = new RayvButton ("Clear Filter") {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -532,13 +504,13 @@ namespace RayvMobileApp
 
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
-				OnClick = DoPickLocation,
+				OnClick = DoPickMyLocation,
 				ButtonText = "",
 				Padding = new Thickness (5, 10, 5, 0),
 			};
 
 			CuisineButton = new LabelWithChangeButton {
-				Text = "All Types of Food",
+				Text = ALL_TYPES_OF_FOOD,
 				ButtonText = "",
 				OnClick = DoChangeCuisine,
 			};
@@ -557,7 +529,7 @@ namespace RayvMobileApp
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (25, GridUnitType.Absolute) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (20, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (2, GridUnitType.Absolute) },
 				}
 			};
 			filters.Children.Add (
@@ -566,7 +538,7 @@ namespace RayvMobileApp
 			filters.Children.Add (
 				new ImageButton {
 					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 
-					OnClick = DoPickLocation,
+					OnClick = DoPickMyLocation,
 				}, 2, 3, 0, 1);
 
 			filters.Children.Add (
@@ -575,7 +547,7 @@ namespace RayvMobileApp
 			filters.Children.Add (
 				new ImageButton { 
 					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 
-					OnClick = DoTextSearch,
+					OnClick = DoPlaceSearch,
 				}, 2, 3, 1, 2);
 
 			filters.Children.Add (
@@ -600,11 +572,23 @@ namespace RayvMobileApp
 
 			filters.Children.Add (FiltersCloseBtn, 0, 2, 4, 5);
 			// CONTROLS
-			FilterCuisinePicker = new ListView {
+			ListView innerCuisinePickerLV = new ListView {
 				ItemsSource = Persist.Instance.CategoryCounts,
 				RowHeight = 30,
 			};
-			FilterCuisinePicker.ItemTemplate = new DataTemplate (() => {
+			FilterCuisinePicker = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Children = {
+					new RayvButton ("All kinds") {
+						OnClick = (sender, e) => {
+							DoChangeCuisine (null, null);
+						}
+					},
+					innerCuisinePickerLV,
+				}
+			};
+//			filters.Children.Add (FilterCuisinePicker, 0, 2, 0, 5);
+			innerCuisinePickerLV.ItemTemplate = new DataTemplate (() => {
 				Label cuisineType = new Label ();
 				cuisineType.SetBinding (Label.TextProperty, "Key");
 				Label cuisineCount = new Label {
@@ -626,7 +610,7 @@ namespace RayvMobileApp
 					},
 				};
 			});
-			FilterCuisinePicker.ItemTapped += UpdateCuisine;
+			innerCuisinePickerLV.ItemTapped += UpdateCuisine;
 		}
 
 
@@ -643,35 +627,36 @@ namespace RayvMobileApp
 
 		public void SetList (List<Place> list)
 		{
+			Debug.WriteLine ("Listpage.SetList");
 			if (Persist.Instance.Places.Count () == 0)
 				Setup (this);
 			else {
-				Device.BeginInvokeOnMainThread (() => {
-					Spinner.IsVisible = true;
-					Spinner.IsRunning = true;
-					lock (Persist.Instance.Lock) {
-						try {
-							Console.WriteLine ("SetList {0}", list.Count);
-							if (list.Count == 0) {
-								listView.IsVisible = false;
-								NothingFound.IsVisible = true;
-								return;
-							}
-							NothingFound.WidthRequest = this.Width;
-							NothingFound.IsVisible = false;
-							listView.IsVisible = true;
-							ItemsSource = null;
-							list.Sort ();
-							ItemsSource = list;
-							Spinner.IsVisible = false;
-							Spinner.IsRunning = false;
-							
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
+//				Device.BeginInvokeOnMainThread (() => {
+//				Spinner.IsVisible = true;
+//				Spinner.IsRunning = true;
+				lock (Persist.Instance.Lock) {
+					try {
+						Console.WriteLine ("SetList {0}", list.Count);
+						if (list.Count == 0) {
+							listView.IsVisible = false;
+							NothingFound.IsVisible = true;
+							return;
 						}
+						NothingFound.WidthRequest = this.Width;
+						NothingFound.IsVisible = false;
+						listView.IsVisible = true;
+						ItemsSource = null;
+						list.Sort ();
+						ItemsSource = list;
+						Spinner.IsVisible = false;
+						Spinner.IsRunning = false;
+							
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
 					}
-				});
+				}
+//				});
 			}
 		}
 

@@ -31,6 +31,7 @@ namespace RayvMobileApp
 		Entry Comment;
 		bool IsNew;
 		bool Voted;
+		ActivityIndicator Spinner;
 
 		// if adding a new place, on save we show the detaiPage, else it is just Pop
 		private bool AddingNewPlace = false;
@@ -117,6 +118,10 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("EditPage");
 			Title = "Details";
+			Spinner = new ActivityIndicator { 
+				Color = Color.Red, IsRunning = false, 
+				IsVisible = false,
+			};
 			AddingNewPlace = addingNewPlace;
 			if (addingNewPlace && editAsDraft) {
 				EditPlace = new Place ();
@@ -215,6 +220,7 @@ namespace RayvMobileApp
 				Children = {
 					AddressBox,
 					ConfirmAddressBtn,
+					Spinner,
 				}
 			};
 			MainGrid.Children.Add (editAddress, 0, 3, Row, Row + 1);
@@ -353,15 +359,28 @@ namespace RayvMobileApp
 		async private void DoConfirmAddress (Object o, EventArgs e)
 		{
 			// click map
-			// geocode address
-			var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
-			if (positions.Count > 0) {
-				// load map at that location
-				await Navigation.PushAsync (new AddMapPage (positions.First ()));
-			} else {
-				// load map at my location
-				await Navigation.PushAsync (new AddMapPage ());
+			ConfirmAddressBtn.IsEnabled = false;
+			try {
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsRunning = true;
+					Spinner.IsVisible = true;
+				});
+				// geocode address
+				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
+				if (positions.Count > 0) {
+					// load map at that location
+					await Navigation.PushAsync (new AddMapPage (positions.First ()));
+				} else {
+					// load map at my location
+					await Navigation.PushAsync (new AddMapPage ());
+				}
+			} catch (Exception) {
 			}
+			Device.BeginInvokeOnMainThread (() => {
+				Spinner.IsRunning = false;
+				Spinner.IsVisible = false;
+			});
+			ConfirmAddressBtn.IsEnabled = true;
 		}
 
 		async private void DoSave (object sender, EventArgs e)

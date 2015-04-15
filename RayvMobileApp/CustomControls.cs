@@ -9,6 +9,7 @@ namespace RayvMobileApp
 		public RayvNav (Page p) : base (p)
 		{
 			BarBackgroundColor = settings.ColorDark;
+			BarTextColor = Color.White;
 		}
 	}
 
@@ -41,7 +42,7 @@ namespace RayvMobileApp
 			Padding = 2;
 			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20.0) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (25.0) });
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			_entry = new Entry ();
 			_img = new Image ();
