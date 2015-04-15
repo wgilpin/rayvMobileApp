@@ -312,7 +312,7 @@ namespace RayvMobileApp
 			string cuisine = ((KeyValuePair<string,int>)e.Item).Key;
 			FilterCuisineKind = cuisine;
 			CuisineButton.Text = cuisine;
-			FilterCuisinePicker.IsVisible = false;
+//			FilterCuisinePicker.IsVisible = false;
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
 			Content = MainContent;
