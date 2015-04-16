@@ -8,18 +8,22 @@ namespace RayvMobileApp
 	{
 		public static ILocationManager locationMgr;
 
+		public static Page GetFirstPage (bool SkipIntro = false)
+		{
+			// The root page of your application
+			if (SkipIntro || Persist.Instance.GetConfigBool (settings.LAUNCHED_BEFORE)) {
+				if (Persist.Instance.GetConfig (settings.PASSWORD).Length * Persist.Instance.GetConfig (settings.USERNAME).Length * Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
+					return new LoadingPage ();
+				}
+				return new LoginPage ();
+			} else
+				return new IntroPage ();
+		}
+
 		public App ()
 		{
 			locationMgr = DependencyService.Get<ILocationManager> ();
-			// The root page of your application
-			if (Persist.Instance.GetConfig (settings.PASSWORD).Length *
-			    Persist.Instance.GetConfig (settings.USERNAME).Length *
-			    Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
-
-				MainPage = new LoadingPage ();
-				return;
-			}
-			MainPage = new LoginPage ();
+			MainPage = GetFirstPage ();
 		}
 
 		protected override void OnStart ()

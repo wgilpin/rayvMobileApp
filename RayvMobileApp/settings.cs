@@ -18,6 +18,7 @@ namespace RayvMobileApp
 		public static string DB_VERSION = "db_version";
 		public static string LAST_LAT = "LastLat";
 		public static string LAST_LNG = "LastLng";
+		public static string LAUNCHED_BEFORE = "LaunchedBefore";
 		public static string SERVER = "server";
 		public static string DEFAULT_SERVER = "https://rayv-app.appspot.com/";
 		public static string LAST_SYNC = "last_sync";

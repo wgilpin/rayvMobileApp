@@ -784,6 +784,9 @@ namespace RayvMobileApp
 
 		#region Config Methods
 
+		/// <summary>
+		/// returns "" by default
+		/// </summary>
 		public string GetConfig (string key)
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
@@ -801,6 +804,9 @@ namespace RayvMobileApp
 			}
 		}
 
+		/// <summary>
+		/// returns 0/0 by default
+		/// </summary>
 		public Double GetConfigDouble (string key)
 		{
 			try {
@@ -810,6 +816,9 @@ namespace RayvMobileApp
 			}
 		}
 
+		/// <summary>
+		/// returns false by default
+		/// </summary>
 		public bool GetConfigBool (string key)
 		{
 			try {
@@ -836,6 +845,9 @@ namespace RayvMobileApp
 			}
 		}
 
+		/// <summary>
+		/// returns null if not found or invalid
+		/// </summary>
 		public DateTime? GetConfigDateTime (string key)
 		{
 			try {
