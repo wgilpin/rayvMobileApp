@@ -48,7 +48,8 @@ namespace RayvMobileApp
 			ScreenNameEd.Unfocus ();
 			Dictionary<string, string> ps = new Dictionary<string, string> ();
 			ps ["screen_name"] = ScreenNameEd.Text;
-			ps ["gender"] = GenderEd.Items [GenderEd.SelectedIndex];
+			if (GenderEd.SelectedIndex > -1)
+				ps ["gender"] = GenderEd.Items [GenderEd.SelectedIndex];
 			String result = restConnection.Instance.post ("api/profile", ps);
 			if (result != "OK") {
 				DisplayAlert ("Error", "Couldn't Save: " + result, "OK");

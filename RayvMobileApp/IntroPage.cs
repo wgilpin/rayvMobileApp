@@ -38,28 +38,29 @@ namespace RayvMobileApp
 				GoTo2
 			);
 			p2 = new IntroSlide (
-				"Icon-60@2x.png",
-				"Welcome to Taste5",
-				"TB default search.png",
-				"Instantly find place to eat, liked by your friends",
-				"Icon default Website.png",
-				"Quickly add places you wish to try in the future",
-				"TB default news (1).png",
-				"Share places you like with your friends",
+				"Intro 2 me.png",
+				"Add places to your list",
+				"Like.png",
+				"Like: 'I would go here again'",
+				"Dislike.png",
+				"Dislike: 'I would never go back here'",
+				"Wish1.png",
+				"Wish: 'I want to try this soon'",
 				"Next",
 				GoTo3
 			);
 			p3 = new IntroSlide (
-				"Icon-60@2x.png",
-				"Page2",
-				"TB default search.png",
-				"Instantly find place to eat, liked by your friends",
-				"Icon default Website.png",
-				"Quickly add places you wish to try in the future",
-				"TB default news (1).png",
-				"Share places you like with your friends",
-				"Get Started",
-				GetStarted 
+				"Intro 3 foodie friends.png",
+				"Follow Foodie Friends for Trusted Reviews",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"Sign-in To Get Started",
+				GetStarted,
+				fullWidthButton: true
 			);
 			Content = p1;
 			this.Appearing += (sender, e) => {

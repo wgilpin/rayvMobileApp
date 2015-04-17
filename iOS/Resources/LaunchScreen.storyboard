@@ -152,6 +152,10 @@
         <image name="Location.png" width="28" height="40"/>
         <image name="Share.png" width="40" height="28"/>
         <image name="Wish1.png" width="40" height="40"/>
+        <image name="Dislike.png" width="40" height="40"/>
+        <image name="Intro 2 me.png" width="104" height="146"/>
+        <image name="Like.png" width="40" height="40"/>
+        <image name="Intro 3 foodie friends.png" width="263" height="275"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

@@ -55,7 +55,7 @@ namespace RayvMobileApp
 				this.Navigation.PushModalAsync (
 					new NavigationPage (new AddWhatPage ()) { 
 						BarBackgroundColor = settings.ColorOffWhite,
-						BarTextColor = ColorUtil.Darker (settings.BaseColor),
+						BarTextColor = settings.BaseColor,
 					});
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
@@ -69,7 +69,7 @@ namespace RayvMobileApp
 			clickNews.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: news button - push NewsPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new NewsPage ()){ BarBackgroundColor = ColorUtil.Darker (settings.BaseColor) });
+					new NavigationPage (new NewsPage ()){ BarBackgroundColor = settings.BaseColor });
 			};
 			newsImg.GestureRecognizers.Add (clickNews);
 
@@ -85,7 +85,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
 				this.Navigation.PushModalAsync (
 					new NavigationPage (new ListPage ()) { 
-						BarBackgroundColor = ColorUtil.Darker (settings.BaseColor),
+						BarBackgroundColor = settings.BaseColor,
 						BarTextColor = Color.White,
 					});
 			};

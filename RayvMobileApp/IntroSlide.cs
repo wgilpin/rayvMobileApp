@@ -24,7 +24,8 @@ namespace RayvMobileApp
 			string pic3,
 			string text3, 
 			string buttonLabel, 
-			EventHandler buttonAction
+			EventHandler buttonAction,
+			bool fullWidthButton = false 
 		)
 		{
 			VerticalOptions = LayoutOptions.FillAndExpand;
@@ -74,16 +75,20 @@ namespace RayvMobileApp
 			grid.Children.Add (Pic3, 1, 2, 8, 9);
 
 			Label Text1 = new Label { Text = text1, FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), };
-			grid.Children.Add (Text1, 3, 4, 4, 5);
+			grid.Children.Add (new StackLayout { VerticalOptions = LayoutOptions.Center, Children = { Text1 } }, 3, 4, 4, 5);
 			Label Text2 = new Label { Text = text2, FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), };
-			grid.Children.Add (Text2, 3, 4, 6, 7);
+			grid.Children.Add (new StackLayout { VerticalOptions = LayoutOptions.Center, Children = { Text2 } }, 3, 4, 6, 7);
 			Label Text3 = new Label { Text = text3, FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), };
-			grid.Children.Add (Text3, 3, 4, 8, 9);
+			grid.Children.Add (new StackLayout { VerticalOptions = LayoutOptions.Center, Children = { Text3 } }, 3, 4, 8, 9);
 
 			RayvButton Btn = new RayvButton {
 				Text = buttonLabel,
 				OnClick = buttonAction
 			};
+			if (!fullWidthButton) {
+				Btn.HorizontalOptions = LayoutOptions.End;
+				Btn.Text = "  " + buttonLabel + "  ";
+			}
 			Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0);
 			Children.Add (grid); 
 			Children.Add (Btn); 

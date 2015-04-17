@@ -8,7 +8,7 @@ namespace RayvMobileApp
 	{
 		public RayvNav (Page p) : base (p)
 		{
-			BarBackgroundColor = ColorUtil.Darker (settings.BaseColor);
+			BarBackgroundColor = settings.BaseColor;
 			BarTextColor = Color.White;
 		}
 	}

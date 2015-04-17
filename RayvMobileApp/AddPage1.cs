@@ -246,6 +246,7 @@ namespace RayvMobileApp
 				Text = "  return to current location",
 				HorizontalOptions = LayoutOptions.Start,
 				IsVisible = false,
+				TextColor = Color.White,
 			};
 			ResetLocationBtn.Clicked += DoResetLocation;
 
@@ -290,7 +291,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
 				Padding = 4,
-				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				BackgroundColor = settings.BaseColor,
 				Children = {
 					PlaceNameBox,
 					LocationSearchedBox,
@@ -298,8 +299,6 @@ namespace RayvMobileApp
 					ResetLocationBtn,
 					Spinner,
 					LocationResultsView,
-					PlacesListView,
-					AddManualAddress,
 					NothingFound,
 				}
 			};
@@ -307,6 +306,8 @@ namespace RayvMobileApp
 			Content = new StackLayout {
 				Children = {
 					menu,
+					PlacesListView,
+					AddManualAddress,
 					tools
 				}
 			};
