@@ -11,7 +11,7 @@ namespace RayvMobileApp
 		public static Page GetFirstPage (bool SkipIntro = false)
 		{
 			// The root page of your application
-			if (SkipIntro || Persist.Instance.GetConfigBool (settings.LAUNCHED_BEFORE)) {
+			if (SkipIntro || Persist.Instance.GetConfigBool (settings.SKIP_INTRO)) {
 				if (Persist.Instance.GetConfig (settings.PASSWORD).Length * Persist.Instance.GetConfig (settings.USERNAME).Length * Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
 					return new LoadingPage ();
 				}

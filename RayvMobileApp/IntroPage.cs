@@ -22,9 +22,13 @@ namespace RayvMobileApp
 			Navigation.PushModalAsync (App.GetFirstPage (SkipIntro: true));
 		}
 
+		void StopShowingIntro (object o, EventArgs e)
+		{
+			Persist.Instance.SetConfig (settings.SKIP_INTRO, true);	
+		}
+
 		public IntroPage ()
 		{
-			Image Image1 = new Image{ Source = "intro page 1.png" };
 			p1 = new IntroSlide (
 				"logo.png",
 				"Welcome to Taste5",
@@ -60,7 +64,9 @@ namespace RayvMobileApp
 				"",
 				"Sign-in To Get Started",
 				GetStarted,
-				fullWidthButton: true
+				fullWidthButton: true,
+				onStopShowing: StopShowingIntro,
+				showKeepShowingButton: true
 			);
 			Content = p1;
 			this.Appearing += (sender, e) => {

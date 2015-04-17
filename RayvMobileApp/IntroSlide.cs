@@ -7,11 +7,15 @@ namespace RayvMobileApp
 	public class IntroSlide : StackLayout
 	{
 		Image TopImage;
+		Frame ImageBg;
 		Grid grid;
 
 		public void DoLayout ()
 		{
-			TopImage.HeightRequest = this.Height * 0.3;
+			Double factor;
+			factor = Height < 500 ? 0.25 : 0.4;
+			TopImage.HeightRequest = this.Height * factor;
+			ImageBg.Padding = Height < 500 ? 15 : 40;
 		}
 
 		public IntroSlide (
@@ -25,7 +29,9 @@ namespace RayvMobileApp
 			string text3, 
 			string buttonLabel, 
 			EventHandler buttonAction,
-			bool fullWidthButton = false 
+			EventHandler onStopShowing = null,
+			bool fullWidthButton = false,
+			bool showKeepShowingButton = false
 		)
 		{
 			VerticalOptions = LayoutOptions.FillAndExpand;
@@ -40,18 +46,19 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (10) }, //right space
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//image
+					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },//space
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//title
+					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },//space
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//line1
+					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },//space
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//line2
+					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },//space
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//line3
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//stop showing
 				}
 			};
-			Frame bg = new Frame {
+			ImageBg = new Frame {
 				BackgroundColor = settings.BaseColor,
 				HasShadow = false,
 				OutlineColor = settings.BaseColor,
@@ -60,8 +67,8 @@ namespace RayvMobileApp
 				Padding = 40,
 			};
 			TopImage = new Image{ Source = topPic, Aspect = Aspect.AspectFit, };
-			bg.Content = TopImage;
-			grid.Children.Add (bg, 0, 5, 0, 1);
+			ImageBg.Content = TopImage;
+			grid.Children.Add (ImageBg, 0, 5, 0, 1);
 			Label Heading = new Label { 
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)), 
 				Text = heading, 
@@ -89,6 +96,22 @@ namespace RayvMobileApp
 				Btn.HorizontalOptions = LayoutOptions.End;
 				Btn.Text = "  " + buttonLabel + "  ";
 			}
+			if (showKeepShowingButton) {
+				Label ShowLbl = new Label { Text = "Show this every time" };
+				Switch ShowSw = new Switch { IsToggled = true };
+				ShowSw.Toggled += (sender, e) => { 
+					Persist.Instance.SetConfig (settings.SKIP_INTRO, !ShowSw.IsToggled);
+				};
+				StackLayout ShowLayout = new StackLayout {
+					Orientation = StackOrientation.Horizontal,
+					Children = {
+						ShowLbl,
+						ShowSw,
+					}
+				};
+				grid.Children.Add (ShowLayout, 1, 4, 9, 10);
+			}
+
 			Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0);
 			Children.Add (grid); 
 			Children.Add (Btn); 

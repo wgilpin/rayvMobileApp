@@ -84,6 +84,8 @@ namespace RayvMobileApp
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
+
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 			};
@@ -137,6 +139,18 @@ namespace RayvMobileApp
 			grid.Children.Add (PushSw, 2, 3, 8, 9);
 			grid.Children.Add (new LabelWide ("Email Notifications"), 1, 2, 9, 10);
 			grid.Children.Add (EmailsSw, 2, 3, 9, 10);
+
+			// intro slides
+			Label ShowLbl = new Label { Text = "Show introduction every time" };
+			var ShowSw = new Xamarin.Forms.Switch { 
+				IsToggled = !Persist.Instance.GetConfigBool (settings.SKIP_INTRO) 
+			};
+			ShowSw.Toggled += (sender, e) => { 
+				Persist.Instance.SetConfig (settings.SKIP_INTRO, !ShowSw.IsToggled);
+			};
+			grid.Children.Add (ShowLbl, 1, 2, 10, 11);
+			grid.Children.Add (ShowSw, 2, 3, 10, 11);
+
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Settings",
 				Icon = "19-gear.png",
