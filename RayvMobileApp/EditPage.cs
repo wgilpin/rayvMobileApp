@@ -213,7 +213,7 @@ namespace RayvMobileApp
 				FontAttributes = FontAttributes.Bold,
 				OnClick = DoConfirmAddress,
 				IsVisible = false,
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
 			};
 			var editAddress = new StackLayout {
@@ -274,7 +274,7 @@ namespace RayvMobileApp
 			Row++;
 			SaveBtn = new ButtonWide {
 				Text = "Save",
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 			};
@@ -333,7 +333,7 @@ namespace RayvMobileApp
 			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
 			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
-			voteBtn.BackgroundColor = settings.ColorDark;
+			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			voteBtn.TextColor = Color.White;
 			Voted = true;
 		}

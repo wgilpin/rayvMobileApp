@@ -238,6 +238,10 @@
     <BundleResource Include="Resources\Icon default directions1.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
     <BundleResource Include="Resources\intro page 1.png" />
+    <BundleResource Include="Resources\logo.png" />
+    <BundleResource Include="Resources\Location.png" />
+    <BundleResource Include="Resources\Share.png" />
+    <BundleResource Include="Resources\Wish1.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

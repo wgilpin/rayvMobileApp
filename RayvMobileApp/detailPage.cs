@@ -186,7 +186,7 @@ namespace RayvMobileApp
 		void SetVoteButton (Button voteBtn)
 		{
 			ResetVoteButtons ();
-			voteBtn.BackgroundColor = settings.ColorDark;
+			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			voteBtn.TextColor = Color.White;
 		}
 

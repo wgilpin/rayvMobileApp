@@ -112,7 +112,7 @@ namespace RayvMobileApp
 				Color = Color.Red,
 			};
 			BoxView bg0 = new BoxView { 
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
@@ -516,7 +516,7 @@ namespace RayvMobileApp
 			};
 			filters = new Grid {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 //				ColumnSpacing = 5,
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },

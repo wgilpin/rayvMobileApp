@@ -44,9 +44,9 @@ namespace RayvMobileApp
 				if (vote == "-1")
 					return Color.FromHex ("A22");
 				if (vote == "1") {
-					return settings.ColorDark;
+					return ColorUtil.Darker (settings.BaseColor);
 				}
-				return settings.ColorLight;
+				return settings.BaseColor;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return Color.Gray;

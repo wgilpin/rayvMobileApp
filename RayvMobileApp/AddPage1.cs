@@ -290,7 +290,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
 				Padding = 4,
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				Children = {
 					PlaceNameBox,
 					LocationSearchedBox,

@@ -55,5 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IAppData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IDeviceSpecific.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IntroPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IntroSlide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ColorUtil.cs" />
   </ItemGroup>
 </Project>

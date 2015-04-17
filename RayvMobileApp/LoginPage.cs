@@ -76,7 +76,7 @@ namespace RayvMobileApp
 			RayvButton Register = new RayvButton {
 				Text = "Register New Account", 
 				BackgroundColor = Color.Yellow, 
-				TextColor = settings.ColorDark,
+				TextColor = ColorUtil.Darker (settings.BaseColor),
 			};
 			Register.Clicked += (s, e) => {
 				this.Navigation.PushModalAsync (new RegisterPage ());

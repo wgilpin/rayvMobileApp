@@ -36,7 +36,7 @@ namespace RayvMobileApp
 
 		public LoadingPage ()
 		{
-			BackgroundColor = settings.ColorLight;
+			BackgroundColor = ColorUtil.Lighter (settings.BaseColor);
 			Content = new StackLayout { 
 				VerticalOptions = LayoutOptions.Center,
 				Children = {

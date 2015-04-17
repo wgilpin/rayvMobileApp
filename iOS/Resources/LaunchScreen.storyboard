@@ -16,20 +16,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="45" translatesAutoresizingMaskIntoConstraints="NO" allowsEditingTextAttributes="NO" text="Rayv" textAlignment="center" scrollEnabled="NO" misplaced="YES">
-                                <rect key="frame" x="47" y="254" width="226" height="112"/>
-                                <color key="backgroundColor" colorSpace="calibratedRGB" red="1" green="1" blue="1" alpha="0"/>
-                                <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="34"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                <variation key="heightClass=regular-widthClass=compact">
-                                    <rect key="frame" x="135" y="256" width="82" height="42"/>
-                                    <mask key="constraints">
-                                        <include reference="57"/>
-                                        <include reference="58"/>
-                                    </mask>
-                                </variation>
-                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                            </textView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="91" translatesAutoresizingMaskIntoConstraints="NO" allowsEditingTextAttributes="NO" text="Loading..." textAlignment="center" scrollEnabled="NO" misplaced="YES">
                                 <rect key="frame" x="97" y="446" width="139" height="112"/>
                                 <color key="backgroundColor" colorSpace="calibratedRGB" red="1" green="1" blue="1" alpha="0"/>
@@ -44,24 +30,23 @@
                                 </variation>
                                 <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                             </textView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" id="135" translatesAutoresizingMaskIntoConstraints="NO" image="logo.png">
+                                <rect key="frame" x="80" y="66" width="160" height="161"/>
+                                <constraints>
+                                    <constraint id="138" firstAttribute="width" constant="160"/>
+                                    <constraint id="139" firstAttribute="height" constant="161"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" colorSpace="calibratedRGB" red="0.37254901960784315" green="0.47058823529411764" blue="0.69019607843137254" alpha="1"/>
                         <constraints>
-                            <constraint id="55" constant="103" firstItem="yd7-JS-zBw" firstAttribute="centerX" secondItem="45" secondAttribute="trailing"/>
-                            <constraint id="56" constant="256" firstItem="45" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
                             <constraint firstItem="yd7-JS-zBw" firstAttribute="bottom" secondItem="91" secondAttribute="bottom" constant="11" id="92"/>
                             <constraint firstItem="91" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="217" id="96"/>
                             <constraint firstItem="91" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="6" id="118"/>
-                            <constraint firstItem="45" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="0.0" id="125"/>
-                            <constraint firstItem="45" firstAttribute="leading" secondItem="yd7-JS-zBw" secondAttribute="leading" constant="47" id="128"/>
-                            <constraint firstItem="yd7-JS-zBw" firstAttribute="trailing" secondItem="45" secondAttribute="trailing" constant="47" id="129"/>
+                            <constraint id="140" firstItem="91" firstAttribute="trailing" secondItem="135" secondAttribute="trailing" constant="0.0"/>
+                            <constraint id="141" firstItem="135" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="0.0"/>
+                            <constraint id="142" constant="66" firstItem="135" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="55"/>
-                                <exclude reference="56"/>
-                            </mask>
-                        </variation>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="constraints">
                                 <include reference="55"/>
@@ -162,6 +147,11 @@
         <image name="Icon default directions.png" width="46" height="42"/>
         <image name="Icon default directions1.png" width="36" height="40"/>
         <image name="Icon default Website.png" width="40" height="40"/>
+        <image name="intro page 1.png" width="320" height="568"/>
+        <image name="logo.png" width="200" height="153"/>
+        <image name="Location.png" width="28" height="40"/>
+        <image name="Share.png" width="40" height="28"/>
+        <image name="Wish1.png" width="40" height="40"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

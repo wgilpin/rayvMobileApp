@@ -14,7 +14,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("Toolbar: List button - push ListPage");
 			this.Navigation.PushModalAsync (
 				new NavigationPage (new ListPage ()) { 
-					BarBackgroundColor = settings.ColorDark,
+					BarBackgroundColor = ColorUtil.Darker (settings.BaseColor),
 					BarTextColor = Color.White,
 				}, false);
 		}
@@ -24,7 +24,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("Toolbar: News button - push NewsPage");
 			this.Navigation.PushModalAsync (
 				new NavigationPage (new NewsPage ()) { 
-					BarBackgroundColor = settings.ColorDark,
+					BarBackgroundColor = ColorUtil.Darker (settings.BaseColor),
 					BarTextColor = Color.White,
 				}, false);
 		}
@@ -34,7 +34,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
 			this.Navigation.PushModalAsync (
 				new NavigationPage (new ProfilePage ()) { 
-					BarBackgroundColor = settings.ColorDark,
+					BarBackgroundColor = ColorUtil.Darker (settings.BaseColor),
 					BarTextColor = Color.White,
 				}, false);
 		}
@@ -44,7 +44,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("Toolbar: Add button - push AddMenu");
 			this.Navigation.PushModalAsync (
 				new NavigationPage (new AddWhatPage ()) { 
-					BarBackgroundColor = settings.ColorDark,
+					BarBackgroundColor = ColorUtil.Darker (settings.BaseColor),
 					BarTextColor = Color.White,
 				}, false);
 		}
@@ -79,7 +79,7 @@ namespace RayvMobileApp
 //					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = settings.ColorDark,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				ColumnSpacing = 0,
 			};
 

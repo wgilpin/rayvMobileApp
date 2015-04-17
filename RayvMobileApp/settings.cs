@@ -22,9 +22,10 @@ namespace RayvMobileApp
 		public static string SERVER = "server";
 		public static string DEFAULT_SERVER = "https://rayv-app.appspot.com/";
 		public static string LAST_SYNC = "last_sync";
-		public static Color ColorLight = Color.FromHex ("718CBE");
-		public static Color ColorDark = Color.FromHex ("6883B5");
-		public static Color ColorVeryDark = Color.FromHex ("4863B5");
+		public static Color BaseColor = Color.FromHex ("4486D3");
+		//		public static Color ColorLight = Color.FromHex ("718CBE");
+		//		public static Color ColorDark = Color.FromHex ("6883B5");
+		//		public static Color ColorVeryDark = Color.FromHex ("4863B5");
 		public static Color ColorLightGray = Color.FromHex ("EEE");
 		public static Color ColorDarkGray = Color.FromHex ("444");
 		public static Color ColorOffWhite = Color.FromHex ("E7E7E7");

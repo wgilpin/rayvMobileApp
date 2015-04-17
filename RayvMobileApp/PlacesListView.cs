@@ -84,7 +84,7 @@ namespace RayvMobileApp
 				if (ShowVotes) {
 
 					Label upVotes = new Label {
-						TextColor = settings.ColorLight,
+						TextColor = settings.BaseColor,
 						XAlign = TextAlignment.End,
 						HorizontalOptions = LayoutOptions.End,
 						TranslationX = 2,
@@ -112,7 +112,7 @@ namespace RayvMobileApp
 
 
 					Label myVote = new Label {
-						TextColor = settings.ColorDark,
+						TextColor = ColorUtil.Darker (settings.BaseColor),
 						TranslationY = -5,
 						HorizontalOptions = LayoutOptions.FillAndExpand,
 						XAlign = TextAlignment.End,

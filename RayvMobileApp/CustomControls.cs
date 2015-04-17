@@ -8,7 +8,7 @@ namespace RayvMobileApp
 	{
 		public RayvNav (Page p) : base (p)
 		{
-			BarBackgroundColor = settings.ColorDark;
+			BarBackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			BarTextColor = Color.White;
 		}
 	}
@@ -231,7 +231,7 @@ namespace RayvMobileApp
 			//BorderColor = Color.FromHex ("#4444AA");
 			BorderRadius = 0;
 			TextColor = Color.White;
-			BackgroundColor = settings.ColorDark;
+			BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			if (text != null)
 				Text = text;
