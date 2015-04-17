@@ -38,15 +38,12 @@ namespace RayvMobileApp
 		{
 			try {
 				string vote = (value as string);
-				if (vote == null) {
-					return Color.Gray;
-				}
 				if (vote == "-1")
 					return Color.FromHex ("A22");
 				if (vote == "1") {
 					return ColorUtil.Darker (settings.BaseColor);
 				}
-				return settings.BaseColor;
+				return Color.Gray;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return Color.Gray;

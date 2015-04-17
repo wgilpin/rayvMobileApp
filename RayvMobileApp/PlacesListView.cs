@@ -102,6 +102,7 @@ namespace RayvMobileApp
 						TranslationY = 2,
 						TranslationX = 2,
 					};
+
 					downVotes.SetBinding (
 						Label.TextProperty, 
 						new Binding ("key", converter: new KeyToDownVotersConverter ()));

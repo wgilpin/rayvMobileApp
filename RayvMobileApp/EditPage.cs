@@ -44,12 +44,20 @@ namespace RayvMobileApp
 		}
 
 		public Double Lat {
-			get { return EditPlace.lat; }
+			get { 
+				if (EditPlace == null)
+					return 0.0;
+				return EditPlace.lat; 
+			}
 			set { EditPlace.lat = value; }
 		}
 
 		public Double Lng {
-			get { return EditPlace.lng; }
+			get { 
+				if (EditPlace == null)
+					return 0.0;
+				return EditPlace.lng; 
+			}
 			set { EditPlace.lng = value; }
 		}
 
@@ -61,7 +69,7 @@ namespace RayvMobileApp
 			WebSite.IsVisible = online;
 			PhoneNo.IsVisible = online;
 			Category.IsVisible = online;
-			ConfirmAddressBtn.IsVisible = online;
+			ConfirmAddressBtn.IsVisible = online ? (Lat == 0.0 && Lng == 0.0) : false;
 			DeleteButton.Text = !online ? "Delete Draft" : "Remove from my lists";
 		}
 
@@ -107,9 +115,7 @@ namespace RayvMobileApp
 				}
 				Voted = true;
 			}
-			if (EditPlace.IsDraft) {
-				ConfirmAddressBtn.IsVisible = true;
-			}
+			ConfirmAddressBtn.IsVisible = EditPlace.IsDraft && (Lat != 0.0 && Lng != 0.0);
 			SetOfflineVisibility ();
 				
 		}

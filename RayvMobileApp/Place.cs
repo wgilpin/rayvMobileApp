@@ -378,7 +378,7 @@ namespace RayvMobileApp
 					parameters ["key"] = IsDraft ? "" : key;
 					parameters ["lat"] = lat.ToString ();
 					parameters ["lng"] = lng.ToString ();
-					parameters ["addr"] = address;
+					parameters ["address"] = address;
 					parameters ["place_name"] = place_name;
 					parameters ["myComment"] = Comment ();
 					parameters ["category"] = category;
