@@ -303,6 +303,7 @@ namespace RayvMobileApp
 
 		void DoTextSearch (object sender, EventArgs e)
 		{
+			FilterSearchBox.TextEntry.Unfocus ();
 			Console.WriteLine ("Listpage.DoTextSearch");
 			FilterList ();
 		}
@@ -409,12 +410,13 @@ namespace RayvMobileApp
 					break;
 				case FilterKind.All:
 					ResetCuisinePicker ();
-					Console.WriteLine ("FilterList - ALL");
-					DisplayList = (from p in data.Places
-					               where
-					                   p.place_name.ToLower ().Contains (text) ||
-					                   p.CategoryLowerCase.Contains (text)
-					               select p).ToList ();
+					Console.WriteLine ("FilterList - ALL, {0}", text);
+					var allResult = (from p in data.Places
+					                 where
+					                     p.place_name.ToLower ().Contains (text) ||
+					                     p.CategoryLowerCase.Contains (text)
+					                 select p);
+					DisplayList = allResult.ToList ();
 					break;
 				case FilterKind.Cuisine:
 					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0) {
@@ -433,12 +435,13 @@ namespace RayvMobileApp
 				case FilterKind.Wishlist:
 					{
 						Console.WriteLine ("FilterList - GO");
-						DisplayList = (
-						    from p in data.Places
-						    where p.untried == true && (
-						            p.place_name.ToLower ().Contains (text) ||
-						            p.CategoryLowerCase.Contains (text))
-						    select p).ToList ();}
+						var wishResult = (
+						                     from p in data.Places
+						                     where p.untried == true && (
+						                             p.place_name.ToLower ().Contains (text) ||
+						                             p.CategoryLowerCase.Contains (text))
+						                     select p);
+						DisplayList = wishResult.ToList ();}
 					IsFiltered = true;
 					break;
 				}

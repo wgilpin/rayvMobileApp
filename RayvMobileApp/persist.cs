@@ -746,16 +746,22 @@ namespace RayvMobileApp
 			for (int i = 0; i < Places.Count (); i++) {
 				if (Places [i].key == place.key) {
 					try {
-						if (!string.IsNullOrEmpty (place.key)) {
-							var myVote = (from v in Votes
-							              where v.voter == myIdString
-							              select v).FirstOrDefault ();
-							if (myVote != null) {
-								myVote.vote = Convert.ToInt32 (Places [i].vote);
-								myVote.untried = Places [i].untried;
-							}
-						}
-						StorePlace (place, Places [i]);
+//						if (!string.IsNullOrEmpty (place.key)) {
+//							var myVote = (from v in Votes
+//							              where v.voter == myIdString
+//							              select v).FirstOrDefault ();
+//							if (myVote != null) {
+//								try {
+//									myVote.vote = Convert.ToInt32 (Places [i].vote);
+//								} catch (Exception ex) {
+//									Insights.Report (ex);
+//									restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", Places [i].vote, Places [i].place_name);
+//									myVote.vote = Convert.ToInt32(place.vote);
+//								}
+//								myVote.untried = Places [i].untried;
+//							}
+//						}
+						StorePlace (place, removePlace: Places [i]);
 						return true;
 					} catch (Exception e) { 
 						Insights.Report (e);
@@ -871,7 +877,7 @@ namespace RayvMobileApp
 					Db.InsertOrReplace (new Configuration (key, value));
 				}
 			} catch (Exception ex) {
-				Insights.Report (ex);
+				Insights.Report (ex, key, value);
 			}
 		}
 

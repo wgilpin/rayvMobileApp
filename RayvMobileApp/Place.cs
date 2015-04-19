@@ -190,7 +190,12 @@ namespace RayvMobileApp
 		[Ignore]
 		public string CategoryLowerCase {
 			get {
-				return _category.ToLower ();
+				try {
+					return _category.ToLower ();
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					return "";
+				}
 			}
 		}
 
