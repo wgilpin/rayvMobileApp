@@ -589,6 +589,9 @@ namespace RayvMobileApp
 					Device.BeginInvokeOnMainThread (() => {
 						Console.WriteLine ("GetUserData: Need to login - push LoginPage");
 						caller.Navigation.PushModalAsync (new LoginPage ());
+
+
+
 					});
 					Console.WriteLine ("GetFullData: No login");
 					return;

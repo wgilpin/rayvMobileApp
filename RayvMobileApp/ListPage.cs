@@ -40,7 +40,7 @@ namespace RayvMobileApp
 
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
-		Entry AreaBox;
+		//		Entry AreaBox;
 		LabelWithChangeButton LocationButton;
 		LabelWithChangeButton CuisineButton;
 		ActivityIndicator Spinner;
@@ -199,7 +199,7 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.DoPickMyLocation");
 
-			AreaBox.Text = "";
+			FilterAreaSearchBox.Text = "";
 			LocationButton.Text = "Near My Location";
 			Console.WriteLine ("ListPage.FilterList pick MY location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
@@ -209,9 +209,11 @@ namespace RayvMobileApp
 			Spinner.IsRunning = true;
 			Console.WriteLine ("Spin");
 
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				FilterList ();
-			})).Start ();
+//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+			FilterList ();
+//			})).Start ();
+			Spinner.IsVisible = false;
+			Spinner.IsRunning = false;
 		}
 
 
@@ -221,7 +223,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListPage.DoPlaceSearch");
 //			Spinner.IsVisible = true;
 //			Spinner.IsRunning = true;
-			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (AreaBox.Text));
+			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text));
 //			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 			var positions = geoCodePositions.ToList ();
 			if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
@@ -492,15 +494,15 @@ namespace RayvMobileApp
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",
-				Source = "icon-06-magnify@2x.png",
+				Source = "TB active search.png",
 				OnClick = DoTextSearch,
 				Text = "",
 			};
-			AreaBox = new Entry {
-				Placeholder = "Enter Area to Search",
-				Text = "",
-			};
-			AreaBox.BackgroundColor = settings.ColorLightGray;
+//			AreaBox = new Entry {
+//				Placeholder = "Enter Area to Search",
+//				Text = "",
+//			};
+//			AreaBox.BackgroundColor = settings.ColorLightGray;
 
 			LocationButton = new LabelWithChangeButton {
 				Text = "Near My Location",
@@ -543,7 +545,7 @@ namespace RayvMobileApp
 
 			filters.Children.Add (
 				new Image{ Source = "Icon default directions1.png", Aspect = Aspect.AspectFit, }, 0, 1, 1, 2);
-			filters.Children.Add (AreaBox, 1, 2, 1, 2);
+			filters.Children.Add (FilterAreaSearchBox, 1, 2, 1, 2);
 			filters.Children.Add (
 				new ImageButton { 
 					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 

@@ -129,9 +129,10 @@ namespace RayvMobileApp
 						}
 						continue;
 					}
-					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut)
+					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut) {
+						Persist.Instance.Online = false;
 						continue;
-					Persist.Instance.Online = false;
+					}
 					return response;
 				} catch (Exception E) {
 					Insights.Report (E);

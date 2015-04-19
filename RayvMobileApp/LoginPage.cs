@@ -79,7 +79,11 @@ namespace RayvMobileApp
 				TextColor = ColorUtil.Darker (settings.BaseColor),
 			};
 			Register.Clicked += (s, e) => {
-				this.Navigation.PushModalAsync (new RegisterPage ());
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new RegisterPage ()) { 
+						BarBackgroundColor = settings.BaseColor,
+						BarTextColor = Color.White,
+					}, false);
 			};
 			this.Content = new StackLayout {
 				Padding = 20,
