@@ -34,7 +34,7 @@ namespace RayvMobileApp
 				"Welcome to Taste5",
 				"Location.png",
 				"Instantly find place to eat, liked by your friends",
-				"Wish1.png",
+				"add 2.png",
 				"Quickly add places you wish to try in the future",
 				"Share.png",
 				"Share places you like with your friends",
@@ -42,7 +42,7 @@ namespace RayvMobileApp
 				GoTo2
 			);
 			p2 = new IntroSlide (
-				"Intro 2 me.png",
+				"Intro head 2a.png",
 				"Add places to your list",
 				"Like.png",
 				"Like: 'I would go here again'",

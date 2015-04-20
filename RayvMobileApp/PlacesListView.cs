@@ -114,29 +114,24 @@ namespace RayvMobileApp
 
 					Label myVote = new Label {
 						TextColor = ColorUtil.Darker (settings.BaseColor),
-						TranslationY = -5,
+						TranslationY = -12,
 						HorizontalOptions = LayoutOptions.FillAndExpand,
 						XAlign = TextAlignment.End,
 					};
-					myVote.SetBinding (Label.IsVisibleProperty, "iVoted");
-					myVote.SetBinding (Label.TextProperty, "voteImage");
+					myVote.SetBinding (
+						Label.IsVisibleProperty, 
+						new Binding ("key", converter: new KeyToShowMyVoteConverter ()));
+					myVote.SetBinding (
+						Label.TextProperty, 
+						new Binding ("key", converter: new KeyToMyVoteTextConverter ()));
 					myVote.SetBinding (
 						Label.TextColorProperty, 
 						new Binding ("vote", converter: new VoteToColorConverter ()));
+					myVote.SetBinding (
+						Label.FontSizeProperty,
+						new Binding ("key", converter: new KeyToMyVoteSizeConverter ()));
 
-
-					Image myVoteImg = new Image { 
-						Aspect = Aspect.AspectFit,
-						WidthRequest = 28, 
-						HeightRequest = 28,
-						TranslationX = 0,
-					};
-					myVoteImg.SetBinding (Image.SourceProperty, "voteImage");
-					myVoteImg.SetBinding (Label.IsVisibleProperty, "iVoted");
-
-
-
-
+				
 					Label noVoteLiked = new Label {
 						Text = "Liked",
 						TextColor = Color.FromHex ("888"),
@@ -152,9 +147,13 @@ namespace RayvMobileApp
 					noVoteDisliked.SetBinding (
 						Label.IsVisibleProperty, 
 						new Binding ("down", converter: new KeyToShowDownBoolConverter ()));
-					grid.Children.Add (new Frame { HasShadow = false, Content = upVotes, Padding = new Thickness (3, 0), }, 2, 3, 0, 3);
+					grid.Children.Add (new Frame { 
+						HasShadow = false, 
+						Content = upVotes, 
+						Padding = new Thickness (3, 0), 
+					}, 2, 3, 0, 3);
 					grid.Children.Add (downVotes, 2, 3, 1, 3);
-					grid.Children.Add (myVote, 2, 3, 1, 3);
+					grid.Children.Add (myVote, 2, 3, 1, 4);
 //					grid.Children.Add (noVoteLiked, 3, 4, 1, 2);
 //					grid.Children.Add (noVoteDisliked, 3, 4, 2, 3);
 				}

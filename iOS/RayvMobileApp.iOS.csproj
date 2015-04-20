@@ -241,11 +241,11 @@
     <BundleResource Include="Resources\logo.png" />
     <BundleResource Include="Resources\Location.png" />
     <BundleResource Include="Resources\Share.png" />
-    <BundleResource Include="Resources\Wish1.png" />
     <BundleResource Include="Resources\Dislike.png" />
-    <BundleResource Include="Resources\Intro 2 me.png" />
     <BundleResource Include="Resources\Like.png" />
     <BundleResource Include="Resources\Intro 3 foodie friends.png" />
+    <BundleResource Include="Resources\add 2.png" />
+    <BundleResource Include="Resources\Intro head 2a.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

@@ -85,6 +85,113 @@ namespace RayvMobileApp
 	}
 
 
+	// do we show my vote
+	public class KeyToShowMyVoteConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			try {
+				string key = (value as string);
+				if (key == null) {
+					return false;
+				}
+				Place p = Persist.Instance.GetPlace (key);
+				if (p.iVoted)
+					// I voted so we show it
+					return true;
+				if (p.up > 0 || p.down > 0)
+					// I didn't vote but others did so we don't show my vote
+					return false;
+				// I didn't vote, nor did anyone, so we show that
+				return true;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("KeyToShowMyVoteConverter Exception");
+				return false;
+			}
+
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			throw new NotImplementedException ();
+		}
+	}
+
+	// what to show for my vote
+	public class KeyToMyVoteTextConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			try {
+				string key = (value as string);
+				if (key == null) {
+					return false;
+				}
+				Place p = Persist.Instance.GetPlace (key);
+				if (p.iVoted)
+					// I voted so we show it
+					return p.voteImage;
+				if (p.up > 0 || p.down > 0)
+					// I didn't vote but others did so we don't show my vote
+					return false;
+				// I  didn't vote, nor did anyone, so we show that
+				var votes = from v in Persist.Instance.Votes
+				            where v.key == key
+				                && v.untried
+				                && !string.IsNullOrWhiteSpace (v.VoterName)
+				            select v;
+				int count = votes.Count ();
+				if (count == 1) {
+					Vote vote = votes.FirstOrDefault ();
+					return String.Format ("{0}\nsaved", vote.VoterName);
+				} else
+					return String.Format ("{0} saved", count);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("KeyToMyVoteTextConverter Exception");
+				return false;
+			}
+
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			throw new NotImplementedException ();
+		}
+	}
+
+	// what to show for my vote
+	public class KeyToMyVoteSizeConverter: IValueConverter
+	{
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			try {
+				string key = (value as string);
+				if (key == null) {
+					return false;
+				}
+				Place p = Persist.Instance.GetPlace (key);
+				if (p.iVoted)
+					// I voted so we show it
+					return Device.GetNamedSize (NamedSize.Large, typeof(Label));
+				return Device.GetNamedSize (NamedSize.Small, typeof(Label));
+
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("KeyToMyVoteTextConverter Exception");
+				return false;
+			}
+
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			throw new NotImplementedException ();
+		}
+	}
+
+
 
 
 	// if up = 1, give the name. Else the number
@@ -101,8 +208,6 @@ namespace RayvMobileApp
 				if (p == null)
 					return null;
 				if (p.up == 0) {
-					if (p.down != 1)
-						return "No likes";
 					return "";
 				}
 				if (p.up != 1)

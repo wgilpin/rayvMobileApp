@@ -389,6 +389,14 @@ namespace RayvMobileApp
 			ConfirmAddressBtn.IsEnabled = true;
 		}
 
+		void ShowSpinner (bool IsVisible = true)
+		{
+			Device.BeginInvokeOnMainThread (() => {
+				Spinner.IsRunning = IsVisible;
+				Spinner.IsVisible = IsVisible;
+			});
+		}
+
 		async private void DoSave (object sender, EventArgs e)
 		{
 			if (String.IsNullOrEmpty (Place_name.Text)) {
@@ -409,6 +417,7 @@ namespace RayvMobileApp
 					return;
 				}
 			}
+			ShowSpinner (true);
 			if (EditPlace.IsDraft) {
 				EditPlace.DraftComment = Comment.Text;
 			}
@@ -416,11 +425,13 @@ namespace RayvMobileApp
 				if (await DisplayAlert ("Draft", "You must confirm the location", "OK", "Cancel")) {
 					DoConfirmAddress (null, null);
 				}
+				ShowSpinner (false);
 				return;
 			}
 			if (Category.IsVisible) {
 				if (Category.SelectedIndex == -1) {
 					await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+					ShowSpinner (false);
 					return;
 				}
 				EditPlace.category = Category.Items [Category.SelectedIndex];
@@ -442,6 +453,7 @@ namespace RayvMobileApp
 					{ "Lng", EditPlace.lng.ToString () },
 					{ "Vote", EditPlace.vote },
 				});
+				ShowSpinner (false);
 				await DisplayAlert ("Saved", "Details Saved", "OK");
 				#pragma warning disable 4014
 				Persist.Instance.HaveAdded = this.IsNew;
@@ -461,7 +473,6 @@ namespace RayvMobileApp
 				Persist.Instance.Places.Add (EditPlace);
 				this.Navigation.PopToRootAsync ();
 			}
-
 
 		}
 
