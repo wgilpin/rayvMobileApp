@@ -162,6 +162,8 @@ namespace RayvMobileApp
 
 			Console.WriteLine ("AddPage1.DoSearch: Activity");
 			Spinner.IsRunning = true;
+			PlaceNameBox.Entry.Unfocus ();
+			LocationEditBox.Entry.Unfocus ();
 			if (PlaceNameBox.ButtonText == "Search" && LocationSearchedBox.ButtonText == "Search") {
 				PlaceNameBox.ButtonText = " ";
 			}

@@ -63,7 +63,7 @@ namespace RayvMobileApp
 
 		public BottomToolbar (Page page, String pressed = null)
 		{
-			VerticalOptions = LayoutOptions.End;
+			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {
 				Padding = 0,
