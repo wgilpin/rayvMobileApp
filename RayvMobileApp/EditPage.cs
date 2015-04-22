@@ -391,10 +391,40 @@ namespace RayvMobileApp
 
 		void ShowSpinner (bool IsVisible = true)
 		{
-			Device.BeginInvokeOnMainThread (() => {
-				Spinner.IsRunning = IsVisible;
-				Spinner.IsVisible = IsVisible;
+			Spinner.IsRunning = IsVisible;
+			Spinner.IsVisible = IsVisible;
+
+		}
+
+		async void SaveWasGood ()
+		{
+			Console.WriteLine ("Saved - PopToRootAsync");
+			Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
+				{ "PlaceName", EditPlace.place_name },
+				{ "Lat", EditPlace.lat.ToString () },
+				{ "Lng", EditPlace.lng.ToString () },
+				{ "Vote", EditPlace.vote },
 			});
+			ShowSpinner (false);
+			await DisplayAlert ("Saved", "Details Saved", "OK");
+			Persist.Instance.HaveAdded = this.IsNew;
+			if (AddingNewPlace) {
+				this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (EditPlace, true)));
+			} else {
+				if (IsNew) {
+					this.Navigation.PopToRootAsync ();
+				} else {
+					this.Navigation.PopAsync ();
+				}
+			}
+		}
+
+		async void SaveWasBad ()
+		{
+			EditPlace.IsDraft = true;
+			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
+			Persist.Instance.Places.Add (EditPlace);
+			this.Navigation.PopToRootAsync ();
 		}
 
 		async private void DoSave (object sender, EventArgs e)
@@ -445,34 +475,19 @@ namespace RayvMobileApp
 			EditPlace.place_name = myTI.ToTitleCase (Place_name.Text);
 			;
 			string Message = "";
-			if (EditPlace.Save (out Message)) {
-				Console.WriteLine ("Saved - PopToRootAsync");
-				Insights.Track ("EditPage.DoSave", new Dictionary<string, string> {
-					{ "PlaceName", EditPlace.place_name },
-					{ "Lat", EditPlace.lat.ToString () },
-					{ "Lng", EditPlace.lng.ToString () },
-					{ "Vote", EditPlace.vote },
-				});
-				ShowSpinner (false);
-				await DisplayAlert ("Saved", "Details Saved", "OK");
-				#pragma warning disable 4014
-				Persist.Instance.HaveAdded = this.IsNew;
-				if (AddingNewPlace) {
-					this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (EditPlace, true)));
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				if (EditPlace.Save (out Message)) {
+					Device.BeginInvokeOnMainThread (() => {
+						SaveWasGood ();
+					});
+					#pragma warning restore 4014
 				} else {
-					if (IsNew) {
-						this.Navigation.PopToRootAsync ();
-					} else {
-						this.Navigation.PopAsync ();
-					}
+					Device.BeginInvokeOnMainThread (() => {
+						SaveWasBad ();
+					});
 				}
-				#pragma warning restore 4014
-			} else {
-				EditPlace.IsDraft = true;
-				await DisplayAlert ("Not Saved", "Kept as draft", "OK");
-				Persist.Instance.Places.Add (EditPlace);
-				this.Navigation.PopToRootAsync ();
-			}
+
+			})).Start ();
 
 		}
 

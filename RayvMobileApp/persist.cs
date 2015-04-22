@@ -868,6 +868,7 @@ namespace RayvMobileApp
 
 		void innerSetConfig (string key, string value, SQLiteConnection Db)
 		{
+			
 			Db.BusyTimeout = DbTimeout;
 			try {
 				if (value == null) {
