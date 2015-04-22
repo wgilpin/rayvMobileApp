@@ -586,6 +586,7 @@ namespace RayvMobileApp
 				Children = {
 					new RayvButton ("All kinds") {
 						OnClick = (sender, e) => {
+							FilterCuisineKind = "All";
 							DoChangeCuisine (null, null);
 						}
 					},
