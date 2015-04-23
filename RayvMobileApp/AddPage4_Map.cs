@@ -6,14 +6,31 @@ using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
-	public class AddPage4 : ContentPage
+	public class AddPage4_Map : ContentPage
 	{
 		Map map;
 		EntryWithChangeButton AddressEd;
 		Entry NameEd;
 		Button SaveBtn;
 
-		public AddPage4 (Position searchPosition)
+		public event EventHandler Succeeded;
+		public event EventHandler Failed;
+
+		protected virtual void OnPositionSet (EventArgs e)
+		{
+			Navigation.PopAsync ();
+			if (Succeeded != null)
+				Succeeded (this, e);
+		}
+
+		protected virtual void OnPositionNotSet (EventArgs e)
+		{
+			Navigation.PopAsync ();
+			if (Failed != null)
+				Failed (this, e);
+		}
+
+		public AddPage4_Map (Position searchPosition)
 		{
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
@@ -159,7 +176,10 @@ namespace RayvMobileApp
 			}
 			Console.WriteLine ("AddPage4.DoAdd Push DedupPage");
 			MapSpan span = map.VisibleRegion;
-			this.Navigation.PushAsync (new AddPage5bDeDup (NameEd.Text, AddressEd.Text, span.Center));
+			var deDupPage = new AddPage5bDeDup (NameEd.Text, AddressEd.Text, span.Center);
+			deDupPage.Cancelled += Failed;
+			deDupPage.Confirmed += Succeeded;
+			this.Navigation.PushAsync (deDupPage);
 		}
 
 		#endregion

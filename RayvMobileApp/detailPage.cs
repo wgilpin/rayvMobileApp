@@ -42,7 +42,7 @@ namespace RayvMobileApp
 		ButtonWide CallBtn;
 		ButtonWide WebBtn;
 		Label distance;
-		Label Address;
+		LabelWithImageButton Address;
 		LabelWithImageButton Comment;
 		EntryWithButton CommentEditor;
 		private bool ShowToolbar;
@@ -326,6 +326,23 @@ namespace RayvMobileApp
 				DisplayPlace.website));
 		}
 
+		void DoDirections (object sender, EventArgs e)
+		{
+			if (Device.OS == TargetPlatform.iOS) {
+				//https://developer.apple.com/library/ios/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html
+				string uriString = String.Format ("http://maps.google.com/maps?daddr={0}", DisplayPlace.address);
+				uriString = new Regex ("\\s+").Replace (uriString, "+");
+				Device.OpenUri (new Uri (uriString));
+
+			} else if (Device.OS == TargetPlatform.Android) {
+				// opens the 'task chooser' so the user can pick Maps, Chrome or other mapping app
+				Device.OpenUri (new Uri ("http://maps.google.com/?daddr=San+Francisco,+CA&saddr=Mountain+View"));
+
+			} else if (Device.OS == TargetPlatform.WinPhone) {
+				DisplayAlert ("To Do", "Not yet implemented", "OK");
+			}
+		}
+
 		async void DoMakeCall (object sender, EventArgs e)
 		{
 			if (DisplayPlace.telephone == null)
@@ -342,7 +359,7 @@ namespace RayvMobileApp
 
 		#endregion
 
-		public DetailPage (Place place, bool showToolbar = false)
+		public DetailPage (Place place, bool showToolbar = false, bool showMapBtn = true)
 		{
 			Analytics.TrackPage ("DetailPage");
 			ShowToolbar = showToolbar;
@@ -404,8 +421,10 @@ namespace RayvMobileApp
 			CuisineAndDistanceGrid.Children.Add (distance, 1, 0);
 
 			MainGrid.Children.Add (CuisineAndDistanceGrid, 0, 3, IMAGE_HEIGHT + 1, IMAGE_HEIGHT + 2);
-			Address = new LabelWide {
+			Address = new LabelWithImageButton {
 				TextColor = Color.FromHex ("707070"),
+				Source = "Icon default directions1.png",
+				OnClick = DoDirections,
 			};
 			MainGrid.Children.Add (Address, 0, 3, IMAGE_HEIGHT + 2, IMAGE_HEIGHT + 3);
 
@@ -469,15 +488,17 @@ namespace RayvMobileApp
 			} else {
 				Content = EditGrid;
 			}
-			ToolbarItems.Add (new ToolbarItem {
-				Text = "Map ",
-//				Icon = "icon-map.png",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					Debug.WriteLine ("detailPage Map Toolbar: Push MapPage");
-					Navigation.PushAsync (new MapPage (DisplayPlace));
-				})
-			});
+			if (showMapBtn) {
+				ToolbarItems.Add (new ToolbarItem {
+					Text = "Map ",
+					//				Icon = "icon-map.png",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => {
+						Debug.WriteLine ("detailPage Map Toolbar: Push MapPage");
+						Navigation.PushAsync (new MapPage (DisplayPlace));
+					})
+				});
+			}
 			ToolbarItems.Add (new ToolbarItem {
 				Text = " Edit",
 //				Icon = "187-pencil@2x.png",

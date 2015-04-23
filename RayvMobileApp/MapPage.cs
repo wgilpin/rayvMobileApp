@@ -12,21 +12,29 @@ namespace RayvMobileApp
 		Map map;
 		ToolbarItem ListBtn;
 
+		private Dictionary<string, Pin> PinList;
+
 		private void PinClick (object send, EventArgs e)
 		{
 			Console.WriteLine ("PIN CLICKED");
-			DisplayAlert ("Success!", "Inform Will Immediately. This is working", "Yay!");
-			var actionButton1 = new Button { Text = "ActionSheet Simple" };
-			actionButton1.Clicked += async (sender, ev) => {
-				var action = await DisplayActionSheet ("ActionSheet: Send to?", "Cancel", null, "Email", "Twitter", "Facebook");
-				Debug.WriteLine ("Action: " + action); // writes the selected button label to the console
-			};
+			string key = "";
+			foreach (KeyValuePair<string, Pin> kvp in PinList) {
+				if (kvp.Value == send)
+					key = kvp.Key;
+			}
+			if (string.IsNullOrEmpty (key)) {
+				Console.WriteLine ("Pin not found");
+				return;
+			}
+			Place p = Persist.Instance.GetPlace (key);
+			if (p != null)
+				this.Navigation.PushAsync (new DetailPage (p, showMapBtn: false));
 		}
 
 		private void SetupMapList (Position centre)
 		{
 			Console.WriteLine ("SetupMapList");
-//			map.Pins.Clear ();
+			map.Pins.Clear ();
 //			int debugCount = 0;
 //			Persist.Instance.DisplayList.Clear ();
 //			foreach (Place p in Persist.Instance.Places) {
@@ -44,6 +52,7 @@ namespace RayvMobileApp
 			}
 
 			Persist.Instance.Places.Sort ();
+			PinList = new Dictionary<string, Pin> ();
 			for (int i = 0; i < Persist.Instance.Places.Count; i++) {
 				if (i > 9)
 					break;
@@ -57,6 +66,7 @@ namespace RayvMobileApp
 				pin.Clicked += PinClick;
 
 				map.Pins.Add (pin);
+				PinList [p.key] = pin;
 				Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
 
 //				debugCount++;

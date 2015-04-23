@@ -82,7 +82,7 @@ namespace RayvMobileApp
 			return response;
 		}
 
-		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET, int getRetries = 3)
+		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET, int getRetries = settings.MAX_SERVER_RETRIES)
 		{
 			// only retry a Get
 			int MaxRetries = method == Method.GET ? getRetries : 1;

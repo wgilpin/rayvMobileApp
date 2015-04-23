@@ -72,6 +72,11 @@ namespace RayvMobileApp
 			set { _label.Text = value; }
 		}
 
+		public Color TextColor {
+			get { return _label.TextColor; }
+			set { _label.TextColor = value; }
+		}
+
 		public Label Label {
 			get { return _label; }
 		}

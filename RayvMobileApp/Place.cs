@@ -388,6 +388,8 @@ namespace RayvMobileApp
 					parameters ["myComment"] = Comment ();
 					parameters ["category"] = category;
 					parameters ["descr"] = "";
+					parameters ["website"] = website;
+					parameters ["telephone"] = telephone;
 					switch (vote) {
 					case "-1":
 						parameters ["voteScore"] = "dislike";

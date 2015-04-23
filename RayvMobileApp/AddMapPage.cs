@@ -12,6 +12,21 @@ namespace RayvMobileApp
 {
 	public class AddMapPage : ContentPage
 	{
+		public event EventHandler Confirmed;
+		public event EventHandler Cancelled;
+
+		protected virtual void OnConfirm (EventArgs e)
+		{
+			if (Confirmed != null)
+				Confirmed (this, e);
+		}
+
+		protected virtual void OnCancel (EventArgs e)
+		{
+			if (Cancelled != null)
+				Cancelled (this, e);
+		}
+
 		#region Private Fields
 
 		Map map;
@@ -20,6 +35,12 @@ namespace RayvMobileApp
 		bool Saving;
 
 		#endregion
+
+		public Double Lat { get { return map.VisibleRegion.Center.Latitude; } }
+
+		public Double Lng { get { return map.VisibleRegion.Center.Longitude; } }
+
+		public string Address { get { return AddressBox.Text; } }
 
 		#region Events
 
@@ -70,21 +91,8 @@ namespace RayvMobileApp
 			Saving = true;
 			Page parent = Navigation.NavigationStack [Navigation.NavigationStack.Count - 2];
 			// stack[count - 1] is top (this page), stack[count-2] is parent
-			if (parent is EditPage) {
-				//go back there
-				var editParent = (parent as EditPage);
-				var lat = map.VisibleRegion.Center.Latitude;
-				var lng = map.VisibleRegion.Center.Longitude;
-				Console.WriteLine ("AddMapPage - return to edit {0} - {1}/{2}", AddressBox.Text, lat, lng);
-				editParent.Address = AddressBox.Text;
-				editParent.Lat = lat;
-				editParent.Lng = lng;
-				Navigation.PopAsync ();
-			} else {
-				Console.WriteLine ("AddMapPage.DoAdd Push EditPage");
-				MapSpan span = map.VisibleRegion;
-				this.Navigation.PushAsync (new EditPage (span.Center, AddressBox.Text));
-			}
+			Console.WriteLine ("AddMapPage - return to edit {0} - {1}/{2}", AddressBox.Text, Lat, Lng);
+			OnConfirm (e);
 		}
 
 		#endregion

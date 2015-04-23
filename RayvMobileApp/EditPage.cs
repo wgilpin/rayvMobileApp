@@ -8,12 +8,46 @@ using System.Diagnostics;
 using Xamarin;
 using System.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace RayvMobileApp
 {
+	public class PlaceSavedEventArgs : EventArgs
+	{
+		private readonly Place _place;
+
+		public PlaceSavedEventArgs (Place place)
+		{
+			_place = place;
+		}
+
+		public Place EditedPlace {
+			get { return _place; }
+		}
+	}
+
 	public class EditPage : ContentPage
 	{
+
+		public event EventHandler<PlaceSavedEventArgs> Saved;
+		public event EventHandler Cancelled;
+
+		protected virtual void OnSaved (EventArgs e)
+		{
+			
+			if (Saved != null)
+				Saved (this, new PlaceSavedEventArgs (EditPlace));
+		}
+
+		protected virtual void OnCancel (EventArgs e)
+		{
+			if (Cancelled != null)
+				Cancelled (this, e);
+		}
+
 		#region Fields
+
+		public Place EditPlace;
 
 		Entry Place_name;
 		//		Image Img;
@@ -27,7 +61,6 @@ namespace RayvMobileApp
 		Entry PhoneNo;
 		Entry WebSite;
 		Entry AddressBox;
-		Place EditPlace;
 		Entry Comment;
 		bool IsNew;
 		bool Voted;
@@ -117,7 +150,7 @@ namespace RayvMobileApp
 			}
 			ConfirmAddressBtn.IsVisible = EditPlace.IsDraft && (Lat != 0.0 && Lng != 0.0);
 			SetOfflineVisibility ();
-				
+
 		}
 
 		public EditPage (bool addingNewPlace = false, bool editAsDraft = false)
@@ -317,12 +350,14 @@ namespace RayvMobileApp
 			DeleteButton.IsVisible = false;
 			IsNew = true;
 			EditPlace = new Place ();
+			EditPlace.place_name = placeName;
 			EditPlace.lat = position.Latitude;
 			EditPlace.lng = position.Longitude;
 			EditPlace.address = address;
 			if (!string.IsNullOrEmpty (placeName)) {
 				EditPlace.place_name = placeName;
 			}
+			Place_name.Text = ConvertToTitleCase (placeName);
 			AddressBox.Text = address;
 			SetOfflineVisibility ();
 		}
@@ -373,13 +408,21 @@ namespace RayvMobileApp
 				});
 				// geocode address
 				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (AddressBox.Text)).ToList ();
+				AddMapPage addMapPage;
 				if (positions.Count > 0) {
 					// load map at that location
-					await Navigation.PushAsync (new AddMapPage (positions.First ()));
+					addMapPage = new AddMapPage (positions.First ());
 				} else {
 					// load map at my location
-					await Navigation.PushAsync (new AddMapPage ());
+					addMapPage = new AddMapPage ();
 				}
+				addMapPage.Confirmed += (sender, ev) => {
+					Address = addMapPage.Address;
+					Lat = addMapPage.Lat;
+					Lng = addMapPage.Lng;
+					Navigation.PopAsync ();
+				};
+				await Navigation.PushAsync (new AddMapPage ());
 			} catch (Exception) {
 			}
 			Device.BeginInvokeOnMainThread (() => {
@@ -408,15 +451,8 @@ namespace RayvMobileApp
 			ShowSpinner (false);
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
-			if (AddingNewPlace) {
-				this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (EditPlace, true)));
-			} else {
-				if (IsNew) {
-					this.Navigation.PopToRootAsync ();
-				} else {
-					this.Navigation.PopAsync ();
-				}
-			}
+
+			OnSaved (null);
 		}
 
 		async void SaveWasBad ()
@@ -424,7 +460,18 @@ namespace RayvMobileApp
 			EditPlace.IsDraft = true;
 			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (EditPlace);
-			this.Navigation.PopToRootAsync ();
+			OnCancel (null);
+		}
+
+		private static string ConvertToTitleCase (string s)
+		{
+			// make the first letter of each word uppercase
+			var titlecase = CultureInfo.InvariantCulture.TextInfo.ToTitleCase (s.ToLower ());
+			// match any letter after an apostrophe and make uppercase
+			titlecase = Regex.Replace (titlecase, "[^A-Za-z0-9 ](?:.)", m => m.Value.ToUpper ());
+			// look for 'S at the end of a word and make lower
+			titlecase = Regex.Replace (titlecase, @"('S)\b", m => m.Value.ToLower ());
+			return titlecase;
 		}
 
 		async private void DoSave (object sender, EventArgs e)
@@ -470,10 +517,12 @@ namespace RayvMobileApp
 			// set the vote even if editing a draft, in case Save works
 			EditPlace.setComment (Comment.Text);
 			// Creates a TextInfo based on the "en-US" culture.
-			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;
-			EditPlace.address = myTI.ToTitleCase (AddressBox.Text);
-			EditPlace.place_name = myTI.ToTitleCase (Place_name.Text);
-			;
+//			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;
+			EditPlace.address = ConvertToTitleCase (AddressBox.Text);
+			EditPlace.place_name = ConvertToTitleCase (Place_name.Text);
+			EditPlace.website = WebSite.Text;
+			EditPlace.telephone = PhoneNo.Text;
+
 			string Message = "";
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (EditPlace.Save (out Message)) {

@@ -116,7 +116,11 @@ namespace RayvMobileApp
 				if (obj ["telephone"] != null)
 					p.telephone = obj ["telephone"].ToString ();
 				Debug.WriteLine ("AddPage1.DoSelectPlace Push EditPage");
-				this.Navigation.PushAsync (new EditPage (p, addingNewPlace: true));
+				var editPage = new EditPage (p, addingNewPlace: true);
+				editPage.Saved += (sender, ev) => {
+					this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (ev.EditedPlace, true)));
+				};
+				this.Navigation.PushAsync (editPage);
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
@@ -146,6 +150,16 @@ namespace RayvMobileApp
 			PlacesListView.IsVisible = false;
 			LocationResultsView.IsVisible = false;
 			PlaceNameBox.ButtonText = "Search";
+		}
+
+		void DoSuccess (object o, EventArgs e)
+		{
+			Navigation.PopAsync ();
+		}
+
+		void DoFail (object o, EventArgs e)
+		{
+			;
 		}
 
 		#endregion
@@ -210,7 +224,11 @@ namespace RayvMobileApp
 						var editAsDraft = await DisplayAlert ("Oops", "Unable to search. Network problems?", "Edit as draft", "Cancel");
 						if (editAsDraft) {
 							Persist.Instance.Online = false;
-							await this.Navigation.PushAsync (new EditPage (editAsDraft: true, addingNewPlace: true));
+							var editPage = new EditPage (editAsDraft: true, addingNewPlace: true);
+							editPage.Saved += (o, ev) => {
+								this.Navigation.PopAsync ();
+							};
+							await this.Navigation.PushAsync (editPage);
 						}
 					});
 				}
@@ -284,7 +302,10 @@ namespace RayvMobileApp
 				HeightRequest = 30,
 				Text = "Add unlisted place",
 				OnClick = (s, e) => {
-					this.Navigation.PushAsync (new AddPage4 (SearchPosition));
+					AddPage4_Map addMapPage = new AddPage4_Map (SearchPosition);
+					addMapPage.Succeeded += DoSuccess;
+					addMapPage.Failed += DoFail;
+					this.Navigation.PushAsync (addMapPage);
 				},
 				IsVisible = false,
 			};

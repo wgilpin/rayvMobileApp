@@ -15,9 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Place.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PersistantQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddMapPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AddMenu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage1.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AddPage4.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage5bDeDup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddResultsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddWhatPage.cs" />
@@ -25,7 +23,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BottomToolbar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Category.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ChoicePage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ChoosePlacePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CustomControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)detailPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditPage.cs" />
@@ -57,5 +54,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IntroPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IntroSlide.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ColorUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddPage4_Map.cs" />
   </ItemGroup>
 </Project>

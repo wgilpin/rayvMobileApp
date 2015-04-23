@@ -12,6 +12,21 @@ namespace RayvMobileApp
 {
 	public class AddPage5bDeDup : ContentPage
 	{
+		public event EventHandler Confirmed;
+		public event EventHandler Cancelled;
+
+		protected virtual void OnConfirm (EventArgs e)
+		{
+			if (Confirmed != null)
+				Confirmed (this, e);
+		}
+
+		protected virtual void OnCancel (EventArgs e)
+		{
+			if (Cancelled != null)
+				Cancelled (this, e);
+		}
+
 		#region Fields
 
 		static ListView listView;
@@ -27,17 +42,33 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void DoEdit (object sender, SelectedItemChangedEventArgs e)
+		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e)
+		{
+			this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (e.EditedPlace, true)));
+		}
+
+		void BackToRoot (object sender, EventArgs e)
+		{
+			this.Navigation.PopToRootAsync ();
+		}
+
+		void DoEditFromList (object sender, SelectedItemChangedEventArgs e)
 		{
 			Place p = (Place)e.SelectedItem;
 			Debug.WriteLine ("AddPage5bDeDup.DoEdit Push EditPage");
-			this.Navigation.PushAsync (new EditPage (p, addingNewPlace: true));
+			var editPage = new EditPage (p, addingNewPlace: true);
+			editPage.Saved += ShowPlaceOnDetailPage;
+			editPage.Cancelled += BackToRoot;
+			this.Navigation.PushAsync (editPage);
 		}
 
-		void DoConfirmed (object sender, EventArgs e)
+		void DoConfirmedManualDetails (object sender, EventArgs e)
 		{
 			Debug.WriteLine ("AddPage5bDeDup.DoConfirmed Push EditPage");
-			this.Navigation.PushAsync (new EditPage (LatLng, Address, PlaceName, addingNewPlace: true));
+			var editPage = new EditPage (LatLng, Address, PlaceName, addingNewPlace: true);
+			editPage.Saved += ShowPlaceOnDetailPage;
+			editPage.Cancelled += BackToRoot;
+			this.Navigation.PushAsync (editPage);
 		}
 
 		#endregion
@@ -117,13 +148,13 @@ namespace RayvMobileApp
 
 					new RayvButton {
 						Text = "Confirm",
-						OnClick = DoConfirmed,
+						OnClick = DoConfirmedManualDetails,
 					},
 				}
 			};
 					
 			listView = new PlacesListView (false);
-			listView.ItemSelected += DoEdit;
+			listView.ItemSelected += DoEditFromList;
 
 
 			Grid grid = new Grid {
