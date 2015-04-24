@@ -89,7 +89,7 @@ namespace RayvMobileApp
 			if (Saving)
 				return;
 			Saving = true;
-			Page parent = Navigation.NavigationStack [Navigation.NavigationStack.Count - 2];
+//			Page parent = Navigation.NavigationStack [Navigation.NavigationStack.Count - 2];
 			// stack[count - 1] is top (this page), stack[count-2] is parent
 			Console.WriteLine ("AddMapPage - return to edit {0} - {1}/{2}", AddressBox.Text, Lat, Lng);
 			OnConfirm (e);

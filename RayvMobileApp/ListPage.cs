@@ -152,16 +152,20 @@ namespace RayvMobileApp
 			DisplayPosition = Persist.Instance.GpsPosition;
 			Console.WriteLine ("ListPage.FilterList Constructor set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
-			this.Appearing += OnPageAppearing;
 			this.Disappearing += (sender, e) => {
 				if (_timer != null)
 					_timer.Close ();
+			};
+			this.Appearing += (sender, e) => {
+				if (NeedsReload)
+					Refresh ();
 			};
 		}
 
 		/**
 		 * Constructor when a cuisine is supplied
 		 */
+		// Todo: this should be setting a property, not a ctor
 		public ListPage (string cuisine) : this ()
 		{
 			MainFilter = FilterKind.Go;
@@ -179,20 +183,29 @@ namespace RayvMobileApp
 			var place = e.Item as Place;
 			if (place.IsDraft) {
 				NeedsReload = true;
-				Navigation.PushAsync (new EditPage (place));
+				var editPage = new EditPage (place);
+				editPage.Saved += (object s, PlaceSavedEventArgs ev) => {
+					Navigation.PopAsync ();
+					Navigation.PushAsync (new DetailPage (place));
+				};
+				Navigation.PushAsync (editPage);
 			} else {
-				Navigation.PushAsync (new DetailPage (place));
+				var detailPage = new DetailPage (place);
+				detailPage.Closed += (s, ev) => {
+					if ((s as DetailPage).Dirty) {
+						Refresh ();
+					}
+				};
+				NeedsReload = false;
+				Navigation.PushAsync (detailPage);
 			}
 		}
 
-		async void OnPageAppearing (object sender, EventArgs e)
+		void Refresh ()
 		{
-			Console.WriteLine ("Listpage.OnPageAppearing");
-			if (NeedsReload) {
-				await FilterList ();
-				StartTimerIfNoGPS ();
-				NeedsReload = false;
-			}
+			Console.WriteLine ("ListPage.Refresh");
+			FilterList ();
+			StartTimerIfNoGPS ();
 		}
 
 		public void DoPickMyLocation (object s, EventArgs e)

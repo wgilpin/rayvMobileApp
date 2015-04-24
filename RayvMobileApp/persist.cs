@@ -877,6 +877,8 @@ namespace RayvMobileApp
 				} else {
 					Db.InsertOrReplace (new Configuration (key, value));
 				}
+			} catch (System.NotSupportedException ex) {
+				Console.WriteLine ("innerSetConfig NotSupportedException {0}", key);
 			} catch (Exception ex) {
 				Insights.Report (ex, key, value);
 			}

@@ -422,7 +422,7 @@ namespace RayvMobileApp
 					Lng = addMapPage.Lng;
 					Navigation.PopAsync ();
 				};
-				await Navigation.PushAsync (new AddMapPage ());
+				await Navigation.PushAsync (addMapPage);
 			} catch (Exception) {
 			}
 			Device.BeginInvokeOnMainThread (() => {
@@ -476,67 +476,73 @@ namespace RayvMobileApp
 
 		async private void DoSave (object sender, EventArgs e)
 		{
-			if (String.IsNullOrEmpty (Place_name.Text)) {
-				await DisplayAlert ("Warning", "You must name the place", "OK");
-				Place_name.Focus ();
-				return;
-			}
+			try {
+				SaveBtn.IsEnabled = false;
 
-			if (!Voted) {
-				await DisplayAlert ("Warning", "You must vote", "OK");
-				return;
-			}
-			if (String.IsNullOrEmpty (Comment.Text)) {
-				if (EditPlace.vote == "1" || EditPlace.vote == "-1") {
-					// need to comment unless its a wishlist item
-					await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
-					Comment.Focus ();
+				if (String.IsNullOrEmpty (Place_name.Text)) {
+					await DisplayAlert ("Warning", "You must name the place", "OK");
+					Place_name.Focus ();
 					return;
 				}
-			}
-			ShowSpinner (true);
-			if (EditPlace.IsDraft) {
-				EditPlace.DraftComment = Comment.Text;
-			}
-			if (Persist.Instance.Online && Lat == 0.0 && Lng == 0.0) {
-				if (await DisplayAlert ("Draft", "You must confirm the location", "OK", "Cancel")) {
-					DoConfirmAddress (null, null);
+
+				if (!Voted) {
+					await DisplayAlert ("Warning", "You must vote", "OK");
+					return;
 				}
-				ShowSpinner (false);
-				return;
-			}
-			if (Category.IsVisible) {
-				if (Category.SelectedIndex == -1) {
-					await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+				if (String.IsNullOrEmpty (Comment.Text)) {
+					if (EditPlace.vote == "1" || EditPlace.vote == "-1") {
+						// need to comment unless its a wishlist item
+						await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
+						Comment.Focus ();
+						return;
+					}
+				}
+				ShowSpinner (true);
+				if (EditPlace.IsDraft) {
+					EditPlace.DraftComment = Comment.Text;
+				}
+				if (Persist.Instance.Online && Lat == 0.0 && Lng == 0.0) {
+					if (await DisplayAlert ("Draft", "You must confirm the location", "OK", "Cancel")) {
+						DoConfirmAddress (null, null);
+					}
 					ShowSpinner (false);
 					return;
 				}
-				EditPlace.category = Category.Items [Category.SelectedIndex];
-			}
-		
-			// set the vote even if editing a draft, in case Save works
-			EditPlace.setComment (Comment.Text);
-			// Creates a TextInfo based on the "en-US" culture.
-//			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;
-			EditPlace.address = ConvertToTitleCase (AddressBox.Text);
-			EditPlace.place_name = ConvertToTitleCase (Place_name.Text);
-			EditPlace.website = WebSite.Text;
-			EditPlace.telephone = PhoneNo.Text;
-
-			string Message = "";
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				if (EditPlace.Save (out Message)) {
-					Device.BeginInvokeOnMainThread (() => {
-						SaveWasGood ();
-					});
-					#pragma warning restore 4014
-				} else {
-					Device.BeginInvokeOnMainThread (() => {
-						SaveWasBad ();
-					});
+				if (Category.IsVisible) {
+					if (Category.SelectedIndex == -1) {
+						await DisplayAlert ("Warning", "You must pick a cuisine", "OK");
+						ShowSpinner (false);
+						return;
+					}
+					EditPlace.category = Category.Items [Category.SelectedIndex];
 				}
+		
+				// set the vote even if editing a draft, in case Save works
+				EditPlace.setComment (Comment.Text);
+				// Creates a TextInfo based on the "en-US" culture.
+//			TextInfo myTI = new CultureInfo ("en-US", false).TextInfo;
+				EditPlace.address = ConvertToTitleCase (AddressBox.Text);
+				EditPlace.place_name = ConvertToTitleCase (Place_name.Text);
+				EditPlace.website = WebSite.Text;
+				EditPlace.telephone = PhoneNo.Text;
 
-			})).Start ();
+				string Message = "";
+				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+					if (EditPlace.Save (out Message)) {
+						Device.BeginInvokeOnMainThread (() => {
+							SaveWasGood ();
+						});
+						#pragma warning restore 4014
+					} else {
+						Device.BeginInvokeOnMainThread (() => {
+							SaveWasBad ();
+						});
+					}
+
+				})).Start ();
+			} finally {
+				SaveBtn.IsEnabled = true;
+			}
 
 		}
 

@@ -13,6 +13,7 @@ using System.Linq;
 
 namespace RayvMobileApp
 {
+	
 	class DetailLabel : Label
 	{
 		public DetailLabel (string text) : base ()
@@ -30,6 +31,14 @@ namespace RayvMobileApp
 		const string DISLIKE_TEXT = "Dislike";
 		const string WISH_TEXT = "Wishlist";
 
+		public event EventHandler Closed;
+
+		protected virtual void OnClose (EventArgs e)
+		{
+			if (Closed != null)
+				Closed (this, e);
+		}
+
 		#region Fields
 
 		Place DisplayPlace;
@@ -46,6 +55,7 @@ namespace RayvMobileApp
 		LabelWithImageButton Comment;
 		EntryWithButton CommentEditor;
 		private bool ShowToolbar;
+		public bool Dirty;
 
 		#endregion
 
@@ -156,11 +166,11 @@ namespace RayvMobileApp
 				if (answer) {
 					Insights.Track ("EditPage.DeletePlace", "Place", DisplayPlace.place_name);
 					DisplayPlace.Delete ();
-					RefreshListPage ();
+					Dirty = true;
 					await Navigation.PopToRootAsync ();
 				}
 			} else if (DisplayPlace.Save (out Message)) {
-				RefreshListPage ();
+				Dirty = true;
 				Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
 					{ "PlaceName", DisplayPlace.place_name },
 					{ "Vote", DisplayPlace.vote.ToString () },
@@ -297,17 +307,12 @@ namespace RayvMobileApp
 			}
 		}
 
-		void RefreshListPage ()
-		{
-			if (Navigation.NavigationStack [0] is ListPage) {
-				(Navigation.NavigationStack [0] as ListPage).NeedsReload = true;
-			}
-		}
+
 
 		void DoEdit ()
 		{
 			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
-			RefreshListPage ();
+			Dirty = true;
 			Navigation.PushAsync (new EditPage (DisplayPlace));
 		}
 
@@ -507,6 +512,9 @@ namespace RayvMobileApp
 					DoEdit ();
 				})
 			});
+			this.Disappearing += (object sender, EventArgs e) => {
+				OnClose (e);
+			};
 		}
 	}
 }

@@ -216,17 +216,16 @@ namespace RayvMobileApp
 						AddManualAddress.IsVisible = true;
 					});
 				} catch (Exception e) {
-					Insights.Report (e);
 					restConnection.LogErrorToServer ("AddPage1.DoSearch: Exception {0}", e);
 					Device.BeginInvokeOnMainThread (async() => {
 						Console.WriteLine ("AddMenu.DoSearch: MainThread Exception");
 						Spinner.IsRunning = false;
-						var editAsDraft = await DisplayAlert ("Oops", "Unable to search. Network problems?", "Edit as draft", "Cancel");
+						var editAsDraft = await DisplayAlert ("No Network", "Unable to search. Network problems?", "Edit as draft", "Cancel");
 						if (editAsDraft) {
 							Persist.Instance.Online = false;
 							var editPage = new EditPage (editAsDraft: true, addingNewPlace: true);
 							editPage.Saved += (o, ev) => {
-								this.Navigation.PopAsync ();
+								this.Navigation.PushModalAsync (new NavigationPage (new ListPage ()));
 							};
 							await this.Navigation.PushAsync (editPage);
 						}
