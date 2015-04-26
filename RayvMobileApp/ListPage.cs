@@ -393,7 +393,7 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.FilterList");
 			Persist data = Persist.Instance;
-			data.SortPlaces (updateDistancePosition: DisplayPosition);
+//			data.SortPlaces (updateDistancePosition: DisplayPosition);
 			try {
 				String text = FilterSearchBox.Text.ToLower ();
 				if (text.Length > 0)
@@ -462,9 +462,9 @@ namespace RayvMobileApp
 					IsFiltered = true;
 					await NarrowGeoSearch ();
 				}
-				lock (Persist.Instance.Lock) {
-					data.SortPlaces (DisplayList);
-				}
+//				lock (Persist.Instance.Lock) {
+//					data.SortPlaces (DisplayList);
+//				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
@@ -665,6 +665,7 @@ namespace RayvMobileApp
 						NothingFound.IsVisible = false;
 						listView.IsVisible = true;
 						ItemsSource = null;
+						Console.WriteLine ("SetList SORT");
 						list.Sort ();
 						ItemsSource = list;
 						Spinner.IsVisible = false;

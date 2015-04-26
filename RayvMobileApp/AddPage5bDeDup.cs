@@ -97,6 +97,8 @@ namespace RayvMobileApp
 					foreach (Place point in points) {
 						point.CalculateDistanceFromPlace ();
 					}
+					Console.WriteLine ("DoSearch SORT");
+
 					points.Sort ();
 					Device.BeginInvokeOnMainThread (() => {
 						Console.WriteLine ("AddPage5bDeDup.DoSearch: MainThread"); 

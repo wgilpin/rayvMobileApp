@@ -200,6 +200,8 @@ namespace RayvMobileApp
 					foreach (Place point in points) {
 						point.CalculateDistanceFromPlace ();
 					}
+					Console.WriteLine ("AddPage1.DoSearch SORT");
+
 					points.Sort ();
 					if (!String.IsNullOrEmpty (searchLocation)) {
 						Persist.Instance.SearchHistory.Add (searchLocation, unique: true);

@@ -127,6 +127,7 @@ namespace RayvMobileApp
 					listView.IsVisible = true;
 					ItemsSource = null;
 					list.Sort ();
+					Console.WriteLine ("SetList SORT");
 					ItemsSource = list;
 					Spinner.IsRunning = false;
 

@@ -11,6 +11,7 @@ namespace RayvMobileApp
 		Button SearchHereBtn;
 		Map map;
 		ToolbarItem ListBtn;
+		ActivityIndicator Spinner;
 
 		private Dictionary<string, Pin> PinList;
 
@@ -35,6 +36,7 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("SetupMapList");
 			map.Pins.Clear ();
+			Spinner.IsRunning = true;
 //			int debugCount = 0;
 //			Persist.Instance.DisplayList.Clear ();
 //			foreach (Place p in Persist.Instance.Places) {
@@ -44,33 +46,39 @@ namespace RayvMobileApp
 //			}
 //			Console.WriteLine ("SetupMapList: Added {0} places", debugCount);
 //			debugCount = 0;
-			if (Persist.Instance.DisplayPosition != centre) {
-				Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", centre.Latitude, centre.Longitude);
-				Persist.Instance.DisplayPosition = centre;
-				foreach (var p in Persist.Instance.Places)
-					p.CalculateDistanceFromPlace (centre);
-			}
 
-			Persist.Instance.Places.Sort ();
-			PinList = new Dictionary<string, Pin> ();
-			for (int i = 0; i < Persist.Instance.Places.Count; i++) {
-				if (i > 9)
-					break;
-				Place p = Persist.Instance.Places [i];
-				Pin pin = new Pin {
-					Type = PinType.SearchResult,
-					Position = p.GetPosition (),
-					Label = p.place_name,
-					Address = p.address,
-				};
-				pin.Clicked += PinClick;
-
-				map.Pins.Add (pin);
-				PinList [p.key] = pin;
-				Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
-
-//				debugCount++;
-			}
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				if (Persist.Instance.DisplayPosition != centre) {
+					Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", centre.Latitude, centre.Longitude);
+					Persist.Instance.DisplayPosition = centre;
+					foreach (var p in Persist.Instance.Places)
+						p.CalculateDistanceFromPlace (centre);
+				}
+				Console.WriteLine ("SetupMapList SORT");
+				Persist.Instance.Places.Sort ();
+				Device.BeginInvokeOnMainThread (() => {
+					PinList = new Dictionary<string, Pin> ();
+					for (int i = 0; i < Persist.Instance.Places.Count; i++) {
+						if (i > 9)
+							break;
+						Place p = Persist.Instance.Places [i];
+						Pin pin = new Pin {
+							Type = PinType.SearchResult,
+							Position = p.GetPosition (),
+							Label = p.place_name,
+							Address = p.address,
+						};
+						pin.Clicked += PinClick;
+						
+						map.Pins.Add (pin);
+						PinList [p.key] = pin;
+						Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
+						
+						//				debugCount++;
+					}
+					Spinner.IsRunning = false;
+				});
+			})).Start ();
 //			Console.WriteLine ("SetupMapList: Pinned {0} places, map has {1}", debugCount, map.Pins.Count);
 
 		}
@@ -109,6 +117,7 @@ namespace RayvMobileApp
 			};
 			GoToHomeBtn.GestureRecognizers.Add (clickHome);
 
+			Spinner = new ActivityIndicator (){ Color = Color.Red };
 
 			AbsoluteLayout mapLayout = new AbsoluteLayout {
 				BackgroundColor = Color.Blue.WithLuminosity (0.9),
@@ -126,6 +135,12 @@ namespace RayvMobileApp
 				AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
 				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+
+			mapLayout.Children.Add (Spinner);
+			AbsoluteLayout.SetLayoutFlags (Spinner,
+				AbsoluteLayoutFlags.PositionProportional);
+			AbsoluteLayout.SetLayoutBounds (Spinner,
+				new Rectangle (0.5, 0.5, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			mapLayout.Children.Add (GoToHomeBtn);
 			AbsoluteLayout.SetLayoutFlags (GoToHomeBtn,

@@ -75,8 +75,8 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-//					new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute) },
+//					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (50, GridUnitType.Absolute) },
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = settings.BaseColor,
@@ -90,28 +90,22 @@ namespace RayvMobileApp
 			Image settingsImg = new ImageButton ("TB default profile.png", ShowProfile) { HorizontalOptions = LayoutOptions.Center };
 
 
-			int selectedColumn = 0;
 			if (pressed != null) {
 				switch (pressed) {
 				case "list":
 					ListImg.Source = "TB active search.png";
-					selectedColumn = 0;
 					break;
 				case "friends":
 					friendsImg.Source = "TB active friends.png";
-					selectedColumn = 1;
 					break;
 				case "add":
 					addImg.Source = "TB active add.png";
-					selectedColumn = 2;
 					break;
 				case "news":
 					newsImg.Source = "TB active news.png";
-					selectedColumn = 3;
 					break;
 				case "profile":
 					settingsImg.Source = "TB active profile.png";
-					selectedColumn = 4;
 					break;
 				}
 			}

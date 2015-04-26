@@ -216,7 +216,7 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void LoadFromDb (String onlyWithCuisineType = null)
+		public void LoadFromDb (String onlyWithCuisineType = null, LoadingPage loader = null)
 		{
 			UpdateSchema ();
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
@@ -224,12 +224,17 @@ namespace RayvMobileApp
 					//load the data from the db
 					Console.WriteLine ("Persist.LoadFromDb loading");
 
+					if (loader != null)
+						loader.SetMessage ("Loading from database", 0.1);
 					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 					Places.Clear ();
 					var place_q = Db.Table<Place> ();
 					if (onlyWithCuisineType == null) {
 						// all cuisine types
 						Places.AddRange (place_q);
+						Console.WriteLine ("Persist.LoadFromDb Range Added");
+						if (loader != null)
+							loader.SetMessage ("Calculating distances", 0.2);
 						foreach (var p in Places) {
 							if (string.IsNullOrEmpty (p.category))
 								p.IsDraft = true;
@@ -245,13 +250,18 @@ namespace RayvMobileApp
 								p.CalculateDistanceFromPlace ();
 							}
 						}
+					Console.WriteLine ("LoadFromDb SORT");
 					Places.Sort ();
+					if (loader != null)
+						loader.SetMessage ("Loading votes", 0.3);
 					Votes.Clear ();
 					var votes_q = Db.Table<Vote> ();
 					foreach (var vote in votes_q)
 						Votes.Add (vote);
 
 					Console.WriteLine ("Persist.LoadFromDb loaded");
+					if (loader != null)
+						loader.SetMessage ("Loading friends", 0.4);
 					var friends_q = Db.Table<Friend> ();
 					foreach (var friend in friends_q)
 						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
@@ -410,6 +420,7 @@ namespace RayvMobileApp
 				lock (Lock) {
 					try {
 						Places = place_list.Values.ToList ();
+						Console.WriteLine ("StoreFullUserRecord SORT");
 						Places.Sort ();
 						Votes.Clear ();
 						foreach (JObject fr in obj ["friendsData"]) {
@@ -461,8 +472,8 @@ namespace RayvMobileApp
 									continue;
 								}
 								if (p.key == kvp.Key) {
-									p = kvp.Value;
-									p.IsDraft = false;
+									kvp.Value.IsDraft = false;
+									Places [PlacesIdx] = kvp.Value;
 									Added = true;
 									break;
 								}
@@ -561,7 +572,7 @@ namespace RayvMobileApp
 			return webReq;
 		}
 
-		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false)
+		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false, LoadingPage loader = null)
 		{
 			if (incremental) {
 				if (since == null) {
@@ -573,6 +584,8 @@ namespace RayvMobileApp
 			}
 			restConnection webReq = GetWebRequest ();
 			if (webReq != null) {
+				if (loader != null)
+					loader.SetMessage ("Checking network", 0.5);
 				IRestResponse resp;
 				Console.WriteLine ("GetUserData Login");
 				resp = webReq.get ("/api/login", null);
@@ -596,15 +609,21 @@ namespace RayvMobileApp
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				}
+				if (loader != null)
+					loader.SetMessage ("Contacting server", 0.7);
 				resp = InnerGetUserData (since, webReq);
 				if (since != null) {
 					// incremental
+					if (loader != null)
+						loader.SetMessage ("Storing update", 0.9);
 					StoreUpdatedUserRecord (resp);
 					if (Persist.Instance.Places.Count == 0) {
 						resp = InnerGetUserData (null, webReq);
 						StoreFullUserRecord (resp);
 					}
 				} else {
+					if (loader != null)
+						loader.SetMessage ("Storing data", 0.9);
 					StoreFullUserRecord (resp);
 				}
 				Persist.Instance.SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
@@ -660,7 +679,7 @@ namespace RayvMobileApp
 
 					}
 					UpdateCategoryCounts ();
-					
+					Console.WriteLine ("updatePlaces SORT");
 					Places.Sort ();
 					foreach (Vote v in Votes) {
 						try {
@@ -707,6 +726,8 @@ namespace RayvMobileApp
 					p.CalculateDistanceFromPlace (updateDistancePosition);
 				}
 			}
+			Console.WriteLine ("SortPlaces SORT");
+
 			placeList.Sort ();
 		}
 

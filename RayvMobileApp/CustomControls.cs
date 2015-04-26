@@ -313,6 +313,8 @@ namespace RayvMobileApp
 		{
 			Source = source;
 			OnClick = onClick;
+			VerticalOptions = LayoutOptions.Center;
+			HorizontalOptions = LayoutOptions.Center;
 		}
 	}
 
