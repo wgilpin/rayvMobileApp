@@ -169,7 +169,7 @@ namespace RayvMobileApp
 					Dirty = true;
 					await Navigation.PopToRootAsync ();
 				}
-			} else if (DisplayPlace.Save (out Message)) {
+			} else if (DisplayPlace.SaveVote (out Message)) {
 				Dirty = true;
 				Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
 					{ "PlaceName", DisplayPlace.place_name },

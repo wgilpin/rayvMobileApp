@@ -22,7 +22,7 @@ namespace RayvMobileApp
 		public const  string SERVER = "server";
 		public const  string DEFAULT_SERVER = "https://rayv-app.appspot.com/";
 		public const  string LAST_SYNC = "last_sync";
-		public const int MAX_SERVER_RETRIES = 1;
+		public const int MAX_SERVER_TRIES = 1;
 		public static Color BaseColor = Color.FromHex ("4A90E2");
 		//		public static Color ColorLight = Color.FromHex ("718CBE");
 		//		public static Color ColorDark = Color.FromHex ("6883B5");

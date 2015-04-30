@@ -50,11 +50,39 @@ namespace RayvMobileApp
 
 			StackLayout tools = new BottomToolbar (this, "add");
 
+			var PlaceText = new StackLayout { 
+				VerticalOptions = LayoutOptions.End, 
+				TranslationY = -30,
+				Children = { 
+					new Label {
+						Text = "Add Place",
+						FontSize = 35,
+						VerticalOptions = LayoutOptions.End,
+						HorizontalOptions = LayoutOptions.Center,
+						TextColor = Color.White,
+					},
+				}
+			};
+			var FriendText = new StackLayout { 
+				VerticalOptions = LayoutOptions.End, 
+				TranslationY = -30,
+				Children = { 
+					new Label {
+						Text = "Add Friend",
+						FontSize = 35,
+						VerticalOptions = LayoutOptions.End,
+						HorizontalOptions = LayoutOptions.Center,
+						TextColor = Color.White,
+					},
+				}
+			};
 			grid.Children.Add (addImg, 0, 0);
+			grid.Children.Add (PlaceText, 0, 0);
 			grid.Children.Add (friendsImg, 0, 1);
+			grid.Children.Add (FriendText, 0, 1);
 			grid.Children.Add (tools, 0, 2);
 			Content = grid;
-			BackgroundColor = settings.ColorOffWhite;
+			BackgroundColor = settings.BaseColor;
 		}
 	}
 }

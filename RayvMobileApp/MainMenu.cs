@@ -42,6 +42,7 @@ namespace RayvMobileApp
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
 				}
 			};
 			// ADD
@@ -91,13 +92,59 @@ namespace RayvMobileApp
 			};
 			choiceImg.GestureRecognizers.Add (clickChoice);
 
+			var FindText = new StackLayout { 
+				VerticalOptions = LayoutOptions.End, 
+				TranslationY = -30,
+				Children = { 
+					new Label {
+						Text = "Find Food",
+						FontSize = 35,
+						VerticalOptions = LayoutOptions.End,
+						HorizontalOptions = LayoutOptions.Center,
+						TextColor = Color.White,
+					},
+				}
+			};
+
+			var AddText = new StackLayout { 
+				VerticalOptions = LayoutOptions.End, 
+				TranslationY = -30,
+				Children = { 
+					new Label {
+						Text = "Add",
+						FontSize = 35,
+						VerticalOptions = LayoutOptions.End,
+						HorizontalOptions = LayoutOptions.Center,
+						TextColor = Color.White,
+					},
+				}
+			};
+
+			var NewsText = new StackLayout { 
+				VerticalOptions = LayoutOptions.End, 
+				TranslationY = -30,
+				Children = { 
+					new Label {
+						Text = "Activity",
+						FontSize = 35,
+						VerticalOptions = LayoutOptions.End,
+						HorizontalOptions = LayoutOptions.Center,
+						TextColor = Color.White,
+					},
+				}
+			};
 
 			// SHARE
 			grid.Children.Add (choiceImg, 0, 0);
+			grid.Children.Add (FindText, 0, 0);
+//			grid.Children.Add (DarkBg, 0, 1);
 			grid.Children.Add (addImg, 0, 1);
+			grid.Children.Add (AddText, 0, 1);
 			grid.Children.Add (newsImg, 0, 2);
+			grid.Children.Add (NewsText, 0, 2);
 //			grid.Children.Add (friendsImg, 0, 3);
 //			grid.Children.Add (profileImg, 0, 4);
+			this.BackgroundColor = settings.BaseColor;
 			this.Content = grid;
 
 //			AppDelegate.locationMgr = new LocationManager ();

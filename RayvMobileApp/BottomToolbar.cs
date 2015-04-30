@@ -66,7 +66,7 @@ namespace RayvMobileApp
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {
-				Padding = 0,
+				Padding = 4,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },

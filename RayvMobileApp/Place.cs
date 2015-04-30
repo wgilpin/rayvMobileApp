@@ -129,7 +129,13 @@ namespace RayvMobileApp
 		}
 
 		public string img { 
-			get { return _img; } 
+			get { 
+				if (string.IsNullOrEmpty (_img))
+					return "";
+				if (_img [0] == 'h')
+					return _img;
+				return Persist.Instance.GetConfig (settings.SERVER) + _img; 
+			} 
 			set { SetField (ref _img, value, "img"); } 
 		}
 
@@ -139,7 +145,13 @@ namespace RayvMobileApp
 		}
 
 		public string thumbnail { 
-			get { return _thumbnail; } 
+			get { 
+				if (string.IsNullOrEmpty (_thumbnail))
+					return "";
+				if (_thumbnail [0] == 'h')
+					return _thumbnail;
+				return Persist.Instance.GetConfig (settings.SERVER) + _thumbnail;
+			} 
 			set { SetField (ref _thumbnail, value, "thumbnail"); } 
 		}
 
@@ -425,6 +437,61 @@ namespace RayvMobileApp
 						// no try..catch as it's inside one
 						if (!Persist.Instance.UpdatePlace (this)) {
 							errorMessage = "Failed to save draft";
+							return false;
+						}
+					}
+				}
+				errorMessage = "";
+				return true;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				// store the rrorMessage for the out param
+				errorMessage = String.Format ("Place.Save: Exception {0}", ex);
+				restConnection.LogErrorToServer (errorMessage);
+				return false;
+			}
+		}
+
+		public bool SaveVote (out String errorMessage)
+		{
+			if (IsDraft) {
+				throw new NotSupportedException ("Can't save a vote on a draft ");
+			}
+			try {
+				if (Persist.Instance.Online) {
+					Dictionary<string, string> parameters = new Dictionary<string, string> ();
+
+					parameters ["key"] = key;
+					parameters ["myComment"] = Comment ();
+					switch (vote) {
+					case "-1":
+						parameters ["voteScore"] = "dislike";
+						break;
+					case "1":
+						parameters ["voteScore"] = "like";
+						break;
+					default:
+						parameters ["untried"] = "true";
+						break;
+					}
+
+					string result = restConnection.Instance.post ("/api/vote", parameters);
+					//			JObject obj = JObject.Parse (result);
+					if (result == "OK") {
+						lock (Persist.Instance.Lock) {
+							// no try..catch as it's inside one
+							if (!Persist.Instance.UpdateVote (this)) {
+								errorMessage = "Failed to update";
+								return false;
+							}
+						
+						}
+					}
+				} else {
+					lock (Persist.Instance.Lock) {
+						// no try..catch as it's inside one
+						if (!Persist.Instance.UpdateVote (this)) {
+							errorMessage = "Can't vote offline";
 							return false;
 						}
 					}

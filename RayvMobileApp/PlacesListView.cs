@@ -84,7 +84,7 @@ namespace RayvMobileApp
 				if (ShowVotes) {
 
 					Label upVotes = new Label {
-						TextColor = settings.BaseColor,
+						TextColor = ColorUtil.Darker (settings.BaseColor),
 						XAlign = TextAlignment.End,
 						HorizontalOptions = LayoutOptions.End,
 						TranslationX = 2,
@@ -96,7 +96,7 @@ namespace RayvMobileApp
 						new Binding ("key", converter: new KeyToUpVotersConverter ()));
 					Label downVotes = new Label {
 						HorizontalOptions = LayoutOptions.End,
-						TextColor = Color.FromRgb (255, 128, 128),
+						TextColor = Color.FromHex ("A22"),
 						XAlign = TextAlignment.End,
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						TranslationY = 2,

@@ -220,23 +220,7 @@
     <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
     <BundleResource Include="Resources\centre-button.png" />
     <BundleResource Include="Resources\Add Select right button.png" />
-    <BundleResource Include="Resources\TB active add.png" />
-    <BundleResource Include="Resources\TB active friends.png" />
-    <BundleResource Include="Resources\TB active news %281%29.png" />
-    <BundleResource Include="Resources\TB active news.png" />
-    <BundleResource Include="Resources\TB active profile.png" />
-    <BundleResource Include="Resources\TB active search.png" />
-    <BundleResource Include="Resources\TB default add.png" />
-    <BundleResource Include="Resources\TB default friends.png" />
     <BundleResource Include="Resources\TB default news %281%29.png" />
-    <BundleResource Include="Resources\TB default news.png" />
-    <BundleResource Include="Resources\TB default profile.png" />
-    <BundleResource Include="Resources\TB default search.png" />
-    <BundleResource Include="Resources\Big Add.png" />
-    <BundleResource Include="Resources\Big find food.png" />
-    <BundleResource Include="Resources\Add place.png" />
-    <BundleResource Include="Resources\Add friend.png" />
-    <BundleResource Include="Resources\Big activity.png" />
     <BundleResource Include="Resources\Icon default directions.png" />
     <BundleResource Include="Resources\Icon default directions1.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
@@ -249,6 +233,21 @@
     <BundleResource Include="Resources\Intro 3 foodie friends.png" />
     <BundleResource Include="Resources\add 2.png" />
     <BundleResource Include="Resources\Intro head 2a.png" />
+    <BundleResource Include="Resources\TB default add.png" />
+    <BundleResource Include="Resources\TB default friends.png" />
+    <BundleResource Include="Resources\TB default news.png" />
+    <BundleResource Include="Resources\TB default profile.png" />
+    <BundleResource Include="Resources\TB default search.png" />
+    <BundleResource Include="Resources\TB active add.png" />
+    <BundleResource Include="Resources\TB active friends.png" />
+    <BundleResource Include="Resources\TB active news.png" />
+    <BundleResource Include="Resources\TB active profile.png" />
+    <BundleResource Include="Resources\TB active search.png" />
+    <BundleResource Include="Resources\Big Add.png" />
+    <BundleResource Include="Resources\Big find food.png" />
+    <BundleResource Include="Resources\Add friend.png" />
+    <BundleResource Include="Resources\Add place.png" />
+    <BundleResource Include="Resources\Big activity.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

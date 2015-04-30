@@ -81,6 +81,8 @@ namespace RayvMobileApp
 				//ItemsSource = Persist.Instance.Places,
 			};
 			listView.ItemTapped += DoSelectListItem;
+			listView.Refreshing += DoServerRefresh;
+			listView.IsPullToRefreshEnabled = true;
 			StackLayout tools = new BottomToolbar (this, "list");
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
@@ -206,6 +208,13 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListPage.Refresh");
 			FilterList ();
 			StartTimerIfNoGPS ();
+		}
+
+		public void DoServerRefresh (object s, EventArgs e)
+		{
+			Persist.Instance.GetUserData (this, since: new DateTime (), incremental: true);
+			Refresh ();
+			listView.EndRefresh ();
 		}
 
 		public void DoPickMyLocation (object s, EventArgs e)

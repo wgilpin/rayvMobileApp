@@ -427,13 +427,13 @@ namespace RayvMobileApp
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = new Friend (name, fr_id);
-							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-							if (vote_list != null) {
-								foreach (KeyValuePair<string, Vote> v in vote_list) {
-									v.Value.voter = fr_id;
-								}
-								Votes.AddRange (vote_list.Values);
+						}
+						Dictionary<string, Vote> vote_list = obj ["votes"].ToObject<Dictionary<string, Vote> > ();
+						if (vote_list != null) {
+							foreach (KeyValuePair<string, Vote> kvp in vote_list) {
+								Votes.Add (kvp.Value);
 							}
+							updateVotes ();
 						}
 						//sort
 						updatePlaces ();
@@ -481,35 +481,34 @@ namespace RayvMobileApp
 							if (!Added)
 								Places.Add (kvp.Value);
 						}
-						List<Vote> NewVotes = new List<Vote> ();
 						foreach (JObject fr in obj ["friendsData"]) {
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = new Friend (name, fr_id);
 							Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
-							Dictionary<string, Vote> vote_list = fr ["votes"].ToObject<Dictionary<string, Vote>> ();
-							if (vote_list != null)
-								foreach (KeyValuePair<string, Vote> v in vote_list) {
-									v.Value.voter = fr_id;
-									NewVotes.Add (v.Value);
-								}
 						}
-						int votesCount = Votes.Count ();
-						foreach (Vote v in NewVotes) {
-							Added = false;
-							for (int VoteIdx = 0; VoteIdx < votesCount; VoteIdx++) {
-								if (Votes [VoteIdx].key == v.key && Votes [VoteIdx].voter == v.voter) {
-									Votes [VoteIdx] = v;
-									Added = true;
-									break;
+						Dictionary<string, Vote> vote_list = obj ["votes"].ToObject<Dictionary<string, Vote>> ();
+						if (vote_list != null) {
+							foreach (KeyValuePair<string, Vote> kvp in vote_list) {
+								var existing_vote = (from old_vote in Votes
+								                     where old_vote.key == kvp.Value.key
+								                     select old_vote).First ();
+								if (existing_vote == null) {
+									Votes.Add (kvp.Value);
+								} else {
+									existing_vote.comment = kvp.Value.comment;
+									existing_vote.untried = kvp.Value.untried;
+									existing_vote.vote = kvp.Value.vote;
+									existing_vote.when = kvp.Value.when;
 								}
 							}
-							if (!Added)
-								Votes.Add (v);
 						}
-
+						updateVotes ();
 						//sort
 						updatePlaces ();
+						var updated_dict = new Dictionary<string,string> ();
+						updated_dict.Add ("userId", MyId.ToString ());
+						restConnection.Instance.post ("clear_user_updates", updated_dict);
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
@@ -598,14 +597,12 @@ namespace RayvMobileApp
 					return;
 				}
 				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-					//TODO: This doesn't work
-					Device.BeginInvokeOnMainThread (() => {
-						Console.WriteLine ("GetUserData: Need to login - push LoginPage");
-						caller.Navigation.PushModalAsync (new LoginPage ());
-
-
-
-					});
+					//TODO: Replace with event
+					if (caller != null)
+						Device.BeginInvokeOnMainThread (() => {
+							Console.WriteLine ("GetUserData: Need to login - push LoginPage");
+							caller.Navigation.PushModalAsync (new LoginPage ());
+						});
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				}
@@ -767,22 +764,8 @@ namespace RayvMobileApp
 			for (int i = 0; i < Places.Count (); i++) {
 				if (Places [i].key == place.key) {
 					try {
-//						if (!string.IsNullOrEmpty (place.key)) {
-//							var myVote = (from v in Votes
-//							              where v.voter == myIdString
-//							              select v).FirstOrDefault ();
-//							if (myVote != null) {
-//								try {
-//									myVote.vote = Convert.ToInt32 (Places [i].vote);
-//								} catch (Exception ex) {
-//									Insights.Report (ex);
-//									restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", Places [i].vote, Places [i].place_name);
-//									myVote.vote = Convert.ToInt32(place.vote);
-//								}
-//								myVote.untried = Places [i].untried;
-//							}
-//						}
 						StorePlace (place, removePlace: Places [i]);
+						UpdateVote (place);
 						return true;
 					} catch (Exception e) { 
 						Insights.Report (e);
@@ -793,6 +776,28 @@ namespace RayvMobileApp
 			}
 			StorePlace (place);
 			return true;
+		}
+
+		public bool UpdateVote (Place place)
+		{
+			Debug.WriteLine ("UpdateVote");
+			string myIdString = MyId.ToString ();
+			var myVote = (from v in Votes
+			              where v.voter == myIdString &&
+			                  v.key == place.key
+			              select v).First ();
+			if (myVote != null) {
+				try {
+					myVote.vote = Convert.ToInt32 (place.vote);
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", place.vote, place.place_name);
+					return false;
+				}
+				myVote.untried = place.untried;
+				return true;
+			}
+			return false;
 		}
 
 		public Place GetPlace (string key)

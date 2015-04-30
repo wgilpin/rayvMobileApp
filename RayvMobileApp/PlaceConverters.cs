@@ -174,7 +174,7 @@ namespace RayvMobileApp
 				Place p = Persist.Instance.GetPlace (key);
 				if (p.iVoted)
 					// I voted so we show it
-					return Device.GetNamedSize (NamedSize.Large, typeof(Label));
+					return Device.GetNamedSize (NamedSize.Default, typeof(Label));
 				return Device.GetNamedSize (NamedSize.Small, typeof(Label));
 
 			} catch (Exception ex) {
