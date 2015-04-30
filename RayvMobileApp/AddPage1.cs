@@ -220,7 +220,7 @@ namespace RayvMobileApp
 				} catch (Exception e) {
 					restConnection.LogErrorToServer ("AddPage1.DoSearch: Exception {0}", e);
 					Device.BeginInvokeOnMainThread (async() => {
-						Console.WriteLine ("AddMenu.DoSearch: MainThread Exception");
+						Console.WriteLine ("AddPage1.DoSearch: MainThread Exception");
 						Spinner.IsRunning = false;
 						var editAsDraft = await DisplayAlert ("No Network", "Unable to search. Network problems?", "Edit as draft", "Cancel");
 						if (editAsDraft) {

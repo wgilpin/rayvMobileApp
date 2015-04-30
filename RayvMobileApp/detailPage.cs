@@ -297,7 +297,7 @@ namespace RayvMobileApp
 				DisplayPlace.setComment (CommentEditor.Text);
 				CommentEditor.IsVisible = false;
 				string msg;
-				if (DisplayPlace.Save (out msg)) {
+				if (DisplayPlace.SaveVote (out msg)) {
 					Comment.IsVisible = true;
 					Comment.Text = DisplayPlace.Comment ();
 				} else
@@ -314,6 +314,12 @@ namespace RayvMobileApp
 			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
 			Dirty = true;
 			Navigation.PushAsync (new EditPage (DisplayPlace));
+		}
+
+		void DoCommentCompleted (object sender, EventArgs e)
+		{
+			CommentEditor.TextEntry.Unfocus ();
+			DoSaveComment (sender, e);
 		}
 
 		public void DoLoadPage (object sender, EventArgs e)
@@ -466,6 +472,7 @@ namespace RayvMobileApp
 				OnClick = DoSaveComment,
 				IsVisible = false,
 			};
+			CommentEditor.TextEntry.Completed += DoCommentCompleted;
 			MainGrid.Children.Add (CommentEditor, 0, 3, IMAGE_HEIGHT + 6, IMAGE_HEIGHT + 7);
 			MainGrid.Children.Add (Comment, 0, 3, IMAGE_HEIGHT + 6, IMAGE_HEIGHT + 7);
 

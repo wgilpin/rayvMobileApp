@@ -623,7 +623,8 @@ namespace RayvMobileApp
 						loader.SetMessage ("Storing data", 0.9);
 					StoreFullUserRecord (resp);
 				}
-				Persist.Instance.SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
+				SortPlaces ();
+				SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
 			}
 		}
 
@@ -785,19 +786,24 @@ namespace RayvMobileApp
 			var myVote = (from v in Votes
 			              where v.voter == myIdString &&
 			                  v.key == place.key
-			              select v).First ();
-			if (myVote != null) {
-				try {
-					myVote.vote = Convert.ToInt32 (place.vote);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", place.vote, place.place_name);
-					return false;
-				}
-				myVote.untried = place.untried;
-				return true;
+			              select v).FirstOrDefault ();
+			if (myVote == null) {
+				myVote = new Vote ();
+				myVote.voter = myIdString;
+				myVote.key = place.key;
+				Votes.Add (myVote);
 			}
-			return false;
+			try {
+				myVote.vote = Convert.ToInt32 (place.vote);
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", place.vote, place.place_name);
+				return false;
+			}
+			myVote.untried = place.untried;
+			myVote.comment = place.descr;
+			updateVotes ();
+			return true;
 		}
 
 		public Place GetPlace (string key)
