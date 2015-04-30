@@ -492,7 +492,7 @@ namespace RayvMobileApp
 							foreach (KeyValuePair<string, Vote> kvp in vote_list) {
 								var existing_vote = (from old_vote in Votes
 								                     where old_vote.key == kvp.Value.key
-								                     select old_vote).First ();
+								                     select old_vote).FirstOrDefault ();
 								if (existing_vote == null) {
 									Votes.Add (kvp.Value);
 								} else {
