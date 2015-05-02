@@ -504,15 +504,15 @@ namespace RayvMobileApp
 							}
 						}
 						updateVotes ();
-						//sort
-						updatePlaces ();
-						var updated_dict = new Dictionary<string,string> ();
-						updated_dict.Add ("userId", MyId.ToString ());
-						restConnection.Instance.post ("clear_user_updates", updated_dict);
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
 					}
+					//sort
+					updatePlaces ();
+					var updated_dict = new Dictionary<string,string> ();
+					updated_dict.Add ("userId", MyId.ToString ());
+					restConnection.Instance.post ("clear_user_updates", updated_dict);
 				}
 				Online = true;
 

@@ -94,7 +94,7 @@ namespace RayvMobileApp
 
 			var FindText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -30,
+				TranslationY = -27,
 				Children = { 
 					new Label {
 						Text = "Find Food",
@@ -109,6 +109,7 @@ namespace RayvMobileApp
 			var AddText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
 				TranslationY = -30,
+				TranslationX = -5,
 				Children = { 
 					new Label {
 						Text = "Add",
@@ -122,7 +123,7 @@ namespace RayvMobileApp
 
 			var NewsText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -30,
+				TranslationY = -27,
 				Children = { 
 					new Label {
 						Text = "Activity",

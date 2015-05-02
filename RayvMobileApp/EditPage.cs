@@ -306,6 +306,9 @@ namespace RayvMobileApp
 			Row++;
 			Comment = new Entry ();
 			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck);
+			Comment.Completed += (sender, e) => {
+				Comment.Unfocus ();
+			};
 
 			MainGrid.Children.Add (new Label { Text = "My Comment" }, 0, 3, Row, Row + 1);
 			Row++;

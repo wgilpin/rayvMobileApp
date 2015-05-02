@@ -133,14 +133,14 @@ namespace RayvMobileApp
 			Content = MainContent;
 
 			ToolbarItems.Add (new ToolbarItem {
-				Text = "Map",
+				Text = "  Map  ",
 //				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (ShowMap),
 			});
 
 			FilterTool = new ToolbarItem {
-				Text = "Filter",
+				Text = "  Filter  ",
 				//				Icon = "filter.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
@@ -517,11 +517,19 @@ namespace RayvMobileApp
 				Text = "",
 			};
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
+			FilterSearchBox.TextEntry.Completed += (sender, e) => {
+				FilterSearchBox.TextEntry.Unfocus ();
+				DoTextSearch (sender, e);
+			};
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",
 				Source = "TB active search.png",
 				OnClick = DoTextSearch,
 				Text = "",
+			};
+			FilterAreaSearchBox.TextEntry.Completed += (sender, e) => {
+				FilterAreaSearchBox.TextEntry.Unfocus ();
+				DoTextSearch (sender, e);
 			};
 //			AreaBox = new Entry {
 //				Placeholder = "Enter Area to Search",

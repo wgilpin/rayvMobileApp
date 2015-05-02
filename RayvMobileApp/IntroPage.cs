@@ -33,11 +33,11 @@ namespace RayvMobileApp
 				"logo.png",
 				"Welcome to Taste5",
 				"Location.png",
-				"Instantly find place to eat, liked by your friends",
+				"Find place to eat, liked by your friends",
 				"add 2.png",
-				"Quickly add places you wish to try in the future",
+				"Add places to try later",
 				"Share.png",
-				"Share places you like with your friends",
+				"Share places you like, with friends",
 				"Next",
 				GoTo2
 			);
@@ -49,7 +49,7 @@ namespace RayvMobileApp
 				"Dislike.png",
 				"Dislike: 'I would never go back here'",
 				"Wish1.png",
-				"Wish: 'I want to try this soon'",
+				"Wish: 'I want to try here soon'",
 				"Next",
 				GoTo3
 			);

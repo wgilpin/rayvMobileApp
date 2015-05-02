@@ -198,6 +198,9 @@ namespace RayvMobileApp
 					JObject obj = JObject.Parse (result);
 					List<Place> points = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
 					foreach (Place point in points) {
+						if (point == null)
+							continue;
+						Console.WriteLine (point.place_name);
 						point.CalculateDistanceFromPlace ();
 					}
 					Console.WriteLine ("AddPage1.DoSearch SORT");
@@ -289,6 +292,10 @@ namespace RayvMobileApp
 				OnClick = DoSearchForPlace,
 				ButtonText = "Search",
 			};
+			PlaceNameBox.Entry.Completed += (sender, e) => {
+				PlaceNameBox.Entry.Unfocus ();
+				DoSearchForPlace (sender, e);
+			};
 			LocationSearchedBox = new LabelWithChangeButton {
 				Text = "Searching current location",
 				OnClick = DoChangeLocation,
@@ -298,6 +305,10 @@ namespace RayvMobileApp
 				OnClick = DoFindLocation,
 				ButtonText = "Search",
 				IsVisible = false,
+			};
+			LocationEditBox.Entry.Completed += (sender, e) => {
+				LocationEditBox.Entry.Unfocus ();
+				DoFindLocation (sender, e);
 			};
 			AddManualAddress = new RayvButton {
 				HeightRequest = 30,

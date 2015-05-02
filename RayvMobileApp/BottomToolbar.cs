@@ -3,61 +3,110 @@ using Xamarin.Forms;
 
 namespace RayvMobileApp
 {
+	class BottomToolbarButton : Grid
+	{
+		private EventHandler _onClickHandler;
+		public ActivityIndicator Spinner;
+		private ImageButton _ib;
+
+
+		public ImageSource Source {
+			get { return _ib.Source; }
+			set { _ib.Source = value; }
+		}
+
+		void ButtonClicked (object o, EventArgs e)
+		{
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				Device.BeginInvokeOnMainThread (() => {
+					Spinner.IsRunning = true;
+					Spinner.IsVisible = true;
+				});
+				if (_onClickHandler != null) {
+					_onClickHandler (o, e);
+				}
+			})).Start ();
+		}
+
+		public BottomToolbarButton (string source, EventHandler onClick) : base ()
+		{
+			_onClickHandler = onClick;
+			_ib = new ImageButton (source, ButtonClicked);
+			Spinner = new ActivityIndicator { Color = Color.White, IsVisible = false };
+			VerticalOptions = LayoutOptions.FillAndExpand;
+			HorizontalOptions = LayoutOptions.FillAndExpand;
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			Children.Add (_ib, 0, 0);
+			Children.Add (Spinner, 0, 0);
+		}
+	}
+
 	public class BottomToolbar : StackLayout
 	{
-		BackgroundBox topYellow;
-		BackgroundBox bottomYellow;
 		Grid grid;
+		BottomToolbarButton friendsImg;
 
 		void ShowList (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: List button - push ListPage");
-			this.Navigation.PushModalAsync (
-				new NavigationPage (new ListPage ()) { 
-					BarBackgroundColor = settings.BaseColor,
-					BarTextColor = Color.White,
-				}, false);
+			Device.BeginInvokeOnMainThread (() => {
+				Console.WriteLine ("Toolbar: List button - push ListPage");
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new ListPage ()) { 
+						BarBackgroundColor = settings.BaseColor,
+						BarTextColor = Color.White,
+					}, false);
+			});
 		}
 
 		void ShowNews (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: News button - push NewsPage");
-			this.Navigation.PushModalAsync (
-				new NavigationPage (new NewsPage ()) { 
-					BarBackgroundColor = settings.BaseColor,
-					BarTextColor = Color.White,
-				}, false);
+			Device.BeginInvokeOnMainThread (() => {
+				Console.WriteLine ("Toolbar: News button - push NewsPage");
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new NewsPage ()) { 
+						BarBackgroundColor = settings.BaseColor,
+						BarTextColor = Color.White,
+					}, false);
+			});
 		}
 
 		void ShowProfile (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
-			this.Navigation.PushModalAsync (
-				new NavigationPage (new ProfilePage ()) { 
-					BarBackgroundColor = settings.BaseColor,
-					BarTextColor = Color.White,
-				}, false);
+			Device.BeginInvokeOnMainThread (() => {
+				Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new ProfilePage ()) { 
+						BarBackgroundColor = settings.BaseColor,
+						BarTextColor = Color.White,
+					}, false);
+			});
 		}
 
 		void ShowAdd (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: Add button - push AddMenu");
-			this.Navigation.PushModalAsync (
-				new NavigationPage (new AddWhatPage ()) { 
-					BarBackgroundColor = settings.BaseColor,
-					BarTextColor = Color.White,
-				}, false);
+			Device.BeginInvokeOnMainThread (() => {
+				Console.WriteLine ("Toolbar: Add button - push AddMenu");
+				this.Navigation.PushModalAsync (
+					new NavigationPage (new AddWhatPage ()) { 
+						BarBackgroundColor = settings.BaseColor,
+						BarTextColor = Color.White,
+					}, false);
+			});
 		}
 
 		void ShowFriends (object s, EventArgs e)
 		{
-			Console.WriteLine ("Toolbar: Friends button - NOT IMPLEMENTED");
-			object page = this;
-			while (!(page is Page))
-				page = (page as View).Parent;
-			if (page is Page)
-				(page as Page).DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
+			Device.BeginInvokeOnMainThread (() => {
+				Console.WriteLine ("Toolbar: Friends button - NOT IMPLEMENTED");
+				object page = this;
+				while (!(page is Page))
+					page = (page as View).Parent;
+				if (page is Page)
+					(page as Page).DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
+				friendsImg.Spinner.IsVisible = false;
 //			this.Navigation.PushModalAsync (new NavigationPage (new FriendsPage ()), false);
+			});
 		}
 
 
@@ -66,7 +115,8 @@ namespace RayvMobileApp
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {
-				Padding = 4,
+				Padding = 5,
+				ColumnSpacing = 5,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -80,14 +130,13 @@ namespace RayvMobileApp
 				},
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = settings.BaseColor,
-				ColumnSpacing = 0,
 			};
 
-			Image addImg = new ImageButton ("TB default add.png", ShowAdd) { HorizontalOptions = LayoutOptions.Center };
-			Image friendsImg = new ImageButton ("TB default friends.png", ShowFriends) { HorizontalOptions = LayoutOptions.Center };
-			Image newsImg = new ImageButton ("TB default news.png", ShowNews) { HorizontalOptions = LayoutOptions.Center };
-			Image ListImg = new ImageButton ("TB default search.png", ShowList) { HorizontalOptions = LayoutOptions.Center };
-			Image settingsImg = new ImageButton ("TB default profile.png", ShowProfile) { HorizontalOptions = LayoutOptions.Center };
+			var addImg = new BottomToolbarButton ("TB default add.png", ShowAdd) { HorizontalOptions = LayoutOptions.Center };
+			friendsImg = new BottomToolbarButton ("TB default friends.png", ShowFriends) { HorizontalOptions = LayoutOptions.Center };
+			var newsImg = new BottomToolbarButton ("TB default news.png", ShowNews) { HorizontalOptions = LayoutOptions.Center };
+			var ListImg = new BottomToolbarButton ("TB default search.png", ShowList) { HorizontalOptions = LayoutOptions.Center };
+			var settingsImg = new BottomToolbarButton ("TB default profile.png", ShowProfile) { HorizontalOptions = LayoutOptions.Center };
 
 
 			if (pressed != null) {

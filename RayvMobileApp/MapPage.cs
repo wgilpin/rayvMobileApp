@@ -15,6 +15,7 @@ namespace RayvMobileApp
 
 		private Dictionary<string, Pin> PinList;
 
+
 		private void PinClick (object send, EventArgs e)
 		{
 			Console.WriteLine ("PIN CLICKED");
@@ -35,7 +36,6 @@ namespace RayvMobileApp
 		private void SetupMapList (Position centre)
 		{
 			Console.WriteLine ("SetupMapList");
-			map.Pins.Clear ();
 			Spinner.IsRunning = true;
 //			int debugCount = 0;
 //			Persist.Instance.DisplayList.Clear ();
@@ -57,21 +57,31 @@ namespace RayvMobileApp
 				Console.WriteLine ("SetupMapList SORT");
 				Persist.Instance.Places.Sort ();
 				Device.BeginInvokeOnMainThread (() => {
-					PinList = new Dictionary<string, Pin> ();
+					foreach (Pin p in map.Pins)
+						p.Clicked -= PinClick;
+					
+					PinList.Clear ();
+					
 					for (int i = 0; i < Persist.Instance.Places.Count; i++) {
 						if (i > 9)
 							break;
 						Place p = Persist.Instance.Places [i];
-						Pin pin = new Pin {
-							Type = PinType.SearchResult,
-							Position = p.GetPosition (),
-							Label = p.place_name,
-							Address = p.address,
-						};
-						pin.Clicked += PinClick;
-						
-						map.Pins.Add (pin);
-						PinList [p.key] = pin;
+						Pin pin;
+						if (i >= map.Pins.Count - 1) {
+							pin = new Pin {
+								Type = PinType.SearchResult,
+							};
+							pin.Clicked += PinClick;
+							pin.Label = p.place_name;
+							map.Pins.Add (pin);
+							pin.Position = p.GetPosition ();
+							pin.Address = p.address;
+						} else {
+							map.Pins [i].Label = p.place_name;
+							map.Pins [i].Position = p.GetPosition ();
+							map.Pins [i].Address = p.address;
+						}
+						PinList [p.key] = map.Pins [i];
 						Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
 						
 						//				debugCount++;
@@ -104,6 +114,8 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 			map.IsShowingUser = true;
+			PinList = new Dictionary<string, Pin> ();
+
 
 			SearchHereBtn = new RayvButton (" Search Here ");
 			SearchHereBtn.Clicked += DoSearch;
