@@ -50,6 +50,7 @@ namespace RayvMobileApp
 		ButtonWide VoteWishlist;
 		ButtonWide CallBtn;
 		ButtonWide WebBtn;
+		ActivityIndicator Spinner;
 		Label distance;
 		LabelWithImageButton Address;
 		LabelWithImageButton Comment;
@@ -72,6 +73,7 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
+
 			try {
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				List<Vote> voteList = (from v in Persist.Instance.Votes
@@ -169,17 +171,27 @@ namespace RayvMobileApp
 					Dirty = true;
 					await Navigation.PopToRootAsync ();
 				}
-			} else if (DisplayPlace.SaveVote (out Message)) {
-				Dirty = true;
-				Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
-					{ "PlaceName", DisplayPlace.place_name },
-					{ "Vote", DisplayPlace.vote.ToString () },
-					{ "Untried", DisplayPlace.untried.ToString () }
-				});
-				Device.BeginInvokeOnMainThread (() => {
-					// manipulate UI controls
-					SetVoteButton (sender as ButtonWide);
-				});
+			} else {
+				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+					Device.BeginInvokeOnMainThread (() => {
+						Spinner.IsRunning = true;
+						Spinner.IsVisible = true;
+					});
+					if (DisplayPlace.SaveVote (out Message)) {
+						Dirty = true;
+						Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
+							{ "PlaceName", DisplayPlace.place_name },
+							{ "Vote", DisplayPlace.vote.ToString () },
+							{ "Untried", DisplayPlace.untried.ToString () }
+						});
+					}
+					Device.BeginInvokeOnMainThread (() => {
+						// manipulate UI controls
+						SetVoteButton (sender as ButtonWide);
+						Spinner.IsRunning = false;
+						Spinner.IsVisible = false;
+					});
+				})).Start ();
 			}
 		}
 
@@ -375,6 +387,11 @@ namespace RayvMobileApp
 			Analytics.TrackPage ("DetailPage");
 			ShowToolbar = showToolbar;
 			const int IMAGE_HEIGHT = 0;
+			Spinner = new ActivityIndicator {
+				BackgroundColor = Color.FromRgba (55, 55, 55, 0.5),
+				IsVisible = false,
+				Color = Color.Red,
+			};
 
 			var MainGrid = new Grid {
 				Padding = 2,
@@ -462,6 +479,7 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (VoteLike, 0, IMAGE_HEIGHT + 5);
 			MainGrid.Children.Add (VoteWishlist, 1, IMAGE_HEIGHT + 5);
 			MainGrid.Children.Add (VoteDislike, 2, IMAGE_HEIGHT + 5);
+			MainGrid.Children.Add (Spinner, 0, 3, IMAGE_HEIGHT + 5, IMAGE_HEIGHT + 6);
 
 			Comment = new LabelWithImageButton {
 				Source = "187-pencil@2x.png",

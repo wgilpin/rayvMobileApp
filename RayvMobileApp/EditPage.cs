@@ -158,7 +158,9 @@ namespace RayvMobileApp
 			Analytics.TrackPage ("EditPage");
 			Title = "Details";
 			Spinner = new ActivityIndicator { 
-				Color = Color.Red, IsRunning = false, 
+				Color = Color.Red,
+				BackgroundColor = Color.FromRgba (255, 255, 255, 0.5),
+				IsRunning = false, 
 				IsVisible = false,
 			};
 			AddingNewPlace = addingNewPlace;
@@ -259,7 +261,6 @@ namespace RayvMobileApp
 				Children = {
 					AddressBox,
 					ConfirmAddressBtn,
-					Spinner,
 				}
 			};
 			MainGrid.Children.Add (editAddress, 0, 3, Row, Row + 1);
@@ -323,6 +324,7 @@ namespace RayvMobileApp
 			SaveBtn.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
 			SaveBtn.Clicked += DoSave;
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
+			MainGrid.Children.Add (Spinner, 0, 3, Row, Row + 1);
 			Row++;
 			DeleteButton = new ButtonWide {
 				Text = editAsDraft ? "Delete Draft" : "Remove from my lists",

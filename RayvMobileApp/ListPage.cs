@@ -212,7 +212,7 @@ namespace RayvMobileApp
 
 		public void DoServerRefresh (object s, EventArgs e)
 		{
-			Persist.Instance.GetUserData (this, since: new DateTime (), incremental: true);
+			Persist.Instance.GetUserData (this, since: DateTime.UtcNow, incremental: true);
 			Refresh ();
 			listView.EndRefresh ();
 		}
