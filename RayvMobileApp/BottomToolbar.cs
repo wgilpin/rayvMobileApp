@@ -116,7 +116,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {
 				Padding = 5,
-				ColumnSpacing = 5,
+				ColumnSpacing = 13,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },

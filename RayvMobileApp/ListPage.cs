@@ -161,6 +161,7 @@ namespace RayvMobileApp
 			this.Appearing += (sender, e) => {
 				if (NeedsReload)
 					Refresh ();
+				App.locationMgr.StartLocationUpdates ();
 			};
 		}
 
@@ -676,6 +677,8 @@ namespace RayvMobileApp
 						if (list.Count == 0) {
 							listView.IsVisible = false;
 							NothingFound.IsVisible = true;
+							Spinner.IsVisible = false;
+							Spinner.IsRunning = false;
 							return;
 						}
 						NothingFound.WidthRequest = this.Width;
