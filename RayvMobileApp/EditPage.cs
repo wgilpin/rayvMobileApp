@@ -306,7 +306,7 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (VoteDislike, 2, Row);
 			Row++;
 			Comment = new Entry ();
-			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck);
+			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
 			Comment.Completed += (sender, e) => {
 				Comment.Unfocus ();
 			};
@@ -376,9 +376,9 @@ namespace RayvMobileApp
 			VoteLike.TextColor = Color.Black;
 			VoteDislike.TextColor = Color.Black;
 			VoteWishlist.TextColor = Color.Black;
-			VoteLike.BackgroundColor = Color.FromHex ("#444111111");
-			VoteDislike.BackgroundColor = Color.FromHex ("#444111111");
-			VoteWishlist.BackgroundColor = Color.FromHex ("#444111111");
+			VoteLike.BackgroundColor = Color.FromHex ("#411");
+			VoteDislike.BackgroundColor = Color.FromHex ("#411");
+			VoteWishlist.BackgroundColor = Color.FromHex ("#411");
 			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			voteBtn.TextColor = Color.White;
 			Voted = true;

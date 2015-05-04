@@ -428,10 +428,21 @@ namespace RayvMobileApp
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = new Friend (name, fr_id);
 						}
-						Dictionary<string, Vote> vote_list = obj ["votes"].ToObject<Dictionary<string, Vote> > ();
+						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
 						if (vote_list != null) {
-							foreach (KeyValuePair<string, Vote> kvp in vote_list) {
-								Votes.Add (kvp.Value);
+							string myIdStr = MyId.ToString ();
+							foreach (Vote v in vote_list) {
+								if (v.voter == myIdStr) {
+									var p =	GetPlace (v.key);
+									if (v.vote == 1)
+										p.up -= 1;
+									if (v.vote == -1)
+										p.down -= 1;
+									p.vote = v.vote.ToString ();
+									p.setComment (v.comment);
+									p.untried = v.untried;
+								}
+								Votes.Add (v);
 							}
 							updateVotes ();
 						}
@@ -439,6 +450,7 @@ namespace RayvMobileApp
 						updatePlaces ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
+						Console.WriteLine ("StoreFullUserRecord lock Exception {0}", ex);
 						restConnection.LogErrorToServer ("StoreFullUserRecord lock Exception {0}", ex);
 					}
 				}
@@ -487,19 +499,19 @@ namespace RayvMobileApp
 							Friends [fr_id] = new Friend (name, fr_id);
 							Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
 						}
-						Dictionary<string, Vote> vote_list = obj ["votes"].ToObject<Dictionary<string, Vote>> ();
+						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
 						if (vote_list != null) {
-							foreach (KeyValuePair<string, Vote> kvp in vote_list) {
+							foreach (Vote v in vote_list) {
 								var existing_vote = (from old_vote in Votes
-								                     where old_vote.key == kvp.Value.key
+								                     where old_vote.key == v.key
 								                     select old_vote).FirstOrDefault ();
 								if (existing_vote == null) {
-									Votes.Add (kvp.Value);
+									Votes.Add (v);
 								} else {
-									existing_vote.comment = kvp.Value.comment;
-									existing_vote.untried = kvp.Value.untried;
-									existing_vote.vote = kvp.Value.vote;
-									existing_vote.when = kvp.Value.when;
+									existing_vote.comment = v.comment;
+									existing_vote.untried = v.untried;
+									existing_vote.vote = v.vote;
+									existing_vote.when = v.when;
 								}
 							}
 						}
@@ -512,6 +524,7 @@ namespace RayvMobileApp
 					updatePlaces ();
 					var updated_dict = new Dictionary<string,string> ();
 					updated_dict.Add ("userId", MyId.ToString ());
+					Console.WriteLine ("StoreUpdatedUserRecord clear updates");
 					restConnection.Instance.post ("clear_user_updates", updated_dict);
 				}
 				Online = true;
@@ -681,14 +694,16 @@ namespace RayvMobileApp
 					Places.Sort ();
 					foreach (Vote v in Votes) {
 						try {
+							//Todo: does this allow n votes per place?
 							var found_v = (from fv in db.Table<Vote> ()
 							               where fv.key == v.key
-							               select fv);
-							if (found_v.Count () == 0)
+							               select fv).FirstOrDefault ();
+							if (found_v == null)
 								db.Insert (v);
 							//Db.InsertOrReplace (v);
 						} catch (Exception E) {
 							Insights.Report (E);
+							Console.WriteLine ("updatePlaces Exception: {0}", E.Message);
 							restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
 						}
 					}
@@ -725,8 +740,10 @@ namespace RayvMobileApp
 				}
 			}
 			Console.WriteLine ("SortPlaces SORT");
-
 			placeList.Sort ();
+
+			Console.WriteLine ("SortPlaces SORTED");
+
 		}
 
 		void StorePlace (Place place, Place removePlace = null)

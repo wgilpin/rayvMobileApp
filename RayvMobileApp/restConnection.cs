@@ -191,6 +191,7 @@ namespace RayvMobileApp
 		{
 			try {
 				String msg = String.Format (format, args);
+				Console.WriteLine ("LOG ERROR: {0}", msg);
 				LogToServer (LogLevel.ERROR, msg);
 			} catch (Exception ex) {
 				restConnection.LogErrorToServer ("LogErrorToServer Exception 1", ex);

@@ -654,10 +654,7 @@ namespace RayvMobileApp
 		public static void Setup (Page caller)
 		{
 			Console.WriteLine ("ListPage.Setup");
-			// fire off a thread to get the data
-			System.Threading.ThreadPool.QueueUserWorkItem (delegate {
-				Persist.Instance.GetUserData (caller, incremental: true);
-			}, null);
+			Persist.Instance.GetUserData (caller, incremental: true);
 
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
 		}

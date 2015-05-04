@@ -78,8 +78,8 @@ namespace RayvMobileApp
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				List<Vote> voteList = (from v in Persist.Instance.Votes
 				                       where v.key == DisplayPlace.key
-				                           && v.voter != MyStringId
-				                           && v.VoterName.Length > 0
+//				                           && v.voter != MyStringId
+//				                           && v.VoterName.Length > 0
 				                       select v).OrderBy (x => x.comment).ToList ();
 
 				int whichRow = 0;
