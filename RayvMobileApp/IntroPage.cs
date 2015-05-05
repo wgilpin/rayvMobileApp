@@ -10,11 +10,13 @@ namespace RayvMobileApp
 		void GoTo2 (object o, EventArgs e)
 		{
 			Content = p2;
+			p2.DoLayout ();
 		}
 
 		void GoTo3 (object o, EventArgs e)
 		{
 			Content = p3;
+			p3.DoLayout ();
 		}
 
 		void GetStarted (object o, EventArgs e)

@@ -13,7 +13,7 @@ namespace RayvMobileApp
 		public void DoLayout ()
 		{
 			Double factor;
-			factor = Height < 500 ? 0.25 : 0.4;
+			factor = Height < 500 ? 0.2 : 0.4;
 			TopImage.HeightRequest = this.Height * factor;
 			ImageBg.Padding = Height < 500 ? 15 : 40;
 		}
@@ -49,7 +49,7 @@ namespace RayvMobileApp
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//image
 					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },//space
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//title
-					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },//space
+					new RowDefinition { Height = new GridLength (5, GridUnitType.Star) },//space
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//line1
 					new RowDefinition { Height = new GridLength (10, GridUnitType.Star) },//space
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },//line2
@@ -74,11 +74,11 @@ namespace RayvMobileApp
 				Text = heading, 
 			};
 			grid.Children.Add (Heading, 1, 4, 2, 3);
-			Image Pic1 = new Image{ Source = pic1, Aspect = Aspect.AspectFit };
+			Image Pic1 = new Image{ Source = pic1, Aspect = Aspect.AspectFit, HeightRequest = 25 };
 			grid.Children.Add (Pic1, 1, 2, 4, 5);
-			Image Pic2 = new Image{ Source = pic2, Aspect = Aspect.AspectFit };
+			Image Pic2 = new Image{ Source = pic2, Aspect = Aspect.AspectFit, HeightRequest = 25 };
 			grid.Children.Add (Pic2, 1, 2, 6, 7);
-			Image Pic3 = new Image{ Source = pic3, Aspect = Aspect.AspectFit };
+			Image Pic3 = new Image{ Source = pic3, Aspect = Aspect.AspectFit, HeightRequest = 25 };
 			grid.Children.Add (Pic3, 1, 2, 8, 9);
 
 			Label Text1 = new Label { Text = text1, FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), };
@@ -113,7 +113,7 @@ namespace RayvMobileApp
 			}
 
 			Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0);
-			Children.Add (grid); 
+			Children.Add (new ScrollView{ Content = grid, }); 
 			Children.Add (Btn); 
 		}
 	}

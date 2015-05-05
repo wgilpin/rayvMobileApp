@@ -10,6 +10,7 @@
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
     <ReleaseVersion>0.2</ReleaseVersion>
+    <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -87,6 +88,7 @@
     </MtouchI18n>
     <IpaPackageName>
     </IpaPackageName>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
     <DebugType>full</DebugType>
@@ -221,9 +223,6 @@
     <BundleResource Include="Resources\centre-button.png" />
     <BundleResource Include="Resources\Add Select right button.png" />
     <BundleResource Include="Resources\TB default news %281%29.png" />
-    <BundleResource Include="Resources\Icon default directions.png" />
-    <BundleResource Include="Resources\Icon default directions1.png" />
-    <BundleResource Include="Resources\Icon default Website.png" />
     <BundleResource Include="Resources\intro page 1.png" />
     <BundleResource Include="Resources\logo.png" />
     <BundleResource Include="Resources\Location.png" />
@@ -248,6 +247,9 @@
     <BundleResource Include="Resources\Add friend.png" />
     <BundleResource Include="Resources\Add place.png" />
     <BundleResource Include="Resources\Big activity.png" />
+    <BundleResource Include="Resources\Icon default Phone.png" />
+    <BundleResource Include="Resources\Icon default Website.png" />
+    <BundleResource Include="Resources\Icon default directions1.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

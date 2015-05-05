@@ -22,12 +22,12 @@ namespace RayvMobileApp
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			case 2:
-				server_url = "https://shout-about.appspot.com/";
+				server_url = "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/";
 				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			case 3:
-				server_url = settings.DEFAULT_SERVER;
+				server_url = "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER;
 				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
@@ -47,6 +47,20 @@ namespace RayvMobileApp
 			SelectedIndexChanged += DoSelect;
 			SelectedIndex = 3;
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
+		}
+
+		public string GetServerVersionForAppVersion ()
+		{
+			string[] version_parts = DependencyService.Get<IAppData> ().AppMajorVersion ().Split ('-');
+			switch (version_parts [0]) {
+			case "0.2":
+				return "";
+				break;
+			case "0.3":
+				return "3.";
+				break;
+			}
+			return "";
 		}
 	}
 }

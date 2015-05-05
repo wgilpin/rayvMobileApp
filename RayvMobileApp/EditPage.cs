@@ -376,9 +376,9 @@ namespace RayvMobileApp
 			VoteLike.TextColor = Color.Black;
 			VoteDislike.TextColor = Color.Black;
 			VoteWishlist.TextColor = Color.Black;
-			VoteLike.BackgroundColor = Color.FromHex ("#411");
-			VoteDislike.BackgroundColor = Color.FromHex ("#411");
-			VoteWishlist.BackgroundColor = Color.FromHex ("#411");
+			VoteLike.BackgroundColor = settings.ColorLightGray;
+			VoteDislike.BackgroundColor = settings.ColorLightGray;
+			VoteWishlist.BackgroundColor = settings.ColorLightGray;
 			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			voteBtn.TextColor = Color.White;
 			Voted = true;

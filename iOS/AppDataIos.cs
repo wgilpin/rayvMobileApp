@@ -12,9 +12,14 @@ namespace RayvMobileApp.iOS
 		public string AppVersion ()
 		{
 			return string.Format (
-				"{0}-{1}", 
+				"{0} (Build {1})", 
 				NSBundle.MainBundle.InfoDictionary ["CFBundleShortVersionString"],
 				NSBundle.MainBundle.InfoDictionary ["CFBundleVersion"]);
+		}
+
+		public string AppMajorVersion ()
+		{
+			return NSBundle.MainBundle.InfoDictionary ["CFBundleShortVersionString"].ToString ();
 		}
 
 		public AppDataIos ()

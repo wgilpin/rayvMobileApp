@@ -518,9 +518,12 @@ namespace RayvMobileApp
 				Text = "",
 			};
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
+			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
+				DoTextSearch (sender, e);
+				FilterSearchBox.TextEntry.Focus ();
+			};
 			FilterSearchBox.TextEntry.Completed += (sender, e) => {
 				FilterSearchBox.TextEntry.Unfocus ();
-				DoTextSearch (sender, e);
 			};
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",

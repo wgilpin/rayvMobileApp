@@ -365,8 +365,16 @@ namespace RayvMobileApp
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				Db.BusyTimeout = DbTimeout;
-				foreach (Vote v in Votes) {
-					Db.InsertOrReplace (v);
+				try {
+					Db.BeginTransaction ();
+					Db.DeleteAll<Vote> ();
+					foreach (Vote v in Votes) {
+						Db.Insert (v);
+					}
+					Db.Commit ();
+				} catch (Exception ex) {
+					Db.Rollback ();
+					Insights.Report (ex);
 				}
 			}
 		}
@@ -422,12 +430,14 @@ namespace RayvMobileApp
 						Places = place_list.Values.ToList ();
 						Console.WriteLine ("StoreFullUserRecord SORT");
 						Places.Sort ();
+						Console.WriteLine ("StoreFullUserRecord sorted");
 						Votes.Clear ();
 						foreach (JObject fr in obj ["friendsData"]) {
 							string fr_id = fr ["id"].ToString ();
 							string name = fr ["name"].ToString ();
 							Friends [fr_id] = new Friend (name, fr_id);
 						}
+						Console.WriteLine ("StoreFullUserRecord friends stored");
 						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
 						if (vote_list != null) {
 							string myIdStr = MyId.ToString ();
@@ -446,6 +456,7 @@ namespace RayvMobileApp
 							}
 							updateVotes ();
 						}
+						Console.WriteLine ("StoreFullUserRecord votes stored");
 						//sort
 						updatePlaces ();
 					} catch (Exception ex) {

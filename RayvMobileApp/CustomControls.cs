@@ -89,17 +89,19 @@ namespace RayvMobileApp
 		public LabelWithImageButton () : base ()
 		{
 			Padding = 2;
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (5, GridUnitType.Absolute) });
 			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (5) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20.0) });
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			_label = new Label ();
-			_img = new Image ();
+			_img = new Image { Aspect = Aspect.AspectFit, HeightRequest = 20, };
 			_clickImage = new TapGestureRecognizer ();
 			_img.GestureRecognizers.Add (_clickImage);
 			_label.GestureRecognizers.Add (_clickImage);
-			Children.Add (_label, 0, 0);
-			Children.Add (_img, 1, 0);
+			Children.Add (_label, 0, 1);
+			Children.Add (_img, 1, 1);
 		}
 
 		public LabelWithImageButton (string placeholder, string imageSource) : this ()
