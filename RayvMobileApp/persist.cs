@@ -794,8 +794,7 @@ namespace RayvMobileApp
 				if (Places [i].key == place.key) {
 					try {
 						StorePlace (place, removePlace: Places [i]);
-						UpdateVote (place);
-						return true;
+						return UpdateVote (place);
 					} catch (Exception e) { 
 						Insights.Report (e);
 						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);

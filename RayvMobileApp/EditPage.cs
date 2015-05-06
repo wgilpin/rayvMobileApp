@@ -133,20 +133,21 @@ namespace RayvMobileApp
 			WebSite.IsEnabled = String.IsNullOrEmpty (EditPlace.website);
 			PhoneNo.Text = EditPlace.telephone;
 			PhoneNo.IsEnabled = String.IsNullOrEmpty (EditPlace.telephone);
+			ResetVoteButtons ();
 			if (!IsNew || place.IsDraft) {
-				switch (EditPlace.vote) {
-				case "-1":
+				if (EditPlace.vote == "-1") {
 					SetVoteButton (VoteDislike);
-					break;
-				case "1":
-					SetVoteButton (VoteLike);
-					break;
-				default:
-					EditPlace.vote = "0";
-					SetVoteButton (VoteWishlist);
-					break;
+					Voted = true;
 				}
-				Voted = true;
+				if (EditPlace.vote == "1") {
+					Voted = true;
+					SetVoteButton (VoteLike);
+				}
+				if (EditPlace.untried) {
+					EditPlace.vote = "0";
+					Voted = true;
+					SetVoteButton (VoteWishlist);
+				}
 			}
 			ConfirmAddressBtn.IsVisible = EditPlace.IsDraft && (Lat != 0.0 && Lng != 0.0);
 			SetOfflineVisibility ();
@@ -384,6 +385,17 @@ namespace RayvMobileApp
 			Voted = true;
 		}
 
+		void ResetVoteButtons ()
+		{
+			VoteLike.TextColor = Color.Black;
+			VoteDislike.TextColor = Color.Black;
+			VoteWishlist.TextColor = Color.Black;
+			VoteLike.BackgroundColor = settings.ColorLightGray;
+			VoteDislike.BackgroundColor = settings.ColorLightGray;
+			VoteWishlist.BackgroundColor = settings.ColorLightGray;
+			Voted = false;
+		}
+
 		async void DeletePlace (object sender, EventArgs e)
 		{
 			//delete the current item
@@ -462,6 +474,7 @@ namespace RayvMobileApp
 
 		async void SaveWasBad ()
 		{
+			ShowSpinner (false);
 			EditPlace.IsDraft = true;
 			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (EditPlace);

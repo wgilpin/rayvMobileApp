@@ -266,7 +266,7 @@ namespace RayvMobileApp
 						CallBtn.Text = "No Number";
 						CallBtn.IsEnabled = false;
 					} else
-						CallBtn.Text = "Call Phone";
+						CallBtn.Text = "Call";
 					VoteLike.TextColor = Color.Black;
 					ResetVoteButtons ();
 					switch (DisplayPlace.vote) {
@@ -302,6 +302,7 @@ namespace RayvMobileApp
 			Comment.IsVisible = false;
 			CommentEditor.IsVisible = true;
 			CommentEditor.Text = DisplayPlace.Comment ();
+			Console.WriteLine ("Detail Page editing {0}", CommentEditor.Text);
 			CommentEditor.Focus ();
 		}
 
@@ -404,7 +405,8 @@ namespace RayvMobileApp
 			ADDRESS_ROW= 1 ,
 			VOTE_LBL_ROW= 2 ,
 			VOTE_ROW= 3 ,
-			COMMENT_ROW= 4;
+			COMMENT_ROW= 4 ,
+			VOTE_COUNT_ROW= 5;
 
 			var TopGrid = new Grid {
 				Padding = 2,
@@ -422,6 +424,7 @@ namespace RayvMobileApp
 			var MainGrid = new Grid {
 				Padding = 2,
 				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
 					new RowDefinition { Height = GridLength.Auto },
@@ -526,8 +529,39 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			CommentEditor.TextEntry.Completed += DoCommentCompleted;
+			CommentEditor.TextEntry.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
+
 			MainGrid.Children.Add (CommentEditor, 0, 3, COMMENT_ROW, COMMENT_ROW + 1);
 			MainGrid.Children.Add (Comment, 0, 3, COMMENT_ROW, COMMENT_ROW + 1);
+
+			Double MedFont = Device.GetNamedSize (NamedSize.Medium, typeof(Label));
+			var VoteCountText = new FormattedString ();
+			VoteCountText.Spans.Add (new Span {
+				Text = "Friend Likes ",
+				FontSize = MedFont,
+				FontAttributes = FontAttributes.Italic
+			});
+			VoteCountText.Spans.Add (new Span {
+				Text = DisplayPlace.up.ToString (),
+				ForegroundColor = settings.BaseColor,
+				FontSize = MedFont,
+				FontAttributes = FontAttributes.Bold,
+			});
+			VoteCountText.Spans.Add (new Span {
+				Text = "        Dislikes ",
+				FontSize = MedFont,
+				FontAttributes = FontAttributes.Italic
+			});
+			VoteCountText.Spans.Add (new Span {
+				Text = DisplayPlace.down.ToString (),
+				ForegroundColor = Color.Red,
+				FontSize = MedFont,
+				FontAttributes = FontAttributes.Bold,
+			});
+			Label VoteCountLbl = new Label {
+				FormattedText = VoteCountText,
+			};
+			MainGrid.Children.Add (VoteCountLbl, 0, 3, VOTE_COUNT_ROW, VOTE_COUNT_ROW + 1);
 
 			LoadPage (DisplayPlace.key);
 
