@@ -14,6 +14,7 @@ namespace RayvMobileApp
 		{
 			try {
 				Insights.Track (trackEvent);
+				Console.WriteLine (trackEvent);
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}

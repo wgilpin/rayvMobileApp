@@ -258,10 +258,6 @@
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
     <None Include="packages.config" />
-    <None Include="Scripts\angular-google-maps.js" />
-    <None Include="Scripts\angular-google-maps.min.js" />
-    <None Include="Scripts\lodash.js" />
-    <None Include="Scripts\lodash.min.js" />
     <None Include="Scripts\angular-mocks.js" />
     <None Include="Scripts\angular.js" />
     <None Include="Scripts\angular.min.js" />

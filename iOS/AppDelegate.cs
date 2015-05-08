@@ -17,29 +17,11 @@ namespace RayvMobileApp.iOS
 	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
 	{
 		
-		private void IdentifyToAnalytics ()
-		{
-			try {
-				String user = Persist.Instance.GetConfig (settings.USERNAME);
-				Insights.Identify (user, "server", Persist.Instance.GetConfig (settings.SERVER));
-				Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
-		}
+
 
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
-			global::Xamarin.Forms.Forms.Init ();
-			global::Xamarin.FormsMaps.Init ();
-
-			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
-				IdentifyToAnalytics ();
-			})).Start ();
-
-//			//We MUST wrap our setup in this block to wire up
+			//			//We MUST wrap our setup in this block to wire up
 //			// Mono's SIGSEGV and SIGBUS signals
 //			HockeyApp.Setup.EnableCustomCrashReporting (() => {
 //
@@ -75,17 +57,12 @@ namespace RayvMobileApp.iOS
 
 		public override void DidEnterBackground (UIApplication application)
 		{
-			Console.WriteLine ("App entering background state.");
-			App.locationMgr.StopUpdatingLocation ();
-//			Insights.Track ("AppDelegate.DidEnterBackground");
+			
 		}
 
 		public override void WillEnterForeground (UIApplication application)
 		{
-			Console.WriteLine ("App will enter foreground");
-			App.locationMgr.StartLocationUpdates ();
-			IdentifyToAnalytics ();
-//			Insights.Track ("AppDelegate.WillEnterForeground");
+			
 		}
 	}
 }

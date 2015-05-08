@@ -74,7 +74,7 @@ namespace RayvMobileApp
 			Analytics.TrackPage ("ListPage");
 			Console.WriteLine ("ListView()");
 			this.Title = "Find Food";
-			this.Icon = "bars-black.png";
+			this.Icon = settings.DevicifyFilename ("bars-black.png");
 			IsFiltered = false;
 			SetupFiltersBox ();
 			listView = new PlacesListView {
@@ -159,9 +159,22 @@ namespace RayvMobileApp
 					_timer.Close ();
 			};
 			this.Appearing += (sender, e) => {
-				if (NeedsReload)
-					Refresh ();
-				App.locationMgr.StartLocationUpdates ();
+				try {
+					App.locationMgr.StartLocationUpdates ();
+					if (NeedsReload) {
+						Refresh ();
+						Analytics.TrackPage ("ListPage Refreshed");
+						return;
+					}
+					Double deviation = Place.approx_distance (Persist.Instance.GpsPosition, DisplayPosition);
+					if (deviation > 0.05) {
+						Analytics.TrackPage ("ListPage Moved");
+						DisplayPosition = Persist.Instance.GpsPosition;
+						Refresh ();
+					}
+				} catch (Exception ex) {
+					Insights.Report (ex);
+				}
 			};
 		}
 
@@ -513,7 +526,7 @@ namespace RayvMobileApp
 			FilterWishBtn.Clicked += DoFilterWish;
 			FilterSearchBox = new EntryWithButton {
 				Placeholder = "Search for place",
-				Source = "TB active search.png",
+				Source = settings.DevicifyFilename ("TB active search.png"),
 				OnClick = DoTextSearch,
 				Text = "",
 			};
@@ -527,7 +540,7 @@ namespace RayvMobileApp
 			};
 			FilterAreaSearchBox = new EntryWithButton {
 				Placeholder = "Search in an Area",
-				Source = "TB active search.png",
+				Source = settings.DevicifyFilename ("TB active search.png"),
 				OnClick = DoTextSearch,
 				Text = "",
 			};
@@ -572,34 +585,34 @@ namespace RayvMobileApp
 				}
 			};
 			filters.Children.Add (
-				new Image{ Source = "Icon default directions.png", Aspect = Aspect.AspectFit, }, 0, 1, 0, 1);
+				new Image{ Source = settings.DevicifyFilename ("Icon default directions.png"), Aspect = Aspect.AspectFit, }, 0, 1, 0, 1);
 			filters.Children.Add (LocationButton, 1, 2, 0, 1);
 			filters.Children.Add (
 				new ImageButton {
-					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoPickMyLocation,
 				}, 2, 3, 0, 1);
 
 			filters.Children.Add (
-				new Image{ Source = "Icon default directions1.png", Aspect = Aspect.AspectFit, }, 0, 1, 1, 2);
+				new Image{ Source = settings.DevicifyFilename ("Icon default directions1.png"), Aspect = Aspect.AspectFit, }, 0, 1, 1, 2);
 			filters.Children.Add (FilterAreaSearchBox, 1, 2, 1, 2);
 			filters.Children.Add (
 				new ImageButton { 
-					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoPlaceSearch,
 				}, 2, 3, 1, 2);
 
 			filters.Children.Add (
-				new Image{ Source = "Icon default website.png", Aspect = Aspect.AspectFit, }, 0, 1, 2, 3);
+				new Image{ Source = settings.DevicifyFilename ("Icon default website.png"), Aspect = Aspect.AspectFit, }, 0, 1, 2, 3);
 			filters.Children.Add (CuisineButton, 1, 2, 2, 3);
 			filters.Children.Add (
 				new ImageButton { 
-					Source = "Add Select right button.png", Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoChangeCuisine,
 				}, 2, 3, 2, 3);
 			
 			filters.Children.Add (
-				new Image{ Source = "TB default profile.png", Aspect = Aspect.AspectFit, }, 0, 1, 3, 4);
+				new Image{ Source = settings.DevicifyFilename ("TB default profile.png"), Aspect = Aspect.AspectFit, }, 0, 1, 3, 4);
 			filters.Children.Add (new StackLayout {
 				Orientation = StackOrientation.Horizontal,
 				HorizontalOptions = LayoutOptions.FillAndExpand,

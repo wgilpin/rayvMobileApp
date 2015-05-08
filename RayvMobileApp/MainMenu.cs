@@ -47,7 +47,7 @@ namespace RayvMobileApp
 			};
 			// ADD
 			Image addImg = new Image {
-				Source = "Big Add.png",
+				Source = settings.DevicifyFilename ("Big Add.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickAdd = new TapGestureRecognizer ();
@@ -63,7 +63,7 @@ namespace RayvMobileApp
 
 			// NEWS
 			Image newsImg = new Image {
-				Source = "Big activity.png",
+				Source = settings.DevicifyFilename ("Big activity.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickNews = new TapGestureRecognizer ();
@@ -78,7 +78,7 @@ namespace RayvMobileApp
 
 			//  FIND ME A...
 			Image choiceImg = new Image {
-				Source = "Big find food.png",
+				Source = settings.DevicifyFilename ("Big find food.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickChoice = new TapGestureRecognizer ();

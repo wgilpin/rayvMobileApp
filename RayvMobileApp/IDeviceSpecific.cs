@@ -7,6 +7,7 @@ namespace RayvMobileApp
 		bool MakeCall (string phoneNumber);
 
 		bool RunningOnIosSimulator ();
+
 	}
 }
 

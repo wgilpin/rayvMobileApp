@@ -6,30 +6,37 @@ namespace RayvMobileApp
 
 	public class PlacesListView : ListView
 	{
-		private const int IMAGE_SIZE = 63;
+		private const int IMAGE_SIZE = 78;
 		private bool ShowVotes;
 
 		public PlacesListView () : base ()
 		{
 			Console.WriteLine ("PlacesListView()");
 			ShowVotes = true;
-			RowHeight = 65;
+			RowHeight = 80;
 
 			ItemTemplate = new DataTemplate (() => {
 				// Create views with bindings for displaying each property.
-				Label nameLabel = new Label ();
-				nameLabel.FontAttributes = FontAttributes.Bold;
-				nameLabel.LineBreakMode = LineBreakMode.TailTruncation;
+				BackgroundColor = Color.White;
+				Label nameLabel = new Label {
+					TextColor = Color.Black,
+					BackgroundColor = Color.Transparent,
+					FontAttributes = FontAttributes.Bold,
+					LineBreakMode = LineBreakMode.TailTruncation,
+				};
 				nameLabel.SetBinding (Label.TextProperty, "place_name");
 
 				Label catLabel = new Label ();
 				catLabel.SetBinding (Label.TextProperty, "category");
+				catLabel.TextColor = Color.Black;
+				catLabel.BackgroundColor = Color.Transparent;
 				catLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
 
 				Label distLabel = new Label {
 					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
 					TextColor = Color.Gray,
+					BackgroundColor = Color.Transparent,
 				};
 				distLabel.SetBinding (Label.TextProperty, "distance");
 
@@ -37,10 +44,13 @@ namespace RayvMobileApp
 					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
 					TranslationX = 85,
+					TextColor = Color.Black,
+					BackgroundColor = Color.Transparent,
 				};
 				addressLabel.SetBinding (
 					Label.TextProperty, 
 					new Binding ("address", converter: new AddressToShortAddressConverter ()));
+				addressLabel.TextColor = Color.Black;
 
 				Image webImage = new Image { 
 					Aspect = Aspect.AspectFill,
@@ -62,9 +72,12 @@ namespace RayvMobileApp
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
 					RowDefinitions = {
-						new RowDefinition { Height = new GridLength (19, GridUnitType.Absolute)  },
-						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
-						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
+						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
+						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
+						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
+//						new RowDefinition { Height = new GridLength (19, GridUnitType.Absolute)  },
+//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
+//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
 					},
 					ColumnDefinitions = {
 						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
@@ -85,6 +98,7 @@ namespace RayvMobileApp
 
 					Label upVotes = new Label {
 						TextColor = ColorUtil.Darker (settings.BaseColor),
+						BackgroundColor = Color.Transparent,
 						XAlign = TextAlignment.End,
 						HorizontalOptions = LayoutOptions.End,
 						TranslationX = 2,
@@ -97,6 +111,7 @@ namespace RayvMobileApp
 					Label downVotes = new Label {
 						HorizontalOptions = LayoutOptions.End,
 						TextColor = Color.FromHex ("A22"),
+						BackgroundColor = Color.Transparent,
 						XAlign = TextAlignment.End,
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						TranslationY = 2,
@@ -113,6 +128,7 @@ namespace RayvMobileApp
 
 
 					Label myVote = new Label {
+						BackgroundColor = Color.Transparent,
 						TextColor = ColorUtil.Darker (settings.BaseColor),
 						TranslationY = -12,
 						HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -134,10 +150,12 @@ namespace RayvMobileApp
 				
 					Label noVoteLiked = new Label {
 						Text = "Liked",
+						BackgroundColor = Color.Transparent,
 						TextColor = Color.FromHex ("888"),
 						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 					};
 					Label noVoteDisliked = new Label {
+						BackgroundColor = Color.Transparent,
 						TextColor = Color.FromHex ("822"),
 						Text = "Disliked",
 						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),

@@ -262,6 +262,8 @@ namespace RayvMobileApp
 			if (text != null)
 				Text = text;
 			BorderRadius = 0;
+			BackgroundColor = Color.Transparent;
+			TextColor = settings.BaseColor;
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			VerticalOptions = LayoutOptions.CenterAndExpand;
 		}
@@ -273,6 +275,8 @@ namespace RayvMobileApp
 		{
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			VerticalOptions = LayoutOptions.CenterAndExpand;
+			TextColor = Color.Black;
+			BackgroundColor = Color.Transparent;
 		}
 
 		public LabelWide (string text) : this ()

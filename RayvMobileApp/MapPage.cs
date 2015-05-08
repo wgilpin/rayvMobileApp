@@ -120,7 +120,7 @@ namespace RayvMobileApp
 			SearchHereBtn = new RayvButton (" Search Here ");
 			SearchHereBtn.Clicked += DoSearch;
 
-			Image GoToHomeBtn = new Image { Source = "centre-button.png", };
+			Image GoToHomeBtn = new Image { Source = settings.DevicifyFilename ("centre-button.png"), };
 			var clickHome = new TapGestureRecognizer ();
 			clickHome.Tapped += (s, e) => {
 				map.MoveToRegion (MapSpan.FromCenterAndRadius (

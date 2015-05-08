@@ -32,31 +32,31 @@ namespace RayvMobileApp
 		public IntroPage ()
 		{
 			p1 = new IntroSlide (
-				"logo.png",
+				settings.DevicifyFilename ("logo.png"),
 				"Welcome to Taste5",
-				"Location.png",
+				settings.DevicifyFilename ("Location.png"),
 				"Find place to eat, liked by your friends",
-				"add 2.png",
+				settings.DevicifyFilename ("add 2.png"),
 				"Add places to try later",
-				"Share.png",
+				settings.DevicifyFilename ("Share.png"),
 				"Share places you like, with friends",
 				"Next",
 				GoTo2
 			);
 			p2 = new IntroSlide (
-				"Intro head 2a.png",
+				settings.DevicifyFilename ("Intro head 2a.png"),
 				"Add places to your list",
-				"Like.png",
+				settings.DevicifyFilename ("Like.png"),
 				"Like: 'I would go here again'",
-				"Dislike.png",
+				settings.DevicifyFilename ("Dislike.png"),
 				"Dislike: 'I would never go back here'",
-				"Wish1.png",
+				settings.DevicifyFilename ("Wish1.png"),
 				"Wish: 'I want to try here soon'",
 				"Next",
 				GoTo3
 			);
 			p3 = new IntroSlide (
-				"Intro 3 foodie friends.png",
+				settings.DevicifyFilename ("Intro 3 foodie friends.png"),
 				"Follow Foodie Friends for Trusted Reviews",
 				"",
 				"",

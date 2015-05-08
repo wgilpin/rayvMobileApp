@@ -2,6 +2,7 @@
 
 using Xamarin.Forms;
 
+
 namespace RayvMobileApp
 {
 	public class AddWhatPage : ContentPage
@@ -26,7 +27,7 @@ namespace RayvMobileApp
 				}
 			};
 			Image addImg = new Image {
-				Source = "Add place.png",
+				Source = settings.DevicifyFilename ("Add place.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickAdd = new TapGestureRecognizer ();
@@ -38,7 +39,7 @@ namespace RayvMobileApp
 
 			// FRIENDS
 			Image friendsImg = new Image {
-				Source = "Add friend.png",
+				Source = settings.DevicifyFilename ("Add friend.png"),
 				Aspect = Aspect.AspectFit
 			};
 			var clickFriends = new TapGestureRecognizer ();

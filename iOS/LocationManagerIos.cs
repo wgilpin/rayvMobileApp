@@ -5,6 +5,7 @@ using UIKit;
 using Foundation;
 using Xamarin.Forms.Maps;
 using RayvMobileApp.iOS;
+using Xamarin;
 
 [assembly: Xamarin.Forms.Dependency (typeof(LocationManagerIos))]
 
@@ -17,7 +18,7 @@ namespace RayvMobileApp.iOS
 		// event for the location changing
 		public event EventHandler<LocationUpdatedEventArgs> LocationUpdated = delegate {};
 
-		public void SetLocationUpdateHandler (EventHandler<LocationUpdatedEventArgs> handler)
+		public void AddLocationUpdateHandler (EventHandler<LocationUpdatedEventArgs> handler)
 		{
 			try {
 				LocationUpdated += handler;
@@ -49,6 +50,7 @@ namespace RayvMobileApp.iOS
 			Position pos = new Position (
 				               e.Locations [e.Locations.Length - 1].Coordinate.Latitude, 
 				               e.Locations [e.Locations.Length - 1].Coordinate.Longitude); 
+			Insights.Track ("Location Update", "Position", String.Format ("{0}, {1}", pos.Latitude, pos.Longitude));
 			this.LocationUpdated (this, new LocationUpdatedEventArgs (pos));
 		}
 
@@ -57,14 +59,17 @@ namespace RayvMobileApp.iOS
 			Position pos = new Position (
 				               e.NewLocation.Coordinate.Latitude, 
 				               e.NewLocation.Coordinate.Longitude); 
-			
+			Insights.Track ("Location Update", "Position", String.Format ("{0}, {1}", pos.Latitude, pos.Longitude));
 			this.LocationUpdated (this, new LocationUpdatedEventArgs (pos));
 		}
 
 		public void StopUpdatingLocation ()
 		{
-			if (locMgr != null)
+			if (locMgr != null) {
 				locMgr.StopUpdatingLocation ();
+				Insights.Track ("Location Updates Stopped");
+
+			}
 		}
 
 		public void StartLocationUpdates ()
@@ -73,9 +78,10 @@ namespace RayvMobileApp.iOS
 			// the popover when the app is first launched, or by changing the permissions for the app in Settings
 
 			if (CLLocationManager.LocationServicesEnabled) {
-				if (locMgr == null)
+				if (locMgr == null) {
+					Insights.Track ("Location Start Update FAIL");
 					return;
-
+				}
 				locMgr.DesiredAccuracy = 1; // sets the accuracy that we want in meters
 
 				// Location updates are handled differently pre-iOS 6. If we want to support older versions of iOS,

@@ -119,18 +119,18 @@ namespace RayvMobileApp
 			EmailsSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 
 			grid.Children.Add (EmailEd, 1, 3, 1, 2);
-			grid.Children.Add (new Image{ Source = "18-envelope@2x.png" }, 0, 1);
+			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("18-envelope@2x.png") }, 0, 1);
 			grid.Children.Add (ScreenNameEd, 1, 3, 2, 3);
-			grid.Children.Add (new Image{ Source = "111-user@2x.png" }, 0, 2);
+			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("111-user@2x.png") }, 0, 2);
 			grid.Children.Add (GenderEd, 1, 3, 3, 4);
 			SaveBtn = new RayvButton ("Save"){ IsEnabled = false, };
 			SaveBtn.Clicked += DoSaveProfile;
 
 			grid.Children.Add (SaveBtn, 1, 3, 4, 5);
 			grid.Children.Add (ActivityBtn, 1, 3, 5, 6);
-			grid.Children.Add (new Image{ Source = "259-list@2x.png" }, 0, 5);
+			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("259-list@2x.png") }, 0, 5);
 			grid.Children.Add (PwdBtn, 1, 3, 6, 7);
-			grid.Children.Add (new Image{ Source = "54-lock@2x.png" }, 0, 6);
+			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("54-lock@2x.png") }, 0, 6);
 
 			grid.Children.Add (new LabelWide ("Notifications") {
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
@@ -153,7 +153,7 @@ namespace RayvMobileApp
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Settings",
-				Icon = "19-gear.png",
+				Icon = settings.DevicifyFilename ("19-gear.png"),
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Debug.WriteLine ("ListPage Toolbar Map: Push MapPage");

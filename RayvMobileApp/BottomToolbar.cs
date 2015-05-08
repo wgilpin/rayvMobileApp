@@ -132,29 +132,39 @@ namespace RayvMobileApp
 				BackgroundColor = settings.BaseColor,
 			};
 
-			var addImg = new BottomToolbarButton ("TB default add.png", ShowAdd) { HorizontalOptions = LayoutOptions.Center };
-			friendsImg = new BottomToolbarButton ("TB default friends.png", ShowFriends) { HorizontalOptions = LayoutOptions.Center };
-			var newsImg = new BottomToolbarButton ("TB default news.png", ShowNews) { HorizontalOptions = LayoutOptions.Center };
-			var ListImg = new BottomToolbarButton ("TB default search.png", ShowList) { HorizontalOptions = LayoutOptions.Center };
-			var settingsImg = new BottomToolbarButton ("TB default profile.png", ShowProfile) { HorizontalOptions = LayoutOptions.Center };
+			var addImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default add.png"), ShowAdd) { 
+				HorizontalOptions = LayoutOptions.Center
+			};
+			friendsImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default friends.png"), ShowFriends) { 
+				HorizontalOptions = LayoutOptions.Center
+			};
+			var newsImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default news.png"), ShowNews) { 
+				HorizontalOptions = LayoutOptions.Center
+			};
+			var ListImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowList) { 
+				HorizontalOptions = LayoutOptions.Center
+			};
+			var settingsImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default profile.png"), ShowProfile) { 
+				HorizontalOptions = LayoutOptions.Center
+			};
 
 
 			if (pressed != null) {
 				switch (pressed) {
 				case "list":
-					ListImg.Source = "TB active search.png";
+					ListImg.Source = settings.DevicifyFilename ("TB active search.png");
 					break;
 				case "friends":
-					friendsImg.Source = "TB active friends.png";
+					friendsImg.Source = settings.DevicifyFilename ("TB active friends.png");
 					break;
 				case "add":
-					addImg.Source = "TB active add.png";
+					addImg.Source = settings.DevicifyFilename ("TB active add.png");
 					break;
 				case "news":
-					newsImg.Source = "TB active news.png";
+					newsImg.Source = settings.DevicifyFilename ("TB active news.png");
 					break;
 				case "profile":
-					settingsImg.Source = "TB active profile.png";
+					settingsImg.Source = settings.DevicifyFilename ("TB active profile.png");
 					break;
 				}
 			}

@@ -45,7 +45,7 @@ namespace RayvMobileApp
 			Analytics.TrackPage ("MapListPage");
 			Console.WriteLine ("ListView()");
 			this.Title = "Map Places";
-			this.Icon = "bars-black.png";
+			this.Icon = settings.DevicifyFilename ("bars-black.png");
 
 			listView = new PlacesListView {
 				//ItemsSource = Persist.Instance.Places,

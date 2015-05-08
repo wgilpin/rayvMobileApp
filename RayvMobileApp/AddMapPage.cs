@@ -106,7 +106,7 @@ namespace RayvMobileApp
 			Saving = false;
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Map",
-				Icon = "01-refresh@2x.png",
+				Icon = settings.DevicifyFilename ("01-refresh@2x.png"),
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => SetupPage ())
 			});

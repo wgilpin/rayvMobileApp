@@ -106,7 +106,9 @@ namespace RayvMobileApp
 							LetterBtn.Text = vote.FirstLetter;
 							LetterBtn.BackgroundColor = vote.RandomColor;
 							grid.Children.Add (LetterBtn, 0, 1, whichRow * 2, whichRow * 2 + 1);
-							grid.Children.Add (new Label { Text = FriendName }, 1, 2, whichRow * 2, whichRow * 2 + 1);
+							grid.Children.Add (
+								new Label { Text = FriendName, TextColor = Color.Black }, 
+								1, 2, whichRow * 2, whichRow * 2 + 1);
 							grid.Children.Add (new Label { 
 								Text = vote.PrettyHowLongAgo,
 								FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -117,11 +119,13 @@ namespace RayvMobileApp
 							if (!String.IsNullOrEmpty (comment_text)) {
 								grid.Children.Add (new Label { 
 									Text = comment_text,
+									TextColor = settings.ColorDarkGray,
 									FontAttributes = FontAttributes.Italic,
 								}, 0, 5, whichRow * 2 + 1, whichRow * 2 + 2);
 							}
 							Label voteLbl = new Label {
 								Text = vote.GetVoteAsString,
+								TextColor = settings.ColorDarkGray,
 							};
 							grid.Children.Add (voteLbl, 2, 3, whichRow * 2, whichRow * 2 + 1);
 							whichRow++;
@@ -390,6 +394,7 @@ namespace RayvMobileApp
 		public DetailPage (Place place, bool showToolbar = false, bool showMapBtn = true)
 		{
 			Analytics.TrackPage ("DetailPage");
+			BackgroundColor = Color.White;
 			ShowToolbar = showToolbar;
 			const int IMAGE_HEIGHT = 0;
 			Spinner = new ActivityIndicator {
@@ -412,7 +417,8 @@ namespace RayvMobileApp
 				Padding = 2,
 				RowDefinitions = {
 					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
+					new RowDefinition { Height = GridLength.Auto },
+//					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 				},
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (25, GridUnitType.Absolute) },
@@ -484,21 +490,24 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (CuisineAndDistanceGrid, 0, 3, CUISINE_ROW, CUISINE_ROW + 1);
 			Address = new LabelWithImageButton {
 				TextColor = Color.FromHex ("707070"),
-				Source = "Icon default directions1.png",
+				Source = settings.DevicifyFilename ("Icon default directions1.png"),
 				OnClick = DoDirections,
 			};
 			MainGrid.Children.Add (Address, 0, 3, ADDRESS_ROW, ADDRESS_ROW + 1);
 
 			WebBtn = new ButtonWide ();
 			TopGrid.Children.Add (WebBtn, 2, 3, WEB_ROW, WEB_ROW + 1);
-			WebImgBtn = new ImageButton { Source = "Icon default Website.png" };
+			WebImgBtn = new ImageButton { Source = settings.DevicifyFilename ("Icon default Website.png"), HeightRequest = 30 };
 			WebImgBtn.OnClick = GotoWebPage;
 			TopGrid.Children.Add (WebImgBtn, 3, 4, WEB_ROW, WEB_ROW + 1);
 
 			CallBtn = new ButtonWide ();
 			CallBtn.Clicked += DoMakeCall;
 			TopGrid.Children.Add (CallBtn, 1, 2, TEL_ROW, TEL_ROW + 1);
-			var TelImgBtn = new ImageButton { Source = "Icon default Phone.png" };
+			var TelImgBtn = new ImageButton {
+				Source = settings.DevicifyFilename ("Icon default Phone.png"),
+				HeightRequest = 30
+			};
 			TopGrid.Children.Add (TelImgBtn, 0, 1, WEB_ROW, WEB_ROW + 1);
 
 
@@ -520,11 +529,11 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (Spinner, 0, 3, VOTE_ROW, VOTE_ROW + 1);
 
 			Comment = new LabelWithImageButton {
-				Source = "187-pencil@2x.png",
+				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
 				OnClick = DoClickComment,
 			};
 			CommentEditor = new EntryWithButton {
-				Source = "26-checkmark@2x.png",
+				Source = settings.DevicifyFilename ("26-checkmark@2x.png"),
 				OnClick = DoSaveComment,
 				IsVisible = false,
 			};
@@ -539,6 +548,7 @@ namespace RayvMobileApp
 			VoteCountText.Spans.Add (new Span {
 				Text = "Friend Likes ",
 				FontSize = MedFont,
+				ForegroundColor = Color.Black,
 				FontAttributes = FontAttributes.Italic
 			});
 			VoteCountText.Spans.Add (new Span {
@@ -550,6 +560,7 @@ namespace RayvMobileApp
 			VoteCountText.Spans.Add (new Span {
 				Text = "        Dislikes ",
 				FontSize = MedFont,
+				ForegroundColor = Color.Black,
 				FontAttributes = FontAttributes.Italic
 			});
 			VoteCountText.Spans.Add (new Span {

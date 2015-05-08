@@ -47,7 +47,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListView()");
 			FirstTime = true;
 			this.Title = "Add...";
-			this.Icon = "bars-black.png";
+			this.Icon = settings.DevicifyFilename ("bars-black.png");
 
 			// Define template for displaying each item.
 			// (Argument of DataTemplate constructor is called for 
