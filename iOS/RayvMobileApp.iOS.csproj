@@ -9,7 +9,7 @@
     <RootNamespace>RayvMobileApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
-    <ReleaseVersion>0.2</ReleaseVersion>
+    <ReleaseVersion>0.3</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">

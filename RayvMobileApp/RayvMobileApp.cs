@@ -34,21 +34,18 @@ namespace RayvMobileApp
 
 		public App ()
 		{
+			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				//				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
+				IdentifyToAnalytics ();
+			})).Start ();
 			locationMgr = DependencyService.Get<ILocationManager> ();
 			MainPage = GetFirstPage ();
 		}
 
 		protected override void OnStart ()
 		{
-			// Handle when your app starts
-			global::Xamarin.Forms.Forms.Init ();
-			global::Xamarin.FormsMaps.Init ();
-
-			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-//				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
-				IdentifyToAnalytics ();
-			})).Start ();
+			
 		}
 
 		protected override void OnSleep ()
@@ -64,7 +61,10 @@ namespace RayvMobileApp
 			Console.WriteLine ("App Resumed");
 			App.locationMgr.StartLocationUpdates ();
 			IdentifyToAnalytics ();
+			Resumed (this, null);
 		}
+
+		public static event EventHandler Resumed = delegate {};
 	}
 }
 

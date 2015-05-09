@@ -17,7 +17,7 @@ namespace RayvMobileApp
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
 			case 1:
-				server_url = "http://192.168.1.7:8080/";
+				server_url = "http://192.168.1.6:8080/";
 				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
 				restConnection.Instance.setBaseUrl (server_url);
 				break;
@@ -55,10 +55,8 @@ namespace RayvMobileApp
 			switch (version_parts [0]) {
 			case "0.2":
 				return "";
-				break;
 			case "0.3":
-				return "3.";
-				break;
+				return "3-dot-";
 			}
 			return "";
 		}

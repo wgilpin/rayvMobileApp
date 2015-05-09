@@ -7,13 +7,12 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections;
-
-//using CoreLocation;
 using RestSharp;
 using System.Linq;
 using System.Diagnostics;
 using Xamarin;
 using Xamarin.Forms.Maps;
+using System.Threading;
 
 namespace RayvMobileApp
 {
@@ -37,6 +36,7 @@ namespace RayvMobileApp
 		static String FilterCuisineKind;
 		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
+		Label SplashImage;
 
 		EntryWithButton FilterSearchBox;
 		EntryWithButton FilterAreaSearchBox;
@@ -75,6 +75,17 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListView()");
 			this.Title = "Find Food";
 			this.Icon = settings.DevicifyFilename ("bars-black.png");
+			SplashImage = new Label { 
+				Text = "Checking Location",
+				BackgroundColor = settings.BaseColor,
+				TextColor = Color.White,
+				XAlign = TextAlignment.Center,
+				YAlign = TextAlignment.Center,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				IsVisible = false,
+			};
 			IsFiltered = false;
 			SetupFiltersBox ();
 			listView = new PlacesListView {
@@ -122,6 +133,7 @@ namespace RayvMobileApp
 			grid.Children.Add (FilterSearchBox, 0, 0);
 			grid.Children.Add (Spinner, 0, 1);
 			grid.Children.Add (inner, 0, 2);
+			grid.Children.Add (SplashImage, 0, 1, 0, 3);
 			filters.IsVisible = false;
 			MainContent = new StackLayout {
 				Children = {
@@ -161,6 +173,12 @@ namespace RayvMobileApp
 			this.Appearing += (sender, e) => {
 				try {
 					App.locationMgr.StartLocationUpdates ();
+					DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
+					if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
+						StartSplashTimer ();
+
+					}
+					Persist.Instance.SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
 					if (NeedsReload) {
 						Refresh ();
 						Analytics.TrackPage ("ListPage Refreshed");
@@ -174,6 +192,13 @@ namespace RayvMobileApp
 					}
 				} catch (Exception ex) {
 					Insights.Report (ex);
+				}
+			};
+			App.Resumed += delegate {
+				DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
+				if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
+					StartSplashTimer ();
+
 				}
 			};
 		}
@@ -717,6 +742,48 @@ namespace RayvMobileApp
 
 		#region timer
 
+		// splash creen timer
+		private System.Timers.Timer _splashTimer;
+
+		public void  StopSplashTimer (object sender, EventArgs e)
+		{
+			Console.WriteLine ("Disabling ListPage Splash Timer due to location update");
+			_splashTimer.Close ();
+			SplashImage.IsVisible = false;
+			App.locationMgr.RemoveLocationUpdateHandler (StopSplashTimer);
+		}
+
+		void StartSplashTimer ()
+		{
+			Console.WriteLine ("StartSplashTimer START");
+			if (_splashTimer != null)
+				_splashTimer.Close ();
+			_splashTimer = new System.Timers.Timer ();
+			//Trigger event every 5 second
+			_splashTimer.Interval = 5000;
+			_splashTimer.Elapsed += OnSplashTimerTrigger;
+			_splashTimer.Enabled = true;
+			App.locationMgr.AddLocationUpdateHandler (StopSplashTimer);
+			Thread.Sleep (500);
+			if (_splashTimer.Enabled)
+				SplashImage.IsVisible = true;
+		}
+
+		private void OnSplashTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			Console.WriteLine ("OnSplashTimerTrigger");
+			Device.BeginInvokeOnMainThread (() => {
+				_splashTimer.Close ();
+				try {
+					SplashImage.IsVisible = false;
+					Refresh ();
+				} catch (Exception ex) {
+					Console.WriteLine ("OnSplashTimerTrigger Exception {0}", ex);
+				} 
+			});
+		}
+
+		// gps timer
 		private System.Timers.Timer _timer;
 
 		void StartTimerIfNoGPS ()

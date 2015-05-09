@@ -183,7 +183,7 @@ namespace RayvMobileApp
 				String msg = String.Format (format, args);
 				LogToServer (level, msg);
 			} catch (Exception ex) {
-				restConnection.LogErrorToServer ("LogToServer Exception 2", ex);
+				Insights.Report (ex);
 			}
 		}
 
@@ -194,7 +194,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("LOG ERROR: {0}", msg);
 				LogToServer (LogLevel.ERROR, msg);
 			} catch (Exception ex) {
-				restConnection.LogErrorToServer ("LogErrorToServer Exception 1", ex);
+				Insights.Report (ex);
 			}
 		}
 
@@ -203,7 +203,7 @@ namespace RayvMobileApp
 			try {
 				LogToServer (LogLevel.ERROR, message);
 			} catch (Exception ex) {
-				restConnection.LogErrorToServer ("LogErrorToServer Exception 2", ex);
+				Insights.Report (ex);
 			}
 		}
 

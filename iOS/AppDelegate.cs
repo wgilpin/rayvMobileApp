@@ -45,7 +45,9 @@ namespace RayvMobileApp.iOS
 //				TaskScheduler.UnobservedTaskException += (sender, e) => 
 //					Setup.ThrowExceptionAsNative (e.Exception);
 //			});
-
+			// Handle when your app starts
+			global::Xamarin.Forms.Forms.Init ();
+			global::Xamarin.FormsMaps.Init ();
 
 			//The rest of your code here
 			// ...

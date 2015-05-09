@@ -9,10 +9,13 @@ using System.Diagnostics;
 using System.Linq;
 using Xamarin;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace RayvMobileApp
 {
-	public class Place: INotifyPropertyChanged, IComparable<Place>
+	[Serializable]
+	public class Place: INotifyPropertyChanged, IComparable
 	{
 		#region Fields
 
@@ -43,23 +46,11 @@ namespace RayvMobileApp
 		private bool _isSynced;
 		private bool _isDraft;
 
-		// boiler-plate
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged = delegate {};
 
-		protected virtual void OnPropertyChanged (string propertyName)
+		private void NotifyPropertyChanged ([CallerMemberName] string propertyName = "")
 		{
-			PropertyChangedEventHandler handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		protected bool SetField<T> (ref T field, T value, string propertyName)
-		{
-			if (EqualityComparer<T>.Default.Equals (field, value))
-				return false;
-			field = value;
-			OnPropertyChanged (propertyName);
-			return true;
+			PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 
 		#endregion
@@ -69,63 +60,99 @@ namespace RayvMobileApp
 		[PrimaryKey]
 		public string key { 
 			get { return _key; } 
-			set { SetField (ref _key, value, "key"); } 
+			set {
+				_key = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public double lat { 
 			get { return _lat; } 
-			set { SetField (ref _lat, value, "lat"); } 
+			set {
+				_lat = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public double lng { 
 			get { return _lng; } 
-			set { SetField (ref _lng, value, "lng"); } 
+			set {
+				_lng = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string website { 
 			get { return _website; } 
-			set { SetField (ref _website, value, "website"); } 
+			set {
+				_website = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string address { 
 			get { return _address; } 
-			set { SetField (ref _address, value, "address"); } 
+			set {
+				_address = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		[MaxLength (50)]
 		public string place_name { 
 			get { return _place_name; } 
-			set { SetField (ref _place_name, value, "place_name"); } 
+			set {
+				_place_name = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string place_id { 
 			get { return _place_id; } 
-			set { SetField (ref _place_id, value, "place_id"); } 
+			set {
+				_place_id = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string category { 
 			get { return _category; } 
-			set { SetField (ref _category, value, "category"); } 
+			set {
+				_category = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string telephone { 
 			get { return _telephone; } 
-			set { SetField (ref _telephone, value, "telephone"); } 
+			set {
+				_telephone = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public bool untried { 
 			get { return _untried; } 
-			set { SetField (ref _untried, value, "untried"); } 
+			set {
+				_untried = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string vote { 
 			get { return _vote; } 
-			set { SetField (ref _vote, value, "vote"); } 
+			set {
+				_vote = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string descr { 
 			get { return _descr; } 
-			set { SetField (ref _descr, value, "descr"); } 
+			set {
+				_descr = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string img { 
@@ -136,12 +163,18 @@ namespace RayvMobileApp
 					return _img;
 				return Persist.Instance.GetConfig (settings.SERVER) + _img; 
 			} 
-			set { SetField (ref _img, value, "img"); } 
+			set {
+				_img = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public Int64 edited { 
 			get { return _edited; } 
-			set { SetField (ref _edited, value, "edited"); } 
+			set {
+				_edited = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string thumbnail { 
@@ -152,42 +185,67 @@ namespace RayvMobileApp
 					return _thumbnail;
 				return Persist.Instance.GetConfig (settings.SERVER) + _thumbnail;
 			} 
-			set { SetField (ref _thumbnail, value, "thumbnail"); } 
+			set {
+				_thumbnail = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public int up { 
 			get { return _up; } 
-			set { SetField (ref _up, value, "up"); } 
+			set {
+				_up = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public int down { 
 			get { return _down; } 
-			set { SetField (ref _down, value, "down"); } 
+			set {
+				_down = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string owner { 
 			get { return _owner; } 
-			set { SetField (ref _owner, value, "owner"); } 
+			set {
+				_owner = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public bool is_map { 
 			get { return _is_map; } 
-			set { SetField (ref _is_map, value, "is_map"); } 
+			set {
+				_is_map = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public bool adjusted { 
 			get { return _adjusted; } 
-			set { SetField (ref _adjusted, value, "adjusted"); } 
+			set {
+				_adjusted = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public double distance_double { 
 			get { return _distance_double; } 
-			set { SetField (ref _distance_double, value, "distance_double"); } 
+			set {
+				_distance_double = value;
+				SetPrettyDistance ();
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string postcode { 
 			get { return _postcode; } 
-			set { SetField (ref _postcode, value, "postcode"); } 
+			set {
+				_postcode = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		public string pretty_dist { 
@@ -196,7 +254,10 @@ namespace RayvMobileApp
 					return "";
 				return _pretty_dist; 
 			}
-			set { SetField (ref _pretty_dist, value, "key"); } 
+			set {
+				_pretty_dist = value;
+				NotifyPropertyChanged ();
+			}
 		}
 
 		[Ignore]
@@ -227,7 +288,9 @@ namespace RayvMobileApp
 		public bool IsDraft {
 			get{ return _isDraft; }
 			set {
-				SetField (ref _isDraft, value, "isDraft");
+				_isDraft = value;
+				NotifyPropertyChanged ();
+			
 			}
 		}
 
@@ -236,17 +299,21 @@ namespace RayvMobileApp
 			set;
 		}
 
+		void SetPrettyDistance ()
+		{
+			if (this.distance_double >= 0.5) {
+				this.pretty_dist = String.Format ("{0:0.0} miles", this.distance_double);
+			} else {
+				var yds = Math.Floor (this.distance_double * 90) * 20;
+				this.pretty_dist = String.Format ("{0} yds", yds);
+			}
+		}
 
 
 		public string distance {
 			get { 
 				if (this.pretty_dist == null) {
-					if (this.distance_double >= 0.5) {
-						this.pretty_dist = String.Format ("{0:0.0} miles", this.distance_double);
-					} else {
-						var yds = Math.Floor (this.distance_double * 90) * 20;
-						this.pretty_dist = String.Format ("{0} yds", yds);
-					}
+					SetPrettyDistance ();
 				} 
 				return this.pretty_dist;
 			}
@@ -323,6 +390,18 @@ namespace RayvMobileApp
 
 		#region Methods
 
+
+
+		public void CopyFromAnother (Place source)
+		{
+			PropertyInfo[] sourceProps = source.GetType ().GetProperties ();
+			foreach (PropertyInfo property in sourceProps) {
+				object value = property.GetValue (source);
+				if (property.GetSetMethod () != null)
+					property.SetValue (this, value);
+			}
+		}
+
 		public void Delete ()
 		{
 			Vote vote = (from v in Persist.Instance.Votes
@@ -379,7 +458,7 @@ namespace RayvMobileApp
 				this.distance_double = approx_distance (
 					new Position (this.lat, this.lng),
 					calc_dist_from);
-				this.pretty_dist = null;
+//				this.pretty_dist = null;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
@@ -510,18 +589,19 @@ namespace RayvMobileApp
 		#endregion
 
 		// Default comparer for Place type.
-		public int CompareTo (Place comparePlace)
+		public int CompareTo (object comparePlace)
 		{
 			// A null value means that this object is greater. 
-			if (comparePlace == null)
+			if (comparePlace == null || !(comparePlace is Place))
 				return 1;
 			else {
+				Place p = comparePlace as Place;
 				// draft > not draft
-				if (this.IsDraft && !comparePlace.IsDraft)
+				if (this.IsDraft && !p.IsDraft)
 					return -1;
-				if (!this.IsDraft && comparePlace.IsDraft)
+				if (!this.IsDraft && p.IsDraft)
 					return 1;
-				return this.distance_double.CompareTo (comparePlace.distance_double);
+				return this.distance_double.CompareTo (p.distance_double);
 			}
 		}
 

@@ -11,10 +11,12 @@ namespace RayvMobileApp
 
 		public void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
 		{
-			Position NewPosition = e.Location;
-			Persist.Instance.GpsPosition = NewPosition;
-			Persist.Instance.SetConfig (settings.LAST_LAT, e.Location.Latitude);
-			Persist.Instance.SetConfig (settings.LAST_LNG, e.Location.Longitude);
+			if (e.Location.Latitude != Persist.Instance.GpsPosition.Latitude || e.Location.Longitude != Persist.Instance.GpsPosition.Longitude) {
+				Position NewPosition = e.Location;
+				Persist.Instance.GpsPosition = NewPosition;
+				Persist.Instance.SetConfig (settings.LAST_LAT, e.Location.Latitude);
+				Persist.Instance.SetConfig (settings.LAST_LNG, e.Location.Longitude);
+			}
 //			Console.WriteLine (String.Format (
 //				"GPS: {0:0.0000},{1:0.0000}",
 //				Persist.Instance.GpsPosition.Latitude, 
@@ -149,7 +151,7 @@ namespace RayvMobileApp
 			this.Content = grid;
 
 //			AppDelegate.locationMgr = new LocationManager ();
-			App.locationMgr.SetLocationUpdateHandler (HandleLocationChanged);
+			App.locationMgr.AddLocationUpdateHandler (HandleLocationChanged);
 			App.locationMgr.StartLocationUpdates ();
 		}
 

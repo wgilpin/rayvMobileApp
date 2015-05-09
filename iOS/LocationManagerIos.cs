@@ -23,9 +23,19 @@ namespace RayvMobileApp.iOS
 			try {
 				LocationUpdated += handler;
 			} catch (Exception ex) {
-				Console.WriteLine ("SetLocationUpdateHandler: {0}", ex);
+				Console.WriteLine ("AddLocationUpdateHandler: {0}", ex);
 			}
 		}
+
+		public void RemoveLocationUpdateHandler (EventHandler<LocationUpdatedEventArgs> handler)
+		{
+			try {
+				LocationUpdated -= handler;
+			} catch (Exception ex) {
+				Console.WriteLine ("RemoveLocationUpdateHandler: {0}", ex);
+			}
+		}
+
 
 		public LocationManagerIos ()
 		{

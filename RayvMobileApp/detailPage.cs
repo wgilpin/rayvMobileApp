@@ -41,7 +41,7 @@ namespace RayvMobileApp
 
 		#region Fields
 
-		Place DisplayPlace;
+		public Place DisplayPlace;
 		Label Place_name;
 		Image Img;
 		Label Category;
