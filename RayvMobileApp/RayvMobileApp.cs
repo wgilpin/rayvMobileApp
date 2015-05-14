@@ -9,7 +9,7 @@ namespace RayvMobileApp
 	{
 		public static ILocationManager locationMgr;
 
-		private void IdentifyToAnalytics ()
+		public static void IdentifyToAnalytics ()
 		{
 			try {
 				String user = Persist.Instance.GetConfig (settings.USERNAME);
@@ -34,18 +34,15 @@ namespace RayvMobileApp
 
 		public App ()
 		{
-			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				//				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
-				IdentifyToAnalytics ();
-			})).Start ();
+			
 			locationMgr = DependencyService.Get<ILocationManager> ();
 			MainPage = GetFirstPage ();
 		}
 
 		protected override void OnStart ()
 		{
-			
+			App.locationMgr.StartLocationUpdates ();
+			App.locationMgr.AddLocationUpdateHandler (MainMenu.HandleLocationChanged);
 		}
 
 		protected override void OnSleep ()

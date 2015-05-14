@@ -37,7 +37,13 @@ namespace RayvMobileApp
 				}
 				Console.WriteLine ("LoginPage loadDataFromServer");
 				Persist.Instance.LoadFromDb ();
-				Persist.Instance.GetUserData (this, incremental: false);
+				try {
+					Persist.Instance.GetUserData (this, incremental: false);
+				} catch (ProtocolViolationException ex) {
+					Device.BeginInvokeOnMainThread (() => {
+						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+					});
+				}
 				Device.BeginInvokeOnMainThread (() => {
 					Spinner.IsRunning = false;
 					this.Navigation.PushModalAsync (new MainMenu ());

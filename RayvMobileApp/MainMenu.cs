@@ -9,7 +9,7 @@ namespace RayvMobileApp
 
 
 
-		public void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
+		public static void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
 		{
 			if (e.Location.Latitude != Persist.Instance.GpsPosition.Latitude || e.Location.Longitude != Persist.Instance.GpsPosition.Longitude) {
 				Position NewPosition = e.Location;
@@ -151,7 +151,7 @@ namespace RayvMobileApp
 			this.Content = grid;
 
 //			AppDelegate.locationMgr = new LocationManager ();
-			App.locationMgr.AddLocationUpdateHandler (HandleLocationChanged);
+
 			App.locationMgr.StartLocationUpdates ();
 		}
 

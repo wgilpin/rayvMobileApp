@@ -63,9 +63,62 @@ namespace RayvMobileApp
 
 		#region Logic
 
+		static Grid AddFriendCommentToGrid (Vote vote, Grid grid, int whichRow)
+		{
+			try {
+				grid.RowDefinitions.Add (new RowDefinition () {
+					Height = GridLength.Auto
+				});
+				grid.RowDefinitions.Add (new RowDefinition () {
+					Height = GridLength.Auto
+				});
+				string FriendName = Persist.Instance.Friends [vote.voter].Name;
+				Button LetterBtn = new Button {
+					WidthRequest = 30,
+					HeightRequest = 30,
+					FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+					BorderRadius = 15,
+					BackgroundColor = Color.Red,
+					Text = "X",
+					TextColor = Color.White,
+					VerticalOptions = LayoutOptions.Start,
+				};
+				LetterBtn.Text = vote.FirstLetter;
+				LetterBtn.BackgroundColor = vote.RandomColor;
+				grid.Children.Add (LetterBtn, 0, 1, whichRow * 2, whichRow * 2 + 1);
+				grid.Children.Add (new Label {
+					Text = FriendName,
+					TextColor = Color.Black
+				}, 1, 2, whichRow * 2, whichRow * 2 + 1);
+				grid.Children.Add (new Label {
+					Text = vote.PrettyHowLongAgo,
+					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+					FontAttributes = FontAttributes.Italic,
+					TextColor = Color.FromHex ("#606060"),
+				}, 3, 5, whichRow * 2, whichRow * 2 + 1);
+				String comment_text = vote.PrettyComment;
+				if (!String.IsNullOrEmpty (comment_text)) {
+					grid.Children.Add (new Label {
+						Text = comment_text,
+						TextColor = settings.ColorDarkGray,
+						FontAttributes = FontAttributes.Italic,
+					}, 0, 5, whichRow * 2 + 1, whichRow * 2 + 2);
+				}
+				Label voteLbl = new Label {
+					Text = vote.GetVoteAsString,
+					TextColor = settings.ColorDarkGray,
+				};
+				grid.Children.Add (voteLbl, 2, 3, whichRow * 2, whichRow * 2 + 1);
+			} catch (Exception ex) {
+				Console.WriteLine ("detailPage.AddFriendCommentToGrid {0}", ex);
+				Insights.Report (ex);
+			}
+			return grid;
+		}
+
 		Grid GetFriendsComments ()
 		{
-			Grid grid = new Grid {
+			Grid friendCommentsGrid = new Grid {
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (31) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -76,69 +129,19 @@ namespace RayvMobileApp
 			};
 
 			try {
-				string MyStringId = Persist.Instance.MyId.ToString ();
-				List<Vote> voteList = (from v in Persist.Instance.Votes
-				                       where v.key == DisplayPlace.key
-//				                           && v.voter != MyStringId
-//				                           && v.VoterName.Length > 0
-				                       select v).OrderBy (x => x.comment).ToList ();
-
 				int whichRow = 0;
-				//TODO: This should be a listview binding
-				for (int row = 0; row < voteList.Count (); row++) {
-					Vote vote = voteList [row];
-					if (vote.voter != MyStringId) {
-						try {
-
-							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
-							grid.RowDefinitions.Add (new RowDefinition (){ Height = GridLength.Auto });
-							string FriendName = Persist.Instance.Friends [voteList [whichRow].voter].Name;
-							Button LetterBtn = new Button {
-								WidthRequest = 30,
-								HeightRequest = 30,
-								FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
-								BorderRadius = 15,
-								BackgroundColor = Color.Red,
-								Text = "X",
-								TextColor = Color.White,
-								VerticalOptions = LayoutOptions.Start,
-							};
-							LetterBtn.Text = vote.FirstLetter;
-							LetterBtn.BackgroundColor = vote.RandomColor;
-							grid.Children.Add (LetterBtn, 0, 1, whichRow * 2, whichRow * 2 + 1);
-							grid.Children.Add (
-								new Label { Text = FriendName, TextColor = Color.Black }, 
-								1, 2, whichRow * 2, whichRow * 2 + 1);
-							grid.Children.Add (new Label { 
-								Text = vote.PrettyHowLongAgo,
-								FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-								FontAttributes = FontAttributes.Italic,
-								TextColor = Color.FromHex ("#606060"),
-							}, 3, 5, whichRow * 2, whichRow * 2 + 1);
-							String comment_text = vote.PrettyComment;
-							if (!String.IsNullOrEmpty (comment_text)) {
-								grid.Children.Add (new Label { 
-									Text = comment_text,
-									TextColor = settings.ColorDarkGray,
-									FontAttributes = FontAttributes.Italic,
-								}, 0, 5, whichRow * 2 + 1, whichRow * 2 + 2);
-							}
-							Label voteLbl = new Label {
-								Text = vote.GetVoteAsString,
-								TextColor = settings.ColorDarkGray,
-							};
-							grid.Children.Add (voteLbl, 2, 3, whichRow * 2, whichRow * 2 + 1);
-							whichRow++;
-						} catch (Exception ex) {
-							Console.WriteLine ("detailPage.GetFriendsComments {0}", ex);
-							Insights.Report (ex);
-						}
-					}
-				}
+				string MyStringId = Persist.Instance.MyId.ToString ();
+				Persist.Instance.Votes
+					.Where (v => v.key == DisplayPlace.key && v.voter != MyStringId)
+					.OrderBy (x => x.when)
+					.ToList ().ForEach (vote => {
+					AddFriendCommentToGrid (vote, friendCommentsGrid, whichRow);
+					whichRow++;
+				});
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
-			return grid;
+			return friendCommentsGrid;
 		}
 
 
@@ -195,6 +198,12 @@ namespace RayvMobileApp
 						SetVoteButton (sender as ButtonWide);
 						Spinner.IsRunning = false;
 						Spinner.IsVisible = false;
+						if (string.IsNullOrWhiteSpace (DisplayPlace.Comment ())) {
+							DisplayAlert ("No Comment", "Please add a comment to explain your vote", "OK");
+							DoClickComment (null, null);
+							CommentEditor.TextEntry.Focus ();
+							CommentEditor.TextEntry.BackgroundColor = ColorUtil.Lighter (Color.Yellow);
+						}
 					});
 				})).Start ();
 			}
@@ -267,10 +276,10 @@ namespace RayvMobileApp
 					WebBtn.Clicked -= GotoWebPage;
 					WebBtn.Clicked += GotoWebPage;
 					if (string.IsNullOrWhiteSpace (DisplayPlace.telephone)) {
-						CallBtn.Text = "No Number";
+						CallBtn.Text = "No Number    ";
 						CallBtn.IsEnabled = false;
 					} else
-						CallBtn.Text = "Call";
+						CallBtn.Text = "Call      ";
 					VoteLike.TextColor = Color.Black;
 					ResetVoteButtons ();
 					switch (DisplayPlace.vote) {
@@ -288,6 +297,7 @@ namespace RayvMobileApp
 						break;
 					}
 				} catch (Exception ex) {
+					Console.Write ("Details page ctor {0}", ex);
 					Insights.Report (ex);
 				}
 			}
@@ -314,6 +324,7 @@ namespace RayvMobileApp
 		{
 			try {
 				DisplayPlace.setComment (CommentEditor.Text);
+				CommentEditor.TextEntry.BackgroundColor = Color.White;
 				CommentEditor.IsVisible = false;
 				string msg;
 				if (DisplayPlace.SaveVote (out msg)) {
@@ -501,7 +512,7 @@ namespace RayvMobileApp
 			WebImgBtn.OnClick = GotoWebPage;
 			TopGrid.Children.Add (WebImgBtn, 3, 4, WEB_ROW, WEB_ROW + 1);
 
-			CallBtn = new ButtonWide ();
+			CallBtn = new ButtonWide { TranslationX = -25 };
 			CallBtn.Clicked += DoMakeCall;
 			TopGrid.Children.Add (CallBtn, 1, 2, TEL_ROW, TEL_ROW + 1);
 			var TelImgBtn = new ImageButton {

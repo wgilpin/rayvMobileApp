@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using Xamarin;
+using System.Net;
 
 namespace RayvMobileApp
 {
@@ -259,7 +260,11 @@ namespace RayvMobileApp
 				Clicked = false;
 				if (list != null) {
 					Console.WriteLine ("NewsPage.CheckForUpdates");
-					Persist.Instance.GetUserData (this, LastUpdate);
+					try {
+						Persist.Instance.GetUserData (this, LastUpdate);
+					} catch (ProtocolViolationException ex) {
+						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+					}
 					SetSource ();
 					LastUpdate = DateTime.UtcNow;
 				}

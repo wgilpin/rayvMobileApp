@@ -7,6 +7,33 @@ using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
+	public class LineGrid3: Grid
+	{
+	
+		public LineGrid3 () : base ()
+		{
+			Padding = new Thickness (0, 5, 0, 5);
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (22, GridUnitType.Absolute) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (50, GridUnitType.Absolute) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  });
+			HorizontalOptions = LayoutOptions.FillAndExpand;
+		}
+
+		public LineGrid3 (Image leftImg, View rightView) : this ()
+		{
+			if (leftImg != null)
+				this.Children.Add (leftImg, 0, 1, 0, 1); 
+			this.Children.Add (rightView, 1, 3, 0, 1); 
+		}
+
+		public LineGrid3 (View leftView, Xamarin.Forms.Switch rightSwitch) : this ()
+		{
+			this.Children.Add (leftView, 1, 2, 0, 1); 
+			this.Children.Add (rightSwitch, 2, 3, 0, 1); 
+		}
+	}
+
 	public class ProfilePage: ContentPage
 	{
 		#region Fields
@@ -16,7 +43,6 @@ namespace RayvMobileApp
 		Picker GenderEd;
 		RayvButton ActivityBtn;
 		RayvButton PwdBtn;
-		RayvButton LogoutBtn;
 		RayvButton SaveBtn;
 		Xamarin.Forms.Switch PushSw;
 		Xamarin.Forms.Switch EmailsSw;
@@ -36,7 +62,7 @@ namespace RayvMobileApp
 				} catch {
 					GenderEd.SelectedIndex = 0;
 				}
-				SaveBtn.IsEnabled = false;
+				SaveBtn.IsVisible = false;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoGetProfile {0}", ex);
@@ -61,40 +87,15 @@ namespace RayvMobileApp
 		public ProfilePage ()
 		{
 			Title = "My Profile";
-
+			BackgroundColor = Color.White;
 			Insights.Track ("Profile Page");
-			Grid grid = new Grid {
-				Padding = 5,
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (22, GridUnitType.Absolute) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (50, GridUnitType.Absolute) },
-				},
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
 
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star)  },
-				},
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-			};
 
 			ScreenNameEd = new Entry {
 				Placeholder = "Screen Name (what other users see)",
 			};
 			ScreenNameEd.TextChanged += (sender, e) => {
-				SaveBtn.IsEnabled = true;
+				SaveBtn.IsVisible = true;
 			};
 			EmailEd = new Label {
 				TranslationX = 3,
@@ -110,7 +111,7 @@ namespace RayvMobileApp
 			GenderEd.Items.Add ("Other");
 			GenderEd.SelectedIndex = 0;
 			GenderEd.SelectedIndexChanged += (sender, e) => {
-				SaveBtn.IsEnabled = true;
+				SaveBtn.IsVisible = true;
 			};
 
 			ActivityBtn = new RayvButton ("My Activity");
@@ -118,27 +119,32 @@ namespace RayvMobileApp
 			PushSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 			EmailsSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 
-			grid.Children.Add (EmailEd, 1, 3, 1, 2);
-			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("18-envelope@2x.png") }, 0, 1);
-			grid.Children.Add (ScreenNameEd, 1, 3, 2, 3);
-			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("111-user@2x.png") }, 0, 2);
-			grid.Children.Add (GenderEd, 1, 3, 3, 4);
-			SaveBtn = new RayvButton ("Save"){ IsEnabled = false, };
+			StackLayout stack = new StackLayout {
+				Orientation = StackOrientation.Vertical,
+			};
+			stack.Children.Add (new LineGrid3 (
+				new Image{ Source = settings.DevicifyFilename ("18-envelope@2x.png") }, 
+				EmailEd));
+			stack.Children.Add (new LineGrid3 (
+				new Image{ Source = settings.DevicifyFilename ("111-user@2x.png") }, 
+				ScreenNameEd));
+			stack.Children.Add (new LineGrid3 (
+				null, 
+				GenderEd));
+
+			SaveBtn = new RayvButton ("Save"){ IsVisible = false, };
 			SaveBtn.Clicked += DoSaveProfile;
-
-			grid.Children.Add (SaveBtn, 1, 3, 4, 5);
-			grid.Children.Add (ActivityBtn, 1, 3, 5, 6);
-			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("259-list@2x.png") }, 0, 5);
-			grid.Children.Add (PwdBtn, 1, 3, 6, 7);
-			grid.Children.Add (new Image{ Source = settings.DevicifyFilename ("54-lock@2x.png") }, 0, 6);
-
-			grid.Children.Add (new LabelWide ("Notifications") {
+			stack.Children.Add (new LineGrid3 (
+				null, 
+				SaveBtn));
+			stack.Children.Add (new LineGrid3 (
+				new Image{ Source = settings.DevicifyFilename ("54-lock@2x.png") }, 
+				PwdBtn));
+			stack.Children.Add (new LabelWide ("Notifications") {
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
-			}, 1, 7);
-			grid.Children.Add (new LabelWide ("Push Notifications"), 1, 2, 8, 9);
-			grid.Children.Add (PushSw, 2, 3, 8, 9);
-			grid.Children.Add (new LabelWide ("Email Notifications"), 1, 2, 9, 10);
-			grid.Children.Add (EmailsSw, 2, 3, 9, 10);
+			});
+			stack.Children.Add (new LineGrid3 (new LabelWide ("Push Notifications"), PushSw));
+			stack.Children.Add (new LineGrid3 (new LabelWide ("Email Notifications"), EmailsSw));
 
 			// intro slides
 			Label ShowLbl = new Label { Text = "Show introduction every time" };
@@ -148,8 +154,7 @@ namespace RayvMobileApp
 			ShowSw.Toggled += (sender, e) => { 
 				Persist.Instance.SetConfig (settings.SKIP_INTRO, !ShowSw.IsToggled);
 			};
-			grid.Children.Add (ShowLbl, 1, 2, 10, 11);
-			grid.Children.Add (ShowSw, 2, 3, 10, 11);
+			stack.Children.Add (new LineGrid3 (ShowLbl, ShowSw));
 
 			ToolbarItems.Add (new ToolbarItem {
 				Text = "Settings",
@@ -162,7 +167,7 @@ namespace RayvMobileApp
 			});
 			Content = new StackLayout {
 				Children = {
-					grid,
+					stack,
 					new BottomToolbar (this, "profile")
 				}
 			};

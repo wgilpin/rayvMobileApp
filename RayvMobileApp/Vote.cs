@@ -14,6 +14,7 @@ namespace RayvMobileApp
 		[PrimaryKey, AutoIncrement]
 		public int Id { get; set; }
 
+		// the key of the place
 		public string key { get; set; }
 
 		public string voter { get; set; }

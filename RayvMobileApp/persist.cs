@@ -126,6 +126,28 @@ namespace RayvMobileApp
 					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
 						db_version = 0;
 					}
+					if (db_version < 6) {
+						//Migration 5 - Category table plus wipe
+						Db.BeginTransaction ();
+						try {
+							deleteDb ();
+							createDb ();
+							db_version = 6;
+							Console.WriteLine ("Schema updated to 6");
+							Db.Commit ();
+							SetConfig (settings.DB_VERSION, db_version, Db);
+							var server_url = "https://" +
+							                 ServerPicker.GetServerVersionForAppVersion () +
+							                 settings.DEFAULT_SERVER;
+							Persist.Instance.SetConfig (settings.SERVER, server_url);
+							return;
+						} catch (Exception ex) {
+							Insights.Report (ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 6 failed {0}", ex);
+							Db.Rollback ();
+							return;
+						}
+					}
 					if (db_version == 0) {
 						Db.BeginTransaction ();
 						try {
@@ -209,6 +231,7 @@ namespace RayvMobileApp
 							return;
 						}
 					}
+
 					Console.WriteLine ("Schema Up To Date");
 				} catch (Exception ex) {
 					restConnection.LogErrorToServer ("UpdateSchema {0}", ex);
@@ -361,7 +384,7 @@ namespace RayvMobileApp
 		}
 
 
-		public void updateVotes ()
+		public void saveVotesToDb ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				Db.BusyTimeout = DbTimeout;
@@ -376,6 +399,7 @@ namespace RayvMobileApp
 					Db.Rollback ();
 					Insights.Report (ex);
 				}
+
 			}
 		}
 
@@ -414,6 +438,24 @@ namespace RayvMobileApp
 			}
 		}
 
+		static void CheckServerVersionCorrect (JObject obj)
+		{
+			string appVersion = ServerPicker.GetServerVersion ();
+			string serverVersion = "None";
+			try {
+				serverVersion = obj ["version"].ToString ();
+				if (appVersion == serverVersion) {
+					//good
+					Console.WriteLine ("CheckServerVersionCorrect Good {0}", serverVersion);
+					return;
+				}
+			} catch (Exception ex) {
+				//ignore
+				Console.WriteLine ("CheckServerVersionCorrect Exc. {0}", ex);
+			}
+			Console.WriteLine ("WRONG SERVER");
+			throw new ProtocolViolationException (string.Format ("App: {0} != Server {1}", appVersion, serverVersion));
+		}
 
 
 		void StoreFullUserRecord (IRestResponse resp)
@@ -421,8 +463,9 @@ namespace RayvMobileApp
 			try {
 				Console.WriteLine ("StoreFullUserRecord: lock get full");
 				JObject obj = JObject.Parse (resp.Content);
-				MyId = obj ["id"].Value<Int64> ();
 				SetConfig ("is_admin", obj ["admin"].ToString ());
+				MyId = obj ["id"].Value<Int64> ();
+				CheckServerVersionCorrect (obj);
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 				lock (Lock) {
@@ -438,35 +481,32 @@ namespace RayvMobileApp
 							Friends [fr_id] = new Friend (name, fr_id);
 						}
 						Console.WriteLine ("StoreFullUserRecord friends stored");
-						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
-						if (vote_list != null) {
-							string myIdStr = MyId.ToString ();
-							foreach (Vote v in vote_list) {
-								if (v.voter == myIdStr) {
-									var p =	GetPlace (v.key);
-									if (v.vote == 1)
-										p.up -= 1;
-									if (v.vote == -1)
-										p.down -= 1;
-									p.vote = v.vote.ToString ();
-									p.setComment (v.comment);
-									p.untried = v.untried;
-								}
+						int count = obj ["votes"].Count ();
+						for (int i = 0; i < count; i++) {
+							try {
+								Vote v = obj ["votes"] [i].ToObject<Vote> ();
 								Votes.Add (v);
+							} catch (Exception ex) {
+								Console.WriteLine ("StoreFullUserRecord {0} Bad Structure: {1}", i, ex);
 							}
-							updateVotes ();
+						}
+//						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
+						if (Votes != null) {
+							saveVotesToDb ();
 						}
 						Console.WriteLine ("StoreFullUserRecord votes stored");
 						//sort
-						updatePlaces ();
+						updatePlaces (MyId.ToString ());
 					} catch (Exception ex) {
-						Insights.Report (ex);
 						Console.WriteLine ("StoreFullUserRecord lock Exception {0}", ex);
+						Insights.Report (ex);
 						restConnection.LogErrorToServer ("StoreFullUserRecord lock Exception {0}", ex);
 					}
 				}
 				Online = true;
 				Console.WriteLine ("StoreFullUserRecord loaded");
+			} catch (ProtocolViolationException ex) {
+				throw;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("StoreFullUserRecord Exception {0}", ex);
@@ -479,6 +519,7 @@ namespace RayvMobileApp
 			try {
 				Console.WriteLine ("StoreUpdatedUserRecord: lock ");
 				JObject obj = JObject.Parse (resp.Content);
+				CheckServerVersionCorrect (obj);
 				MyId = obj ["id"].Value<Int64> ();
 				SetConfig ("is_admin", obj ["admin"].ToString ());
 				string placeStr = obj ["places"].ToString ();
@@ -513,26 +554,40 @@ namespace RayvMobileApp
 						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
 						if (vote_list != null) {
 							foreach (Vote v in vote_list) {
-								var existing_vote = (from old_vote in Votes
-								                     where old_vote.key == v.key
-								                     select old_vote).FirstOrDefault ();
+								var existing_vote = Votes
+									.Where (old_vote => 
+										old_vote.key == v.key &&
+								                    old_vote.voter == v.voter)
+									.SingleOrDefault ();
 								if (existing_vote == null) {
 									Votes.Add (v);
+									existing_vote = v;
 								} else {
 									existing_vote.comment = v.comment;
 									existing_vote.untried = v.untried;
 									existing_vote.vote = v.vote;
 									existing_vote.when = v.when;
+									existing_vote.place_name = v.place_name;
+								}
+								if (v.voter == MyId.ToString ()) {
+									var p =	GetPlace (v.key);
+									if (v.vote == 1)
+										p.up -= 1;
+									if (v.vote == -1)
+										p.down -= 1;
+									p.vote = v.vote.ToString ();
+									p.setComment (v.comment);
+									p.untried = v.untried;
 								}
 							}
 						}
-						updateVotes ();
+						saveVotesToDb ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
 					}
 					//sort
-					updatePlaces ();
+					updatePlaces (MyId.ToString ());
 					var updated_dict = new Dictionary<string,string> ();
 					updated_dict.Add ("userId", MyId.ToString ());
 					Console.WriteLine ("StoreUpdatedUserRecord clear updates");
@@ -595,6 +650,7 @@ namespace RayvMobileApp
 			return webReq;
 		}
 
+		// Throws Protocol Exception if server version doesn't match
 		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false, LoadingPage loader = null)
 		{
 			if (incremental) {
@@ -690,7 +746,7 @@ namespace RayvMobileApp
 		/**
 		 * Sort Places by Distance from me and update DB
 		 */
-		public void updatePlaces (Position? searchCentre = null)
+		public void updatePlaces (string myId, Position? searchCentre = null)
 		{
 			lock (this.Lock) {
 				using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
@@ -698,26 +754,40 @@ namespace RayvMobileApp
 					foreach (Place p in Places) {
 						p.CalculateDistanceFromPlace (searchCentre);
 						db.InsertOrReplace (p);
-
+						p.up = p.down = 0;
+						Votes.Where (v => v.key == p.key).ToList ().ForEach (v => {
+							if (v.voter == myId) {
+								// my vote
+								p.vote = v.vote.ToString ();
+								p.setComment (v.comment);
+								p.untried = v.untried;
+							} else {
+								//friend vote
+								if (v.vote == 1)
+									p.up++;
+								else if (v.vote == -1)
+									p.down++;
+							}
+						});
 					}
 					UpdateCategoryCounts ();
 					Console.WriteLine ("updatePlaces SORT");
 					Places.Sort ();
-					foreach (Vote v in Votes) {
-						try {
-							//Todo: does this allow n votes per place?
-							var found_v = (from fv in db.Table<Vote> ()
-							               where fv.key == v.key
-							               select fv).FirstOrDefault ();
-							if (found_v == null)
-								db.Insert (v);
-							//Db.InsertOrReplace (v);
-						} catch (Exception E) {
-							Insights.Report (E);
-							Console.WriteLine ("updatePlaces Exception: {0}", E.Message);
-							restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
-						}
-					}
+//					foreach (Vote v in Votes) {
+//						try {
+//							//Todo: does this allow n votes per place?
+//							var found_v = (from fv in db.Table<Vote> ()
+//							               where fv.key == v.key
+//							               select fv).FirstOrDefault ();
+//							if (found_v == null)
+//								db.Insert (v);
+//							//Db.InsertOrReplace (v);
+//						} catch (Exception E) {
+//							Insights.Report (E);
+//							Console.WriteLine ("updatePlaces Exception: {0}", E.Message);
+//							restConnection.LogErrorToServer ("updatePlaces Exception: {0}", E.Message);
+//						}
+//					}
 					
 					foreach (KeyValuePair<string, Friend> f in Friends) {
 						try {
@@ -829,7 +899,7 @@ namespace RayvMobileApp
 			}
 			myVote.untried = place.untried;
 			myVote.comment = place.descr;
-			updateVotes ();
+			saveVotesToDb ();
 			return true;
 		}
 

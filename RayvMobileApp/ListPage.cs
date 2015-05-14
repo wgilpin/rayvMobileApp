@@ -251,7 +251,11 @@ namespace RayvMobileApp
 
 		public void DoServerRefresh (object s, EventArgs e)
 		{
-			Persist.Instance.GetUserData (this, since: DateTime.UtcNow, incremental: true);
+			try {
+				Persist.Instance.GetUserData (this, since: DateTime.UtcNow, incremental: true);
+			} catch (ProtocolViolationException ex) {
+				DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+			}
 			Refresh ();
 			listView.EndRefresh ();
 		}
@@ -695,44 +699,47 @@ namespace RayvMobileApp
 		public static void Setup (Page caller)
 		{
 			Console.WriteLine ("ListPage.Setup");
-			Persist.Instance.GetUserData (caller, incremental: true);
-
+			try {
+				Persist.Instance.GetUserData (caller, incremental: true);
+			} catch (ProtocolViolationException ex) {
+				caller.DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+			}
 			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
 		}
 
 		public void SetList (List<Place> list)
 		{
 			Debug.WriteLine ("Listpage.SetList");
-			if (Persist.Instance.Places.Count () == 0)
+			if (Persist.Instance.Places.Count () == 0) {
 				Setup (this);
-			else {
+				list = Persist.Instance.Places;
+			}
 //				Device.BeginInvokeOnMainThread (() => {
 //				Spinner.IsVisible = true;
 //				Spinner.IsRunning = true;
-				lock (Persist.Instance.Lock) {
-					try {
-						Console.WriteLine ("SetList {0}", list.Count);
-						if (list.Count == 0) {
-							listView.IsVisible = false;
-							NothingFound.IsVisible = true;
-							Spinner.IsVisible = false;
-							Spinner.IsRunning = false;
-							return;
-						}
-						NothingFound.WidthRequest = this.Width;
-						NothingFound.IsVisible = false;
-						listView.IsVisible = true;
-						ItemsSource = null;
-						Console.WriteLine ("SetList SORT");
-						list.Sort ();
-						ItemsSource = list;
+			lock (Persist.Instance.Lock) {
+				try {
+					Console.WriteLine ("SetList {0}", list.Count);
+					if (list.Count == 0) {
+						listView.IsVisible = false;
+						NothingFound.IsVisible = true;
 						Spinner.IsVisible = false;
 						Spinner.IsRunning = false;
-							
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
+						return;
 					}
+					NothingFound.WidthRequest = this.Width;
+					NothingFound.IsVisible = false;
+					listView.IsVisible = true;
+					ItemsSource = null;
+					Console.WriteLine ("SetList SORT");
+					list.Sort ();
+					ItemsSource = list;
+					Spinner.IsVisible = false;
+					Spinner.IsRunning = false;
+							
+				} catch (Exception ex) {
+					Insights.Report (ex);
+					restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
 				}
 //				});
 			}

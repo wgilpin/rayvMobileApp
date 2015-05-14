@@ -49,16 +49,21 @@ namespace RayvMobileApp
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
 		}
 
-		public string GetServerVersionForAppVersion ()
+		public static string GetServerVersionForAppVersion ()
 		{
-			string[] version_parts = DependencyService.Get<IAppData> ().AppMajorVersion ().Split ('-');
-			switch (version_parts [0]) {
+			switch (GetServerVersion ()) {
 			case "0.2":
 				return "";
 			case "0.3":
 				return "3-dot-";
 			}
 			return "";
+		}
+
+		public static string GetServerVersion ()
+		{
+			string[] version_parts = DependencyService.Get<IAppData> ().AppMajorVersion ().Split ('-');
+			return version_parts [0];
 		}
 	}
 }

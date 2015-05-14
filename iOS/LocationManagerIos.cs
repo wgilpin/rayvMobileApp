@@ -60,7 +60,6 @@ namespace RayvMobileApp.iOS
 			Position pos = new Position (
 				               e.Locations [e.Locations.Length - 1].Coordinate.Latitude, 
 				               e.Locations [e.Locations.Length - 1].Coordinate.Longitude); 
-			Insights.Track ("Location Update", "Position", String.Format ("{0}, {1}", pos.Latitude, pos.Longitude));
 			this.LocationUpdated (this, new LocationUpdatedEventArgs (pos));
 		}
 
@@ -69,7 +68,6 @@ namespace RayvMobileApp.iOS
 			Position pos = new Position (
 				               e.NewLocation.Coordinate.Latitude, 
 				               e.NewLocation.Coordinate.Longitude); 
-			Insights.Track ("Location Update", "Position", String.Format ("{0}, {1}", pos.Latitude, pos.Longitude));
 			this.LocationUpdated (this, new LocationUpdatedEventArgs (pos));
 		}
 
@@ -77,7 +75,6 @@ namespace RayvMobileApp.iOS
 		{
 			if (locMgr != null) {
 				locMgr.StopUpdatingLocation ();
-				Insights.Track ("Location Updates Stopped");
 
 			}
 		}

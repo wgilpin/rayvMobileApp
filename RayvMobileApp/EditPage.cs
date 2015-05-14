@@ -158,6 +158,7 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("EditPage");
 			Title = "Details";
+			BackgroundColor = Color.White;
 			Spinner = new ActivityIndicator { 
 				Color = Color.Red,
 				BackgroundColor = Color.FromRgba (255, 255, 255, 0.5),
@@ -229,6 +230,7 @@ namespace RayvMobileApp
 
 			Place_name = new Entry {
 				Text = "",
+				TextColor = Color.Black,
 				Placeholder = "Name of place",
 			};
 			MainGrid.Children.Add (Place_name, 0, 3, Row, Row + 1);
@@ -237,6 +239,8 @@ namespace RayvMobileApp
 			Category = new Picker {
 				Title = "Cuisine",
 			};
+			if (Device.OS == TargetPlatform.Android)
+				Category.BackgroundColor = ColorUtil.Lighter (Color.Gray);
 			if (Persist.Instance.Categories != null) {
 				foreach (Category cat in Persist.Instance.Categories) {
 					Category.Items.Add (cat.Title);
@@ -248,6 +252,7 @@ namespace RayvMobileApp
 			AddressBox = new Entry {
 				Text = "",
 				Placeholder = "Address",
+				TextColor = Color.Black,
 			};
 			ConfirmAddressBtn = new ButtonWide { 
 				Text = "Confirm Location",
@@ -268,6 +273,7 @@ namespace RayvMobileApp
 			Row++;
 			WebSite = new Entry {
 				Placeholder = "Website",
+				TextColor = Color.Black,
 			};
 			if (!editAsDraft) {
 				MainGrid.Children.Add (WebSite, 0, 3, Row, Row + 1);
@@ -275,6 +281,7 @@ namespace RayvMobileApp
 			Row++;
 			PhoneNo = new Entry {
 				Placeholder = "Phone",
+				TextColor = Color.Black,
 			};
 			if (!editAsDraft) {
 				MainGrid.Children.Add (PhoneNo, 0, 3, Row, Row + 1);
@@ -306,13 +313,13 @@ namespace RayvMobileApp
 			MainGrid.Children.Add (VoteWishlist, 1, Row);
 			MainGrid.Children.Add (VoteDislike, 2, Row);
 			Row++;
-			Comment = new Entry ();
+			Comment = new Entry { TextColor = Color.Black, };
 			Comment.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
 			Comment.Completed += (sender, e) => {
 				Comment.Unfocus ();
 			};
 
-			MainGrid.Children.Add (new Label { Text = "My Comment" }, 0, 3, Row, Row + 1);
+			MainGrid.Children.Add (new Label { Text = "My Comment", TextColor = Color.Black }, 0, 3, Row, Row + 1);
 			Row++;
 			MainGrid.Children.Add (Comment, 0, 3, Row, Row + 1);
 			Row++;
@@ -329,7 +336,7 @@ namespace RayvMobileApp
 			Row++;
 			DeleteButton = new ButtonWide {
 				Text = editAsDraft ? "Delete Draft" : "Remove from my lists",
-				BackgroundColor = Color.Red,
+				BackgroundColor = ColorUtil.Darker (Color.Red),
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.End,

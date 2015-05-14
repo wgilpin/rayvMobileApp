@@ -51,6 +51,11 @@ namespace RayvMobileApp.iOS
 
 			//The rest of your code here
 			// ...
+			Insights.Initialize ("87e54cc1294cb314ce9f25d029a942aa7fc7dfd4");
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				//				MapServices.ProvideAPIKey ("AIzaSyBZ5j4RR4ymfrckCBKkgeNylfoWoRSD3yQ");
+				App.IdentifyToAnalytics ();
+			})).Start ();
 
 			LoadApplication (new App ());
 

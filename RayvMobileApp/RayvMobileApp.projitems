@@ -17,7 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)AddMapPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage5bDeDup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AddResultsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddWhatPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Analytics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BottomToolbar.cs" />

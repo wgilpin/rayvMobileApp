@@ -2,6 +2,7 @@
 
 using Xamarin.Forms;
 using System.ComponentModel;
+using System.Net;
 
 namespace RayvMobileApp
 {
@@ -23,7 +24,11 @@ namespace RayvMobileApp
 			Console.WriteLine ("loadDataFromServer");
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
-			Persist.Instance.GetUserData (this, incremental: true, loader: this);
+			try {
+				Persist.Instance.GetUserData (this, incremental: true, loader: this);
+			} catch (ProtocolViolationException ex) {
+				Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
+			}
 		}
 
 		void DoAppearing (object sender, EventArgs e)

@@ -40,12 +40,28 @@ namespace RayvMobileApp
 							Persist.Instance.GpsPosition.Latitude, 
 							Persist.Instance.GpsPosition.Longitude),
 					},
+					new Label {
+						Text = String.Format (
+							"Server: {0}",
+							Persist.Instance.GetConfig (settings.SERVER)),
+					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,
 						Text = "[Debug] Clear Local Data",
 						OnClick = async (s, e) => {
-							if (await DisplayAlert ("Are You Sure?", "This will clear the local cache", "Yes", "No"))
+							if (await DisplayAlert (
+								    "Are You Sure?", 
+								    "This will wipe the list on this phone." +
+								    " It will be reloaded when you go to the Find page", 
+								    "Yes", 
+								    "No")) {
 								Persist.Instance.Wipe ();
+								this.Navigation.PushModalAsync (
+									new NavigationPage (new ListPage ()) { 
+										BarBackgroundColor = settings.BaseColor,
+										BarTextColor = Color.White,
+									}, false);
+							}
 						}
 					},
 				}
