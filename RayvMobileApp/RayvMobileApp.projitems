@@ -20,11 +20,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)AddWhatPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Analytics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BottomToolbar.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Category.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ChoicePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CustomControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)detailPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EditPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Friend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ListPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoadingPage.cs" />
@@ -54,5 +51,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)IntroSlide.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ColorUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage4_Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditVotePage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditCuisinePage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cuisine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditMealKindPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditCommentPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlaceEditor.cs" />
   </ItemGroup>
 </Project>

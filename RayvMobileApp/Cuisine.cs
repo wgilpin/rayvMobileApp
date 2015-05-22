@@ -3,13 +3,18 @@ using SQLite;
 
 namespace RayvMobileApp
 {
-	public class Category
+	public class Cuisine
 	{
 		[PrimaryKey, Unique]
 		public string Title { get; set; }
 
-		public Category ()
+		public Cuisine ()
 		{
+		}
+
+		public override string ToString ()
+		{
+			return Title;
 		}
 	}
 }

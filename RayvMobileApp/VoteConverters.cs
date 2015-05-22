@@ -94,15 +94,15 @@ namespace RayvMobileApp
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			try {
-				int? vote;
+				VoteValue? vote;
 				try {
-					vote = value as int?;
+					vote = value as VoteValue?;
 				} catch (Exception) { 
 					return null;
 				}
-				if (vote == 1)
+				if (vote == VoteValue.Liked)
 					return "Liked";
-				if (vote == -1)
+				if (vote == VoteValue.Disliked)
 					return "Disliked";
 				return "Starred";
 			} catch (Exception ex) {

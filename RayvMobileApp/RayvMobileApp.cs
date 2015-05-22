@@ -36,6 +36,7 @@ namespace RayvMobileApp
 		{
 			
 			locationMgr = DependencyService.Get<ILocationManager> ();
+			Persist.Instance.UpdateSchema ();
 			MainPage = GetFirstPage ();
 		}
 

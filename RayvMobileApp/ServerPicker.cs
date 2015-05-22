@@ -56,6 +56,8 @@ namespace RayvMobileApp
 				return "";
 			case "0.3":
 				return "3-dot-";
+			case "0.4":
+				return "4-dot-";
 			}
 			return "";
 		}

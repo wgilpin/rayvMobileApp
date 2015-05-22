@@ -10,6 +10,20 @@ using Xamarin;
 
 namespace RayvMobileApp
 {
+	public class PlaceSavedEventArgs : EventArgs
+	{
+		private readonly Place _place;
+
+		public PlaceSavedEventArgs (Place place)
+		{
+			_place = place;
+		}
+
+		public Place EditedPlace {
+			get { return _place; }
+		}
+	}
+
 	public class AddPage5bDeDup : ContentPage
 	{
 		public event EventHandler Confirmed;
@@ -37,6 +51,7 @@ namespace RayvMobileApp
 		string Address;
 		Position LatLng;
 		ActivityIndicator Spinner;
+		Place addingPlace;
 
 		#endregion
 
@@ -52,26 +67,29 @@ namespace RayvMobileApp
 			this.Navigation.PopToRootAsync ();
 		}
 
+
 		void DoEditFromList (object sender, SelectedItemChangedEventArgs e)
 		{
-			Place p = (Place)e.SelectedItem;
+			addingPlace = (Place)e.SelectedItem;
 			Debug.WriteLine ("AddPage5bDeDup.DoEdit Push EditPage");
-			var editPage = new EditPage (p, addingNewPlace: true);
-			editPage.Saved += ShowPlaceOnDetailPage;
-			editPage.Cancelled += BackToRoot;
-			this.Navigation.PushAsync (editPage);
+			var editor = new PlaceEditor (addingPlace, this);
 		}
 
 		void DoConfirmedManualDetails (object sender, EventArgs e)
 		{
 			Debug.WriteLine ("AddPage5bDeDup.DoConfirmed Push EditPage");
-			var editPage = new EditPage (LatLng, Address, PlaceName, addingNewPlace: true);
-			editPage.Saved += ShowPlaceOnDetailPage;
-			editPage.Cancelled += BackToRoot;
-			this.Navigation.PushAsync (editPage);
+			addingPlace = new Place {
+				lat = LatLng.Latitude,
+				lng = LatLng.Longitude,
+				place_name = PlaceName,
+			};
+			var editor = new PlaceEditor (addingPlace, this, false);
+			editor.Edit ();
 		}
 
 		#endregion
+
+
 
 		void DoSearch ()
 		{

@@ -57,6 +57,10 @@ namespace RayvMobileApp.iOS
 				App.IdentifyToAnalytics ();
 			})).Start ();
 
+			// no crash reporting if on the ios simulator
+			bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
+			Insights.DisableCollection = DEBUG_ON_SIMULATOR;
+
 			LoadApplication (new App ());
 
 			return base.FinishedLaunching (app, options);

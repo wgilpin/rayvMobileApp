@@ -57,7 +57,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (
 					new NavigationPage (new AddWhatPage ()) { 
-						BarBackgroundColor = settings.ColorOffWhite,
+						BarBackgroundColor = settings.BaseColor,
 						BarTextColor = settings.BaseColor,
 					});
 			};

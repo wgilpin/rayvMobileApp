@@ -47,6 +47,7 @@ namespace RayvMobileApp
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,
+						TextColor = Color.White,
 						Text = "[Debug] Clear Local Data",
 						OnClick = async (s, e) => {
 							if (await DisplayAlert (

@@ -223,19 +223,16 @@ namespace RayvMobileApp
 				this.Navigation.PushAsync (new DetailPage (p));
 				break;
 			case "Like":
-				p.vote = "1";
-				p.untried = false;
-				p.Save (out errorMsg);
+				p.vote.vote = VoteValue.Liked;
+				p.SaveVote (out errorMsg);
 				break;
 			case "Dislike":
-				p.vote = "-1";
-				p.untried = false;
-				p.Save (out errorMsg);
+				p.vote.vote = VoteValue.Disliked;
+				p.SaveVote (out errorMsg);
 				break;
 			case "Add to Wishlist":
-				p.vote = "0";
-				p.untried = true;
-				p.Save (out errorMsg);
+				p.vote.vote = VoteValue.Untried;
+				p.SaveVote (out errorMsg);
 				break;
 			}
 			if (errorMsg.Length > 0) {
@@ -289,7 +286,7 @@ namespace RayvMobileApp
 				case NewsFilterKind.Good:
 					News = (from v in Persist.Instance.Votes
 					        where v.voter != MyStringId
-					            && v.vote == 1
+					            && v.vote == VoteValue.Liked
 					        select v)
 						.OrderByDescending (x => x.when)
 						.ToList ();

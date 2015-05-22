@@ -51,6 +51,20 @@ namespace RayvMobileApp
 					webView
 				}
 			};
+			ToolbarItems.Add (new ToolbarItem {
+				Text = " Browser  ",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => { 
+					Device.OpenUri (new Uri (url));
+				})
+			});
+			ToolbarItems.Add (new ToolbarItem {
+				Text = " Close",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => { 
+					Navigation.PopModalAsync ();
+				})
+			});
 		}
 	}
 }

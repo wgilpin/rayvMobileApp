@@ -11,6 +11,8 @@ using Xamarin;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Reflection;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace RayvMobileApp
 {
@@ -28,8 +30,7 @@ namespace RayvMobileApp
 		private string _place_id;
 		private string _category;
 		private string _telephone;
-		private bool _untried;
-		private string _vote;
+		private Vote _vote;
 		private string _descr;
 		private string _img;
 		private Int64 _edited;
@@ -115,14 +116,6 @@ namespace RayvMobileApp
 			}
 		}
 
-		public string category { 
-			get { return _category; } 
-			set {
-				_category = value;
-				NotifyPropertyChanged ();
-			}
-		}
-
 		public string telephone { 
 			get { return _telephone; } 
 			set {
@@ -132,18 +125,45 @@ namespace RayvMobileApp
 		}
 
 		public bool untried { 
-			get { return _untried; } 
+			get { return vote.vote == VoteValue.Untried; } 
+		}
+
+		//		[JsonConverter (typeof(StringEnumConverter))]
+		[Ignore]
+		public Vote vote { 
+			get { 
+				if (_vote == null) {
+					// no vote - find ours
+					string myIdStr = Persist.Instance.MyId.ToString ();
+					Vote placeVote = Persist.Instance.Votes.Where (
+						                 v => v.key == _key && v.voter == myIdStr).SingleOrDefault ();
+					_vote = placeVote ?? new Vote ();
+					// if  our vote is empty it wont have a cusine name
+					if (string.IsNullOrEmpty (_vote.cuisineName)) {
+						Vote cuisineVote = Persist.Instance.Votes.Where (
+							                   v => v.key == _key).FirstOrDefault ();
+						if (cuisineVote != null) {
+							_vote.cuisineName = cuisineVote.cuisineName;
+							_vote.kind = cuisineVote.kind;
+							_vote.style = cuisineVote.style;
+						}
+					}
+				}
+				return _vote;
+			} 
 			set {
-				_untried = value;
+				_vote = value;
+				setComment (value?.comment);
 				NotifyPropertyChanged ();
 			}
 		}
 
-		public string vote { 
-			get { return _vote; } 
+		public VoteValue voteValue {
+			get {
+				return vote.vote;
+			}
 			set {
-				_vote = value;
-				NotifyPropertyChanged ();
+				vote.vote = value;
 			}
 		}
 
@@ -155,16 +175,48 @@ namespace RayvMobileApp
 			}
 		}
 
+
 		public string img { 
 			get { 
 				if (string.IsNullOrEmpty (_img))
 					return "";
 				if (_img [0] == 'h')
 					return _img;
-				return Persist.Instance.GetConfig (settings.SERVER) + _img; 
+				Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+				Uri imgUri = new Uri (baseUri, _img);
+				return imgUri.ToString ();
 			} 
 			set {
-				_img = value;
+				if (string.IsNullOrEmpty (value))
+					_img = "";
+				else {
+					Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+					Uri imgUri = new Uri (baseUri, value);
+					_img = imgUri.ToString ();
+				}
+				NotifyPropertyChanged ();
+			}
+		}
+
+
+		public string thumbnail { 
+			get { 
+				if (string.IsNullOrEmpty (_thumbnail))
+					return "";
+				if (_thumbnail [0] == 'h')
+					return _thumbnail;
+				Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+				Uri imgUri = new Uri (baseUri, _thumbnail);
+				return imgUri.ToString ();
+			} 
+			set {
+				if (string.IsNullOrEmpty (value))
+					_thumbnail = "";
+				else {
+					Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+					Uri imgUri = new Uri (baseUri, value);
+					_thumbnail = imgUri.ToString ();
+				}
 				NotifyPropertyChanged ();
 			}
 		}
@@ -177,19 +229,7 @@ namespace RayvMobileApp
 			}
 		}
 
-		public string thumbnail { 
-			get { 
-				if (string.IsNullOrEmpty (_thumbnail))
-					return "";
-				if (_thumbnail [0] == 'h')
-					return _thumbnail;
-				return Persist.Instance.GetConfig (settings.SERVER) + _thumbnail;
-			} 
-			set {
-				_thumbnail = value;
-				NotifyPropertyChanged ();
-			}
-		}
+
 
 		public int up { 
 			get { return _up; } 
@@ -272,6 +312,7 @@ namespace RayvMobileApp
 			}
 		}
 
+
 		//TODO: All of these view properties should be value converters in the template binding
 		//		[Ignore]
 		//		public string ShortAddress {
@@ -322,8 +363,7 @@ namespace RayvMobileApp
 		// iVoted ; true if I voted - for the template
 		public bool iVoted {
 			get {
-				// vote +1 or -1 is a vote, untried is a vote
-				return (_vote == "1" || _vote == "-1" || untried == true);
+				return vote.vote != VoteValue.None;
 			}
 		}
 
@@ -331,14 +371,14 @@ namespace RayvMobileApp
 			get { return !iVoted; }
 		}
 
-		public string voteImage {
+		public string voteAsText {
 			get {
 				String imageUrl = "";
-				if (_vote == "1")
+				if (vote.vote == VoteValue.Liked)
 					imageUrl = "Liked";
-				if (_vote == "-1")
+				if (vote.vote == VoteValue.Disliked)
 					imageUrl = "Disliked";
-				if (_untried)
+				if (vote.vote == VoteValue.Untried)
 					imageUrl = "Saved";
 				if (imageUrl == "")
 					imageUrl = "Liked   Disliked";
@@ -389,8 +429,6 @@ namespace RayvMobileApp
 		#endregion
 
 		#region Methods
-
-
 
 		public void CopyFromAnother (Place source)
 		{
@@ -477,27 +515,23 @@ namespace RayvMobileApp
 					parameters ["address"] = address;
 					parameters ["place_name"] = place_name;
 					parameters ["myComment"] = Comment ();
-					parameters ["category"] = category;
+					parameters ["cuisine"] = vote.cuisineName;
 					parameters ["descr"] = "";
 					parameters ["website"] = website;
 					parameters ["telephone"] = telephone;
-					switch (vote) {
-					case "-1":
-						parameters ["voteScore"] = "dislike";
-						break;
-					case "1":
-						parameters ["voteScore"] = "like";
-						break;
-					default:
-						parameters ["untried"] = "true";
-						break;
-					}
+					parameters ["voteScore"] = vote.vote.ToString ();
+					parameters ["kind"] = $"{(int)vote.kind}";
+					parameters ["style"] = $"{(int)vote.style}";
 
 					bool wasDraft = IsDraft;
 					string wasDraftKey = _key;
 					string result = restConnection.Instance.post ("/item", parameters);
 					//			JObject obj = JObject.Parse (result);
-					Place place = JsonConvert.DeserializeObject<Place> (result);
+					JObject obj = JObject.Parse (result);
+					string placeStr = obj ["place"].ToString ();
+					Place place = JsonConvert.DeserializeObject<Place> (placeStr);
+					string voteStr = obj ["vote"].ToString ();
+					place.vote = JsonConvert.DeserializeObject<Vote> (voteStr);
 					place.IsDraft = false;
 					this.key = place.key;
 					lock (Persist.Instance.Lock) {
@@ -539,21 +573,12 @@ namespace RayvMobileApp
 			try {
 				if (Persist.Instance.Online) {
 					Dictionary<string, string> parameters = new Dictionary<string, string> ();
-
 					parameters ["key"] = key;
 					parameters ["myComment"] = Comment ();
-					switch (vote) {
-					case "-1":
-						parameters ["voteScore"] = "dislike";
-						break;
-					case "1":
-						parameters ["voteScore"] = "like";
-						break;
-					default:
-						parameters ["untried"] = "true";
-						break;
-					}
-
+					parameters ["cuisine"] = vote.cuisineName;
+					parameters ["kind"] = vote.kind.ToString ();
+					parameters ["style"] = vote.style.ToString ();
+					parameters ["voteScore"] = vote.vote.ToString ();
 					string result = restConnection.Instance.post ("/api/vote", parameters);
 					//			JObject obj = JObject.Parse (result);
 					if (result == "OK") {
@@ -563,7 +588,6 @@ namespace RayvMobileApp
 								errorMessage = "Failed to update";
 								return false;
 							}
-						
 						}
 					}
 				} else {
@@ -605,7 +629,10 @@ namespace RayvMobileApp
 			}
 		}
 
-
+		public Place ()
+		{
+			
+		}
 	}
 
 }

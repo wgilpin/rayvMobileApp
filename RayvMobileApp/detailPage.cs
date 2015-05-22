@@ -24,6 +24,16 @@ namespace RayvMobileApp
 		}
 	}
 
+	class TopRowBtn: ImageButton
+	{
+		public TopRowBtn () : base ()
+		{
+			HeightRequest = 30;
+			HorizontalOptions = LayoutOptions.CenterAndExpand;
+			Aspect = Aspect.AspectFit;
+		}
+	}
+
 	public class DetailPage : ContentPage
 	{
 		// these are consts as they are used in the switch in SetVote
@@ -44,13 +54,8 @@ namespace RayvMobileApp
 		public Place DisplayPlace;
 		Label Place_name;
 		Image Img;
-		Label Category;
-		ButtonWide VoteLike;
-		ButtonWide VoteDislike;
-		ButtonWide VoteWishlist;
-		ButtonWide CallBtn;
-		ButtonWide WebBtn;
-		ImageButton WebImgBtn;
+		Label CuisineEd;
+
 		ActivityIndicator Spinner;
 		Label distance;
 		LabelWithImageButton Address;
@@ -58,6 +63,11 @@ namespace RayvMobileApp
 		EntryWithButton CommentEditor;
 		private bool ShowToolbar;
 		public bool Dirty;
+		bool IsNew;
+		TopRowBtn WebImgBtn;
+		TopRowBtn TelImgBtn;
+		TopRowBtn VoteImgBtn;
+		Frame SaveFrame;
 
 		#endregion
 
@@ -72,7 +82,17 @@ namespace RayvMobileApp
 				grid.RowDefinitions.Add (new RowDefinition () {
 					Height = GridLength.Auto
 				});
-				string FriendName = Persist.Instance.Friends [vote.voter].Name;
+				grid.RowDefinitions.Add (new RowDefinition () {
+					Height = GridLength.Auto
+				});
+				var Separator = new BoxView { 
+					BackgroundColor = Color.Gray, 
+					HeightRequest = 1, 
+					WidthRequest = 600, 
+					Opacity = 0.5,
+					VerticalOptions = LayoutOptions.Start,
+				};
+				grid.Children.Add (Separator, 0, 5, whichRow * 3, whichRow * 3 + 1);
 				Button LetterBtn = new Button {
 					WidthRequest = 30,
 					HeightRequest = 30,
@@ -85,30 +105,27 @@ namespace RayvMobileApp
 				};
 				LetterBtn.Text = vote.FirstLetter;
 				LetterBtn.BackgroundColor = vote.RandomColor;
-				grid.Children.Add (LetterBtn, 0, 1, whichRow * 2, whichRow * 2 + 1);
-				grid.Children.Add (new Label {
-					Text = FriendName,
-					TextColor = Color.Black
-				}, 1, 2, whichRow * 2, whichRow * 2 + 1);
-				grid.Children.Add (new Label {
+				grid.Children.Add (LetterBtn, 0, 1, whichRow * 3 + 1, whichRow * 3 + 2);
+				var FriendLine = new FormattedString ();
+				var voter = Persist.Instance.Friends [vote.voter].Name;
+				FriendLine.Spans.Add (new Span {
+					Text =$"{voter}  {vote.GetVoteAsString}  ",
+				});
+				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
 					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
-					TextColor = Color.FromHex ("#606060"),
-				}, 3, 5, whichRow * 2, whichRow * 2 + 1);
+					ForegroundColor = Color.FromHex ("#606060"),
+				});
+				grid.Children.Add (new Label { FormattedText = FriendLine, }, 1, 5, whichRow * 3 + 1, whichRow * 3 + 2);
 				String comment_text = vote.PrettyComment;
 				if (!String.IsNullOrEmpty (comment_text)) {
 					grid.Children.Add (new Label {
 						Text = comment_text,
 						TextColor = settings.ColorDarkGray,
 						FontAttributes = FontAttributes.Italic,
-					}, 0, 5, whichRow * 2 + 1, whichRow * 2 + 2);
+					}, 0, 5, whichRow * 3 + 2, whichRow * 3 + 3);
 				}
-				Label voteLbl = new Label {
-					Text = vote.GetVoteAsString,
-					TextColor = settings.ColorDarkGray,
-				};
-				grid.Children.Add (voteLbl, 2, 3, whichRow * 2, whichRow * 2 + 1);
 			} catch (Exception ex) {
 				Console.WriteLine ("detailPage.AddFriendCommentToGrid {0}", ex);
 				Insights.Report (ex);
@@ -125,7 +142,8 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (70) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-				}
+				},
+
 			};
 
 			try {
@@ -136,7 +154,7 @@ namespace RayvMobileApp
 					.OrderBy (x => x.when)
 					.ToList ().ForEach (vote => {
 					AddFriendCommentToGrid (vote, friendCommentsGrid, whichRow);
-					whichRow++;
+					whichRow += 2;
 				});
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -150,23 +168,20 @@ namespace RayvMobileApp
 		{
 			SetVoteButton (sender as ButtonWide);
 			// should NOT reference UILabel on background thread!
-			string previousVote = DisplayPlace.vote;
+			VoteValue previousVote = DisplayPlace.vote.vote;
 			switch ((sender as ButtonWide).Text) {
 			case LIKE_TEXT:
-				DisplayPlace.vote = "1";
-				DisplayPlace.untried = false;
+				DisplayPlace.vote.vote = VoteValue.Liked;
 				break;
 			case DISLIKE_TEXT:
-				DisplayPlace.vote = "-1";
-				DisplayPlace.untried = false;
+				DisplayPlace.vote.vote = VoteValue.Disliked;
 				break;
 			case WISH_TEXT:
-				DisplayPlace.vote = "0";
-				DisplayPlace.untried = true;
+				DisplayPlace.vote.vote = VoteValue.Untried;
 				break;
 			}
 			string Message = "";
-			if (previousVote == DisplayPlace.vote) {
+			if (previousVote == DisplayPlace.vote.vote) {
 				// have set to curren tsetting = unset
 				var answer = await DisplayAlert (
 					             "Remove Vote",
@@ -190,7 +205,6 @@ namespace RayvMobileApp
 						Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
 							{ "PlaceName", DisplayPlace.place_name },
 							{ "Vote", DisplayPlace.vote.ToString () },
-							{ "Untried", DisplayPlace.untried.ToString () }
 						});
 					}
 					Device.BeginInvokeOnMainThread (() => {
@@ -209,40 +223,48 @@ namespace RayvMobileApp
 			}
 		}
 
-		void ResetVoteButtons ()
-		{
-			VoteLike.TextColor = Color.Black;
-			VoteDislike.TextColor = Color.Black;
-			VoteWishlist.TextColor = Color.Black;
-			VoteLike.BackgroundColor = settings.ColorLightGray;
-			VoteDislike.BackgroundColor = settings.ColorLightGray;
-			VoteWishlist.BackgroundColor = settings.ColorLightGray;
-		}
+
 
 		void SetVoteButton (Button voteBtn)
 		{
-			ResetVoteButtons ();
 			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
 			voteBtn.TextColor = Color.White;
 		}
 
 		object Lock = new object ();
 
-		void LoadPage (string key)
+		void LoadPage (Place place)
 		{
 			lock (Lock) {
 				try {
-
-					DisplayPlace = (from p in Persist.Instance.Places
-					                where p.key == key
-					                select p).FirstOrDefault ();
-					if (DisplayPlace == null) {
-						Console.WriteLine ("LoadPage FAILED");
-						return;
-					}
+//					if (!string.IsNullOrEmpty (place.key)) {
+//						DisplayPlace = (from p in Persist.Instance.Places
+//						                where p.key == place.key
+//						                select p).FirstOrDefault ();
+//					}
+//					if (DisplayPlace == null) {
+//						DisplayPlace = place;
+//					}
+//					if (DisplayPlace == null) {
+//						Console.WriteLine ("LoadPage FAILED");
+//						return;
+//					}
 					Console.WriteLine ("DetailsPage.LoadPage: dist is {0}", DisplayPlace.distance);
 					
-					Place_name.Text = DisplayPlace.place_name;
+					var pn = new FormattedString ();
+					pn.Spans.Add (new Span { 
+						Text = $" {DisplayPlace.place_name}",
+						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+						ForegroundColor = Color.Black,
+						FontAttributes = FontAttributes.Bold,
+					});
+					pn.Spans.Add (new Span { 
+						Text = $"  {DisplayPlace.distance}",
+						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+						ForegroundColor = Color.Gray
+					});
+						
+					Place_name.FormattedText = pn;
 					Address.Text = DisplayPlace.address;
 					Address.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.address);
 					if (!string.IsNullOrWhiteSpace (DisplayPlace.img)) {
@@ -253,7 +275,7 @@ namespace RayvMobileApp
 					}
 					Img.WidthRequest = this.Width;
 					Img.HeightRequest = this.Height / 3;
-					Category.Text = DisplayPlace.category;
+					CuisineEd.Text = DisplayPlace.vote.cuisineName;
 					string comment;
 					if (DisplayPlace.IsDraft)
 						comment = DisplayPlace.DraftComment;
@@ -262,38 +284,30 @@ namespace RayvMobileApp
 					if (String.IsNullOrEmpty (comment))
 						Comment.Text = "Click to Comment";
 					else
-						Comment.Text = '"' + DisplayPlace.Comment () + '"';
+						Comment.Text = $"\"{DisplayPlace.Comment ()}\"";
 
 					CommentEditor.IsVisible = false;
 					Comment.IsVisible = true;
 
-					distance.Text = DisplayPlace.distance;
 					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
-						WebBtn.Text = "No Website";
-						WebBtn.IsEnabled = false;
-					} else
-						WebBtn.Text = "Go To Website";
-					WebBtn.Clicked -= GotoWebPage;
-					WebBtn.Clicked += GotoWebPage;
+						WebImgBtn.IsEnabled = false;
+					}
+					;
 					if (string.IsNullOrWhiteSpace (DisplayPlace.telephone)) {
-						CallBtn.Text = "No Number    ";
-						CallBtn.IsEnabled = false;
-					} else
-						CallBtn.Text = "Call      ";
-					VoteLike.TextColor = Color.Black;
-					ResetVoteButtons ();
-					switch (DisplayPlace.vote) {
-					case "-1":
-						SetVoteButton (VoteDislike);
+						TelImgBtn.IsEnabled = false;
+					} 
+					switch (DisplayPlace.vote.vote) {
+					case VoteValue.Disliked:
+						VoteImgBtn.Source = "Dislike.png";
 						break;
-					case "1":
-						SetVoteButton (VoteLike);
+					case VoteValue.Liked:
+						VoteImgBtn.Source = "Like.png";
+						break;
+					case VoteValue.Untried:
+						VoteImgBtn.Source = "Wish1.png";
 						break;
 					default:
-						if (DisplayPlace.vote == "0" && DisplayPlace.untried == true)
-							SetVoteButton (VoteWishlist);
-						else
-							ResetVoteButtons ();
+						VoteImgBtn.Source = "star-lg.png";
 						break;
 					}
 				} catch (Exception ex) {
@@ -303,9 +317,60 @@ namespace RayvMobileApp
 			}
 		}
 
+		void SetDirty ()
+		{
+			SaveFrame.IsVisible = true;
+			Dirty = true;
+		}
+
 		#endregion
 
 		#region Events
+
+		async void DoVote (object o, EventArgs e)
+		{
+			string[] choices;
+			if (DisplayPlace.iVoted)
+				choices = new string[] {"Remove Vote",
+					"Like", 
+					"Dislike",
+					"Add to Wishlist"
+				};
+			else
+				choices = new string[] {
+					"Like", 
+					"Dislike",
+					"Add to Wishlist"
+				};
+			string action = await DisplayActionSheet (
+				                DisplayPlace.place_name, 
+				                "Cancel",
+				                null, 
+				                choices);
+			switch (action) {
+			case "Remove Vote":
+				VoteImgBtn.Source = "star-lg.png";
+				DisplayPlace.vote.vote = VoteValue.None;
+				break;
+			case "Like":
+				DisplayPlace.vote.vote = VoteValue.Liked;
+				VoteImgBtn.Source = "Like.png";
+				break;
+			case "Dislike":
+				VoteImgBtn.Source = "Dislike.png";
+				DisplayPlace.vote.vote = VoteValue.Disliked;
+				break;
+			case "Add to Wishlist":
+				VoteImgBtn.Source = "Wish1.png";
+				DisplayPlace.vote.vote = VoteValue.Untried;
+				break;
+			}
+			string msg = "";
+			if (DisplayPlace.SaveVote (out msg))
+				DisplayAlert ("Saved", "Vote Saved", "OK");
+			else
+				DisplayAlert ("Error", "Vote Not Saved", "OK");
+		}
 
 		void DoClickComment (object o, EventArgs e)
 		{
@@ -341,9 +406,10 @@ namespace RayvMobileApp
 
 		void DoEdit ()
 		{
-			Debug.WriteLine ("AddResultsPage.DoEdit: Push EditPage");
+			Debug.WriteLine ("Detail.DoEdit: Push EditPage");
 			Dirty = true;
-			Navigation.PushAsync (new EditPage (DisplayPlace));
+			var editor = new PlaceEditor (DisplayPlace, this, false);
+			editor.Edit ();
 		}
 
 		void DoCommentCompleted (object sender, EventArgs e)
@@ -354,7 +420,15 @@ namespace RayvMobileApp
 
 		public void DoLoadPage (object sender, EventArgs e)
 		{
-			LoadPage (DisplayPlace.key);
+			LoadPage (DisplayPlace);
+		}
+
+		void PushWithNavigation (ContentPage page)
+		{
+			if (Navigation.NavigationStack.Count == 0)
+				Navigation.PushModalAsync (new NavigationPage (page));
+			else
+				Navigation.PushAsync (page);
 		}
 
 		public void GotoWebPage (object sender, EventArgs e)
@@ -362,9 +436,11 @@ namespace RayvMobileApp
 			if (DisplayPlace.website == null)
 				return;
 			Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
-			Navigation.PushAsync (new WebPage (
-				DisplayPlace.place_name,
-				DisplayPlace.website));
+			var web = new WebPage (
+				          DisplayPlace.place_name,
+				          DisplayPlace.website);
+			PushWithNavigation (web);
+
 		}
 
 		void DoDirections (object sender, EventArgs e)
@@ -400,160 +476,58 @@ namespace RayvMobileApp
 			}
 		}
 
+		void ShowSpinner (bool IsVisible = true)
+		{
+			Spinner.IsRunning = IsVisible;
+			Spinner.IsVisible = IsVisible;
+
+		}
+
+		async void SaveWasGood ()
+		{
+			Console.WriteLine ("Saved - PopToRootAsync");
+			Insights.Track ("DetailPage.DoSave", new Dictionary<string, string> {
+				{ "PlaceName", DisplayPlace.place_name },
+				{ "Lat", DisplayPlace.lat.ToString () },
+				{ "Lng", DisplayPlace.lng.ToString () },
+				{ "Vote", DisplayPlace.vote.ToString () },
+			});
+			ShowSpinner (false);
+			await DisplayAlert ("Saved", "Details Saved", "OK");
+			Persist.Instance.HaveAdded = this.IsNew;
+		}
+
+		async void SaveWasBad ()
+		{
+			ShowSpinner (false);
+			DisplayPlace.IsDraft = true;
+			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
+			Persist.Instance.Places.Add (DisplayPlace);
+		}
+
+		void DoSave (object sender, EventArgs e)
+		{
+			string Message = "";
+
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				if (DisplayPlace.Save (out Message)) {
+					Device.BeginInvokeOnMainThread (() => {
+						SaveWasGood ();
+					});
+					#pragma warning restore 4014
+				} else {
+					Device.BeginInvokeOnMainThread (() => {
+						SaveWasBad ();
+					});
+				}
+
+			})).Start ();
+		}
+
 		#endregion
 
-		public DetailPage (Place place, bool showToolbar = false, bool showMapBtn = true)
+		Frame GetVoteCountText ()
 		{
-			Analytics.TrackPage ("DetailPage");
-			BackgroundColor = Color.White;
-			ShowToolbar = showToolbar;
-			const int IMAGE_HEIGHT = 0;
-			Spinner = new ActivityIndicator {
-				BackgroundColor = Color.FromRgba (55, 55, 55, 0.5),
-				IsVisible = false,
-				Color = Color.Red,
-			};
-			const int 
-			PLACE_NAME_ROW = 0 ,
-			WEB_ROW= 1 ,
-			TEL_ROW= 1 ,
-			CUISINE_ROW= 0 ,
-			ADDRESS_ROW= 1 ,
-			VOTE_LBL_ROW= 2 ,
-			VOTE_ROW= 3 ,
-			COMMENT_ROW= 4 ,
-			VOTE_COUNT_ROW= 5;
-
-			var TopGrid = new Grid {
-				Padding = 2,
-				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-//					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (25, GridUnitType.Absolute) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (25, GridUnitType.Absolute) },
-				}
-			};
-			var MainGrid = new Grid {
-				Padding = 2,
-				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-
-
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-				}
-			};
-			var CuisineAndDistanceGrid = new Grid {
-				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-				}
-			};
-		
-			DisplayPlace = place;
-			this.Appearing += DoLoadPage;
-
-			Img = new Image ();
-			try {
-				Img.HorizontalOptions = LayoutOptions.FillAndExpand;
-				//Img.VerticalOptions = LayoutOptions.Start;
-				Img.Aspect = Aspect.AspectFill;
-				Img.WidthRequest = this.Width;
-			} catch {
-				Img.Source = null;
-			}
-			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
-			Place_name = new LabelWide ();
-			Place_name.FontAttributes = FontAttributes.Bold;
-			Place_name.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
-			Place_name.XAlign = TextAlignment.Center;
-			TopGrid.Children.Add (Place_name, 0, 3, PLACE_NAME_ROW, PLACE_NAME_ROW + 1);
-			Category = new LabelWide { };
-			distance = new LabelWide {
-				FontAttributes = FontAttributes.Italic,
-				HorizontalOptions = LayoutOptions.End,
-			};
-			var directionsBtn = new ButtonWide { 
-				Text = "Directions",
-				OnClick = DoDirections
-			};
-			CuisineAndDistanceGrid.Children.Add (Category, 0, 0);
-			CuisineAndDistanceGrid.Children.Add (directionsBtn, 1, 0);
-			CuisineAndDistanceGrid.Children.Add (distance, 2, 0);
-
-			MainGrid.Children.Add (CuisineAndDistanceGrid, 0, 3, CUISINE_ROW, CUISINE_ROW + 1);
-			Address = new LabelWithImageButton {
-				TextColor = Color.FromHex ("707070"),
-				Source = settings.DevicifyFilename ("Icon default directions1.png"),
-				OnClick = DoDirections,
-			};
-			MainGrid.Children.Add (Address, 0, 3, ADDRESS_ROW, ADDRESS_ROW + 1);
-
-			WebBtn = new ButtonWide ();
-			TopGrid.Children.Add (WebBtn, 2, 3, WEB_ROW, WEB_ROW + 1);
-			WebImgBtn = new ImageButton { Source = settings.DevicifyFilename ("Icon default Website.png"), HeightRequest = 30 };
-			WebImgBtn.OnClick = GotoWebPage;
-			TopGrid.Children.Add (WebImgBtn, 3, 4, WEB_ROW, WEB_ROW + 1);
-
-			CallBtn = new ButtonWide { TranslationX = -25 };
-			CallBtn.Clicked += DoMakeCall;
-			TopGrid.Children.Add (CallBtn, 1, 2, TEL_ROW, TEL_ROW + 1);
-			var TelImgBtn = new ImageButton {
-				Source = settings.DevicifyFilename ("Icon default Phone.png"),
-				HeightRequest = 30
-			};
-			TopGrid.Children.Add (TelImgBtn, 0, 1, WEB_ROW, WEB_ROW + 1);
-
-
-			VoteLike = new ButtonWide {
-				Text = LIKE_TEXT,
-			};
-			VoteLike.Clicked += SetVote;
-			VoteDislike = new ButtonWide {
-				Text = DISLIKE_TEXT,
-			};
-			VoteDislike.Clicked += SetVote;
-			VoteWishlist = new ButtonWide {
-				Text = WISH_TEXT,
-			};
-			VoteWishlist.Clicked += SetVote;
-			MainGrid.Children.Add (VoteLike, 0, VOTE_ROW);
-			MainGrid.Children.Add (VoteWishlist, 1, VOTE_ROW);
-			MainGrid.Children.Add (VoteDislike, 2, VOTE_ROW);
-			MainGrid.Children.Add (Spinner, 0, 3, VOTE_ROW, VOTE_ROW + 1);
-
-			Comment = new LabelWithImageButton {
-				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
-				OnClick = DoClickComment,
-			};
-			CommentEditor = new EntryWithButton {
-				Source = settings.DevicifyFilename ("26-checkmark@2x.png"),
-				OnClick = DoSaveComment,
-				IsVisible = false,
-			};
-			CommentEditor.TextEntry.Completed += DoCommentCompleted;
-			CommentEditor.TextEntry.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
-
-			MainGrid.Children.Add (CommentEditor, 0, 3, COMMENT_ROW, COMMENT_ROW + 1);
-			MainGrid.Children.Add (Comment, 0, 3, COMMENT_ROW, COMMENT_ROW + 1);
-
 			Double MedFont = Device.GetNamedSize (NamedSize.Medium, typeof(Label));
 			var VoteCountText = new FormattedString ();
 			VoteCountText.Spans.Add (new Span {
@@ -580,20 +554,154 @@ namespace RayvMobileApp
 				FontSize = MedFont,
 				FontAttributes = FontAttributes.Bold,
 			});
-			Label VoteCountLbl = new Label {
-				FormattedText = VoteCountText,
+			return new Frame {
+				OutlineColor = Color.Transparent, 
+				Padding = new Thickness (2, 10, 2, 5), 
+				HasShadow = false,
+				Content = new Label { FormattedText = VoteCountText, }
+				
 			};
-			MainGrid.Children.Add (VoteCountLbl, 0, 3, VOTE_COUNT_ROW, VOTE_COUNT_ROW + 1);
+		}
 
-			LoadPage (DisplayPlace.key);
+		public DetailPage (
+			Place place, bool showToolbar = false, bool showMapBtn = true, bool showSave = false, bool isDraft = false)
+		{
+			Analytics.TrackPage ("DetailPage");
+			DisplayPlace = place;
+			IsNew = showSave;
+			BackgroundColor = Color.White;
+			ShowToolbar = showToolbar;
+			const int IMAGE_HEIGHT = 0;
+			Spinner = new ActivityIndicator {
+				BackgroundColor = Color.FromRgba (55, 55, 55, 0.5),
+				IsVisible = false,
+				Color = Color.Red,
+			};
+			var TopRow = new StackLayout {
+				Padding = 1,
+				Spacing = 0,
+				Orientation = StackOrientation.Horizontal,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+			};
+			var CuisineAndDistanceGrid = new Grid {
+				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
+				}
+			};
+		
+			DisplayPlace = place;
+			this.Appearing += DoLoadPage;
+
+			var saveBtn = new RayvButton ("Save");
+			saveBtn.OnClick += DoSave;
+			SaveFrame = new Frame {
+				OutlineColor = Color.Transparent,
+				Padding = 2,
+				Content = saveBtn,
+				HasShadow = false,
+				IsVisible = showSave,
+			};
+
+			Img = new Image ();
+			try {
+				Img.HorizontalOptions = LayoutOptions.FillAndExpand;
+				//Img.VerticalOptions = LayoutOptions.Start;
+				Img.Aspect = Aspect.AspectFill;
+				Img.WidthRequest = this.Width;
+			} catch {
+				Img.Source = null;
+			}
+			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
+			Place_name = new Label ();
+//			Place_name.FontAttributes = FontAttributes.Bold;
+//			Place_name.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
+//			Place_name.XAlign = TextAlignment.Center;
+			CuisineEd = new LabelWide { };
+			distance = new LabelWide {
+				FontAttributes = FontAttributes.Italic,
+				HorizontalOptions = LayoutOptions.End,
+			};
+			var DirectionsImgBtn = new TopRowBtn () { 
+				Source = settings.DevicifyFilename ("Icon default directions1.png"),
+				OnClick = DoDirections
+			};
+			CuisineAndDistanceGrid.Children.Add (CuisineEd, 0, 0);
+			CuisineAndDistanceGrid.Children.Add (DirectionsImgBtn, 1, 0);
+			CuisineAndDistanceGrid.Children.Add (distance, 2, 0);
+
+			Address = new LabelWithImageButton {
+				TextColor = Color.FromHex ("707070"),
+				Source = settings.DevicifyFilename ("Icon default directions1.png"),
+				OnClick = DoDirections,
+			};
+
+			WebImgBtn = new TopRowBtn { 
+				Source = settings.DevicifyFilename ("Icon default Website.png"),
+				OnClick = GotoWebPage
+			};
+			TelImgBtn = new TopRowBtn {
+				Source = settings.DevicifyFilename ("Icon default Phone.png"),
+				OnClick = DoMakeCall,
+			};
+			var voteIconName = "Like.png";
+			if (DisplayPlace.vote.vote == VoteValue.Disliked)
+				voteIconName = "Dislike.png";
+			if (DisplayPlace.vote.vote == VoteValue.Untried)
+				voteIconName = "Wish1.png";
+			VoteImgBtn = new TopRowBtn () {
+				Source = settings.DevicifyFilename (voteIconName),
+				OnClick = DoVote,
+			};
+			TopRow.Children.Add (TelImgBtn);
+			TopRow.Children.Add (VoteImgBtn);
+			TopRow.Children.Add (DirectionsImgBtn);
+			TopRow.Children.Add (WebImgBtn);
+
+			Comment = new LabelWithImageButton {
+				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
+				OnClick = DoClickComment,
+			};
+			CommentEditor = new EntryWithButton {
+				Source = settings.DevicifyFilename ("26-checkmark@2x.png"),
+				OnClick = DoSaveComment,
+				IsVisible = false,
+			};
+			CommentEditor.TextEntry.Completed += DoCommentCompleted;
+			CommentEditor.TextEntry.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
+
+			var VoteCountLbl = GetVoteCountText ();
+
+			Label DraftText = new Label {
+				Text = "DRAFT",
+				TextColor = Color.Red,
+				FontAttributes = FontAttributes.Bold,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				XAlign = TextAlignment.Center,
+				IsVisible = false,
+			};
+			if (isDraft) {
+				DraftText.IsVisible = true;
+			} else
+				LoadPage (DisplayPlace);
 
 			ScrollView EditGrid = new ScrollView {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.Start,
 				Content = new StackLayout {
 					Children = {
-						TopGrid,
+						SaveFrame,
+						Place_name,
+						Address,
 						Img,
-						MainGrid,
+						TopRow,
+						Comment,
+						CommentEditor,
+						VoteCountLbl,
 						GetFriendsComments (),
 					}
 				},
@@ -617,7 +725,7 @@ namespace RayvMobileApp
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => {
 						Debug.WriteLine ("detailPage Map Toolbar: Push MapPage");
-						Navigation.PushAsync (new MapPage (DisplayPlace));
+						PushWithNavigation (new MapPage (DisplayPlace));
 					})
 				});
 			}
@@ -629,8 +737,12 @@ namespace RayvMobileApp
 					DoEdit ();
 				})
 			});
-			this.Disappearing += (object sender, EventArgs e) => {
-				OnClose (e);
+			this.Disappearing += async (object sender, EventArgs e) => {
+//				if (Dirty) {
+//					if (await DisplayAlert ("Not Saved", "You will lose your changes", "Save", "Ignore"))
+//						DoSave (sender, e);
+//				}
+//				OnClose (e);
 			};
 		}
 	}

@@ -4,6 +4,100 @@ using System.Text;
 
 namespace RayvMobileApp
 {
+	public class GridWithCounter: Grid
+	{
+		public int Row;
+		public bool ShowGrid;
+
+		public GridWithCounter AddPart (View View, int left, int right)
+		{
+			if (ShowGrid) {
+				Frame frame = new Frame ();
+				frame.Padding = 0;
+				frame.HasShadow = false;
+				frame.OutlineColor = Color.Aqua;
+				frame.Content = View;
+				Children.Add (frame, left, right, Row, Row + 1);
+			} else
+				Children.Add (View, left, right, Row, Row + 1);
+			return this;
+		}
+
+		public GridWithCounter AddRow (View View)
+		{
+			if (ShowGrid) {
+				Frame frame = new Frame ();
+				frame.Padding = 0;
+				frame.HasShadow = false;
+				frame.OutlineColor = Color.Aqua;
+				frame.Content = View;
+				Children.Add (frame, 0, ColumnDefinitions.Count, Row, Row + 1);
+			} else
+				Children.Add (View, 0, ColumnDefinitions.Count, Row, Row + 1);
+			return this;
+		}
+
+		public void NextRow ()
+		{
+			Row++;
+		}
+
+		public GridWithCounter () : base ()
+		{
+			Row = 0;
+			ShowGrid = false;
+		}
+	}
+
+	public class LabelClickable: Label
+	{
+		TapGestureRecognizer _click;
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { _click.Tapped += value; }
+		}
+
+		public LabelClickable () : base ()
+		{
+			_click = new TapGestureRecognizer ();
+			this.GestureRecognizers.Add (_click);
+		}
+	}
+
+	public class CheckBox: Image
+	{
+		bool _checked;
+		TapGestureRecognizer _clickImage;
+
+		public EventHandler OnClick {
+			get { return null; }
+			set { _clickImage.Tapped += value; }
+		}
+
+		private void  DoCLicked (object sender, EventArgs e)
+		{
+			Checked = !Checked;
+		}
+
+		public bool Checked {
+			get { return _checked; }
+			set { 
+				_checked = value;
+				this.Source = _checked ? "checkbox_checked.png" : "checkbox_unchecked.png";
+			}
+		}
+
+		public CheckBox () : base ()
+		{
+			Aspect = Aspect.AspectFit;
+			_clickImage = new TapGestureRecognizer ();
+			this.GestureRecognizers.Add (_clickImage);
+			_clickImage.Tapped += DoCLicked;
+			Checked = false;
+		}
+	}
+
 	public class RayvNav: NavigationPage
 	{
 		public RayvNav (Page p) : base (p)
@@ -207,6 +301,7 @@ namespace RayvMobileApp
 				Text = "Change",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
 			};
 			ButtonChange.HeightRequest = 30;
 			TextEntry = new Entry {

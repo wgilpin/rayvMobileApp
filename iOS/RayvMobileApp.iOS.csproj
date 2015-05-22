@@ -9,7 +9,7 @@
     <RootNamespace>RayvMobileApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
-    <ReleaseVersion>0.3</ReleaseVersion>
+    <ReleaseVersion>0.4</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -138,10 +138,10 @@
       <HintPath>..\packages\Xamarin.Forms.Maps.1.4.2.6359\lib\Xamarin.iOS10\Xamarin.Forms.Maps.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Insights">
-      <HintPath>..\packages\Xamarin.Insights.1.10.1.109\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.10.2.110\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
     </Reference>
     <Reference Include="PLCrashReporterUnifiedBinding">
-      <HintPath>..\packages\Xamarin.Insights.1.10.1.109\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.10.2.110\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +244,9 @@
     <BundleResource Include="Resources\Icon default Phone.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
     <BundleResource Include="Resources\Icon default directions1.png" />
+    <BundleResource Include="Resources\Wish1.png" />
+    <BundleResource Include="Resources\checkbox_checked.png" />
+    <BundleResource Include="Resources\checkbox_unchecked.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

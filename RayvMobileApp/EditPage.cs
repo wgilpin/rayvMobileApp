@@ -135,16 +135,16 @@ namespace RayvMobileApp
 			PhoneNo.IsEnabled = String.IsNullOrEmpty (EditPlace.telephone);
 			ResetVoteButtons ();
 			if (!IsNew || place.IsDraft) {
-				if (EditPlace.vote == "-1") {
+				if (EditPlace.vote == VoteValue.Disliked) {
 					SetVoteButton (VoteDislike);
 					Voted = true;
 				}
-				if (EditPlace.vote == "1") {
+				if (EditPlace.vote == VoteValue.Liked) {
 					Voted = true;
 					SetVoteButton (VoteLike);
 				}
 				if (EditPlace.untried) {
-					EditPlace.vote = "0";
+					EditPlace.vote = VoteValue.Untried;
 					Voted = true;
 					SetVoteButton (VoteWishlist);
 				}
@@ -241,8 +241,8 @@ namespace RayvMobileApp
 			};
 			if (Device.OS == TargetPlatform.Android)
 				Category.BackgroundColor = ColorUtil.Lighter (Color.Gray);
-			if (Persist.Instance.Categories != null) {
-				foreach (Category cat in Persist.Instance.Categories) {
+			if (Persist.Instance.Cuisines != null) {
+				foreach (Cuisine cat in Persist.Instance.Cuisines) {
 					Category.Items.Add (cat.Title);
 				}
 				if (!editAsDraft)
@@ -291,21 +291,21 @@ namespace RayvMobileApp
 				Text = "Like",
 			};
 			VoteLike.Clicked += (object sender, EventArgs e) => {
-				EditPlace.vote = "1";
+				EditPlace.vote = VoteValue.Liked;
 				SetVoteButton (VoteLike);
 			};
 			VoteDislike = new ButtonWide {
 				Text = "Dislike",
 			};
 			VoteDislike.Clicked += (object sender, EventArgs e) => {
-				EditPlace.vote = "-1";
+				EditPlace.vote = VoteValue.Disliked;
 				SetVoteButton (VoteDislike);
 			};
 			VoteWishlist = new ButtonWide {
 				Text = "Wish",
 			};
 			VoteWishlist.Clicked += (object sender, EventArgs e) => {
-				EditPlace.vote = "0";
+				EditPlace.vote = VoteValue.Untried;
 				SetVoteButton (VoteWishlist);
 			};
 
@@ -470,7 +470,7 @@ namespace RayvMobileApp
 				{ "PlaceName", EditPlace.place_name },
 				{ "Lat", EditPlace.lat.ToString () },
 				{ "Lng", EditPlace.lng.ToString () },
-				{ "Vote", EditPlace.vote },
+				{ "Vote", EditPlace.vote.ToString () },
 			});
 			ShowSpinner (false);
 			await DisplayAlert ("Saved", "Details Saved", "OK");
@@ -515,7 +515,7 @@ namespace RayvMobileApp
 					return;
 				}
 				if (String.IsNullOrEmpty (Comment.Text)) {
-					if (EditPlace.vote == "1" || EditPlace.vote == "-1") {
+					if (EditPlace.vote == VoteValue.Liked || EditPlace.vote == VoteValue.Disliked) {
 						// need to comment unless its a wishlist item
 						await DisplayAlert ("Warning", "Please add a comment - it's for other people to know what you thought", "OK");
 						Comment.Focus ();
@@ -563,7 +563,6 @@ namespace RayvMobileApp
 							SaveWasBad ();
 						});
 					}
-
 				})).Start ();
 			} finally {
 				SaveBtn.IsEnabled = true;

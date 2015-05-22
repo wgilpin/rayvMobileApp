@@ -224,12 +224,8 @@ namespace RayvMobileApp
 			var place = e.Item as Place;
 			if (place.IsDraft) {
 				NeedsReload = true;
-				var editPage = new EditPage (place);
-				editPage.Saved += (object s, PlaceSavedEventArgs ev) => {
-					Navigation.PopAsync ();
-					Navigation.PushAsync (new DetailPage (place));
-				};
-				Navigation.PushAsync (editPage);
+				var editPage = new PlaceEditor (place, this);
+				editPage.Edit ();
 			} else {
 				var detailPage = new DetailPage (place);
 				detailPage.Closed += (s, ev) => {
@@ -458,8 +454,8 @@ namespace RayvMobileApp
 					DisplayList = (
 					    from p in data.Places
 					    where
-					        p.vote != "-1" &&
-					        p.category == FilterCuisineKind
+					        p.vote.vote != VoteValue.Disliked &&
+					        p.vote.cuisineName == FilterCuisineKind
 					    select p).ToList ();
 					IsFiltered = true;
 					break;
@@ -488,7 +484,7 @@ namespace RayvMobileApp
 						Console.WriteLine ("FilterList - GO");
 						DisplayList = (
 						    from p in data.Places
-						    where p.category == FilterCuisineKind && (
+						    where p.vote.cuisineName == FilterCuisineKind && (
 						            p.place_name.ToLower ().Contains (text) ||
 						            p.CategoryLowerCase.Contains (text))
 						    select p).ToList ();

@@ -30,7 +30,7 @@ namespace RayvMobileApp
 		public List<string> CuisineHistory;
 
 		public PersistantQueue SearchHistory;
-		private List<Category> _categories;
+		private List<Cuisine> _categories;
 		private Dictionary<string, int> _categoryCounts;
 		public Dictionary<string, Friend> Friends;
 		public Position GpsPosition;
@@ -69,13 +69,13 @@ namespace RayvMobileApp
 
 		}
 
-		private Position _displayPosition;
+		private Position? _displayPosition;
 
 		public Position DisplayPosition { 
 			get {
 				if (_displayPosition == null)
 					_displayPosition = GpsPosition;
-				return _displayPosition;
+				return (Position)_displayPosition;
 			}
 			set { _displayPosition = value; }
 		}
@@ -83,7 +83,7 @@ namespace RayvMobileApp
 
 		public bool HaveAdded { get; set; }
 
-		public List<Category> Categories {
+		public List<Cuisine> Cuisines {
 			get {
 				if (_categories == null || _categories.Count () == 0)
 					this.LoadCategories ();
@@ -118,7 +118,14 @@ namespace RayvMobileApp
 
 		#region Db Methods
 
-		private void UpdateSchema ()
+		public static bool TableExists<T> (SQLiteConnection connection)
+		{    
+			const string cmdText = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+			var cmd = connection.CreateCommand (cmdText, typeof(T).Name);
+			return cmd.ExecuteScalar<string> () != null;
+		}
+
+		public void UpdateSchema ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
@@ -126,14 +133,15 @@ namespace RayvMobileApp
 					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
 						db_version = 0;
 					}
-					if (db_version < 6) {
-						//Migration 5 - Category table plus wipe
+					if (db_version < 8) {
+						//Migration  -  plus wipe
 						Db.BeginTransaction ();
 						try {
 							deleteDb ();
 							createDb ();
-							db_version = 6;
-							Console.WriteLine ("Schema updated to 6");
+							SetConfig (settings.SERVER, null);
+							db_version = 8;
+							Console.WriteLine ("Schema updated to 8");
 							Db.Commit ();
 							SetConfig (settings.DB_VERSION, db_version, Db);
 							var server_url = "https://" +
@@ -143,7 +151,7 @@ namespace RayvMobileApp
 							return;
 						} catch (Exception ex) {
 							Insights.Report (ex);
-							restConnection.LogErrorToServer ("UpdateSchema to 6 failed {0}", ex);
+							restConnection.LogErrorToServer ("UpdateSchema to 8 failed {0}", ex);
 							Db.Rollback ();
 							return;
 						}
@@ -201,8 +209,8 @@ namespace RayvMobileApp
 						//Migration 4 - Category table
 						Db.BeginTransaction ();
 						try {
-							Db.DropTable<Category> ();
-							Db.CreateTable<Category> ();
+							Db.DropTable<Cuisine> ();
+							Db.CreateTable<Cuisine> ();
 							db_version = 4;
 							Console.WriteLine ("Schema updated to 4");
 							Db.Commit ();
@@ -241,7 +249,6 @@ namespace RayvMobileApp
 
 		public void LoadFromDb (String onlyWithCuisineType = null, LoadingPage loader = null)
 		{
-			UpdateSchema ();
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
 					//load the data from the db
@@ -249,6 +256,11 @@ namespace RayvMobileApp
 
 					if (loader != null)
 						loader.SetMessage ("Loading from database", 0.1);
+					Votes.Clear ();
+					var votes_q = Db.Table<Vote> ();
+					foreach (var vote in votes_q)
+						Votes.Add (vote);
+					
 					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 					Places.Clear ();
 					var place_q = Db.Table<Place> ();
@@ -259,15 +271,15 @@ namespace RayvMobileApp
 						if (loader != null)
 							loader.SetMessage ("Calculating distances", 0.2);
 						foreach (var p in Places) {
-							if (string.IsNullOrEmpty (p.category))
+							if (string.IsNullOrEmpty (p.vote.cuisineName))
 								p.IsDraft = true;
 							p.CalculateDistanceFromPlace ();
 						}
 					} else
 						//TODO: LINQ
 						foreach (Place p in place_q) {
-							if (p.category == onlyWithCuisineType) {
-								if (string.IsNullOrEmpty (p.category))
+							if (p.vote.cuisineName == onlyWithCuisineType) {
+								if (string.IsNullOrEmpty (p.vote.cuisineName))
 									p.IsDraft = true;
 								Places.Add (p);
 								p.CalculateDistanceFromPlace ();
@@ -277,11 +289,7 @@ namespace RayvMobileApp
 					Places.Sort ();
 					if (loader != null)
 						loader.SetMessage ("Loading votes", 0.3);
-					Votes.Clear ();
-					var votes_q = Db.Table<Vote> ();
-					foreach (var vote in votes_q)
-						Votes.Add (vote);
-
+					
 					Console.WriteLine ("Persist.LoadFromDb loaded");
 					if (loader != null)
 						loader.SetMessage ("Loading friends", 0.4);
@@ -308,7 +316,7 @@ namespace RayvMobileApp
 					Db.DeleteAll<Friend> ();
 					if (_categories != null)
 						_categories.Clear ();
-					Db.DeleteAll<Category> ();
+					Db.DeleteAll<Cuisine> ();
 					Db.Commit ();
 				} catch (Exception ex) {
 					Insights.Report (ex);
@@ -320,10 +328,10 @@ namespace RayvMobileApp
 		void LoadCategoriesFromDb ()
 		{
 			Console.WriteLine ("LoadCategoriesFromDb");
-			_categories = new List<Category> ();
+			_categories = new List<Cuisine> ();
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				var cat_q = Db.Table<Category> ();
-				foreach (Category c in cat_q) {
+				var cat_q = Db.Table<Cuisine> ();
+				foreach (Cuisine c in cat_q) {
 					_categories.Add (c);
 				}
 			}
@@ -345,10 +353,10 @@ namespace RayvMobileApp
 					if (cat_strings.Count == 0)
 						LoadCategoriesFromDb ();
 					using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-						Db.DeleteAll<Category> ();
-						_categories = new List<Category> ();
+						Db.DeleteAll<Cuisine> ();
+						_categories = new List<Cuisine> ();
 						foreach (string c in cat_strings) {
-							Category cat = new Category{ Title = c, };
+							Cuisine cat = new Cuisine{ Title = c, };
 							Db.InsertOrReplace (cat);
 							_categories.Add (cat);
 						} 
@@ -364,11 +372,12 @@ namespace RayvMobileApp
 		static void createDb ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.CreateTable<Cuisine> ();
 				Db.CreateTable<Vote> ();
 				Db.CreateTable<Place> ();
 				Db.CreateTable<Friend> ();
-				Db.CreateTable<Configuration> ();
-				Db.CreateTable<Category> ();
+				if (!TableExists<Configuration> (Db))
+					Db.CreateTable<Configuration> ();
 			}
 		}
 
@@ -379,7 +388,11 @@ namespace RayvMobileApp
 				Db.DropTable<Vote> ();
 				Db.DropTable<Place> ();
 				Db.DropTable<Friend> ();
-				Db.DropTable<Category> ();
+				try {
+					Db.DropTable<Cuisine> ();
+				} catch (NotSupportedException) {
+				}
+				;
 			}
 		}
 
@@ -454,6 +467,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("CheckServerVersionCorrect Exc. {0}", ex);
 			}
 			Console.WriteLine ("WRONG SERVER");
+			Debug.WriteLine ("WRONG SERVER");
 			throw new ProtocolViolationException (string.Format ("App: {0} != Server {1}", appVersion, serverVersion));
 		}
 
@@ -531,7 +545,7 @@ namespace RayvMobileApp
 							Added = false;
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
 								Place p = Places [PlacesIdx];
-								if (string.IsNullOrEmpty (p.category)) {
+								if (string.IsNullOrEmpty (p.vote.cuisineName)) {
 									p.IsDraft = true;
 									continue;
 								}
@@ -564,20 +578,21 @@ namespace RayvMobileApp
 									existing_vote = v;
 								} else {
 									existing_vote.comment = v.comment;
-									existing_vote.untried = v.untried;
 									existing_vote.vote = v.vote;
 									existing_vote.when = v.when;
+									existing_vote.kind = v.kind;
+									existing_vote.style = v.style;
+									existing_vote.cuisine = v.cuisine;
 									existing_vote.place_name = v.place_name;
 								}
 								if (v.voter == MyId.ToString ()) {
 									var p =	GetPlace (v.key);
-									if (v.vote == 1)
+									if (v.vote == VoteValue.Liked)
 										p.up -= 1;
-									if (v.vote == -1)
+									if (v.vote == VoteValue.Disliked)
 										p.down -= 1;
-									p.vote = v.vote.ToString ();
+									p.vote = v;
 									p.setComment (v.comment);
-									p.untried = v.untried;
 								}
 							}
 						}
@@ -607,9 +622,9 @@ namespace RayvMobileApp
 			try {
 				//			_categoryCounts
 				var withACat = (from p in Places
-				                where !string.IsNullOrEmpty (p.category)
+				                where !string.IsNullOrEmpty (p.vote.cuisineName)
 				                select p).ToList ();
-				var x = withACat.GroupBy (p => p.category);
+				var x = withACat.GroupBy (p => p.vote.cuisineName);
 				var y = x.Select (group => new { 
 					Metric = group.Key, 
 					Count = group.Count () 
@@ -758,14 +773,12 @@ namespace RayvMobileApp
 						Votes.Where (v => v.key == p.key).ToList ().ForEach (v => {
 							if (v.voter == myId) {
 								// my vote
-								p.vote = v.vote.ToString ();
-								p.setComment (v.comment);
-								p.untried = v.untried;
+								p.vote = v;
 							} else {
 								//friend vote
-								if (v.vote == 1)
+								if (v.vote == VoteValue.Liked)
 									p.up++;
-								else if (v.vote == -1)
+								else if (v.vote == VoteValue.Disliked)
 									p.down++;
 							}
 						});
@@ -859,7 +872,6 @@ namespace RayvMobileApp
 			Debug.WriteLine ("UpdatePlaces");
 			// calc dist
 			place.CalculateDistanceFromPlace ();
-			string myIdString = MyId.ToString ();
 			for (int i = 0; i < Places.Count (); i++) {
 				if (Places [i].key == place.key) {
 					try {
@@ -890,14 +902,10 @@ namespace RayvMobileApp
 				myVote.key = place.key;
 				Votes.Add (myVote);
 			}
-			try {
-				myVote.vote = Convert.ToInt32 (place.vote);
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				restConnection.LogErrorToServer ("Convert.ToInt32 {0} for {1}", place.vote, place.place_name);
-				return false;
-			}
-			myVote.untried = place.untried;
+			myVote.vote = place.vote.vote;
+			myVote.kind = place.vote.kind;
+			myVote.style = place.vote.style;
+			myVote.cuisine = place.vote.cuisine;
 			myVote.comment = place.descr;
 			saveVotesToDb ();
 			return true;
@@ -936,7 +944,7 @@ namespace RayvMobileApp
 						return ConfList.First ().Value;
 				} catch (Exception ex) {
 					Insights.Report (ex);
-					restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
+//					restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
 				}
 				return "";
 			}
@@ -968,7 +976,6 @@ namespace RayvMobileApp
 				case "yes":
 				case "1":
 					return true;
-					break;
 				case "false":
 				case "False":
 				case "No":
@@ -976,7 +983,6 @@ namespace RayvMobileApp
 				case "0":
 				default:
 					return false;
-					break;
 				}
 			} catch {
 				return false;

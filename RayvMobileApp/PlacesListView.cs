@@ -27,7 +27,7 @@ namespace RayvMobileApp
 				nameLabel.SetBinding (Label.TextProperty, "place_name");
 
 				Label catLabel = new Label ();
-				catLabel.SetBinding (Label.TextProperty, "category");
+				catLabel.SetBinding (Label.TextProperty, "vote.cuisineName");
 				catLabel.TextColor = Color.Black;
 				catLabel.BackgroundColor = Color.Transparent;
 				catLabel.FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label));
@@ -63,7 +63,7 @@ namespace RayvMobileApp
 					BackgroundColor = Color.White,
 					VerticalOptions = LayoutOptions.CenterAndExpand,
 					Children = {
-						new Label { Text = "Draft", TextColor = Color.Red, },
+						new Label { Text = "Draft", TextColor = Color.Red, BackgroundColor = Color.White },
 					}
 				};
 				draftSign.SetBinding (

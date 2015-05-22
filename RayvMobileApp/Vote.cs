@@ -3,9 +3,38 @@ using SQLite;
 using Xamarin.Forms;
 using System.Text;
 using Xamarin;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Linq;
 
 namespace RayvMobileApp
 {
+	public enum VoteValue
+	{
+		Liked = 1,
+		Disliked = -1,
+		Untried = 0,
+		None = 2
+	}
+
+	[Flags]
+	public enum MealKind
+	{
+		None = 0x0,
+		Breakfast = 0x1,
+		Lunch = 0x2,
+		Dinner = 0x4,
+		Coffee = 0x8
+	}
+
+	public enum PlaceStyle
+	{
+		None = 0,
+		QuickBite = 1,
+		Relaxed = 2,
+		Fancy = 3,
+	}
+
 	public class Vote: IComparable<Vote>
 	{
 
@@ -21,13 +50,33 @@ namespace RayvMobileApp
 
 		public string place_name { get; set; }
 
-		public int vote { get; set; }
+		public VoteValue vote { get; set; }
 
-		public bool untried { get; set; }
+		[Ignore]
+		public bool untried { 
+			get {
+				return vote == VoteValue.Untried;
+			} 
+		}
 
 		public string comment { get; set; }
 
 		public DateTime when { get; set; }
+
+		[Ignore]
+		public Cuisine cuisine { get; set; }
+
+		public string cuisineName { 
+			get{ return cuisine?.ToString (); }
+			set {
+				Cuisine c = Persist.Instance.Cuisines.Where (cu => cu.Title == value).SingleOrDefault ();
+				cuisine = c ?? new Cuisine  { Title = value };
+			} 
+		}
+
+		public PlaceStyle style { get; set; }
+
+		public MealKind kind { get; set; }
 
 		#endregion
 
@@ -62,9 +111,9 @@ namespace RayvMobileApp
 		public string GetVoteAsString {
 			get {
 				String imageUrl = "";
-				if (vote == 1)
+				if (vote == VoteValue.Liked)
 					imageUrl = "Liked";
-				if (vote == -1)
+				if (vote == VoteValue.Disliked)
 					imageUrl = "Disliked";
 				if (untried)
 					imageUrl = "Saved";
@@ -75,9 +124,9 @@ namespace RayvMobileApp
 		[Ignore]
 		public string VoteVerb {
 			get {
-				if (vote == 1)
+				if (vote == VoteValue.Liked)
 					return "Liked";
-				if (vote == -1)
+				if (vote == VoteValue.Disliked)
 					return "Disliked";
 				return "Starred";
 			}
@@ -179,6 +228,12 @@ namespace RayvMobileApp
 				return 1;
 			else
 				return -this.when.CompareTo (compareVote.when);
+		}
+
+		public Vote ()
+		{
+			this.comment = "";
+			this.vote = VoteValue.None;
 		}
 
 	}

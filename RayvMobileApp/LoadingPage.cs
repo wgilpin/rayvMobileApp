@@ -10,6 +10,7 @@ namespace RayvMobileApp
 	{
 		BackgroundWorker worker;
 		Label LoadingMessage;
+		Label ServerMessage;
 		ProgressBar progBar;
 
 		private void WorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
@@ -58,6 +59,16 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Center,
 			};
 			progBar = new ProgressBar (){ HorizontalOptions = LayoutOptions.CenterAndExpand };
+			ServerMessage = new Label { 
+				Text = "",
+				TextColor = ColorUtil.Lighter (Color.Red),
+				HorizontalOptions = LayoutOptions.Center,
+			};
+			string server = Persist.Instance.GetConfig (settings.SERVER);
+			if (!server.Contains (settings.DEFAULT_SERVER)) {
+				// we are not on prod
+				ServerMessage.Text = server;
+			}
 
 			BackgroundColor = settings.BaseColor;
 			Content = new StackLayout { 
@@ -66,6 +77,7 @@ namespace RayvMobileApp
 					new ActivityIndicator { IsRunning = true, Color = Color.White, },
 					LoadingMessage,
 					progBar,
+					ServerMessage,
 				}
 			};
 			worker = new BackgroundWorker ();

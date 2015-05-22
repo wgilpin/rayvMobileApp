@@ -37,10 +37,10 @@ namespace RayvMobileApp
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			try {
-				string vote = (value as string);
-				if (vote == "-1")
+				Vote vote = (value as Vote);
+				if (vote?.vote == VoteValue.Disliked)
 					return Color.FromHex ("A22");
-				if (vote == "1") {
+				if (vote?.vote == VoteValue.Liked) {
 					return ColorUtil.Darker (settings.BaseColor);
 				}
 				return Color.Gray;
@@ -131,7 +131,7 @@ namespace RayvMobileApp
 				Place p = Persist.Instance.GetPlace (key);
 				if (p.iVoted)
 					// I voted so we show it
-					return p.voteImage;
+					return p.voteAsText;
 				if (p.up > 0 || p.down > 0)
 					// I didn't vote but others did so we don't show my vote
 					return false;
