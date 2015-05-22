@@ -28,7 +28,6 @@ namespace RayvMobileApp
 		private string _address;
 		private string _place_name;
 		private string _place_id;
-		private string _category;
 		private string _telephone;
 		private Vote _vote;
 		private string _descr;
@@ -304,7 +303,7 @@ namespace RayvMobileApp
 		public string CategoryLowerCase {
 			get {
 				try {
-					return _category.ToLower ();
+					return _vote.cuisineName.ToLower ();
 				} catch (Exception ex) {
 					Insights.Report (ex);
 					return "";

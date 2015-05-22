@@ -87,7 +87,7 @@ namespace RayvMobileApp
 				};
 				grid.Children.Add (webImage, 0, 1, 0, 3);
 				grid.Children.Add (draftSign, 0, 1, 0, 3);
-				grid.Children.Add (nameLabel, 1, 3, 0, 1);
+				grid.Children.Add (nameLabel, 1, 2, 0, 1);
 				grid.Children.Add (catLabel, 1, 2, 1, 2);
 				grid.Children.Add (distLabel, 1, 2, 2, 3);
 				if (!ShowVotes)

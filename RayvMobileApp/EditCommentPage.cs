@@ -36,6 +36,8 @@ namespace RayvMobileApp
 //				HorizontalOptions = LayoutOptions.Fil, 
 				Text = initialText,
 			};
+			TextEditor.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
+
 			Content = new StackLayout { 
 				Padding = 2,
 				Children = {

@@ -109,7 +109,7 @@ namespace RayvMobileApp
 				var FriendLine = new FormattedString ();
 				var voter = Persist.Instance.Friends [vote.voter].Name;
 				FriendLine.Spans.Add (new Span {
-					Text =$"{voter}  {vote.GetVoteAsString}  ",
+					Text = $"{voter}  {vote.GetVoteAsString}  ",
 				});
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
@@ -253,13 +253,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text = $" {DisplayPlace.place_name}",
+						Text =$" {DisplayPlace.place_name}",
 						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text = $"  {DisplayPlace.distance}",
+						Text =$"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});
@@ -480,7 +480,6 @@ namespace RayvMobileApp
 		{
 			Spinner.IsRunning = IsVisible;
 			Spinner.IsVisible = IsVisible;
-
 		}
 
 		async void SaveWasGood ()
@@ -495,6 +494,7 @@ namespace RayvMobileApp
 			ShowSpinner (false);
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
+			SaveFrame.IsVisible = false;
 		}
 
 		async void SaveWasBad ()
@@ -503,12 +503,13 @@ namespace RayvMobileApp
 			DisplayPlace.IsDraft = true;
 			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (DisplayPlace);
+			SaveFrame.IsVisible = true;
 		}
 
 		void DoSave (object sender, EventArgs e)
 		{
 			string Message = "";
-
+			ShowSpinner ();
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (DisplayPlace.Save (out Message)) {
 					Device.BeginInvokeOnMainThread (() => {
