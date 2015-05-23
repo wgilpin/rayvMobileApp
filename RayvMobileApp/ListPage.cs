@@ -248,12 +248,19 @@ namespace RayvMobileApp
 		public void DoServerRefresh (object s, EventArgs e)
 		{
 			try {
-				Persist.Instance.GetUserData (this, since: DateTime.UtcNow, incremental: true);
+				Persist.Instance.GetUserData (
+					() => {
+						Navigation.PushModalAsync (new LoginPage ());
+					},
+					() => {
+						Refresh ();
+						listView.EndRefresh ();
+					},
+					since: DateTime.UtcNow, 
+					incremental: true);
 			} catch (ProtocolViolationException ex) {
 				DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 			}
-			Refresh ();
-			listView.EndRefresh ();
 		}
 
 		public void DoPickMyLocation (object s, EventArgs e)
@@ -692,23 +699,24 @@ namespace RayvMobileApp
 		}
 
 
-		public static void Setup (Page caller)
-		{
-			Console.WriteLine ("ListPage.Setup");
-			try {
-				Persist.Instance.GetUserData (caller, incremental: true);
-			} catch (ProtocolViolationException ex) {
-				caller.DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
-			}
-			System.Diagnostics.Debug.WriteLine ("ListPage.Setup out");
-		}
+
 
 		public void SetList (List<Place> list)
 		{
 			Debug.WriteLine ("Listpage.SetList");
 			if (Persist.Instance.Places.Count () == 0) {
-				Setup (this);
-				list = Persist.Instance.Places;
+				try {
+					Persist.Instance.GetUserData (
+						onFail: () => {
+							Navigation.PushModalAsync (new LoginPage ());
+						}, 
+						onSucceed: () => {
+							list = Persist.Instance.Places;
+						},
+						incremental: true);
+				} catch (ProtocolViolationException ex) {
+					DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+				}
 			}
 //				Device.BeginInvokeOnMainThread (() => {
 //				Spinner.IsVisible = true;
@@ -805,21 +813,26 @@ namespace RayvMobileApp
 
 		private void OnTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
 		{
-			if (!Persist.Instance.Online) {
-				// not ready yet
-				//Debug.WriteLine ("OnTimerTrigger - not live");
-				return;
-			}
-			Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
-			lock (Persist.Instance.Lock) {
-				try {
-					SetList (Persist.Instance.Places);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
+			try {
+				if (!Persist.Instance.Online) {
+					// not ready yet
+					//Debug.WriteLine ("OnTimerTrigger - not live");
+					return;
 				}
+				Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
+				lock (Persist.Instance.Lock) {
+					try {
+						SetList (Persist.Instance.Places);
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
+					}
+				}
+				_timer.Close ();
+			} catch (UnauthorizedAccessException) {
+				// login failed - stop
+				_timer.Close ();
 			}
-			_timer.Close ();
 		}
 
 		#endregion

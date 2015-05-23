@@ -14,6 +14,7 @@ namespace RayvMobileApp
 		Entry UserName;
 		Entry Password;
 		ActivityIndicator Spinner;
+		Label Error;
 
 		void DoLogin (object sender, EventArgs e)
 		{
@@ -23,31 +24,50 @@ namespace RayvMobileApp
 					Persist.Instance.SetConfig (settings.SERVER, settings.DEFAULT_SERVER);
 				Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
 				Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
-				//Delete Last Sync time to force a full refresh
-				Persist.Instance.SetConfig (settings.LAST_SYNC, null);
-				restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
-				Persist.Instance.Wipe ();
-				Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 				try {
-					String user = Persist.Instance.GetConfig (settings.USERNAME);
-					Insights.Identify (user, "server", Persist.Instance.GetConfig (settings.SERVER));
-					Console.WriteLine ("AppDelegate Analytics ID: {0}", user);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-				}
-				Console.WriteLine ("LoginPage loadDataFromServer");
-				Persist.Instance.LoadFromDb ();
-				try {
-					Persist.Instance.GetUserData (this, incremental: false);
-				} catch (ProtocolViolationException ex) {
+					Persist.Instance.Online = false;
+					if (Persist.Instance.Online) {
+						//Delete Last Sync time to force a full refresh
+						Persist.Instance.SetConfig (settings.LAST_SYNC, null);
+						restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
+						Insights.Identify (UserName.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
+						Persist.Instance.Wipe ();
+						Persist.Instance.LoadFromDb ();
+						Persist.Instance.GetUserData (
+							onFail: () => {
+								Device.BeginInvokeOnMainThread (() => {
+									Spinner.IsRunning = false;
+								});
+							},
+							onSucceed: () => {
+								Device.BeginInvokeOnMainThread (() => {
+									Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
+									Spinner.IsRunning = false;
+									this.Navigation.PushModalAsync (new MainMenu ());
+								});
+							}, 
+							incremental: false);
+					
+					} else {
+						//login failed
+						Device.BeginInvokeOnMainThread (() => {
+							Error.IsVisible = true;
+							Spinner.IsRunning = false;
+						});
+					}
+				} catch (ProtocolViolationException) {
 					Device.BeginInvokeOnMainThread (() => {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+						Spinner.IsRunning = false;
+					});
+				} catch (UnauthorizedAccessException) {
+					Device.BeginInvokeOnMainThread (() => {
+						Error.IsVisible = true;
+						Spinner.IsRunning = false;
 					});
 				}
-				Device.BeginInvokeOnMainThread (() => {
-					Spinner.IsRunning = false;
-					this.Navigation.PushModalAsync (new MainMenu ());
-				});
+
+
 			})).Start ();
 		}
 
@@ -91,6 +111,13 @@ namespace RayvMobileApp
 						BarTextColor = Color.White,
 					}, false);
 			};
+			Error = new Label {
+				Text = "User Name & Password Don't match", 
+				TextColor = Color.White, 
+				BackgroundColor = Color.Red, 
+				FontAttributes = FontAttributes.Bold,
+				IsVisible = false,
+			};
 			this.Content = new StackLayout {
 				Padding = 20,
 				Children = {
@@ -102,6 +129,7 @@ namespace RayvMobileApp
 					new ServerPicker (),
 					UserName,
 					Password,
+					Error,
 					Spinner,
 					loginButton,
 					Register,

@@ -16,8 +16,13 @@ namespace RayvMobileApp
 		private void WorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
 		{
 			Persist.Instance.Online = (e.Error != null);
-			Console.WriteLine ("Online: {0}", Persist.Instance.Online);
-			Navigation.PushModalAsync (new MainMenu ());
+			try {
+				Console.WriteLine ($"WorkerCompleted: Online: {Persist.Instance.Online}");
+				Navigation.PushModalAsync (new MainMenu ());
+			} catch (UnauthorizedAccessException) {
+				Console.WriteLine ("WorkerCompleted: Offline");
+				Navigation.PushModalAsync (new LoginPage ());
+			}
 		}
 
 		void loadDataFromServer (object sender, DoWorkEventArgs e)
@@ -26,7 +31,13 @@ namespace RayvMobileApp
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
 			try {
-				Persist.Instance.GetUserData (this, incremental: true, loader: this);
+				Persist.Instance.GetUserData (
+					onFail: () => {
+						Navigation.PushModalAsync (new LoginPage ());
+					}, 
+					onSucceed: null,
+					incremental: true, 
+					statusMessage: SetMessage);
 			} catch (ProtocolViolationException ex) {
 				Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
 			}

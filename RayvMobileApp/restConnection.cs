@@ -21,9 +21,6 @@ namespace RayvMobileApp
 	
 	public class restConnection
 	{
-
-
-
 		private static restConnection instance;
 		RestClient client;
 
@@ -68,6 +65,8 @@ namespace RayvMobileApp
 			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
 			IRestResponse response = client.Execute (request);
 			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
+			if (response.StatusCode == HttpStatusCode.Unauthorized)
+				throw new UnauthorizedAccessException ("Bad Login");
 			try {
 				int code = (int)response.StatusCode.GetTypeCode ();
 				if (code > 400)
@@ -93,40 +92,6 @@ namespace RayvMobileApp
 					var response = innerGet (url, parameters, method);
 					if (response == null) {
 						// try again soon
-
-						continue;
-					}
-					if (response.Content == "LOGIN") {
-						// retry
-						string server = Persist.Instance.GetConfig ("server");
-						if (server.Length == 0) {
-							Console.WriteLine ("GetUserData: No server");
-							return null;
-						} else {
-							client.BaseUrl = new Uri (server);
-							setCredentials (
-								Persist.Instance.GetConfig ("username"), 
-								Persist.Instance.GetConfig ("pwd"), "");
-							IRestResponse resp;
-							Console.WriteLine ("get Login");
-							resp = innerGet ("/api/login", null, Method.GET);
-							if (resp == null) {
-								Console.WriteLine ("get login: Response NULL");
-								return null;
-							}
-							if (resp.ResponseStatus != ResponseStatus.Completed) {
-								Console.WriteLine ("get login: Bad Response {0}", resp.ResponseStatus);
-								return null;
-							}
-							if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-								//TODO: This doesn't work
-								Device.BeginInvokeOnMainThread (() => {
-									Console.WriteLine ("get: Need to login");
-								});
-								return null;
-
-							}
-						}
 						continue;
 					}
 					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut) {
@@ -134,6 +99,8 @@ namespace RayvMobileApp
 						continue;
 					}
 					return response;
+				} catch (UnauthorizedAccessException) {
+					throw;
 				} catch (Exception E) {
 					Insights.Report (E);
 					restConnection.LogErrorToServer (String.Format ("get: exception {0}", E));

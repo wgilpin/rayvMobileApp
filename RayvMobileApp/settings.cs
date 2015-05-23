@@ -22,6 +22,7 @@ namespace RayvMobileApp
 		public const  string SERVER = "server";
 		public const  string DEFAULT_SERVER = "rayv-app.appspot.com/";
 		public const  string LAST_SYNC = "last_sync";
+		public const  string MY_ID = "myId";
 		// 30 mins timeout
 		public static  TimeSpan LIST_PAGE_TIMEOUT = new TimeSpan (0, 30, 0);
 		public const int MAX_SERVER_TRIES = 1;

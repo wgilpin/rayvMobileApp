@@ -71,11 +71,11 @@ namespace RayvMobileApp
 					new RowDefinition (),
 				},
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (50) },
+					new ColumnDefinition { Width = new GridLength (2, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (40) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
 					new ColumnDefinition { Width = new GridLength (20) },
-					new ColumnDefinition { Width = new GridLength (30, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
 			grid.Children.Add (new ImageButton ("Like.png", VoteLiked), 1, 2, 1, 2);

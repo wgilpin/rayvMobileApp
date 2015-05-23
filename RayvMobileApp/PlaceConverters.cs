@@ -212,8 +212,10 @@ namespace RayvMobileApp
 				}
 				if (p.up != 1)
 					return String.Format ("{0} liked", p.up);
+				var myId = Persist.Instance.MyId.ToString ();
 				Vote vote = (from v in Persist.Instance.Votes
 				             where v.key == key
+				                 && v.voter != myId
 				                 && !string.IsNullOrWhiteSpace (v.VoterName)
 				             select v).FirstOrDefault ();
 				if (vote != null)

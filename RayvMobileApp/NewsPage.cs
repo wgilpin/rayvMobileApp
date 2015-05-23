@@ -258,18 +258,23 @@ namespace RayvMobileApp
 				if (list != null) {
 					Console.WriteLine ("NewsPage.CheckForUpdates");
 					try {
-						Persist.Instance.GetUserData (this, LastUpdate);
-					} catch (ProtocolViolationException ex) {
+						Persist.Instance.GetUserData (
+							onFail: () => {
+								Navigation.PushModalAsync (new LoginPage ());
+							}, 
+							onSucceed: () => {
+								SetSource ();
+								LastUpdate = DateTime.UtcNow;
+								Spinner.IsRunning = false;
+								Spinner.IsVisible = false;
+								Console.WriteLine ("Spin down");
+							},
+							since: LastUpdate, 
+							incremental: true);
+					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 					}
-					SetSource ();
-					LastUpdate = DateTime.UtcNow;
 				}
-				Device.BeginInvokeOnMainThread (() => {
-					Spinner.IsRunning = false;
-					Spinner.IsVisible = false;
-					Console.WriteLine ("Spin down");
-				});
 			})).Start ();
 
 		}

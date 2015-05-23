@@ -16,6 +16,18 @@ using System.Threading;
 
 namespace RayvMobileApp
 {
+	public class StatusMessageEventArgs : EventArgs
+	{
+		public string Message;
+		public double Progress;
+
+		public StatusMessageEventArgs (string message, double progress)
+		{
+			Message = message;
+			Progress = progress;
+		}
+	}
+
 	public class Persist
 	{
 		public TimeSpan DbTimeout = new TimeSpan (0, 0, 5);
@@ -48,18 +60,14 @@ namespace RayvMobileApp
 			get {
 				if (_online)
 					return true;
-				restConnection webReq = GetWebRequest ();
-				var resp = webReq.get ("/api/login", null, getRetries: 1);
+				restConnection conn = GetWebConnection ();
+				var resp = conn.get ("/api/login", null, getRetries: 1);
 				if (resp == null) {
 					Console.WriteLine ("Online: Response NULL");
 					return false;
 				}
 				if (resp.ResponseStatus != ResponseStatus.Completed) {
 					Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
-					return false;
-				}
-				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-					Console.WriteLine ("Online: No login");
 					return false;
 				}
 				_online = true;
@@ -296,6 +304,7 @@ namespace RayvMobileApp
 					var friends_q = Db.Table<Friend> ();
 					foreach (var friend in friends_q)
 						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
+					MyId = (long)GetConfigInt (settings.MY_ID);
 				} catch (Exception ex) {
 					Insights.Report (ex);
 					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
@@ -479,6 +488,7 @@ namespace RayvMobileApp
 				JObject obj = JObject.Parse (resp.Content);
 				SetConfig ("is_admin", obj ["admin"].ToString ());
 				MyId = obj ["id"].Value<Int64> ();
+				SetConfig (settings.MY_ID, MyId);
 				CheckServerVersionCorrect (obj);
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
@@ -535,6 +545,7 @@ namespace RayvMobileApp
 				JObject obj = JObject.Parse (resp.Content);
 				CheckServerVersionCorrect (obj);
 				MyId = obj ["id"].Value<Int64> ();
+				SetConfig (settings.MY_ID, MyId);
 				SetConfig ("is_admin", obj ["admin"].ToString ());
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
@@ -653,20 +664,24 @@ namespace RayvMobileApp
 			return resp;
 		}
 
-		public restConnection GetWebRequest ()
+		public restConnection GetWebConnection ()
 		{
-			restConnection webReq = restConnection.Instance;
+			restConnection conn = restConnection.Instance;
 			string server = GetConfig (settings.SERVER);
 			if (string.IsNullOrEmpty (server)) {
 				server = settings.DEFAULT_SERVER;
 			} 
-			webReq.setBaseUrl (server);
-			webReq.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
-			return webReq;
+			conn.setBaseUrl (server);
+			conn.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
+			return conn;
 		}
 
+		public delegate void StatusMessageDelegate (string message, double progress);
+
+		public delegate void BasicDelegate ();
+
 		// Throws Protocol Exception if server version doesn't match
-		public void GetUserData (Page caller, DateTime? since = null, bool incremental = false, LoadingPage loader = null)
+		public void GetUserData (BasicDelegate onFail, BasicDelegate onSucceed, DateTime? since = null, bool incremental = false, StatusMessageDelegate statusMessage = null)
 		{
 			if (incremental) {
 				if (since == null) {
@@ -676,50 +691,45 @@ namespace RayvMobileApp
 					}
 				}
 			}
-			restConnection webReq = GetWebRequest ();
+			restConnection webReq = GetWebConnection ();
 			if (webReq != null) {
-				if (loader != null)
-					loader.SetMessage ("Checking network", 0.5);
+				if (statusMessage != null)
+					statusMessage ("Checking network", 0.5);
 				IRestResponse resp;
-				Console.WriteLine ("GetUserData Login");
-				resp = webReq.get ("/api/login", null);
-				if (resp == null) {
-					Console.WriteLine ("GetUserData: Response NULL");
-					return;
-				}
-				if (resp.ResponseStatus != ResponseStatus.Completed) {
-					Console.WriteLine ("GetUserData: Bad Response {0}", resp.ResponseStatus);
-					return;
-				}
-				if (resp.StatusCode == HttpStatusCode.Unauthorized) {
-					//TODO: Replace with event
-					if (caller != null)
+				try {
+					if (statusMessage != null)
+						statusMessage ("Contacting server", 0.7);
+					
+					resp = InnerGetUserData (since, webReq);
+					if (since != null) {
+						// incremental
+						if (statusMessage != null)
+							statusMessage ("Storing update", 0.9);
+						StoreUpdatedUserRecord (resp);
+						if (Persist.Instance.Places.Count == 0) {
+							resp = InnerGetUserData (null, webReq);
+							StoreFullUserRecord (resp);
+						}
+					} else {
+						if (statusMessage != null)
+							statusMessage ("Storing data", 0.9);
+						StoreFullUserRecord (resp);
+					}
+					SortPlaces ();
+					SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
+				} catch (UnauthorizedAccessException) {
+					// not logged in
+					if (onFail != null)
 						Device.BeginInvokeOnMainThread (() => {
-							Console.WriteLine ("GetUserData: Need to login - push LoginPage");
-							caller.Navigation.PushModalAsync (new LoginPage ());
+							onFail.DynamicInvoke ();
 						});
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				}
-				if (loader != null)
-					loader.SetMessage ("Contacting server", 0.7);
-				resp = InnerGetUserData (since, webReq);
-				if (since != null) {
-					// incremental
-					if (loader != null)
-						loader.SetMessage ("Storing update", 0.9);
-					StoreUpdatedUserRecord (resp);
-					if (Persist.Instance.Places.Count == 0) {
-						resp = InnerGetUserData (null, webReq);
-						StoreFullUserRecord (resp);
-					}
-				} else {
-					if (loader != null)
-						loader.SetMessage ("Storing data", 0.9);
-					StoreFullUserRecord (resp);
-				}
-				SortPlaces ();
-				SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
+				if (onSucceed != null)
+					Device.BeginInvokeOnMainThread (() => {
+						onSucceed.DynamicInvoke ();
+					});
 			}
 		}
 
@@ -770,18 +780,22 @@ namespace RayvMobileApp
 						p.CalculateDistanceFromPlace (searchCentre);
 						db.InsertOrReplace (p);
 						p.up = p.down = 0;
-						Votes.Where (v => v.key == p.key).ToList ().ForEach (v => {
-							if (v.voter == myId) {
-								// my vote
-								p.vote = v;
-							} else {
-								//friend vote
-								if (v.vote == VoteValue.Liked)
-									p.up++;
-								else if (v.vote == VoteValue.Disliked)
-									p.down++;
-							}
-						});
+						var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
+						if (vote_list.Count == 0)
+							Places.Remove (p);
+						else
+							vote_list.ForEach (v => {
+								if (v.voter == myId) {
+									// my vote
+									p.vote = v;
+								} else {
+									//friend vote
+									if (v.vote == VoteValue.Liked)
+										p.up++;
+									else if (v.vote == VoteValue.Disliked)
+										p.down++;
+								}
+							});
 					}
 					UpdateCategoryCounts ();
 					Console.WriteLine ("updatePlaces SORT");
@@ -1001,6 +1015,18 @@ namespace RayvMobileApp
 			}
 		}
 
+		/// <summary>
+		/// returns 0/0 by default
+		/// </summary>
+		public Double GetConfigInt (string key)
+		{
+			try {
+				return Convert.ToInt64 (GetConfig (key));
+			} catch {
+				return 0;
+			}
+		}
+
 		void innerSetConfig (string key, string value, SQLiteConnection Db)
 		{
 			
@@ -1035,6 +1061,11 @@ namespace RayvMobileApp
 		}
 
 		public void SetConfig (string key, Double value, SQLiteConnection db = null)
+		{
+			SetConfig (key, Convert.ToString (value));
+		}
+
+		public void SetConfig (string key, Int64 value, SQLiteConnection db = null)
 		{
 			SetConfig (key, Convert.ToString (value));
 		}
