@@ -63,18 +63,18 @@ namespace RayvMobileApp
 			if (sender is LabelClickable) {
 				var lbl = (sender as LabelClickable);
 				switch (lbl.Text) {
-				case "breakfast":
-					breakfast.Checked = true;
-					break;
-				case "lunch":
-					lunch.Checked = true;
-					break;
-				case "dinner":
-					dinner.Checked = true;
-					break;
-				case "coffee":
-					coffee.Checked = true;
-					break;
+					case "breakfast":
+						breakfast.Checked = true;
+						break;
+					case "lunch":
+						lunch.Checked = true;
+						break;
+					case "dinner":
+						dinner.Checked = true;
+						break;
+					case "coffee":
+						coffee.Checked = true;
+						break;
 				}
 			}
 
@@ -87,15 +87,15 @@ namespace RayvMobileApp
 				if (sender is LabelClickable) {
 					var lbl = (sender as LabelClickable);
 					switch (lbl.Text) {
-					case STYLE_FANCY:
-						_style = PlaceStyle.Fancy;
-						break;
-					case STYLE_QUICK:
-						_style = PlaceStyle.QuickBite;
-						break;
-					case STYLE_RELAXED:
-						_style = PlaceStyle.Relaxed;
-						break;
+						case STYLE_FANCY:
+							_style = PlaceStyle.Fancy;
+							break;
+						case STYLE_QUICK:
+							_style = PlaceStyle.QuickBite;
+							break;
+						case STYLE_RELAXED:
+							_style = PlaceStyle.Relaxed;
+							break;
 					}
 				}
 				OnSaved ();
@@ -165,7 +165,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 6, 7);
 			grid.Children.Add (new ImageButton {
-				Source = settings.DevicifyFilename ("Add Select right button.png"), 
+				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 6, 7);
 			grid.Children.Add (new LabelClickable { Text = "relaxed", 
@@ -175,7 +175,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 7, 8);
 			grid.Children.Add (new ImageButton {
-				Source = settings.DevicifyFilename ("Add Select right button.png"), 
+				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 7, 8);
 			grid.Children.Add (new LabelClickable { Text = "fancy", 
@@ -185,7 +185,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 8, 9);
 			grid.Children.Add (new ImageButton {
-				Source = settings.DevicifyFilename ("Add Select right button.png"), 
+				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 8, 9);
 			Content = grid;

@@ -57,15 +57,10 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e)
-		{
+		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e) =>
 			this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (e.EditedPlace, true)));
-		}
 
-		void BackToRoot (object sender, EventArgs e)
-		{
-			this.Navigation.PopToRootAsync ();
-		}
+		void BackToRoot (object sender, EventArgs e) => this.Navigation.PopToRootAsync ();
 
 
 		void DoEditFromList (object sender, SelectedItemChangedEventArgs e)
@@ -93,7 +88,6 @@ namespace RayvMobileApp
 
 		void DoSearch ()
 		{
-
 			Console.WriteLine ("AddPage5bDeDup.DoSearch: Activity");
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {

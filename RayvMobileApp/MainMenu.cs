@@ -108,6 +108,7 @@ namespace RayvMobileApp
 				}
 			};
 
+			// ADD...
 			var AddText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
 				TranslationY = -30,
@@ -123,6 +124,7 @@ namespace RayvMobileApp
 				}
 			};
 
+			// NEWS
 			var NewsText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
 				TranslationY = -27,

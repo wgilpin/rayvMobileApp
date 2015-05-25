@@ -41,6 +41,7 @@ namespace RayvMobileApp
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		Place addingPlace;
 		bool editAsDraft;
+		Frame SearchHereBtn;
 
 		#region Events
 
@@ -52,14 +53,13 @@ namespace RayvMobileApp
 			PlaceNameBox.ButtonText = " ";
 		}
 
-		void DoSearchForPlace (object s, EventArgs e)
-		{
-			DoSearch (PlaceNameBox.Text, "");
-		}
+		void DoSearchForPlace (object s, EventArgs e) => DoSearch (PlaceNameBox.Text, "");
+
 
 		void DoFindLocation (object sender, EventArgs e)
 		{
 			Spinner.IsRunning = true;
+			SearchHereBtn.IsVisible = false;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Parameters parameters = new Parameters ();
 				parameters ["address"] = LocationEditBox.Text;
@@ -153,10 +153,7 @@ namespace RayvMobileApp
 			PlaceNameBox.ButtonText = "Search";
 		}
 
-		void DoSuccess (object o, EventArgs e)
-		{
-			Navigation.PopAsync ();
-		}
+		void DoSuccess (object o, EventArgs e) => Navigation.PopAsync ();
 
 		void DoFail (object o, EventArgs e)
 		{
@@ -319,6 +316,21 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			SearchPosition = Persist.Instance.GpsPosition;
+			var searchBtn = new RayvButton ("Search Here") {
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				HorizontalOptions = LayoutOptions.FillAndExpand
+			};
+			searchBtn.OnClick += (s, e) => {
+				SearchHereBtn.IsVisible = false;
+				DoSearchForPlace (s, e);
+			};
+			SearchHereBtn = new Frame {
+				BackgroundColor = Color.White,
+				HasShadow = false,
+				OutlineColor = Color.White,
+				Padding = 0,
+				Content = searchBtn,
+			};
 			StackLayout menu = new StackLayout { 
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
@@ -330,6 +342,7 @@ namespace RayvMobileApp
 					LocationEditBox,
 					ResetLocationBtn,
 					Spinner,
+					SearchHereBtn,
 					LocationResultsView,
 					NothingFound,
 				}

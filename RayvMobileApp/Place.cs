@@ -458,10 +458,8 @@ namespace RayvMobileApp
 			}
 		}
 
-		public Position GetPosition ()
-		{
-			return new Position (lat, lng);
-		}
+		public Position GetPosition () => new Position (lat, lng);
+
 
 		/**
          * one in 60 rule distance calc
@@ -575,8 +573,8 @@ namespace RayvMobileApp
 					parameters ["key"] = key;
 					parameters ["myComment"] = Comment ();
 					parameters ["cuisine"] = vote.cuisineName;
-					parameters ["kind"] = vote.kind.ToString ();
-					parameters ["style"] = vote.style.ToString ();
+					parameters ["kind"] = ((int)vote.kind).ToString ();
+					parameters ["style"] = ((int)vote.style).ToString ();
 					parameters ["voteScore"] = vote.vote.ToString ();
 					string result = restConnection.Instance.post ("/api/vote", parameters);
 					//			JObject obj = JObject.Parse (result);
@@ -588,6 +586,9 @@ namespace RayvMobileApp
 								return false;
 							}
 						}
+					} else {
+						errorMessage = "Save Failed";
+						return false;
 					}
 				} else {
 					lock (Persist.Instance.Lock) {

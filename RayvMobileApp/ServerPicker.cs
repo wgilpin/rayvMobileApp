@@ -45,7 +45,11 @@ namespace RayvMobileApp
 			Items.Add ("Pre-Prod");
 			Items.Add ("Production");
 			SelectedIndexChanged += DoSelect;
-			SelectedIndex = 3;
+			try {
+				SelectedIndex = Items.IndexOf (Persist.Instance.GetConfig (settings.SERVER));
+			} catch {
+				SelectedIndex = 3;
+			}
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
 		}
 

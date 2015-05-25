@@ -94,7 +94,7 @@ namespace RayvMobileApp
 		public List<Cuisine> Cuisines {
 			get {
 				if (_categories == null || _categories.Count () == 0)
-					this.LoadCategories ();
+					this.LoadCategoriesFromDb ();
 				return _categories;
 			}
 		}
@@ -344,11 +344,14 @@ namespace RayvMobileApp
 					_categories.Add (c);
 				}
 			}
+			if (_categories.Count == 0)
+				LoadCategories ();
 		}
 
-		void LoadCategories ()
+		public void LoadCategories ()
 		{
-			var response = restConnection.Instance.get ("/getCuisines_ajax", getRetries: 1);
+			var conn = GetWebConnection ();
+			var response = conn.get ("/getCuisines_ajax", getRetries: 1);
 			if (response == null) {
 				//OFFLINE
 				LoadCategoriesFromDb ();
@@ -773,33 +776,35 @@ namespace RayvMobileApp
 		 */
 		public void updatePlaces (string myId, Position? searchCentre = null)
 		{
-			lock (this.Lock) {
-				using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
-					db.BusyTimeout = DbTimeout;
-					foreach (Place p in Places) {
-						p.CalculateDistanceFromPlace (searchCentre);
-						db.InsertOrReplace (p);
-						p.up = p.down = 0;
-						var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
-						if (vote_list.Count == 0)
-							Places.Remove (p);
-						else
-							vote_list.ForEach (v => {
-								if (v.voter == myId) {
-									// my vote
-									p.vote = v;
-								} else {
-									//friend vote
-									if (v.vote == VoteValue.Liked)
-										p.up++;
-									else if (v.vote == VoteValue.Disliked)
-										p.down++;
-								}
-							});
-					}
-					UpdateCategoryCounts ();
-					Console.WriteLine ("updatePlaces SORT");
-					Places.Sort ();
+			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
+				db.BusyTimeout = DbTimeout;
+				var removeList = new List<Place> ();
+				foreach (Place p in Places) {
+					p.CalculateDistanceFromPlace (searchCentre);
+					db.InsertOrReplace (p);
+					p.up = p.down = 0;
+					var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
+					if (vote_list.Count == 0)
+						removeList.Add (p);
+					else
+						vote_list.ForEach (v => {
+							if (v.voter == myId) {
+								// my vote
+								p.vote = v;
+							} else {
+								//friend vote
+								if (v.vote == VoteValue.Liked)
+									p.up++;
+								else if (v.vote == VoteValue.Disliked)
+									p.down++;
+							}
+						});
+				}
+				foreach (Place p in removeList)
+					Places.Remove (p);
+				UpdateCategoryCounts ();
+				Console.WriteLine ("updatePlaces SORT");
+				Places.Sort ();
 //					foreach (Vote v in Votes) {
 //						try {
 //							//Todo: does this allow n votes per place?
@@ -816,14 +821,13 @@ namespace RayvMobileApp
 //						}
 //					}
 					
-					foreach (KeyValuePair<string, Friend> f in Friends) {
-						try {
-							db.InsertOrReplace (f.Value);
-							Debug.WriteLine (f.Value.Name);
-						} catch (Exception ex) {
-							Insights.Report (ex);
-							Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);
-						}
+				foreach (KeyValuePair<string, Friend> f in Friends) {
+					try {
+						db.InsertOrReplace (f.Value);
+						Debug.WriteLine (f.Value.Name);
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);
 					}
 				}
 			}

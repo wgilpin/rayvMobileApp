@@ -23,10 +23,13 @@ namespace RayvMobileApp
 
 		protected virtual void DoSave (object sender, EventArgs e)
 		{
-			if (TextEditor.Text?.Length == 0)
+			if (TextEditor.Text?.Length > 0) {
+				if (Saved != null)
+					Saved (this, new CommentSavedEventArgs (TextEditor.Text));
+			} else {
 				DisplayAlert ("No Comment", "Please add a comment", "OK");
-			if (Saved != null)
-				Saved (this, new CommentSavedEventArgs (TextEditor.Text));
+				return;
+			}
 		}
 
 		public EditCommentPage (string initialText)
@@ -46,11 +49,11 @@ namespace RayvMobileApp
 						Content = TextEditor,
 					},
 					new LabelWithImageButton { 
-						Text = "Next", 
-						Source = settings.DevicifyFilename ("Add Select right button.png"),
+						Text = "Done", 
+						Source = settings.DevicifyFilename ("arrow.png"),
 						BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 						TextColor = Color.White,
-						OnClick = DoSave
+						OnClick = DoSave,
 					},
 				}
 			};

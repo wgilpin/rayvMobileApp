@@ -238,8 +238,6 @@
     <BundleResource Include="Resources\TB active search.png" />
     <BundleResource Include="Resources\Big Add.png" />
     <BundleResource Include="Resources\Big find food.png" />
-    <BundleResource Include="Resources\Add friend.png" />
-    <BundleResource Include="Resources\Add place.png" />
     <BundleResource Include="Resources\Big activity.png" />
     <BundleResource Include="Resources\Icon default Phone.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
@@ -247,6 +245,12 @@
     <BundleResource Include="Resources\Wish1.png" />
     <BundleResource Include="Resources\checkbox_checked.png" />
     <BundleResource Include="Resources\checkbox_unchecked.png" />
+    <BundleResource Include="Resources\arrow.png" />
+    <BundleResource Include="Resources\Add friend.png" />
+    <BundleResource Include="Resources\Add place.png" />
+    <BundleResource Include="Resources\Add_Vote.png" />
+    <BundleResource Include="Resources\Icon_active_Phone.png" />
+    <BundleResource Include="Resources\Icon_active_Website.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

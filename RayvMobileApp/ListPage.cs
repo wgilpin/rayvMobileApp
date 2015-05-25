@@ -454,64 +454,64 @@ namespace RayvMobileApp
 				if (text.Length > 0)
 					IsFiltered = true;
 				switch (MainFilter) {
-				case FilterKind.Go:
+					case FilterKind.Go:
 					// places to go - from cuisine string constructorWill
-					Console.WriteLine ("FilterList - GO");
-					ResetCuisinePicker ();
-					DisplayList = (
-					    from p in data.Places
-					    where
-					        p.vote.vote != VoteValue.Disliked &&
-					        p.vote.cuisineName == FilterCuisineKind
-					    select p).ToList ();
-					IsFiltered = true;
-					break;
-				case FilterKind.Mine:
-					ResetCuisinePicker ();
-					Console.WriteLine ("FilterList - MINE");
-					DisplayList = (
-					    from p in data.Places
-					    where p.iVoted == true && (
-					            p.place_name.ToLower ().Contains (text) ||
-					            p.CategoryLowerCase.Contains (text))
-					    select p).ToList ();
-					break;
-				case FilterKind.All:
-					ResetCuisinePicker ();
-					Console.WriteLine ("FilterList - ALL, {0}", text);
-					var allResult = (from p in data.Places
-					                 where
-					                     p.place_name.ToLower ().Contains (text) ||
-					                     p.CategoryLowerCase.Contains (text)
-					                 select p);
-					DisplayList = allResult.ToList ();
-					break;
-				case FilterKind.Cuisine:
-					if (FilterCuisineKind != null && FilterCuisineKind.Length > 0) {
 						Console.WriteLine ("FilterList - GO");
+						ResetCuisinePicker ();
 						DisplayList = (
 						    from p in data.Places
-						    where p.vote.cuisineName == FilterCuisineKind && (
-						            p.place_name.ToLower ().Contains (text) ||
-						            p.CategoryLowerCase.Contains (text))
-						    select p).ToList ();
-					} else {
-						goto case FilterKind.All;
-					}
-					IsFiltered = true;
-					break;
-				case FilterKind.Wishlist:
-					{
-						Console.WriteLine ("FilterList - GO");
-						var wishResult = (
-						                     from p in data.Places
-						                     where p.untried == true && (
-						                             p.place_name.ToLower ().Contains (text) ||
-						                             p.CategoryLowerCase.Contains (text))
-						                     select p);
-						DisplayList = wishResult.ToList ();}
-					IsFiltered = true;
-					break;
+						   where
+						       p.vote.vote != VoteValue.Disliked &&
+						       p.vote.cuisineName == FilterCuisineKind
+						   select p).ToList ();
+						IsFiltered = true;
+						break;
+					case FilterKind.Mine:
+						ResetCuisinePicker ();
+						Console.WriteLine ("FilterList - MINE");
+						DisplayList = (
+						    from p in data.Places
+						   where p.iVoted == true && (
+						           p.place_name.ToLower ().Contains (text) ||
+						           p.CategoryLowerCase.Contains (text))
+						   select p).ToList ();
+						break;
+					case FilterKind.All:
+						ResetCuisinePicker ();
+						Console.WriteLine ("FilterList - ALL, {0}", text);
+						var allResult = (from p in data.Places
+						                where
+						                    p.place_name.ToLower ().Contains (text) ||
+						                    p.CategoryLowerCase.Contains (text)
+						                select p);
+						DisplayList = allResult.ToList ();
+						break;
+					case FilterKind.Cuisine:
+						if (FilterCuisineKind != null && FilterCuisineKind.Length > 0) {
+							Console.WriteLine ("FilterList - GO");
+							DisplayList = (
+							    from p in data.Places
+							   where p.vote.cuisineName == FilterCuisineKind && (
+							           p.place_name.ToLower ().Contains (text) ||
+							           p.CategoryLowerCase.Contains (text))
+							   select p).ToList ();
+						} else {
+							goto case FilterKind.All;
+						}
+						IsFiltered = true;
+						break;
+					case FilterKind.Wishlist:
+						{
+							Console.WriteLine ("FilterList - GO");
+							var wishResult = (
+							                    from p in data.Places
+							                    where p.untried == true && (
+							                            p.place_name.ToLower ().Contains (text) ||
+							                            p.CategoryLowerCase.Contains (text))
+							                    select p);
+							DisplayList = wishResult.ToList ();}
+						IsFiltered = true;
+						break;
 				}
 				if (FilterAreaSearchBox.Text.Length > 0) {
 					IsFiltered = true;
@@ -621,7 +621,7 @@ namespace RayvMobileApp
 			filters.Children.Add (LocationButton, 1, 2, 0, 1);
 			filters.Children.Add (
 				new ImageButton {
-					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoPickMyLocation,
 				}, 2, 3, 0, 1);
 
@@ -630,7 +630,7 @@ namespace RayvMobileApp
 			filters.Children.Add (FilterAreaSearchBox, 1, 2, 1, 2);
 			filters.Children.Add (
 				new ImageButton { 
-					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoPlaceSearch,
 				}, 2, 3, 1, 2);
 
@@ -639,7 +639,7 @@ namespace RayvMobileApp
 			filters.Children.Add (CuisineButton, 1, 2, 2, 3);
 			filters.Children.Add (
 				new ImageButton { 
-					Source = settings.DevicifyFilename ("Add Select right button.png"), Aspect = Aspect.AspectFit, 
+					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
 					OnClick = DoChangeCuisine,
 				}, 2, 3, 2, 3);
 			
@@ -698,29 +698,8 @@ namespace RayvMobileApp
 			innerCuisinePickerLV.ItemTapped += UpdateCuisine;
 		}
 
-
-
-
-		public void SetList (List<Place> list)
+		void InnerSetList (List<Place> list)
 		{
-			Debug.WriteLine ("Listpage.SetList");
-			if (Persist.Instance.Places.Count () == 0) {
-				try {
-					Persist.Instance.GetUserData (
-						onFail: () => {
-							Navigation.PushModalAsync (new LoginPage ());
-						}, 
-						onSucceed: () => {
-							list = Persist.Instance.Places;
-						},
-						incremental: true);
-				} catch (ProtocolViolationException ex) {
-					DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
-				}
-			}
-//				Device.BeginInvokeOnMainThread (() => {
-//				Spinner.IsVisible = true;
-//				Spinner.IsRunning = true;
 			lock (Persist.Instance.Lock) {
 				try {
 					Console.WriteLine ("SetList {0}", list.Count);
@@ -740,13 +719,34 @@ namespace RayvMobileApp
 					ItemsSource = list;
 					Spinner.IsVisible = false;
 					Spinner.IsRunning = false;
-							
 				} catch (Exception ex) {
 					Insights.Report (ex);
 					restConnection.LogErrorToServer ("ListPage.SetList Exception {0}", ex);
 				}
-//				});
+				//				});
 			}
+		}
+
+
+
+		public void SetList (List<Place> list)
+		{
+			Debug.WriteLine ("Listpage.SetList");
+			if (Persist.Instance.Places.Count () == 0) {
+				try {
+					Persist.Instance.GetUserData (
+						onFail: () => {
+							Navigation.PushModalAsync (new LoginPage ());
+						}, 
+						onSucceed: () => {
+							InnerSetList (Persist.Instance.Places);
+						},
+						incremental: false);
+				} catch (ProtocolViolationException) {
+					DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+				}
+			} else
+				InnerSetList (list);
 		}
 
 		#endregion

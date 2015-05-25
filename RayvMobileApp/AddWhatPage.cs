@@ -12,12 +12,14 @@ namespace RayvMobileApp
 			Analytics.TrackPage ("AddWhatPage");
 			Grid grid = new Grid {
 				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
-				VerticalOptions = LayoutOptions.Center,
+				VerticalOptions = LayoutOptions.EndAndExpand,
 				RowSpacing = 0,
 				ColumnSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (80, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (120, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
@@ -29,6 +31,7 @@ namespace RayvMobileApp
 			Image addImg = new Image {
 				Source = settings.DevicifyFilename ("Add place.png"),
 				Aspect = Aspect.AspectFit,
+				HeightRequest = 80,
 			};
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
@@ -40,7 +43,8 @@ namespace RayvMobileApp
 			// FRIENDS
 			Image friendsImg = new Image {
 				Source = settings.DevicifyFilename ("Add friend.png"),
-				Aspect = Aspect.AspectFit
+				Aspect = Aspect.AspectFit,
+				HeightRequest = 80,
 			};
 			var clickFriends = new TapGestureRecognizer ();
 			clickFriends.Tapped += (s, e) => {
@@ -66,7 +70,7 @@ namespace RayvMobileApp
 			};
 			var FriendText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -30,
+				TranslationY = -70,
 				Children = { 
 					new Label {
 						Text = "Add Friend",
@@ -78,10 +82,10 @@ namespace RayvMobileApp
 				}
 			};
 			grid.Children.Add (addImg, 0, 0);
-			grid.Children.Add (PlaceText, 0, 0);
-			grid.Children.Add (friendsImg, 0, 1);
-			grid.Children.Add (FriendText, 0, 1);
-			grid.Children.Add (tools, 0, 2);
+			grid.Children.Add (PlaceText, 0, 1);
+			grid.Children.Add (friendsImg, 0, 2);
+			grid.Children.Add (FriendText, 0, 3);
+			grid.Children.Add (tools, 0, 4);
 			Content = grid;
 			BackgroundColor = settings.BaseColor;
 		}

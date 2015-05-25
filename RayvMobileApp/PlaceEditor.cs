@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using System.Diagnostics;
 
 namespace RayvMobileApp
 {
@@ -11,11 +12,14 @@ namespace RayvMobileApp
 		bool EditAsDraft;
 		EditVotePage VotePage;
 
+		public event EventHandler Saved;
+
 		void DoVoteSaved (object sender, VoteSavedEventArgs ev)
 		{
 			EditPlace.voteValue = ev.Vote;
 			var cuisinePage = new EditCuisinePage (EditPlace.vote.cuisineName);
 			cuisinePage.Saved += DoCuisineSaved;
+			Debug.WriteLine ("PlaceEditor DoVoteSaved");
 			CallingPage.Navigation.PushAsync (cuisinePage);
 		}
 
@@ -24,14 +28,19 @@ namespace RayvMobileApp
 			EditPlace.vote.cuisine = ev.Cuisine;
 			var kindPage = new EditPlaceKindPage (EditPlace.vote.kind, EditPlace.vote.style);
 			kindPage.Saved += DoKindSaved;
+			Debug.WriteLine ("PlaceEditor DoCuisineSaved");
 			CallingPage.Navigation.PushAsync (kindPage);
 		}
 
 		void DoCommentSaved (object sender, CommentSavedEventArgs ev)
 		{
 			EditPlace.setComment (ev.Comment); 
-			CallingPage.Navigation.PushModalAsync (new DetailPage (
-				EditPlace, showToolbar: true, showSave: true, isDraft: EditAsDraft));
+			var detailPage = new DetailPage (
+				                 EditPlace, showToolbar: false, showSave: true, isDraft: EditAsDraft);
+			if (Saved != null)
+				detailPage.Closed += Saved;
+			Debug.WriteLine ("PlaceEditor DoCommentSaved");
+			CallingPage.Navigation.PushModalAsync (detailPage);
 		}
 
 		void DoKindSaved (object sender, KindSavedEventArgs ev)
@@ -40,11 +49,13 @@ namespace RayvMobileApp
 			EditPlace.vote.style = ev.Style;
 			var commentPage = new EditCommentPage (EditPlace.Comment ());
 			commentPage.Saved += DoCommentSaved;
+			Debug.WriteLine ("PlaceEditor DoKindSaved");
 			CallingPage.Navigation.PushAsync (commentPage);
 		}
 
 		public void Edit ()
 		{
+			Debug.WriteLine ("EditVotePage Edit");
 			CallingPage.Navigation.PushAsync (VotePage);
 		}
 

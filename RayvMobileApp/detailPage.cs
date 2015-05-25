@@ -58,7 +58,7 @@ namespace RayvMobileApp
 
 		ActivityIndicator Spinner;
 		Label distance;
-		LabelWithImageButton Address;
+		Label Address;
 		LabelWithImageButton Comment;
 		EntryWithButton CommentEditor;
 		private bool ShowToolbar;
@@ -68,6 +68,7 @@ namespace RayvMobileApp
 		TopRowBtn TelImgBtn;
 		TopRowBtn VoteImgBtn;
 		Frame SaveFrame;
+		StackLayout tools;
 
 		#endregion
 
@@ -170,15 +171,15 @@ namespace RayvMobileApp
 			// should NOT reference UILabel on background thread!
 			VoteValue previousVote = DisplayPlace.vote.vote;
 			switch ((sender as ButtonWide).Text) {
-			case LIKE_TEXT:
-				DisplayPlace.vote.vote = VoteValue.Liked;
-				break;
-			case DISLIKE_TEXT:
-				DisplayPlace.vote.vote = VoteValue.Disliked;
-				break;
-			case WISH_TEXT:
-				DisplayPlace.vote.vote = VoteValue.Untried;
-				break;
+				case LIKE_TEXT:
+					DisplayPlace.vote.vote = VoteValue.Liked;
+					break;
+				case DISLIKE_TEXT:
+					DisplayPlace.vote.vote = VoteValue.Disliked;
+					break;
+				case WISH_TEXT:
+					DisplayPlace.vote.vote = VoteValue.Untried;
+					break;
 			}
 			string Message = "";
 			if (previousVote == DisplayPlace.vote.vote) {
@@ -192,7 +193,11 @@ namespace RayvMobileApp
 					Insights.Track ("EditPage.DeletePlace", "Place", DisplayPlace.place_name);
 					DisplayPlace.Delete ();
 					Dirty = true;
-					await Navigation.PopToRootAsync ();
+					if (Navigation.NavigationStack.Count > 0)
+						await Navigation.PopToRootAsync ();
+					else {
+						tools.IsVisible = true;
+					}
 				}
 			} else {
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
@@ -268,10 +273,14 @@ namespace RayvMobileApp
 					Address.Text = DisplayPlace.address;
 					Address.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.address);
 					if (!string.IsNullOrWhiteSpace (DisplayPlace.img)) {
-						Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
 						Img.HorizontalOptions = LayoutOptions.FillAndExpand;
 						//Img.VerticalOptions = LayoutOptions.Start;
 						Img.Aspect = Aspect.AspectFill;
+						Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
+					} else {
+						Img.HorizontalOptions = LayoutOptions.Center;
+						Img.VerticalOptions = LayoutOptions.Center;
+						Img.Source = settings.DevicifyFilename ("logo.png");
 					}
 					Img.WidthRequest = this.Width;
 					Img.HeightRequest = this.Height / 3;
@@ -291,24 +300,31 @@ namespace RayvMobileApp
 
 					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
 						WebImgBtn.IsEnabled = false;
+						WebImgBtn.Source = settings.DevicifyFilename ("Icon_active_Website.png");
+					} else {
+						WebImgBtn.Source = settings.DevicifyFilename ("Icon default Website.png");
+						WebImgBtn.IsEnabled = true;
 					}
-					;
 					if (string.IsNullOrWhiteSpace (DisplayPlace.telephone)) {
 						TelImgBtn.IsEnabled = false;
-					} 
+						TelImgBtn.Source = settings.DevicifyFilename ("Icon_active_Phone.png");
+					} else {
+						TelImgBtn.Source = settings.DevicifyFilename ("Icon default Phone.png");
+						TelImgBtn.IsEnabled = true;
+					}
 					switch (DisplayPlace.vote.vote) {
-					case VoteValue.Disliked:
-						VoteImgBtn.Source = "Dislike.png";
-						break;
-					case VoteValue.Liked:
-						VoteImgBtn.Source = "Like.png";
-						break;
-					case VoteValue.Untried:
-						VoteImgBtn.Source = "Wish1.png";
-						break;
-					default:
-						VoteImgBtn.Source = "star-lg.png";
-						break;
+						case VoteValue.Disliked:
+							VoteImgBtn.Source = "Dislike.png";
+							break;
+						case VoteValue.Liked:
+							VoteImgBtn.Source = "Like.png";
+							break;
+						case VoteValue.Untried:
+							VoteImgBtn.Source = "Wish1.png";
+							break;
+						default:
+							VoteImgBtn.Source = "Add_Vote.png";
+							break;
 					}
 				} catch (Exception ex) {
 					Console.Write ("Details page ctor {0}", ex);
@@ -327,49 +343,38 @@ namespace RayvMobileApp
 
 		#region Events
 
-		async void DoVote (object o, EventArgs e)
+		void DoVote (object o, EventArgs e)
 		{
-			string[] choices;
-			if (DisplayPlace.iVoted)
-				choices = new string[] {"Remove Vote",
-					"Like", 
-					"Dislike",
-					"Add to Wishlist"
-				};
+			var votePage = new EditVotePage (DisplayPlace.vote.vote);
+			votePage.Saved += (s, voteArgs) => {
+				if (voteArgs.Vote == DisplayPlace.vote.vote)
+					return;
+				DisplayPlace.vote.vote = voteArgs.Vote;
+				switch (voteArgs.Vote) {
+					case VoteValue.None:
+						VoteImgBtn.Source = "Add_Vote.png";
+						break;
+					case VoteValue.Liked:
+						VoteImgBtn.Source = "Like.png";
+						break;
+					case VoteValue.Disliked:
+						VoteImgBtn.Source = "Dislike.png";
+						break;
+					case VoteValue.Untried:
+						VoteImgBtn.Source = "Wish1.png";
+						break;
+				}
+				string msg = "";
+				if (DisplayPlace.SaveVote (out msg)) {
+					Dirty = true;
+				} else {
+				}
+				votePage.Navigation.PopAsync ();
+			};
+			if (Navigation.NavigationStack.Count == 0)
+				Navigation.PushAsync (new NavigationPage (votePage));
 			else
-				choices = new string[] {
-					"Like", 
-					"Dislike",
-					"Add to Wishlist"
-				};
-			string action = await DisplayActionSheet (
-				                DisplayPlace.place_name, 
-				                "Cancel",
-				                null, 
-				                choices);
-			switch (action) {
-			case "Remove Vote":
-				VoteImgBtn.Source = "star-lg.png";
-				DisplayPlace.vote.vote = VoteValue.None;
-				break;
-			case "Like":
-				DisplayPlace.vote.vote = VoteValue.Liked;
-				VoteImgBtn.Source = "Like.png";
-				break;
-			case "Dislike":
-				VoteImgBtn.Source = "Dislike.png";
-				DisplayPlace.vote.vote = VoteValue.Disliked;
-				break;
-			case "Add to Wishlist":
-				VoteImgBtn.Source = "Wish1.png";
-				DisplayPlace.vote.vote = VoteValue.Untried;
-				break;
-			}
-			string msg = "";
-			if (DisplayPlace.SaveVote (out msg))
-				DisplayAlert ("Saved", "Vote Saved", "OK");
-			else
-				DisplayAlert ("Error", "Vote Not Saved", "OK");
+				Navigation.PushAsync (votePage);
 		}
 
 		void DoClickComment (object o, EventArgs e)
@@ -478,6 +483,7 @@ namespace RayvMobileApp
 
 		void ShowSpinner (bool IsVisible = true)
 		{
+			Debug.WriteIf (!IsVisible, "Spinner off");
 			Spinner.IsRunning = IsVisible;
 			Spinner.IsVisible = IsVisible;
 		}
@@ -495,6 +501,10 @@ namespace RayvMobileApp
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
 			SaveFrame.IsVisible = false;
+			if (Navigation.NavigationStack.Count > 0)
+				await Navigation.PopToRootAsync ();
+			else
+				tools.IsVisible = true;
 		}
 
 		async void SaveWasBad ()
@@ -506,7 +516,7 @@ namespace RayvMobileApp
 			SaveFrame.IsVisible = true;
 		}
 
-		void DoSave (object sender, EventArgs e)
+		void DoSave (object sender = null, EventArgs e = null)
 		{
 			string Message = "";
 			ShowSpinner ();
@@ -598,12 +608,22 @@ namespace RayvMobileApp
 			DisplayPlace = place;
 			this.Appearing += DoLoadPage;
 
-			var saveBtn = new RayvButton ("Save");
+			var saveBtn = new RayvButton ("Save"){ HorizontalOptions = LayoutOptions.FillAndExpand, };
 			saveBtn.OnClick += DoSave;
+			var cancelBtn = new RayvButton ("Cancel"){ HorizontalOptions = LayoutOptions.FillAndExpand, };
+			cancelBtn.OnClick += async (s, e) => {
+				if (await DisplayAlert ("Are you sure?", "Your changes will be lost", "Yes", "No"))
+					Navigation.PushModalAsync (
+						new RayvNav (new MainMenu ()));
+			};
 			SaveFrame = new Frame {
 				OutlineColor = Color.Transparent,
 				Padding = 2,
-				Content = saveBtn,
+				Content = new StackLayout {
+					Children = { saveBtn, cancelBtn },
+					Orientation = StackOrientation.Horizontal,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
+				},
 				HasShadow = false,
 				IsVisible = showSave,
 			};
@@ -635,12 +655,10 @@ namespace RayvMobileApp
 			CuisineAndDistanceGrid.Children.Add (DirectionsImgBtn, 1, 0);
 			CuisineAndDistanceGrid.Children.Add (distance, 2, 0);
 
-			Address = new LabelWithImageButton {
+			Address = new Label {
 				TextColor = Color.FromHex ("707070"),
-				Source = settings.DevicifyFilename ("Icon default directions1.png"),
-				OnClick = DoDirections,
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 			};
-
 			WebImgBtn = new TopRowBtn { 
 				Source = settings.DevicifyFilename ("Icon default Website.png"),
 				OnClick = GotoWebPage
@@ -691,11 +709,13 @@ namespace RayvMobileApp
 				LoadPage (DisplayPlace);
 
 			ScrollView EditGrid = new ScrollView {
+				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.Start,
 				Content = new StackLayout {
 					Children = {
 						SaveFrame,
+						Spinner,
 						Place_name,
 						Address,
 						Img,
@@ -707,18 +727,14 @@ namespace RayvMobileApp
 					}
 				},
 			};
-			if (ShowToolbar) {
-				StackLayout tools = new BottomToolbar (this, "add");
-				Content = new StackLayout {
-					Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
-					Children = {
-						EditGrid,
-						tools
-					}
-				};
-			} else {
-				Content = EditGrid;
-			}
+			tools = new BottomToolbar (this, "add"){ IsVisible = showToolbar };
+			Content = new StackLayout {
+				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
+				Children = {
+					EditGrid,
+					tools
+				}
+			};
 			if (showMapBtn) {
 				ToolbarItems.Add (new ToolbarItem {
 					Text = "Map ",
@@ -743,7 +759,7 @@ namespace RayvMobileApp
 //					if (await DisplayAlert ("Not Saved", "You will lose your changes", "Save", "Ignore"))
 //						DoSave (sender, e);
 //				}
-//				OnClose (e);
+				OnClose (e);
 			};
 		}
 	}
