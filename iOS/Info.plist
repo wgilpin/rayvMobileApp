@@ -60,10 +60,10 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.4-9e</string>
+	<string>0.4-a2</string>
 	<key>CFBundleDisplayName</key>
 	<string>Taste 5</string>
 	<key>CFBundleVersion</key>
-	<string>9e</string>
+	<string>a2</string>
 </dict>
 </plist>
