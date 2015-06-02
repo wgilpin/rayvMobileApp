@@ -269,7 +269,7 @@ namespace RayvMobileApp
 					foreach (var vote in votes_q)
 						Votes.Add (vote);
 					
-					// instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
+					//TODO: instead of clear() - http://forums.xamarin.com/discussion/19114/invalid-number-of-rows-in-section
 					Places.Clear ();
 					var place_q = Db.Table<Place> ();
 					if (onlyWithCuisineType == null) {
@@ -514,7 +514,7 @@ namespace RayvMobileApp
 								Vote v = obj ["votes"] [i].ToObject<Vote> ();
 								Votes.Add (v);
 							} catch (Exception ex) {
-								Console.WriteLine ("StoreFullUserRecord {0} Bad Structure: {1}", i, ex);
+								Debug.WriteLine ("StoreFullUserRecord {0} Bad Structure: {1}", i, ex);
 							}
 						}
 //						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
@@ -684,7 +684,11 @@ namespace RayvMobileApp
 		public delegate void BasicDelegate ();
 
 		// Throws Protocol Exception if server version doesn't match
-		public void GetUserData (BasicDelegate onFail, BasicDelegate onSucceed, DateTime? since = null, bool incremental = false, StatusMessageDelegate statusMessage = null)
+		public void GetUserData (BasicDelegate onFail,
+		                         BasicDelegate onSucceed,
+		                         DateTime? since = null,
+		                         bool incremental = false,
+		                         StatusMessageDelegate statusMessage = null)
 		{
 			if (incremental) {
 				if (since == null) {
@@ -988,19 +992,19 @@ namespace RayvMobileApp
 			try {
 				string value = GetConfig (key);
 				switch (value) {
-				case "true":
-				case "True":
-				case "Yes":
-				case "yes":
-				case "1":
-					return true;
-				case "false":
-				case "False":
-				case "No":
-				case "no":
-				case "0":
-				default:
-					return false;
+					case "true":
+					case "True":
+					case "Yes":
+					case "yes":
+					case "1":
+						return true;
+					case "false":
+					case "False":
+					case "No":
+					case "no":
+					case "0":
+					default:
+						return false;
 				}
 			} catch {
 				return false;

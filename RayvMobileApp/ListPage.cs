@@ -21,10 +21,8 @@ namespace RayvMobileApp
 	{
 		Mine,
 		All,
-		Cuisine,
 		Wishlist,
 		New,
-		Go,
 	}
 
 	public class ListPage : ContentPage
@@ -33,7 +31,7 @@ namespace RayvMobileApp
 
 		static ListView listView;
 		static FilterKind MainFilter = FilterKind.All;
-		static String FilterCuisineKind;
+		static String FilterCuisine;
 		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
@@ -54,6 +52,9 @@ namespace RayvMobileApp
 		public bool NeedsReload = true;
 		List<Place> DisplayList;
 		Position DisplayPosition;
+		MealKind FilterPlaceKind;
+		PlaceStyle FilterPlaceStyle;
+		Position? FilterSearchCenter;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -75,6 +76,8 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListView()");
 			this.Title = "Find Food";
 			this.Icon = settings.DevicifyFilename ("bars-black.png");
+			FilterPlaceKind = MealKind.None;
+			FilterPlaceStyle = PlaceStyle.None;
 			SplashImage = new Label { 
 				Text = "Checking Location",
 				BackgroundColor = settings.BaseColor,
@@ -209,9 +212,20 @@ namespace RayvMobileApp
 		// Todo: this should be setting a property, not a ctor
 		public ListPage (string cuisine) : this ()
 		{
-			MainFilter = FilterKind.Go;
-			FilterCuisineKind = cuisine;
-			FilterList ();
+			FilterCuisine = cuisine;
+		}
+
+		/**
+		 * Constructor when a kind & style is supplied
+		 */
+		// Todo: this should be setting a property, not a ctor
+		public ListPage (MealKind kind, PlaceStyle style, Position? location = null, string cuisine = null) : this ()
+		{
+			FilterPlaceKind = kind;
+			FilterPlaceStyle = style;
+			FilterSearchCenter = location;
+			FilterCuisine = cuisine;
+//			FilterList ();
 		}
 
 		#endregion
@@ -315,12 +329,12 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.DoChangeCuisine");
 
-			if (String.IsNullOrEmpty (FilterCuisineKind)) {
+			if (String.IsNullOrEmpty (FilterCuisine)) {
 				CuisineButton.ButtonText = "Change";
 				Content = FilterCuisinePicker;
 				// Show it
 			} else {
-				FilterCuisineKind = "";
+				FilterCuisine = "";
 				CuisineButton.Text = "All Types of Food";
 				IsFiltered = false;
 				Content = MainContent;
@@ -359,7 +373,9 @@ namespace RayvMobileApp
 			Console.WriteLine ("Listpage.ClearFilter");
 			FilterSearchBox.Text = "";
 			FilterAreaSearchBox.Text = "";
-			FilterCuisineKind = "";
+			FilterCuisine = "";
+			FilterPlaceKind = MealKind.None;
+			FilterPlaceStyle = PlaceStyle.None;
 			CuisineButton.Text = ALL_TYPES_OF_FOOD;
 			MainFilter = FilterKind.All;
 			DisplayPosition = Persist.Instance.GpsPosition;
@@ -379,19 +395,13 @@ namespace RayvMobileApp
 		void UpdateCuisine (Object sender, ItemTappedEventArgs e)
 		{
 			Debug.WriteLine ("Listpage.UpdateCuisine");
-			MainFilter = FilterKind.Cuisine;
 			string cuisine = ((KeyValuePair<string,int>)e.Item).Key;
-			FilterCuisineKind = cuisine;
+			FilterCuisine = cuisine;
 			CuisineButton.Text = cuisine;
-//			FilterCuisinePicker.IsVisible = false;
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
 			Content = MainContent;
-//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-
 			FilterList ();
-
-//			})).Start ();
 			filters.IsVisible = false;
 		}
 
@@ -416,21 +426,16 @@ namespace RayvMobileApp
 		{
 			Debug.WriteLine ("Listpage.NarrowGeoSearch");
 			try {
-				Position centre = new Position ();
+				FilterSearchCenter = new Position ();
 				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text)).ToList ();
 				Console.WriteLine ("ListPage.NarrowGeoSearch: Got");
 				if (positions.Count > 0) {
-					centre = positions.First ();
+					FilterSearchCenter = positions.First ();
 				} else if (DEBUG_ON_SIMULATOR) {
-					centre = new Position (53.1, -1.5);
+					FilterSearchCenter = new Position (53.1, -1.5);
 					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
 				}
-				var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
-				DisplayList = DisplayList.Where (
-					p => p.lat < centre.Latitude + delta &&
-					p.lat > centre.Latitude - delta &&
-					p.lng < centre.Longitude + delta &&
-					p.lng > centre.Longitude - delta).ToList ();
+
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
@@ -448,88 +453,61 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.FilterList");
 			Persist data = Persist.Instance;
-//			data.SortPlaces (updateDistancePosition: DisplayPosition);
 			try {
-				String text = FilterSearchBox.Text.ToLower ();
-				if (text.Length > 0)
-					IsFiltered = true;
-				switch (MainFilter) {
-					case FilterKind.Go:
-					// places to go - from cuisine string constructorWill
-						Console.WriteLine ("FilterList - GO");
-						ResetCuisinePicker ();
-						DisplayList = (
-						    from p in data.Places
-						   where
-						       p.vote.vote != VoteValue.Disliked &&
-						       p.vote.cuisineName == FilterCuisineKind
-						   select p).ToList ();
-						IsFiltered = true;
-						break;
-					case FilterKind.Mine:
-						ResetCuisinePicker ();
-						Console.WriteLine ("FilterList - MINE");
-						DisplayList = (
-						    from p in data.Places
-						   where p.iVoted == true && (
-						           p.place_name.ToLower ().Contains (text) ||
-						           p.CategoryLowerCase.Contains (text))
-						   select p).ToList ();
-						break;
-					case FilterKind.All:
-						ResetCuisinePicker ();
-						Console.WriteLine ("FilterList - ALL, {0}", text);
-						var allResult = (from p in data.Places
-						                where
-						                    p.place_name.ToLower ().Contains (text) ||
-						                    p.CategoryLowerCase.Contains (text)
-						                select p);
-						DisplayList = allResult.ToList ();
-						break;
-					case FilterKind.Cuisine:
-						if (FilterCuisineKind != null && FilterCuisineKind.Length > 0) {
-							Console.WriteLine ("FilterList - GO");
-							DisplayList = (
-							    from p in data.Places
-							   where p.vote.cuisineName == FilterCuisineKind && (
-							           p.place_name.ToLower ().Contains (text) ||
-							           p.CategoryLowerCase.Contains (text))
-							   select p).ToList ();
-						} else {
-							goto case FilterKind.All;
-						}
-						IsFiltered = true;
-						break;
-					case FilterKind.Wishlist:
-						{
-							Console.WriteLine ("FilterList - GO");
-							var wishResult = (
-							                    from p in data.Places
-							                    where p.untried == true && (
-							                            p.place_name.ToLower ().Contains (text) ||
-							                            p.CategoryLowerCase.Contains (text))
-							                    select p);
-							DisplayList = wishResult.ToList ();}
-						IsFiltered = true;
-						break;
-				}
+				DisplayList = data.Places;
 				if (FilterAreaSearchBox.Text.Length > 0) {
 					IsFiltered = true;
 					await NarrowGeoSearch ();
 				}
-//				lock (Persist.Instance.Lock) {
-//					data.SortPlaces (DisplayList);
-//				}
+				IEnumerable<Place> filteredList = DisplayList;
+				String text = FilterSearchBox.Text.ToLower ();
+				if (!string.IsNullOrEmpty (FilterCuisine)) {
+					filteredList = filteredList.Where (p => p.vote.cuisineName == FilterCuisine);
+					IsFiltered = true;
+					Console.WriteLine ("ListPage filter cuisine");
+				}
+				if (!string.IsNullOrEmpty (text)) {
+					filteredList = filteredList.Where (p => p.place_name.ToLower ().Contains (text));
+					IsFiltered = true;
+					Console.WriteLine ("ListPage filter text");
+				}
+				if (FilterPlaceKind != MealKind.None) {
+					filteredList = filteredList.Where (p => (p.vote.kind & FilterPlaceKind) != MealKind.None);
+					IsFiltered = true;
+					Console.WriteLine ("ListPage filter Kind");
+				}
+				if (FilterPlaceStyle != PlaceStyle.None) {
+					filteredList = filteredList.Where (p => p.vote.style == FilterPlaceStyle);
+					IsFiltered = true;
+					Console.WriteLine ("ListPage filter style");
+				}
+				switch (MainFilter) {
+					case FilterKind.Mine:
+						filteredList = filteredList.Where (p => p.iVoted == true);
+						Console.WriteLine ("ListPage filter mine");
+						break;
+					case FilterKind.Wishlist:
+						filteredList = filteredList.Where (p => p.vote.vote == VoteValue.Untried);
+						Console.WriteLine ("ListPage filter untried");
+						break;
+				}
+				if (FilterSearchCenter != null) {
+					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
+					Position pos = (Position)FilterSearchCenter;
+					filteredList = filteredList.Where (
+						p => p.lat < pos.Latitude + delta &&
+						p.lat > pos.Latitude - delta &&
+						p.lng < pos.Longitude + delta &&
+						p.lng > pos.Longitude - delta);
+					Console.WriteLine ("ListPage filter location");
+				}
+				DisplayList = filteredList.ToList ();
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
-//			Device.BeginInvokeOnMainThread (() => {
-//			DisplayList.Sort ();
 			SetList (DisplayList);
 			FilterSearchBox.Unfocus ();
-//			Spinner.IsVisible = false;
-//			Spinner.IsRunning = false;
 			if (IsFiltered) {
 				FilterTool.Text = "Filtered";
 			} else {
@@ -603,11 +581,11 @@ namespace RayvMobileApp
 				BackgroundColor = settings.BaseColor,
 //				ColumnSpacing = 5,
 				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = new GridLength (40) },
+					new RowDefinition { Height = new GridLength (40) },
+					new RowDefinition { Height = new GridLength (40) },
+					new RowDefinition { Height = new GridLength (40) },
+					new RowDefinition { Height = new GridLength (40) },
 
 				},
 				ColumnDefinitions = {
@@ -665,7 +643,7 @@ namespace RayvMobileApp
 				Children = {
 					new RayvButton ("All kinds") {
 						OnClick = (sender, e) => {
-							FilterCuisineKind = "All";
+							FilterCuisine = "All";
 							DoChangeCuisine (null, null);
 						}
 					},

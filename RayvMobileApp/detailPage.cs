@@ -60,7 +60,7 @@ namespace RayvMobileApp
 		Label distance;
 		Label Address;
 		LabelWithImageButton Comment;
-		EntryWithButton CommentEditor;
+		EditCommentPage CommentEditor;
 		private bool ShowToolbar;
 		public bool Dirty;
 		bool IsNew;
@@ -69,6 +69,7 @@ namespace RayvMobileApp
 		TopRowBtn VoteImgBtn;
 		Frame SaveFrame;
 		StackLayout tools;
+		EditVotePage VotePage;
 
 		#endregion
 
@@ -163,8 +164,6 @@ namespace RayvMobileApp
 			return friendCommentsGrid;
 		}
 
-
-
 		async void SetVote (object sender, EventArgs e)
 		{
 			SetVoteButton (sender as ButtonWide);
@@ -202,33 +201,30 @@ namespace RayvMobileApp
 			} else {
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 					Device.BeginInvokeOnMainThread (() => {
-						Spinner.IsRunning = true;
-						Spinner.IsVisible = true;
+						ShowSpinner ();
 					});
 					if (DisplayPlace.SaveVote (out Message)) {
 						Dirty = true;
-						Insights.Track ("DetailPage.SetVote", new Dictionary<string, string> {
+						var details = new Dictionary<string, string> {
 							{ "PlaceName", DisplayPlace.place_name },
 							{ "Vote", DisplayPlace.vote.ToString () },
-						});
+						};
+						Insights.Track ("DetailPage.SetVote", details);
+						Debug.WriteLine ("UpdateVote {0}", details.ToString ());
 					}
 					Device.BeginInvokeOnMainThread (() => {
 						// manipulate UI controls
 						SetVoteButton (sender as ButtonWide);
-						Spinner.IsRunning = false;
-						Spinner.IsVisible = false;
+						ShowSpinner (false);
 						if (string.IsNullOrWhiteSpace (DisplayPlace.Comment ())) {
 							DisplayAlert ("No Comment", "Please add a comment to explain your vote", "OK");
 							DoClickComment (null, null);
-							CommentEditor.TextEntry.Focus ();
-							CommentEditor.TextEntry.BackgroundColor = ColorUtil.Lighter (Color.Yellow);
+							EditComment ();
 						}
 					});
 				})).Start ();
 			}
 		}
-
-
 
 		void SetVoteButton (Button voteBtn)
 		{
@@ -295,7 +291,6 @@ namespace RayvMobileApp
 					else
 						Comment.Text = $"\"{DisplayPlace.Comment ()}\"";
 
-					CommentEditor.IsVisible = false;
 					Comment.IsVisible = true;
 
 					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
@@ -343,38 +338,51 @@ namespace RayvMobileApp
 
 		#region Events
 
+		void VoteSaved (object sender, VoteSavedEventArgs voteArgs)
+		{
+			if (voteArgs.Vote == DisplayPlace.vote.vote)
+				return;
+			DisplayPlace.vote.vote = voteArgs.Vote;
+			switch (voteArgs.Vote) {
+				case VoteValue.None:
+					VoteImgBtn.Source = "Add_Vote.png";
+					break;
+				case VoteValue.Liked:
+					VoteImgBtn.Source = "Like.png";
+					break;
+				case VoteValue.Disliked:
+					VoteImgBtn.Source = "Dislike.png";
+					break;
+				case VoteValue.Untried:
+					VoteImgBtn.Source = "Wish1.png";
+					break;
+			}
+			if (!string.IsNullOrEmpty (DisplayPlace.key)) {
+				string msg = "";
+				DisplayPlace.SaveVote (out msg);
+			}
+			Dirty = true;
+			VotePage.Navigation.PopModalAsync ();
+		}
+
 		void DoVote (object o, EventArgs e)
 		{
-			var votePage = new EditVotePage (DisplayPlace.vote.vote);
-			votePage.Saved += (s, voteArgs) => {
-				if (voteArgs.Vote == DisplayPlace.vote.vote)
-					return;
-				DisplayPlace.vote.vote = voteArgs.Vote;
-				switch (voteArgs.Vote) {
-					case VoteValue.None:
-						VoteImgBtn.Source = "Add_Vote.png";
-						break;
-					case VoteValue.Liked:
-						VoteImgBtn.Source = "Like.png";
-						break;
-					case VoteValue.Disliked:
-						VoteImgBtn.Source = "Dislike.png";
-						break;
-					case VoteValue.Untried:
-						VoteImgBtn.Source = "Wish1.png";
-						break;
-				}
-				string msg = "";
-				if (DisplayPlace.SaveVote (out msg)) {
-					Dirty = true;
-				} else {
-				}
-				votePage.Navigation.PopAsync ();
+			VotePage = new EditVotePage (DisplayPlace.vote.vote, inFlow: false);
+			VotePage.Saved += VoteSaved;
+			VotePage.Cancelled += (sender, ev) => {
+				VotePage.Navigation.PopModalAsync ();
 			};
-			if (Navigation.NavigationStack.Count == 0)
-				Navigation.PushAsync (new NavigationPage (votePage));
-			else
-				Navigation.PushAsync (votePage);
+			Navigation.PushModalAsync (new RayvNav (VotePage));
+		}
+
+		void EditComment ()
+		{
+			CommentEditor = new EditCommentPage (DisplayPlace.Comment (), inFlow: false);
+			CommentEditor.Saved += DoSaveComment;
+			CommentEditor.Cancelled += (s, e) => {
+				CommentEditor?.Navigation.PopModalAsync ();
+			};
+			Navigation.PushModalAsync (new RayvNav (CommentEditor));
 		}
 
 		void DoClickComment (object o, EventArgs e)
@@ -384,30 +392,34 @@ namespace RayvMobileApp
 				return;
 			}
 			Comment.IsVisible = false;
-			CommentEditor.IsVisible = true;
-			CommentEditor.Text = DisplayPlace.Comment ();
-			Console.WriteLine ("Detail Page editing {0}", CommentEditor.Text);
-			CommentEditor.Focus ();
+			EditComment ();
 		}
 
-		void DoSaveComment (object o, EventArgs e)
+		void DoSaveComment (object o, CommentSavedEventArgs e)
 		{
 			try {
-				DisplayPlace.setComment (CommentEditor.Text);
-				CommentEditor.TextEntry.BackgroundColor = Color.White;
-				CommentEditor.IsVisible = false;
+				DisplayPlace.setComment (e.Comment);
 				string msg;
-				if (DisplayPlace.SaveVote (out msg)) {
-					Comment.IsVisible = true;
-					Comment.Text = DisplayPlace.Comment ();
-				} else
-					DisplayAlert ("Error", "Couldn't save comment", "OK");
+				ShowSpinner ();
+				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+					if (!string.IsNullOrEmpty (DisplayPlace.key)) {
+						if (DisplayPlace.SaveVote (out msg)) {
+							Device.BeginInvokeOnMainThread (() => {
+								Comment.Text = '"' + DisplayPlace.Comment () + '"';
+								ShowSpinner (false);
+							});
+						} else
+							Device.BeginInvokeOnMainThread (() => {
+								ShowSpinner (false);
+								DisplayAlert ("Error", "Couldn't save comment", "OK");
+							});
+					}
+				})).Start ();
+
 			} catch (Exception) {
-				CommentEditor.Unfocus ();
 			}
+			CommentEditor?.Navigation.PopModalAsync ();
 		}
-
-
 
 		void DoEdit ()
 		{
@@ -415,12 +427,6 @@ namespace RayvMobileApp
 			Dirty = true;
 			var editor = new PlaceEditor (DisplayPlace, this, false);
 			editor.Edit ();
-		}
-
-		void DoCommentCompleted (object sender, EventArgs e)
-		{
-			CommentEditor.TextEntry.Unfocus ();
-			DoSaveComment (sender, e);
 		}
 
 		public void DoLoadPage (object sender, EventArgs e)
@@ -431,7 +437,7 @@ namespace RayvMobileApp
 		void PushWithNavigation (ContentPage page)
 		{
 			if (Navigation.NavigationStack.Count == 0)
-				Navigation.PushModalAsync (new NavigationPage (page));
+				Navigation.PushModalAsync (new RayvNav (page));
 			else
 				Navigation.PushAsync (page);
 		}
@@ -501,10 +507,9 @@ namespace RayvMobileApp
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
 			SaveFrame.IsVisible = false;
+			tools.IsVisible = true;
 			if (Navigation.NavigationStack.Count > 0)
 				await Navigation.PopToRootAsync ();
-			else
-				tools.IsVisible = true;
 		}
 
 		async void SaveWasBad ()
@@ -525,7 +530,6 @@ namespace RayvMobileApp
 					Device.BeginInvokeOnMainThread (() => {
 						SaveWasGood ();
 					});
-					#pragma warning restore 4014
 				} else {
 					Device.BeginInvokeOnMainThread (() => {
 						SaveWasBad ();
@@ -542,26 +546,26 @@ namespace RayvMobileApp
 			Double MedFont = Device.GetNamedSize (NamedSize.Medium, typeof(Label));
 			var VoteCountText = new FormattedString ();
 			VoteCountText.Spans.Add (new Span {
-				Text = "Friend Likes ",
+				Text = "Likes   ",
 				FontSize = MedFont,
-				ForegroundColor = Color.Black,
+				ForegroundColor = Color.Green,
 				FontAttributes = FontAttributes.Italic
 			});
 			VoteCountText.Spans.Add (new Span {
 				Text = DisplayPlace.up.ToString (),
-				ForegroundColor = settings.BaseColor,
+				ForegroundColor = Color.Gray,
 				FontSize = MedFont,
 				FontAttributes = FontAttributes.Bold,
 			});
 			VoteCountText.Spans.Add (new Span {
-				Text = "        Dislikes ",
+				Text = "        Dislikes   ",
 				FontSize = MedFont,
-				ForegroundColor = Color.Black,
+				ForegroundColor = Color.Red,
 				FontAttributes = FontAttributes.Italic
 			});
 			VoteCountText.Spans.Add (new Span {
 				Text = DisplayPlace.down.ToString (),
-				ForegroundColor = Color.Red,
+				ForegroundColor = Color.Gray,
 				FontSize = MedFont,
 				FontAttributes = FontAttributes.Bold,
 			});
@@ -685,13 +689,6 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
 				OnClick = DoClickComment,
 			};
-			CommentEditor = new EntryWithButton {
-				Source = settings.DevicifyFilename ("26-checkmark@2x.png"),
-				OnClick = DoSaveComment,
-				IsVisible = false,
-			};
-			CommentEditor.TextEntry.Completed += DoCommentCompleted;
-			CommentEditor.TextEntry.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
 
 			var VoteCountLbl = GetVoteCountText ();
 
@@ -707,7 +704,27 @@ namespace RayvMobileApp
 				DraftText.IsVisible = true;
 			} else
 				LoadPage (DisplayPlace);
-
+			var styleGrid = new Grid {
+				Padding = new Thickness (5, 20, 5, 5),
+				RowSpacing = 20,
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (100) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+				},
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+//					new RowDefinition { Height = new GridLength (2) },
+				}
+			};
+			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Cuisine" }, 0, 0); 
+			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Style" }, 0, 1); 
+			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Meal" }, 0, 2); 
+			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.cuisineName }, 1, 0); 
+			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.style.ToString () }, 1, 1); 
+			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.kind.ToString () }, 1, 2); 
+//			styleGrid.Children.Add (new Frame{ HasShadow = false, OutlineColor = Color.Gray, HeightRequest = 2 }, 0, 2, 3, 4); 
 			ScrollView EditGrid = new ScrollView {
 				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -720,9 +737,13 @@ namespace RayvMobileApp
 						Address,
 						Img,
 						TopRow,
+						styleGrid,
+						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
 						Comment,
-						CommentEditor,
+						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
+						new Label { Text = "Friend Votes", FontAttributes = FontAttributes.Bold }, 
 						VoteCountLbl,
+						new Label { Text = "Comments", FontAttributes = FontAttributes.Bold }, 
 						GetFriendsComments (),
 					}
 				},

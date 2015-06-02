@@ -18,8 +18,10 @@ namespace RayvMobileApp
 	public class EditCommentPage : ContentPage
 	{
 		public event EventHandler<CommentSavedEventArgs> Saved;
+		public event EventHandler Cancelled;
 
 		Editor TextEditor;
+		bool InFlow;
 
 		protected virtual void DoSave (object sender, EventArgs e)
 		{
@@ -32,8 +34,15 @@ namespace RayvMobileApp
 			}
 		}
 
-		public EditCommentPage (string initialText)
+		protected virtual void DoCancel (object sender, EventArgs e)
 		{
+			if (Cancelled != null)
+				Cancelled (sender, e);
+		}
+
+		public EditCommentPage (string initialText, bool inFlow = true)
+		{
+			InFlow = inFlow;
 			this.Title = "Comment";
 			TextEditor = new Editor { 
 //				HorizontalOptions = LayoutOptions.Fil, 
@@ -54,16 +63,20 @@ namespace RayvMobileApp
 						BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 						TextColor = Color.White,
 						OnClick = DoSave,
+						XAlign = TextAlignment.Center,
 					},
 				}
 			};
 			if (!string.IsNullOrEmpty (initialText)) {
 				ToolbarItems.Add (new ToolbarItem {
-					Text = " Next",
+					Text = inFlow ? " Next" : "  Cancel  ",
 					//				Icon = "187-pencil@2x.png",
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => { 
-						DoSave (null, null);
+						if (InFlow)
+							DoSave (null, null);
+						else
+							DoCancel (null, null);
 					})
 				});
 			}

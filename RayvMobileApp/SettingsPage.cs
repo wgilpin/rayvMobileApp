@@ -58,10 +58,7 @@ namespace RayvMobileApp
 								    "No")) {
 								Persist.Instance.Wipe ();
 								this.Navigation.PushModalAsync (
-									new NavigationPage (new ListPage ()) { 
-										BarBackgroundColor = settings.BaseColor,
-										BarTextColor = Color.White,
-									}, false);
+									new RayvNav (new ListPage ()), false);
 							}
 						}
 					},

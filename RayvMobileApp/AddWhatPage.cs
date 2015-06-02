@@ -17,7 +17,7 @@ namespace RayvMobileApp
 				ColumnSpacing = 0,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (80, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (120, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
@@ -57,7 +57,7 @@ namespace RayvMobileApp
 
 			var PlaceText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -30,
+				TranslationY = -70,
 				Children = { 
 					new Label {
 						Text = "Add Place",
@@ -68,6 +68,7 @@ namespace RayvMobileApp
 					},
 				}
 			};
+			PlaceText.GestureRecognizers.Add (clickAdd);
 			var FriendText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
 				TranslationY = -70,
@@ -81,6 +82,7 @@ namespace RayvMobileApp
 					},
 				}
 			};
+			FriendText.GestureRecognizers.Add (clickFriends);
 			grid.Children.Add (addImg, 0, 0);
 			grid.Children.Add (PlaceText, 0, 1);
 			grid.Children.Add (friendsImg, 0, 2);

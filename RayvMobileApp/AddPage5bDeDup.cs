@@ -58,7 +58,7 @@ namespace RayvMobileApp
 		#region Events
 
 		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e) =>
-			this.Navigation.PushModalAsync (new NavigationPage (new DetailPage (e.EditedPlace, true)));
+		this.Navigation.PushModalAsync (new RayvNav (new DetailPage (e.EditedPlace, true)));
 
 		void BackToRoot (object sender, EventArgs e) => this.Navigation.PopToRootAsync ();
 

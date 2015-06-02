@@ -11,11 +11,13 @@ namespace RayvMobileApp
 {
 	public enum VoteValue
 	{
+		None = 0,
 		Liked = 1,
 		Disliked = -1,
-		Untried = 0,
-		None = 2
+		Untried = 2
 	}
+
+
 
 	[Flags]
 	public enum MealKind
@@ -27,6 +29,7 @@ namespace RayvMobileApp
 		Coffee = 0x8
 	}
 
+
 	public enum PlaceStyle
 	{
 		None = 0,
@@ -37,6 +40,7 @@ namespace RayvMobileApp
 
 	public class Vote: IComparable<Vote>
 	{
+		public const int MAX_MEALKIND = 0 + 1 + 2 + 4 + 8;
 
 		#region sqlLite columns
 

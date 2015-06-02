@@ -40,7 +40,7 @@ namespace RayvMobileApp
 			if (Saved != null)
 				detailPage.Closed += Saved;
 			Debug.WriteLine ("PlaceEditor DoCommentSaved");
-			CallingPage.Navigation.PushModalAsync (detailPage);
+			CallingPage.Navigation.PushModalAsync (new RayvNav (detailPage));
 		}
 
 		void DoKindSaved (object sender, KindSavedEventArgs ev)

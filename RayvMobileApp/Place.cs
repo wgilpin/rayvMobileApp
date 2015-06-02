@@ -541,6 +541,10 @@ namespace RayvMobileApp
 							// delete the old one
 							Persist.RemovePlaceKeyFromDb (wasDraftKey);
 						}
+						if (!Persist.Instance.UpdateVote (place)) {
+							errorMessage = "Failed to update vote";
+							return false;
+						}
 					}
 				} else {
 					lock (Persist.Instance.Lock) {

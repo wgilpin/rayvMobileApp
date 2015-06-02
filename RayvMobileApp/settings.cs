@@ -31,6 +31,7 @@ namespace RayvMobileApp
 		//		public static Color ColorDark = Color.FromHex ("6883B5");
 		//		public static Color ColorVeryDark = Color.FromHex ("4863B5");
 		public static Color ColorLightGray = Color.FromHex ("EEE");
+		public static Color ColorMidGray = Color.FromHex ("AAA");
 		public static Color ColorDarkGray = Color.FromHex ("444");
 		public static Color ColorOffWhite = Color.FromHex ("E7E7E7");
 
@@ -38,13 +39,13 @@ namespace RayvMobileApp
 		public static string DevicifyFilename (string filename)
 		{
 			switch (Device.OS) {
-			case  TargetPlatform.Android:
-				var temp = filename.Replace (" ", "_").Replace ("-", "_").Replace ("@", "_");
-				if (temp [0] <= '9' && temp [0] >= '0')
-					return 'i' + temp;
-				return temp;
-			default:
-				return filename;
+				case  TargetPlatform.Android:
+					var temp = filename.Replace (" ", "_").Replace ("-", "_").Replace ("@", "_");
+					if (temp [0] <= '9' && temp [0] >= '0')
+						return 'i' + temp;
+					return temp;
+				default:
+					return filename;
 			}
 		}
 	}

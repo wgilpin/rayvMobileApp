@@ -35,6 +35,7 @@ namespace RayvMobileApp
 		CheckBox lunch;
 		CheckBox dinner;
 		CheckBox coffee;
+		bool InFlow;
 
 		const string STYLE_FANCY = "fancy",
 			STYLE_QUICK = "quick bite",
@@ -42,17 +43,18 @@ namespace RayvMobileApp
 
 
 		public event EventHandler<KindSavedEventArgs> Saved;
+		public event EventHandler Cancelled;
 
 		protected virtual void OnSaved ()
 		{
 			if (breakfast.Checked)
 				_kind = MealKind.Breakfast;
 			if (lunch.Checked)
-				_kind |= MealKind.Lunch;
+				_kind = _kind | MealKind.Lunch;
 			if (dinner.Checked)
-				_kind |= MealKind.Lunch;
+				_kind = _kind | MealKind.Dinner;
 			if (coffee.Checked)
-				_kind |= MealKind.Coffee;
+				_kind = _kind | MealKind.Coffee;
 			if (Saved != null)
 				Saved (this, new KindSavedEventArgs (_kind, _style));
 		}
@@ -103,10 +105,11 @@ namespace RayvMobileApp
 				DisplayAlert ("Kind?", "You must check at least one meal kind", "OK");
 		}
 
-		public EditPlaceKindPage (MealKind kind, PlaceStyle style)
+		public EditPlaceKindPage (MealKind kind, PlaceStyle style, bool inFlow = true)
 		{
 			_kind = kind;
 			_style = style;
+			InFlow = inFlow;
 
 			BackgroundColor = Color.White;
 			Grid grid = new Grid {
@@ -165,6 +168,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 6, 7);
 			grid.Children.Add (new ImageButton {
+				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 6, 7);
@@ -175,6 +179,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 7, 8);
 			grid.Children.Add (new ImageButton {
+				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 7, 8);
@@ -185,6 +190,7 @@ namespace RayvMobileApp
 				BackgroundColor = (style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent,
 			}, 1, 2, 8, 9);
 			grid.Children.Add (new ImageButton {
+				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyle
 			}, 2, 3, 8, 9);
@@ -192,11 +198,14 @@ namespace RayvMobileApp
 
 			if (!(kind == MealKind.None || style == PlaceStyle.None)) {
 				ToolbarItems.Add (new ToolbarItem {
-					Text = " Next",
+					Text = InFlow ? " Next " : " Cancel ",
 					//				Icon = "187-pencil@2x.png",
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => { 
-						OnSaved ();
+						if (InFlow)
+							OnSaved ();
+						else
+							Cancelled?.Invoke (this, null);
 					})
 				});
 			}

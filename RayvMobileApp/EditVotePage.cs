@@ -32,57 +32,75 @@ namespace RayvMobileApp
 	{
 		VoteValue _vote;
 		ActivityIndicator Spinner;
+		bool InFlow;
 
 		public event EventHandler<VoteSavedEventArgs> Saved;
+		public event EventHandler Cancelled;
 
 		protected virtual void OnSaved ()
 		{
 			if (Saved != null) {
+				Debug.WriteLine ("Vote OnSaved Spinner On");
 				Spinner.IsRunning = true;
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 					Device.BeginInvokeOnMainThread (() => {
 						Debug.WriteLine ("EditVotePage OnSaved");
 						Saved (this, new VoteSavedEventArgs (_vote));
-
+						Spinner.IsRunning = false;
 					});
 				})).Start ();
 			}
 		}
 
+		protected virtual void OnCancelled ()
+		{
+			if (Cancelled != null)
+				Cancelled (this.Cancelled, null);
+		}
+
 		public void VoteLiked (object s, EventArgs e)
 		{
-			if (Spinner.IsRunning)
+			if (Spinner.IsRunning) {
+				Debug.WriteLine ("Spinner running - abort");
 				return;
+			}
 			_vote = VoteValue.Liked; 
 			OnSaved ();
 		}
 
 		public void VoteDisliked (object s, EventArgs e)
 		{
-			if (Spinner.IsRunning)
+			if (Spinner.IsRunning) {
+				Debug.WriteLine ("Spinner running - abort");
 				return;
+			}
 			_vote = VoteValue.Disliked; 
 			OnSaved ();
 		}
 
 		public void VoteUntried (object s, EventArgs e)
 		{
-			if (Spinner.IsRunning)
+			if (Spinner.IsRunning) {
+				Debug.WriteLine ("Spinner running - abort");
 				return;
+			}
 			_vote = VoteValue.Untried; 
 			OnSaved ();
 		}
 
 		public void VoteNone (object s, EventArgs e)
 		{
-			if (Spinner.IsRunning)
+			if (Spinner.IsRunning) {
+				Debug.WriteLine ("Spinner running - abort");
 				return;
+			}
 			_vote = VoteValue.None; 
 			OnSaved ();
 		}
 
-		public EditVotePage (VoteValue vote)
+		public EditVotePage (VoteValue vote, bool inFlow = true)
 		{
+			InFlow = inFlow;
 			_vote = vote;
 			var grid = new Grid { 
 				RowSpacing = 20,
@@ -137,7 +155,7 @@ namespace RayvMobileApp
 				settings.DevicifyFilename ("arrow.png"), VoteUntried), 3, 4, 3, 4);
 
 			if (vote != VoteValue.None) {
-				grid.Children.Add (new ImageButton ("X.png", VoteNone), 1, 2, 4, 5);
+				grid.Children.Add (new ImageButton ("remove_vote.png", VoteNone), 1, 2, 4, 5);
 				grid.Children.Add (new VoteLabel (selected: false) { 
 					Text = "Remove", 
 					OnClick = VoteNone,
@@ -150,11 +168,14 @@ namespace RayvMobileApp
 			Content = grid;
 			if (vote != VoteValue.None) {
 				ToolbarItems.Add (new ToolbarItem {
-					Text = " Next",
+					Text = inFlow ? " Next" : "  Cancel  ",
 					//				Icon = "187-pencil@2x.png",
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => { 
-						OnSaved ();
+						if (InFlow)
+							OnSaved ();
+						else
+							OnCancelled ();
 					})
 				});
 			}

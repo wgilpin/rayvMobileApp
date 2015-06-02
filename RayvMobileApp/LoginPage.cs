@@ -106,10 +106,7 @@ namespace RayvMobileApp
 			};
 			Register.Clicked += (s, e) => {
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new RegisterPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					}, false);
+					new RayvNav (new RegisterPage ()), false);
 			};
 			Error = new Label {
 				Text = "User Name & Password Don't match", 

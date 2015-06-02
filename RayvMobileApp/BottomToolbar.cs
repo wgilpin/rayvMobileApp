@@ -47,15 +47,12 @@ namespace RayvMobileApp
 		Grid grid;
 		BottomToolbarButton friendsImg;
 
-		void ShowList (object s, EventArgs e)
+		void ShowFind (object s, EventArgs e)
 		{
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: List button - push ListPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new ListPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					}, false);
+					new RayvNav (new FindChoicePage ()), false);
 			});
 		}
 
@@ -64,10 +61,7 @@ namespace RayvMobileApp
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: News button - push NewsPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new NewsPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					}, false);
+					new RayvNav (new NewsPage ()), false);
 			});
 		}
 
@@ -76,10 +70,7 @@ namespace RayvMobileApp
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: Profile button - push ProfilePage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new ProfilePage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					}, false);
+					new RayvNav (new ProfilePage ()), false);
 			});
 		}
 
@@ -88,10 +79,7 @@ namespace RayvMobileApp
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new AddWhatPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					}, false);
+					new RayvNav (new AddWhatPage ()), false);
 			});
 		}
 
@@ -141,7 +129,7 @@ namespace RayvMobileApp
 			var newsImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default news.png"), ShowNews) { 
 				HorizontalOptions = LayoutOptions.Center
 			};
-			var ListImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowList) { 
+			var ListImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowFind) { 
 				HorizontalOptions = LayoutOptions.Center
 			};
 			var settingsImg = new BottomToolbarButton (settings.DevicifyFilename ("TB default profile.png"), ShowProfile) { 
@@ -151,21 +139,21 @@ namespace RayvMobileApp
 
 			if (pressed != null) {
 				switch (pressed) {
-				case "list":
-					ListImg.Source = settings.DevicifyFilename ("TB active search.png");
-					break;
-				case "friends":
-					friendsImg.Source = settings.DevicifyFilename ("TB active friends.png");
-					break;
-				case "add":
-					addImg.Source = settings.DevicifyFilename ("TB active add.png");
-					break;
-				case "news":
-					newsImg.Source = settings.DevicifyFilename ("TB active news.png");
-					break;
-				case "profile":
-					settingsImg.Source = settings.DevicifyFilename ("TB active profile.png");
-					break;
+					case "list":
+						ListImg.Source = settings.DevicifyFilename ("TB active search.png");
+						break;
+					case "friends":
+						friendsImg.Source = settings.DevicifyFilename ("TB active friends.png");
+						break;
+					case "add":
+						addImg.Source = settings.DevicifyFilename ("TB active add.png");
+						break;
+					case "news":
+						newsImg.Source = settings.DevicifyFilename ("TB active news.png");
+						break;
+					case "profile":
+						settingsImg.Source = settings.DevicifyFilename ("TB active profile.png");
+						break;
 				}
 			}
 			grid.RowSpacing = 0;

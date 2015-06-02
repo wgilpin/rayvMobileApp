@@ -180,6 +180,11 @@ namespace RayvMobileApp
 			set { _clickImage.Tapped += value; }
 		}
 
+		public TextAlignment XAlign {
+			get { return _label.XAlign; }
+			set { _label.XAlign = value; }
+		}
+
 		public LabelWithImageButton () : base ()
 		{
 			Padding = 2;
@@ -408,6 +413,10 @@ namespace RayvMobileApp
 		public ImageButton () : base ()
 		{
 
+		}
+
+		public Double Height {
+			set { HeightRequest = value; }
 		}
 
 		public ImageButton (string source, EventHandler onClick) : this ()

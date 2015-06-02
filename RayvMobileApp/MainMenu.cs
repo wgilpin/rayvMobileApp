@@ -31,7 +31,7 @@ namespace RayvMobileApp
 
 			BackgroundColor = settings.ColorOffWhite;
 			Grid grid = new Grid {
-				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
+				Padding = new Thickness (20),
 				VerticalOptions = LayoutOptions.Center,
 				RowSpacing = 0,
 				ColumnSpacing = 0,
@@ -56,10 +56,7 @@ namespace RayvMobileApp
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new AddWhatPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = settings.BaseColor,
-					});
+					new RayvNav (new AddWhatPage ()));
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
 
@@ -72,7 +69,7 @@ namespace RayvMobileApp
 			clickNews.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: news button - push NewsPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new NewsPage ()){ BarBackgroundColor = settings.BaseColor });
+					new RayvNav (new NewsPage ()));
 			};
 			newsImg.GestureRecognizers.Add (clickNews);
 
@@ -87,10 +84,7 @@ namespace RayvMobileApp
 			clickChoice.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
 				this.Navigation.PushModalAsync (
-					new NavigationPage (new ListPage ()) { 
-						BarBackgroundColor = settings.BaseColor,
-						BarTextColor = Color.White,
-					});
+					new RayvNav (new FindChoicePage ()));
 			};
 			choiceImg.GestureRecognizers.Add (clickChoice);
 
