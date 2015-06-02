@@ -47,6 +47,8 @@ namespace RayvMobileApp
 		{
 			EditPlace.vote.kind = ev.Kind;
 			EditPlace.vote.style = ev.Style;
+			Debug.Assert (ev.Style != PlaceStyle.None);
+			Debug.Assert (ev.Kind != MealKind.None);
 			var commentPage = new EditCommentPage (EditPlace.Comment ());
 			commentPage.Saved += DoCommentSaved;
 			Debug.WriteLine ("PlaceEditor DoKindSaved");

@@ -519,6 +519,12 @@ namespace RayvMobileApp
 					parameters ["voteScore"] = vote.vote.ToString ();
 					parameters ["kind"] = $"{(int)vote.kind}";
 					parameters ["style"] = $"{(int)vote.style}";
+					if (vote.style == PlaceStyle.None || vote.kind == MealKind.None) {
+						errorMessage = "Style or Kind is None";
+						Insights.Track ("Place.Save Style or Kind is None", parameters);
+						return false;
+					}
+					;
 
 					bool wasDraft = IsDraft;
 					string wasDraftKey = _key;
