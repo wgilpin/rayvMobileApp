@@ -318,7 +318,7 @@ namespace RayvMobileApp
 			SearchLocationBox.Focus ();
 		}
 
-		public FindChoicePage ()
+		public FindChoicePage (bool showBackBtn = true)
 		{
 			_grid = new Grid {
 				Padding = 20,
@@ -335,15 +335,17 @@ namespace RayvMobileApp
 			ChooseMainMenu ();
 			Content = _grid;
 			SearchCentre = null;
-			BackBtn = new ToolbarItem {
-				Text = "Back ",
-				//				Icon = "icon-map.png",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					DoBackBtn ();
-				}),
-			};
-			ToolbarItems.Add (BackBtn);
+			if (showBackBtn) {
+				BackBtn = new ToolbarItem {
+					Text = "Back ",
+					//				Icon = "icon-map.png",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => {
+						DoBackBtn ();
+					}),
+				};
+				ToolbarItems.Add (BackBtn);
+			}
 		}
 	}
 }

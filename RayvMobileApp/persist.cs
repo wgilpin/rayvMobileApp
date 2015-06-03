@@ -560,7 +560,6 @@ namespace RayvMobileApp
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
 								Place p = Places [PlacesIdx];
 								if (string.IsNullOrEmpty (p.vote.cuisineName)) {
-									p.IsDraft = true;
 									continue;
 								}
 								if (p.key == kvp.Key) {
@@ -610,6 +609,9 @@ namespace RayvMobileApp
 								}
 							}
 						}
+						Places.Where (p => p.vote.cuisine == null).ToList ().ForEach (p => {
+							p.IsDraft = true;
+						});
 						saveVotesToDb ();
 					} catch (Exception ex) {
 						Insights.Report (ex);

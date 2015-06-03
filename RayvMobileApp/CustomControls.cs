@@ -185,6 +185,11 @@ namespace RayvMobileApp
 			set { _label.XAlign = value; }
 		}
 
+		public FontAttributes FontAttributes {
+			get { return _label.FontAttributes; }
+			set { _label.FontAttributes = value; }
+		}
+
 		public LabelWithImageButton () : base ()
 		{
 			Padding = 2;

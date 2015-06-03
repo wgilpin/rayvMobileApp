@@ -8,55 +8,43 @@ namespace RayvMobileApp
 {
 	public class LoadingPage : ContentPage
 	{
-		BackgroundWorker worker;
 		Label LoadingMessage;
 		Label ServerMessage;
 		ProgressBar progBar;
 
-		private void WorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
-		{
-//			Persist.Instance.Online = (e.Error != null);
-			try {
-				Console.WriteLine ($"WorkerCompleted: Online: {Persist.Instance.Online}");
-			} catch (UnauthorizedAccessException) {
-				Console.WriteLine ("WorkerCompleted: Offline");
-				Navigation.PushModalAsync (new LoginPage ());
-			}
-		}
-
-		void loadDataFromServer (object sender, DoWorkEventArgs e)
+		void loadDataFromServer ()
 		{
 			Console.WriteLine ("loadDataFromServer");
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
-			if (Persist.Instance.Online)
-				try {
-					Persist.Instance.GetUserData (
-						onFail: () => {
-							Navigation.PushModalAsync (new LoginPage ());
-						}, 
-						onSucceed: () => {
-							Persist.Instance.Online = true;
-							Navigation.PushModalAsync (new MainMenu ());
-						},
-						incremental: true, 
-						statusMessage: SetMessage);
-					Persist.Instance.LoadCategories ();
-				} catch (ProtocolViolationException ex) {
-					Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
-				}
-			else
+			if (Persist.Instance.Online) {
+				Persist.Instance.GetUserData (
+					onFail: () => {
+						Navigation.PushModalAsync (new LoginPage ());
+					}, 
+					onSucceed: () => {
+						Persist.Instance.Online = true;
+						Navigation.PushModalAsync (new MainMenu ());
+					},
+					incremental: true, 
+					statusMessage: SetMessage);
+				Persist.Instance.LoadCategories ();
+			} else
 				Navigation.PushModalAsync (new LoginPage ());
 		}
 
 		void DoAppearing (object sender, EventArgs e)
 		{
 			progBar.WidthRequest = this.Width;
-			worker.DoWork += 
-				new DoWorkEventHandler (loadDataFromServer);
-			worker.RunWorkerCompleted += 
-				new RunWorkerCompletedEventHandler (WorkerCompleted);
-			worker.RunWorkerAsync ();
+			try {
+				loadDataFromServer ();
+			} catch (ProtocolViolationException ex) {
+				Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
+				Navigation.PushModalAsync (new LoginPage ());
+			} catch (UnauthorizedAccessException) {
+				Console.WriteLine ("WorkerCompleted: Offline");
+				Navigation.PushModalAsync (new LoginPage ());
+			}
 		}
 
 		public void SetMessage (string message, Double progress)
@@ -97,7 +85,6 @@ namespace RayvMobileApp
 					ServerMessage,
 				}
 			};
-			worker = new BackgroundWorker ();
 			Appearing += DoAppearing;
 		}
 	}

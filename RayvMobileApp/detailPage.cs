@@ -111,7 +111,7 @@ namespace RayvMobileApp
 				var FriendLine = new FormattedString ();
 				var voter = Persist.Instance.Friends [vote.voter].Name;
 				FriendLine.Spans.Add (new Span {
-					Text = $"{voter}  {vote.GetVoteAsString}  ",
+					Text =$"{voter}  {vote.GetVoteAsString}  ",
 				});
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
@@ -254,13 +254,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text =$" {DisplayPlace.place_name}",
+						Text = $" {DisplayPlace.place_name}",
 						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text =$"  {DisplayPlace.distance}",
+						Text = $"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});
@@ -688,6 +688,7 @@ namespace RayvMobileApp
 			Comment = new LabelWithImageButton {
 				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
 				OnClick = DoClickComment,
+				FontAttributes = FontAttributes.Italic,
 			};
 
 			var VoteCountLbl = GetVoteCountText ();
@@ -726,7 +727,7 @@ namespace RayvMobileApp
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.kind.ToString () }, 1, 2); 
 //			styleGrid.Children.Add (new Frame{ HasShadow = false, OutlineColor = Color.Gray, HeightRequest = 2 }, 0, 2, 3, 4); 
 			ScrollView EditGrid = new ScrollView {
-				Padding = new Thickness (2, Device.OnPlatform (20, 2, 2), 2, 2),
+				Padding = 2,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.Start,
 				Content = new StackLayout {
@@ -738,7 +739,6 @@ namespace RayvMobileApp
 						Img,
 						TopRow,
 						styleGrid,
-						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
 						Comment,
 						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
 						new Label { Text = "Friend Votes", FontAttributes = FontAttributes.Bold }, 
@@ -750,7 +750,7 @@ namespace RayvMobileApp
 			};
 			tools = new BottomToolbar (this, "add"){ IsVisible = showToolbar };
 			Content = new StackLayout {
-				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
+//				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
 				Children = {
 					EditGrid,
 					tools
