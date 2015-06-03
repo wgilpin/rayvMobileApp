@@ -22,10 +22,11 @@ namespace RayvMobileApp
 
 		Editor TextEditor;
 		bool InFlow;
+		bool IsMandatory;
 
 		protected virtual void DoSave (object sender, EventArgs e)
 		{
-			if (TextEditor.Text?.Length > 0) {
+			if ((!IsMandatory) || (TextEditor.Text?.Length > 0)) {
 				if (Saved != null)
 					Saved (this, new CommentSavedEventArgs (TextEditor.Text));
 			} else {
@@ -40,9 +41,10 @@ namespace RayvMobileApp
 				Cancelled (sender, e);
 		}
 
-		public EditCommentPage (string initialText, bool inFlow = true)
+		public EditCommentPage (string initialText, VoteValue vote, bool inFlow = true)
 		{
 			InFlow = inFlow;
+			IsMandatory = (vote == VoteValue.Liked) || (vote == VoteValue.Disliked);
 			this.Title = "Comment";
 			TextEditor = new Editor { 
 //				HorizontalOptions = LayoutOptions.Fil, 

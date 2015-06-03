@@ -377,7 +377,10 @@ namespace RayvMobileApp
 
 		void EditComment ()
 		{
-			CommentEditor = new EditCommentPage (DisplayPlace.Comment (), inFlow: false);
+			CommentEditor = new EditCommentPage (
+				DisplayPlace.Comment (), 
+				inFlow: false,
+				vote: DisplayPlace.vote.vote);
 			CommentEditor.Saved += DoSaveComment;
 			CommentEditor.Cancelled += (s, e) => {
 				CommentEditor?.Navigation.PopModalAsync ();

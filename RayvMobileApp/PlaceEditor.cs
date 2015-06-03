@@ -32,6 +32,20 @@ namespace RayvMobileApp
 			CallingPage.Navigation.PushAsync (kindPage);
 		}
 
+		void DoKindSaved (object sender, KindSavedEventArgs ev)
+		{
+			EditPlace.vote.kind = ev.Kind;
+			EditPlace.vote.style = ev.Style;
+			Debug.Assert (ev.Style != PlaceStyle.None);
+			Debug.Assert (ev.Kind != MealKind.None);
+			var commentPage = new EditCommentPage (
+				                  EditPlace.Comment (), 
+				                  vote: EditPlace.vote.vote);
+			commentPage.Saved += DoCommentSaved;
+			Debug.WriteLine ("PlaceEditor DoKindSaved");
+			CallingPage.Navigation.PushAsync (commentPage);
+		}
+
 		void DoCommentSaved (object sender, CommentSavedEventArgs ev)
 		{
 			EditPlace.setComment (ev.Comment); 
@@ -41,18 +55,6 @@ namespace RayvMobileApp
 				detailPage.Closed += Saved;
 			Debug.WriteLine ("PlaceEditor DoCommentSaved");
 			CallingPage.Navigation.PushModalAsync (new RayvNav (detailPage));
-		}
-
-		void DoKindSaved (object sender, KindSavedEventArgs ev)
-		{
-			EditPlace.vote.kind = ev.Kind;
-			EditPlace.vote.style = ev.Style;
-			Debug.Assert (ev.Style != PlaceStyle.None);
-			Debug.Assert (ev.Kind != MealKind.None);
-			var commentPage = new EditCommentPage (EditPlace.Comment ());
-			commentPage.Saved += DoCommentSaved;
-			Debug.WriteLine ("PlaceEditor DoKindSaved");
-			CallingPage.Navigation.PushAsync (commentPage);
 		}
 
 		public void Edit ()
