@@ -8,49 +8,70 @@ namespace RayvMobileApp
 {
 	public class LoadingPage : ContentPage
 	{
+		BackgroundWorker worker;
 		Label LoadingMessage;
 		Label ServerMessage;
 		ProgressBar progBar;
 
-		void loadDataFromServer ()
+		private void WorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
+		{
+//			Persist.Instance.Online = (e.Error != null);
+//			try {
+			//				Console.WriteLine ($"WorkerCompleted: Online: {Persist.Instance.Online}");
+			Console.WriteLine ("WorkerCompleted");
+//			} catch (UnauthorizedAccessException) {
+//				Console.WriteLine ("WorkerCompleted: Offline");
+//				Navigation.PushModalAsync (new LoginPage ());
+//			}
+		}
+
+		void loadDataFromServer (object sender, DoWorkEventArgs e)
 		{
 			Console.WriteLine ("loadDataFromServer");
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
 			if (Persist.Instance.Online) {
-				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-					Persist.Instance.GetUserData (
-						onFail: () => {
-							Device.BeginInvokeOnMainThread (() => {
-								Navigation.PushModalAsync (new LoginPage ());
-							});
-						}, 
-						onSucceed: () => {
-							Device.BeginInvokeOnMainThread (() => {
-								Persist.Instance.Online = true;
-								Navigation.PushModalAsync (new MainMenu ());
-							});
-						},
-						incremental: true, 
-						statusMessage: SetMessage);
-				})).Start ();
+				Persist.Instance.GetUserData (
+					onFail: () => {
+						Device.BeginInvokeOnMainThread (() => {
+							Navigation.PushModalAsync (new LoginPage ());
+						});
+					}, 
+					onSucceed: () => {
+						Device.BeginInvokeOnMainThread (() => {
+							Persist.Instance.Online = true;
+							Navigation.PushModalAsync (new MainMenu ());
+						});
+					},
+					incremental: true, 
+					statusMessage: SetMessage);
 				Persist.Instance.LoadCategories ();
 			} else
-				Navigation.PushModalAsync (new LoginPage ());
+				Device.BeginInvokeOnMainThread (() => {
+					Navigation.PushModalAsync (new LoginPage ());
+				});
 		}
 
 		void DoAppearing (object sender, EventArgs e)
 		{
 			progBar.WidthRequest = this.Width;
-			try {
-				loadDataFromServer ();
-			} catch (ProtocolViolationException ex) {
-				Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
-				Navigation.PushModalAsync (new LoginPage ());
-			} catch (UnauthorizedAccessException) {
-				Console.WriteLine ("WorkerCompleted: Offline");
-				Navigation.PushModalAsync (new LoginPage ());
-			}
+			worker.DoWork += 
+				new DoWorkEventHandler (loadDataFromServer);
+			worker.RunWorkerCompleted += 
+				new RunWorkerCompletedEventHandler (WorkerCompleted);
+			worker.RunWorkerAsync ();
+//
+//
+//
+//			try {
+//				loadDataFromServer ();
+//			} catch (ProtocolViolationException ex) {
+//				Console.WriteLine ("loadDataFromServer: WRONG SERVER VERSION {0}", ex);
+//				Navigation.PushModalAsync (new LoginPage ());
+//			} catch (UnauthorizedAccessException) {
+//				Console.WriteLine ("WorkerCompleted: Offline");
+//				Navigation.PushModalAsync (new LoginPage ());
+//			}
 		}
 
 		public void SetMessage (string message, Double progress)
@@ -91,6 +112,7 @@ namespace RayvMobileApp
 					ServerMessage,
 				}
 			};
+			worker = new BackgroundWorker ();
 			Appearing += DoAppearing;
 		}
 	}

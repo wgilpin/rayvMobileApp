@@ -37,6 +37,9 @@ namespace RayvMobileApp
 		CheckBox dinner;
 		CheckBox coffee;
 		bool InFlow;
+		Label StyleQuickLbl;
+		Label StyleRelaxedLbl;
+		Label StylefancyLbl;
 
 		const string STYLE_FANCY = "fancy",
 			STYLE_QUICK = "quick bite",
@@ -113,6 +116,16 @@ namespace RayvMobileApp
 				DisplayAlert ("Kind?", "You must check at least one meal kind", "OK");
 		}
 
+		void SetupStyles ()
+		{
+			StyleQuickLbl.TextColor = (_style == PlaceStyle.QuickBite) ? Color.White : Color.Black;
+			StyleQuickLbl.BackgroundColor = (_style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent;
+			StyleRelaxedLbl.TextColor = (_style == PlaceStyle.Relaxed) ? Color.White : Color.Black;
+			StyleRelaxedLbl.BackgroundColor = (_style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent;
+			StylefancyLbl.TextColor = (_style == PlaceStyle.Fancy) ? Color.White : Color.Black;
+			StylefancyLbl.BackgroundColor = (_style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent;
+		}
+
 		public EditPlaceKindPage (MealKind kind, PlaceStyle style, bool inFlow = true)
 		{
 			_kind = kind;
@@ -169,39 +182,41 @@ namespace RayvMobileApp
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
 			};
 			grid.Children.Add (PlaceType, 0, 3, 5, 6);
-			grid.Children.Add (new LabelClickable { Text = STYLE_QUICK, 
+			StyleQuickLbl = new LabelClickable { 
+				Text = STYLE_QUICK, 
 				OnClick = DoClickStyleQuick, 
 				YAlign = TextAlignment.Center,
-				TextColor = (style == PlaceStyle.QuickBite) ? Color.White : Color.Black,
-				BackgroundColor = (style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent,
-			}, 1, 2, 6, 7);
-			grid.Children.Add (new ImageButton {
+			};
+			var StyleQuickImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleQuick
-			}, 2, 3, 6, 7);
-			grid.Children.Add (new LabelClickable { Text = STYLE_RELAXED, 
+			};
+			StyleRelaxedLbl = new LabelClickable { Text = STYLE_RELAXED, 
 				OnClick = DoClickStyleRelaxed, 
 				YAlign = TextAlignment.Center,
-				TextColor = (style == PlaceStyle.Relaxed) ? Color.White : Color.Black,
-				BackgroundColor = (style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent,
-			}, 1, 2, 7, 8);
-			grid.Children.Add (new ImageButton {
+			};
+			var StyleRelaxedImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleRelaxed 
-			}, 2, 3, 7, 8);
-			grid.Children.Add (new LabelClickable { Text = STYLE_FANCY, 
+			};
+			StylefancyLbl = new LabelClickable { Text = STYLE_FANCY, 
 				OnClick = DoClickStyleFancy, 
 				YAlign = TextAlignment.Center,
-				TextColor = (style == PlaceStyle.Fancy) ? Color.White : Color.Black,
-				BackgroundColor = (style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent,
-			}, 1, 2, 8, 9);
-			grid.Children.Add (new ImageButton {
+			};
+			var StylefancyImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleFancy 
-			}, 2, 3, 8, 9);
+			};
+			grid.Children.Add (
+				StyleQuickLbl, 1, 2, 6, 7);
+			grid.Children.Add (StyleQuickImgBtn, 2, 3, 6, 7);
+			grid.Children.Add (StyleRelaxedLbl, 1, 2, 7, 8);
+			grid.Children.Add (StyleRelaxedImgBtn, 2, 3, 7, 8);
+			grid.Children.Add (StylefancyLbl, 1, 2, 8, 9);
+			grid.Children.Add (StylefancyImgBtn, 2, 3, 8, 9);
 			Content = grid;
 
 			if (!(kind == MealKind.None || style == PlaceStyle.None)) {
@@ -217,6 +232,9 @@ namespace RayvMobileApp
 					})
 				});
 			}
+			Appearing += (sender, e) => {
+				SetupStyles ();
+			};
 		}
 	}
 }

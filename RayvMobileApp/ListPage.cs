@@ -376,6 +376,7 @@ namespace RayvMobileApp
 			FilterCuisine = "";
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
+			FilterSearchCenter = null;
 			CuisineButton.Text = ALL_TYPES_OF_FOOD;
 			MainFilter = FilterKind.All;
 			DisplayPosition = Persist.Instance.GpsPosition;
@@ -509,6 +510,7 @@ namespace RayvMobileApp
 					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
 					Persist.Instance.DisplayList = distance_list.ToList ();
 					Console.WriteLine ("ListPage filter location");
+					IsFiltered = true;
 				} else {
 					Persist.Instance.DisplayList = filteredList.ToList ();
 					Persist.Instance.DisplayList.Sort ();

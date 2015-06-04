@@ -703,28 +703,24 @@ namespace RayvMobileApp
 			}
 			restConnection webReq = GetWebConnection ();
 			if (webReq != null) {
-				if (statusMessage != null)
-					statusMessage ("Checking network", 0.5);
+				statusMessage?.Invoke ("Checking network", 0.5);
 				IRestResponse resp;
 				try {
-					if (statusMessage != null)
-						Device.BeginInvokeOnMainThread (() => {
-							statusMessage ("Contacting server", 0.7);
-						});
-					
+					Console.WriteLine ("Contacting server");
+					statusMessage?.Invoke ("Contacting server", 0.7);
 					resp = InnerGetUserData (since, webReq);
 					if (since != null) {
 						// incremental
-						if (statusMessage != null)
-							statusMessage ("Storing update", 0.9);
+						Console.WriteLine ("Storing update");
+						statusMessage?.Invoke ("Storing Update", 0.9);
 						StoreUpdatedUserRecord (resp);
 						if (Persist.Instance.Places.Count == 0) {
 							resp = InnerGetUserData (null, webReq);
 							StoreFullUserRecord (resp);
 						}
 					} else {
-						if (statusMessage != null)
-							statusMessage ("Storing data", 0.9);
+						Console.WriteLine ("Storing data");
+						statusMessage?.Invoke ("Storing data", 0.9);
 						StoreFullUserRecord (resp);
 					}
 					SortPlaces ();
