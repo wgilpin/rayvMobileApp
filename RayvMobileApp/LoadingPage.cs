@@ -18,16 +18,22 @@ namespace RayvMobileApp
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
 			if (Persist.Instance.Online) {
-				Persist.Instance.GetUserData (
-					onFail: () => {
-						Navigation.PushModalAsync (new LoginPage ());
-					}, 
-					onSucceed: () => {
-						Persist.Instance.Online = true;
-						Navigation.PushModalAsync (new MainMenu ());
-					},
-					incremental: true, 
-					statusMessage: SetMessage);
+				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+					Persist.Instance.GetUserData (
+						onFail: () => {
+							Device.BeginInvokeOnMainThread (() => {
+								Navigation.PushModalAsync (new LoginPage ());
+							});
+						}, 
+						onSucceed: () => {
+							Device.BeginInvokeOnMainThread (() => {
+								Persist.Instance.Online = true;
+								Navigation.PushModalAsync (new MainMenu ());
+							});
+						},
+						incremental: true, 
+						statusMessage: SetMessage);
+				})).Start ();
 				Persist.Instance.LoadCategories ();
 			} else
 				Navigation.PushModalAsync (new LoginPage ());
@@ -63,7 +69,7 @@ namespace RayvMobileApp
 				TextColor = Color.White,
 				HorizontalOptions = LayoutOptions.Center,
 			};
-			progBar = new ProgressBar (){ HorizontalOptions = LayoutOptions.CenterAndExpand };
+			progBar = new ProgressBar (){ HorizontalOptions = LayoutOptions.FillAndExpand };
 			ServerMessage = new Label { 
 				Text = "",
 				TextColor = ColorUtil.Lighter (Color.Red),

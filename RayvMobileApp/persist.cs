@@ -49,6 +49,7 @@ namespace RayvMobileApp
 		private static Persist _instance;
 
 		public Object Lock = new Object ();
+		public List<Place> DisplayList;
 		private bool _online = false;
 		private System.Timers.Timer _onlineTimer;
 
@@ -707,7 +708,9 @@ namespace RayvMobileApp
 				IRestResponse resp;
 				try {
 					if (statusMessage != null)
-						statusMessage ("Contacting server", 0.7);
+						Device.BeginInvokeOnMainThread (() => {
+							statusMessage ("Contacting server", 0.7);
+						});
 					
 					resp = InnerGetUserData (since, webReq);
 					if (since != null) {

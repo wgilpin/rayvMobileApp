@@ -33,39 +33,28 @@ namespace RayvMobileApp
 				this.Navigation.PushAsync (new DetailPage (p, showMapBtn: false));
 		}
 
-		private void SetupMapList (Position centre)
+		private void SetupMapList (Position center)
 		{
 			Console.WriteLine ("SetupMapList");
 			Spinner.IsRunning = true;
-//			int debugCount = 0;
-//			Persist.Instance.DisplayList.Clear ();
-//			foreach (Place p in Persist.Instance.Places) {
-//				MapPlace mp = new MapPlace (p, centre);
-//				Persist.Instance.DisplayList.Add (mp);
-//				debugCount++;
-//			}
-//			Console.WriteLine ("SetupMapList: Added {0} places", debugCount);
-//			debugCount = 0;
-
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				if (Persist.Instance.DisplayPosition != centre) {
-					Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", centre.Latitude, centre.Longitude);
-					Persist.Instance.DisplayPosition = centre;
-					foreach (var p in Persist.Instance.Places)
-						p.CalculateDistanceFromPlace (centre);
-				}
+				Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", center.Latitude, center.Longitude);
+				Persist.Instance.DisplayPosition = center;
+				foreach (var p in Persist.Instance.DisplayList)
+					p.distance_for_search = p.distance_from (center);
+				Persist.Instance.DisplayList.Sort ((a, b) => 
+	                                   a.distance_for_search.CompareTo (b.distance_for_search));
 				Console.WriteLine ("SetupMapList SORT");
-				Persist.Instance.Places.Sort ();
 				Device.BeginInvokeOnMainThread (() => {
 					foreach (Pin p in map.Pins)
 						p.Clicked -= PinClick;
 					
 					PinList.Clear ();
 					
-					for (int i = 0; i < Persist.Instance.Places.Count; i++) {
+					for (int i = 0; i < Persist.Instance.DisplayList.Count; i++) {
 						if (i > 9)
 							break;
-						Place p = Persist.Instance.Places [i];
+						Place p = Persist.Instance.DisplayList [i];
 						Pin pin;
 						if (i >= map.Pins.Count - 1) {
 							pin = new Pin {
@@ -101,7 +90,7 @@ namespace RayvMobileApp
 
 		#region constructors
 
-		public MapPage ()
+		public MapPage (Place place = null)
 		{
 			Analytics.TrackPage ("MapPage");
 			Title = "Map";
@@ -138,27 +127,27 @@ namespace RayvMobileApp
 			};
 			mapLayout.Children.Add (map);
 			AbsoluteLayout.SetLayoutFlags (map,
-				AbsoluteLayoutFlags.SizeProportional);
+			                               AbsoluteLayoutFlags.SizeProportional);
 			AbsoluteLayout.SetLayoutBounds (map,
-				new Rectangle (0, 0, 1, 1));
+			                                new Rectangle (0, 0, 1, 1));
 
 			mapLayout.Children.Add (SearchHereBtn);
 			AbsoluteLayout.SetLayoutFlags (SearchHereBtn,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
-				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+			                                new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			mapLayout.Children.Add (Spinner);
 			AbsoluteLayout.SetLayoutFlags (Spinner,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (Spinner,
-				new Rectangle (0.5, 0.5, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+			                                new Rectangle (0.5, 0.5, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			mapLayout.Children.Add (GoToHomeBtn);
 			AbsoluteLayout.SetLayoutFlags (GoToHomeBtn,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (GoToHomeBtn,
-				new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+			                                new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 			Content = mapLayout;
 			ListBtn = new ToolbarItem {
 				Text = "",
@@ -167,23 +156,22 @@ namespace RayvMobileApp
 					this.Navigation.PushAsync (new MapListPage ());
 				}),
 			};
-			ToolbarItems.Add (ListBtn);
-			SetupMapList (Persist.Instance.DisplayPosition);
-		}
-
-		public MapPage (Place place) : this ()
-		{
-			map.MoveToRegion (MapSpan.FromCenterAndRadius (
-				place.GetPosition (), Distance.FromMiles (0.3)));
-			var pin = new Pin {
-				Type = PinType.Place,
-				Position = place.GetPosition (),
-				Label = place.place_name,
-				Address = place.address,
-			};
-			map.Pins.Clear ();
-			map.Pins.Add (pin);
-
+//			ToolbarItems.Add (ListBtn);
+			if (place == null)
+				SetupMapList (Persist.Instance.DisplayPosition);
+			else {
+				Console.WriteLine ($"MapPage for {place.place_name}");
+				map.MoveToRegion (MapSpan.FromCenterAndRadius (
+					place.GetPosition (), Distance.FromMiles (0.3)));
+				var pin = new Pin {
+					Type = PinType.Place,
+					Position = place.GetPosition (),
+					Label = place.place_name,
+					Address = place.address,
+				};
+				map.Pins.Clear ();
+				map.Pins.Add (pin);
+			}
 		}
 
 		#endregion

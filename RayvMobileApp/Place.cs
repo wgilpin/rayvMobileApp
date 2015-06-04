@@ -279,6 +279,12 @@ namespace RayvMobileApp
 			}
 		}
 
+		[Ignore]
+		public double distance_for_search { 
+			get ;
+			set;
+		}
+
 		public string postcode { 
 			get { return _postcode; } 
 			set {
@@ -477,6 +483,11 @@ namespace RayvMobileApp
 			//delta lng = degrees * cos(lat) *69 miles
 			double d_lng = (origin.Longitude - point.Longitude) * 69 * cos_lat;
 			return Math.Sqrt (d_lat * d_lat + d_lng * d_lng);
+		}
+
+		public double distance_from (Position point)
+		{
+			return approx_distance (point, this.GetPosition ());
 		}
 
 		/**

@@ -1,9 +1,48 @@
 ﻿using System;
 using Xamarin.Forms;
 using System.Text;
+using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
+	public class HistoryList: TableView
+	{
+		public EventHandler<string> ItemSelected;
+
+		public string ListName {
+			get;
+			private set;
+		}
+
+		public PersistantQueue HistoryQueue;
+
+		public HistoryList (string listName) : base ()
+		{
+			ListName = listName;
+			Intent = TableIntent.Menu;
+			HorizontalOptions = LayoutOptions.FillAndExpand;
+//			VerticalOptions = LayoutOptions.Start;
+			HistoryQueue = new PersistantQueue (4, listName);
+			List<string> names = new List<string> ();
+			for (int i = 0; i < HistoryQueue.Length; i++) {
+				var str = HistoryQueue.GetItem (i);
+				if (!string.IsNullOrEmpty (str))
+					names.Add (str);
+			}
+			Root = new TableRoot ();
+			var section = new TableSection ("Previous");
+			foreach (string place in names) {
+				TextCell cell = new TextCell{ Text = place };
+				cell.Tapped += (sender, e) => {
+					if (ItemSelected != null)
+						ItemSelected (sender, (sender as TextCell).Text);
+				};
+				section.Add (cell);
+			}
+			Root.Add (section);
+		}
+	}
+
 	public class GridWithCounter: Grid
 	{
 		public int Row;

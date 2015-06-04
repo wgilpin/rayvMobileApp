@@ -27,6 +27,7 @@ namespace RayvMobileApp
 		string TitlePlaceStyle = "Style of Place";
 		string TitleFindMain = "Find...";
 		string TitleMealKind = "Eating Time";
+		HistoryList placeHistory;
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 
 		public MealKind Kind { get; private set; }
@@ -287,6 +288,8 @@ namespace RayvMobileApp
 			SearchLocationBtn.IsEnabled = false;
 			Spinner.IsRunning = true;
 			await NarrowGeoSearch ();
+			placeHistory.HistoryQueue.Add (SearchLocationBox.Text, unique: true);
+			Spinner.IsRunning = false;
 			ChooseMainMenu ();
 			SearchLocationBtn.IsEnabled = true;
 		}
@@ -296,6 +299,7 @@ namespace RayvMobileApp
 			Title = "Location";
 			_grid.RowDefinitions.Clear ();
 			_grid.Children.Clear ();
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
@@ -312,9 +316,15 @@ namespace RayvMobileApp
 			};
 			SearchLocationBox.Completed += DoSearchLocation;
 			SearchLocationBtn.Clicked += DoSearchLocation;
+			placeHistory = new HistoryList ("FindChoiceLocation"){ HeightRequest = 230 };
+			placeHistory.ItemSelected = (sender, text) => {
+				SearchLocationBox.Text = text;
+				DoSearchLocation (sender, null);
+			};
 			_grid.Children.Add (SearchLocationBox, 0, 3, 1, 2);
-			_grid.Children.Add (Spinner, 0, 3, 2, 3);
-			_grid.Children.Add (SearchLocationBtn, 0, 3, 3, 4);
+			_grid.Children.Add (placeHistory, 0, 3, 2, 3);
+			_grid.Children.Add (Spinner, 0, 3, 3, 4);
+			_grid.Children.Add (SearchLocationBtn, 0, 3, 4, 5);
 			SearchLocationBox.Focus ();
 		}
 

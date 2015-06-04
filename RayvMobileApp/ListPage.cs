@@ -50,7 +50,7 @@ namespace RayvMobileApp
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		Grid filters;
 		public bool NeedsReload = true;
-		List<Place> DisplayList;
+
 		Position DisplayPosition;
 		MealKind FilterPlaceKind;
 		PlaceStyle FilterPlaceStyle;
@@ -348,7 +348,7 @@ namespace RayvMobileApp
 			MainFilter = FilterKind.Mine;
 			IsFiltered = true;
 			await FilterList ();
-			filters.IsVisible = DisplayList.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterAll (object s, EventArgs e)
@@ -356,7 +356,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("Listpage.DoFilterAll");
 			MainFilter = FilterKind.All;
 			await FilterList ();
-			filters.IsVisible = DisplayList.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		public async void  DoFilterWish (object s, EventArgs e)
@@ -365,7 +365,7 @@ namespace RayvMobileApp
 			MainFilter = FilterKind.Wishlist;
 			IsFiltered = true;
 			await FilterList ();
-			filters.IsVisible = DisplayList.Count () == 0;
+			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
 		}
 
 		void ClearFilter (object s, EventArgs e)
@@ -454,12 +454,13 @@ namespace RayvMobileApp
 			Console.WriteLine ("Listpage.FilterList");
 			Persist data = Persist.Instance;
 			try {
-				DisplayList = data.Places;
+				Persist.Instance.DisplayList = data.Places;
 				if (FilterAreaSearchBox.Text.Length > 0) {
 					IsFiltered = true;
 					await NarrowGeoSearch ();
 				}
-				IEnumerable<Place> filteredList = DisplayList;
+
+				IEnumerable<Place> filteredList = Persist.Instance.DisplayList;
 				String text = FilterSearchBox.Text.ToLower ();
 				if (!string.IsNullOrEmpty (FilterCuisine)) {
 					filteredList = filteredList.Where (p => p.vote.cuisineName == FilterCuisine);
@@ -493,20 +494,30 @@ namespace RayvMobileApp
 				}
 				if (FilterSearchCenter != null) {
 					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
-					Position pos = (Position)FilterSearchCenter;
+					DisplayPosition = (Position)FilterSearchCenter;
 					filteredList = filteredList.Where (
-						p => p.lat < pos.Latitude + delta &&
-						p.lat > pos.Latitude - delta &&
-						p.lng < pos.Longitude + delta &&
-						p.lng > pos.Longitude - delta);
+						p => p.lat < DisplayPosition.Latitude + delta &&
+						p.lat > DisplayPosition.Latitude - delta &&
+						p.lng < DisplayPosition.Longitude + delta &&
+						p.lng > DisplayPosition.Longitude - delta);
+					List<Place> distance_list = filteredList.ToList ();
+					foreach (var p in filteredList) {
+						p.distance_for_search = p.distance_from (DisplayPosition);
+						if (p.distance_for_search < 0.1)
+							Console.WriteLine ($"{p.place_name} is {p.distance_for_search}");
+					}
+					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
+					Persist.Instance.DisplayList = distance_list.ToList ();
 					Console.WriteLine ("ListPage filter location");
+				} else {
+					Persist.Instance.DisplayList = filteredList.ToList ();
+					Persist.Instance.DisplayList.Sort ();
 				}
-				DisplayList = filteredList.ToList ();
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
 			}
-			SetList (DisplayList);
+			SetList (Persist.Instance.DisplayList);
 			FilterSearchBox.Unfocus ();
 			if (IsFiltered) {
 				FilterTool.Text = "Filtered";
@@ -692,8 +703,8 @@ namespace RayvMobileApp
 					NothingFound.IsVisible = false;
 					listView.IsVisible = true;
 					ItemsSource = null;
-					Console.WriteLine ("SetList SORT");
-					list.Sort ();
+//					Console.WriteLine ("SetList SORT");
+//					list.Sort ();
 					ItemsSource = list;
 					Spinner.IsVisible = false;
 					Spinner.IsRunning = false;
