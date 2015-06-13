@@ -138,10 +138,10 @@
       <HintPath>..\packages\Xamarin.Forms.Maps.1.4.2.6359\lib\Xamarin.iOS10\Xamarin.Forms.Maps.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Insights">
-      <HintPath>..\packages\Xamarin.Insights.1.10.2.110\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.10.4.112\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
     </Reference>
     <Reference Include="PLCrashReporterUnifiedBinding">
-      <HintPath>..\packages\Xamarin.Insights.1.10.2.110\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.10.4.112\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +247,6 @@
     <BundleResource Include="Resources\checkbox_unchecked.png" />
     <BundleResource Include="Resources\arrow.png" />
     <BundleResource Include="Resources\Add friend.png" />
-    <BundleResource Include="Resources\Add place.png" />
     <BundleResource Include="Resources\Add_Vote.png" />
     <BundleResource Include="Resources\Icon_active_Phone.png" />
     <BundleResource Include="Resources\Icon_active_Website.png" />
@@ -259,6 +258,9 @@
     <BundleResource Include="Resources\a_lunch.png" />
     <BundleResource Include="Resources\a_quick_bite_place.png" />
     <BundleResource Include="Resources\a_relaxed_place.png" />
+    <BundleResource Include="Resources\logo_white.png" />
+    <BundleResource Include="Resources\Add_friend.png" />
+    <BundleResource Include="Resources\Add_place.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

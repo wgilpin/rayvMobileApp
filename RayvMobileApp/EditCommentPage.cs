@@ -23,12 +23,17 @@ namespace RayvMobileApp
 		Editor TextEditor;
 		bool InFlow;
 		bool IsMandatory;
+		ActivityIndicator Spinner;
 
 		protected virtual void DoSave (object sender, EventArgs e)
 		{
+			Device.BeginInvokeOnMainThread (() => {
+				Spinner.IsRunning = true;
+			});
 			if ((!IsMandatory) || (TextEditor.Text?.Length > 0)) {
 				if (Saved != null)
 					Saved (this, new CommentSavedEventArgs (TextEditor.Text));
+				Spinner.IsRunning = false;
 			} else {
 				DisplayAlert ("No Comment", "Please add a comment", "OK");
 				return;
@@ -51,7 +56,7 @@ namespace RayvMobileApp
 				Text = initialText,
 			};
 			TextEditor.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
-
+			Spinner = new ActivityIndicator{ Color = Color.Red, };
 			Content = new StackLayout { 
 				Padding = 2,
 				Children = {
@@ -59,6 +64,7 @@ namespace RayvMobileApp
 						HasShadow = false,
 						Content = TextEditor,
 					},
+					Spinner,
 					new LabelWithImageButton { 
 						Text = "Done", 
 						Source = settings.DevicifyFilename ("arrow.png"),

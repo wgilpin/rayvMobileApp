@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Xamarin;
 using Xamarin.Forms.Maps;
 using System.Threading;
+using System.Text;
 
 namespace RayvMobileApp
 {
@@ -35,12 +36,12 @@ namespace RayvMobileApp
 		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
+		Frame filters;
+		Label FilterDescr;
 
 		EntryWithButton FilterSearchBox;
-		EntryWithButton FilterAreaSearchBox;
+		string FilterAreaName;
 		//		Entry AreaBox;
-		LabelWithChangeButton LocationButton;
-		LabelWithChangeButton CuisineButton;
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
 		string ALL_TYPES_OF_FOOD = "All Types of Food";
@@ -48,7 +49,6 @@ namespace RayvMobileApp
 		Label NothingFound;
 		bool IsFiltered;
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
-		Grid filters;
 		public bool NeedsReload = true;
 
 		Position DisplayPosition;
@@ -90,7 +90,6 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			IsFiltered = false;
-			SetupFiltersBox ();
 			listView = new PlacesListView {
 				//ItemsSource = Persist.Instance.Places,
 			};
@@ -115,6 +114,21 @@ namespace RayvMobileApp
 				}
 			};
 
+			FilterDescr = new Label { 
+				Text = "All Places", 
+				HorizontalOptions = LayoutOptions.CenterAndExpand, 
+				BackgroundColor = settings.BaseColor, 
+				TextColor = Color.White, 
+				FontAttributes = FontAttributes.Bold 
+			};
+			filters = new Frame { 
+				Padding = 4,
+				HasShadow = false,
+				OutlineColor = settings.BaseColor,
+				BackgroundColor = settings.BaseColor,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				Content = FilterDescr,
+			};
 			StackLayout inner = new StackLayout {
 				Children = {
 					filters,
@@ -132,6 +146,23 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
+			FilterSearchBox = new EntryWithButton {
+				Placeholder = "Search for place",
+				Source = settings.DevicifyFilename ("TB active search.png"),
+				OnClick = DoTextSearch,
+				Text = "",
+
+			};
+			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
+			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
+				DoTextSearch (sender, e);
+				FilterSearchBox.TextEntry.Focus ();
+			};
+			FilterSearchBox.TextEntry.Completed += (sender, e) => {
+				FilterSearchBox.TextEntry.Unfocus ();
+			};
+
+
 			grid.Children.Add (bg0, 0, 0);
 			grid.Children.Add (FilterSearchBox, 0, 0);
 			grid.Children.Add (Spinner, 0, 1);
@@ -160,7 +191,8 @@ namespace RayvMobileApp
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					Console.WriteLine ("ListPage Toolbar Filter");
-					filters.IsVisible = !filters.IsVisible;
+					this.Navigation.PushModalAsync (
+						new RayvNav (new FindChoicePage ()));
 				})
 			};
 			ToolbarItems.Add (FilterTool);
@@ -281,8 +313,7 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.DoPickMyLocation");
 
-			FilterAreaSearchBox.Text = "";
-			LocationButton.Text = "Near My Location";
+			FilterAreaName = "";
 			Console.WriteLine ("ListPage.FilterList pick MY location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
 
 			DisplayPosition = Persist.Instance.GpsPosition;
@@ -305,7 +336,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("ListPage.DoPlaceSearch");
 //			Spinner.IsVisible = true;
 //			Spinner.IsRunning = true;
-			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text));
+			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaName));
 //			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 			var positions = geoCodePositions.ToList ();
 			if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
@@ -325,59 +356,15 @@ namespace RayvMobileApp
 //			})).Start ();
 		}
 
-		async public void DoChangeCuisine (object s, EventArgs e)
-		{
-			Console.WriteLine ("Listpage.DoChangeCuisine");
-
-			if (String.IsNullOrEmpty (FilterCuisine)) {
-				CuisineButton.ButtonText = "Change";
-				Content = FilterCuisinePicker;
-				// Show it
-			} else {
-				FilterCuisine = "";
-				CuisineButton.Text = "All Types of Food";
-				IsFiltered = false;
-				Content = MainContent;
-				await FilterList ();
-			} 
-		}
-
-		public async void  DoFilterMine (object s, EventArgs e)
-		{
-			Console.WriteLine ("Listpage.DoFilterMine");
-			MainFilter = FilterKind.Mine;
-			IsFiltered = true;
-			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
-		}
-
-		public async void  DoFilterAll (object s, EventArgs e)
-		{
-			Console.WriteLine ("Listpage.DoFilterAll");
-			MainFilter = FilterKind.All;
-			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
-		}
-
-		public async void  DoFilterWish (object s, EventArgs e)
-		{
-			Console.WriteLine ("Listpage.DoChangeWish");
-			MainFilter = FilterKind.Wishlist;
-			IsFiltered = true;
-			await FilterList ();
-			filters.IsVisible = Persist.Instance.DisplayList.Count () == 0;
-		}
-
 		void ClearFilter (object s, EventArgs e)
 		{ 
 			Console.WriteLine ("Listpage.ClearFilter");
 			FilterSearchBox.Text = "";
-			FilterAreaSearchBox.Text = "";
+			FilterAreaName = "";
 			FilterCuisine = "";
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
 			FilterSearchCenter = null;
-			CuisineButton.Text = ALL_TYPES_OF_FOOD;
 			MainFilter = FilterKind.All;
 			DisplayPosition = Persist.Instance.GpsPosition;
 			IsFiltered = false;
@@ -398,7 +385,6 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Listpage.UpdateCuisine");
 			string cuisine = ((KeyValuePair<string,int>)e.Item).Key;
 			FilterCuisine = cuisine;
-			CuisineButton.Text = cuisine;
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
 			Content = MainContent;
@@ -417,10 +403,12 @@ namespace RayvMobileApp
 //			if (settings.USE_XAMARIN_MAPS) {
 			Persist.Instance.DisplayPosition = DisplayPosition;
 			MapPage map = new MapPage ();
+			map.Changed += (sender, e) => {
+				NeedsReload = true;
+				FilterSearchCenter = Persist.Instance.DisplayPosition;
+				DisplayPosition = Persist.Instance.DisplayPosition;
+			};
 			Navigation.PushAsync (map);
-//			} else {
-//				Navigation.PushAsync (new MapGooglePage ());
-//			}
 		}
 
 		public async Task  NarrowGeoSearch ()
@@ -428,7 +416,7 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Listpage.NarrowGeoSearch");
 			try {
 				FilterSearchCenter = new Position ();
-				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaSearchBox.Text)).ToList ();
+				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaName)).ToList ();
 				Console.WriteLine ("ListPage.NarrowGeoSearch: Got");
 				if (positions.Count > 0) {
 					FilterSearchCenter = positions.First ();
@@ -444,9 +432,6 @@ namespace RayvMobileApp
 
 		void ResetCuisinePicker ()
 		{
-//			FilterCuisinePicker.SelectedIndexChanged -= UpdateCuisine;
-//			FilterCuisinePicker.SelectedIndex = -1;
-//			FilterCuisinePicker.SelectedIndexChanged += UpdateCuisine;
 			Debug.WriteLine ("Listpage.ResetCuisinePicker");
 		}
 
@@ -454,10 +439,12 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("Listpage.FilterList");
 			Persist data = Persist.Instance;
+			List<string> styleDescriptionItems = new List<string> ();
 			try {
 				Persist.Instance.DisplayList = data.Places;
-				if (FilterAreaSearchBox.Text.Length > 0) {
+				if (FilterAreaName?.Length > 0) {
 					IsFiltered = true;
+					styleDescriptionItems.Add ($"Near '{FilterAreaName}'");
 					await NarrowGeoSearch ();
 				}
 
@@ -466,29 +453,35 @@ namespace RayvMobileApp
 				if (!string.IsNullOrEmpty (FilterCuisine)) {
 					filteredList = filteredList.Where (p => p.vote.cuisineName == FilterCuisine);
 					IsFiltered = true;
+					styleDescriptionItems.Add ($"Cuisine is {FilterCuisine}");
 					Console.WriteLine ("ListPage filter cuisine");
 				}
 				if (!string.IsNullOrEmpty (text)) {
 					filteredList = filteredList.Where (p => p.place_name.ToLower ().Contains (text));
 					IsFiltered = true;
+					styleDescriptionItems.Add ($"Name is '{text}'");
 					Console.WriteLine ("ListPage filter text");
 				}
 				if (FilterPlaceKind != MealKind.None) {
 					filteredList = filteredList.Where (p => (p.vote.kind & FilterPlaceKind) != MealKind.None);
 					IsFiltered = true;
+					styleDescriptionItems.Add ($"Kind is {FilterPlaceKind}");
 					Console.WriteLine ("ListPage filter Kind");
 				}
 				if (FilterPlaceStyle != PlaceStyle.None) {
 					filteredList = filteredList.Where (p => p.vote.style == FilterPlaceStyle);
 					IsFiltered = true;
+					styleDescriptionItems.Add ($"Style is {FilterPlaceStyle}");
 					Console.WriteLine ("ListPage filter style");
 				}
 				switch (MainFilter) {
 					case FilterKind.Mine:
 						filteredList = filteredList.Where (p => p.iVoted == true);
+						styleDescriptionItems.Add ("My places only");
 						Console.WriteLine ("ListPage filter mine");
 						break;
 					case FilterKind.Wishlist:
+						styleDescriptionItems.Add ("Wishlist only");
 						filteredList = filteredList.Where (p => p.vote.vote == VoteValue.Untried);
 						Console.WriteLine ("ListPage filter untried");
 						break;
@@ -496,11 +489,6 @@ namespace RayvMobileApp
 				if (FilterSearchCenter != null) {
 					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
 					DisplayPosition = (Position)FilterSearchCenter;
-					filteredList = filteredList.Where (
-						p => p.lat < DisplayPosition.Latitude + delta &&
-						p.lat > DisplayPosition.Latitude - delta &&
-						p.lng < DisplayPosition.Longitude + delta &&
-						p.lng > DisplayPosition.Longitude - delta);
 					List<Place> distance_list = filteredList.ToList ();
 					foreach (var p in filteredList) {
 						p.distance_for_search = p.distance_from (DisplayPosition);
@@ -526,168 +514,11 @@ namespace RayvMobileApp
 			} else {
 				FilterTool.Text = "Filter";
 			}
-//			});
+			FilterDescr.Text = string.Join (", ", styleDescriptionItems);
+			filters.IsVisible = IsFiltered;
 		}
 
-		void SetupFiltersBox ()
-		{
-			Console.WriteLine ("Listpage.SetupFiltersBox");
-			// FILTER BOX
-			var FiltersCloseBtn = new RayvButton ("Clear Filter") {
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-			};
-			FiltersCloseBtn.Clicked += ClearFilter;
-			var FilterMineBtn = new ButtonWide ("My Places"){ TextColor = settings.ColorLightGray, };
-			FilterMineBtn.Clicked += DoFilterMine;
-			var FilterAllBtn = new ButtonWide ("All Places"){ TextColor = settings.ColorLightGray, };
-			FilterAllBtn.Clicked += DoFilterAll;
-			var FilterNewBtn = new ButtonWide ("New Places"){ TextColor = settings.ColorLightGray, };
-			FilterNewBtn.Clicked += (object sender, EventArgs e) => {
-				DisplayAlert ("Not Implemented", "New Places is not done yet", "OK");
-			};
-			var FilterWishBtn = new ButtonWide ("Wishlist"){ TextColor = settings.ColorLightGray, };
-			FilterWishBtn.Clicked += DoFilterWish;
-			FilterSearchBox = new EntryWithButton {
-				Placeholder = "Search for place",
-				Source = settings.DevicifyFilename ("TB active search.png"),
-				OnClick = DoTextSearch,
-				Text = "",
-			};
-			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
-			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
-				DoTextSearch (sender, e);
-				FilterSearchBox.TextEntry.Focus ();
-			};
-			FilterSearchBox.TextEntry.Completed += (sender, e) => {
-				FilterSearchBox.TextEntry.Unfocus ();
-			};
-			FilterAreaSearchBox = new EntryWithButton {
-				Placeholder = "Search in an Area",
-				Source = settings.DevicifyFilename ("TB active search.png"),
-				OnClick = DoTextSearch,
-				Text = "",
-			};
-			FilterAreaSearchBox.TextEntry.Completed += (sender, e) => {
-				FilterAreaSearchBox.TextEntry.Unfocus ();
-				DoTextSearch (sender, e);
-			};
-//			AreaBox = new Entry {
-//				Placeholder = "Enter Area to Search",
-//				Text = "",
-//			};
-//			AreaBox.BackgroundColor = settings.ColorLightGray;
-
-			LocationButton = new LabelWithChangeButton {
-				Text = "Near My Location",
-				OnClick = DoPickMyLocation,
-				ButtonText = "",
-				Padding = new Thickness (5, 10, 5, 0),
-			};
-
-			CuisineButton = new LabelWithChangeButton {
-				Text = ALL_TYPES_OF_FOOD,
-				ButtonText = "",
-				OnClick = DoChangeCuisine,
-			};
-			filters = new Grid {
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = settings.BaseColor,
-//				ColumnSpacing = 5,
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (40) },
-					new RowDefinition { Height = new GridLength (40) },
-					new RowDefinition { Height = new GridLength (40) },
-					new RowDefinition { Height = new GridLength (40) },
-					new RowDefinition { Height = new GridLength (40) },
-
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (25, GridUnitType.Absolute) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (2, GridUnitType.Absolute) },
-				}
-			};
-			filters.Children.Add (
-				new Image{ Source = settings.DevicifyFilename ("Icon default directions.png"), Aspect = Aspect.AspectFit, }, 0, 1, 0, 1);
-			filters.Children.Add (LocationButton, 1, 2, 0, 1);
-			filters.Children.Add (
-				new ImageButton {
-					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
-					OnClick = DoPickMyLocation,
-				}, 2, 3, 0, 1);
-
-			filters.Children.Add (
-				new Image{ Source = settings.DevicifyFilename ("Icon default directions1.png"), Aspect = Aspect.AspectFit, }, 0, 1, 1, 2);
-			filters.Children.Add (FilterAreaSearchBox, 1, 2, 1, 2);
-			filters.Children.Add (
-				new ImageButton { 
-					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
-					OnClick = DoPlaceSearch,
-				}, 2, 3, 1, 2);
-
-			filters.Children.Add (
-				new Image{ Source = settings.DevicifyFilename ("Icon default website.png"), Aspect = Aspect.AspectFit, }, 0, 1, 2, 3);
-			filters.Children.Add (CuisineButton, 1, 2, 2, 3);
-			filters.Children.Add (
-				new ImageButton { 
-					Source = settings.DevicifyFilename ("arrow.png"), Aspect = Aspect.AspectFit, 
-					OnClick = DoChangeCuisine,
-				}, 2, 3, 2, 3);
-			
-			filters.Children.Add (
-				new Image{ Source = settings.DevicifyFilename ("TB default profile.png"), Aspect = Aspect.AspectFit, }, 0, 1, 3, 4);
-			filters.Children.Add (new StackLayout {
-				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				Children = {
-					FilterMineBtn,
-					FilterWishBtn,
-				},
-			}, 1, 2, 3, 4);
-
-			filters.Children.Add (FiltersCloseBtn, 0, 2, 4, 5);
-			// CONTROLS
-			ListView innerCuisinePickerLV = new ListView {
-				ItemsSource = Persist.Instance.CategoryCounts,
-				RowHeight = 30,
-			};
-			FilterCuisinePicker = new StackLayout {
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				Children = {
-					new RayvButton ("All kinds") {
-						OnClick = (sender, e) => {
-							FilterCuisine = "All";
-							DoChangeCuisine (null, null);
-						}
-					},
-					innerCuisinePickerLV,
-				}
-			};
-//			filters.Children.Add (FilterCuisinePicker, 0, 2, 0, 5);
-			innerCuisinePickerLV.ItemTemplate = new DataTemplate (() => {
-				Label cuisineType = new Label ();
-				cuisineType.SetBinding (Label.TextProperty, "Key");
-				Label cuisineCount = new Label {
-					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
-					FontAttributes = FontAttributes.Italic,
-					TranslationY = 4,
-					TextColor = Color.Gray,
-				};
-				cuisineCount.SetBinding (Label.TextProperty, "Value");
-				return new ViewCell {
-					View = new StackLayout {
-						Padding = new Thickness (5, 2, 0, 0),
-						VerticalOptions = LayoutOptions.Center,
-						Orientation = StackOrientation.Horizontal,
-						Children = {
-							cuisineType,
-							cuisineCount,
-						}
-					},
-				};
-			});
-			innerCuisinePickerLV.ItemTapped += UpdateCuisine;
-		}
+	
 
 		void InnerSetList (List<Place> list)
 		{

@@ -8,6 +8,8 @@ namespace RayvMobileApp
 {
 	public class MapPage : ContentPage
 	{
+		public event EventHandler Changed;
+
 		Button SearchHereBtn;
 		Map map;
 		ToolbarItem ListBtn;
@@ -39,6 +41,8 @@ namespace RayvMobileApp
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Console.WriteLine ("MapPage set DisplayPosition mtp {0},{1}", center.Latitude, center.Longitude);
+				if (center != Persist.Instance.DisplayPosition)
+					Changed?.Invoke (this, null);
 				Persist.Instance.DisplayPosition = center;
 				foreach (var p in Persist.Instance.DisplayList)
 					p.distance_for_search = p.distance_from (center);
@@ -46,34 +50,20 @@ namespace RayvMobileApp
 	                                   a.distance_for_search.CompareTo (b.distance_for_search));
 				Console.WriteLine ("SetupMapList SORT");
 				Device.BeginInvokeOnMainThread (() => {
-					foreach (Pin p in map.Pins)
-						p.Clicked -= PinClick;
-					
+					map.Pins.Clear ();
 					PinList.Clear ();
-					
-					for (int i = 0; i < Persist.Instance.DisplayList.Count; i++) {
-						if (i > 9)
-							break;
+					for (int i = 0; i < Math.Min (9, Persist.Instance.DisplayList.Count); i++) {
 						Place p = Persist.Instance.DisplayList [i];
-						Pin pin;
-						if (i >= map.Pins.Count - 1) {
-							pin = new Pin {
-								Type = PinType.SearchResult,
-							};
-							pin.Clicked += PinClick;
-							pin.Label = p.place_name;
-							map.Pins.Add (pin);
-							pin.Position = p.GetPosition ();
-							pin.Address = p.address;
-						} else {
-							map.Pins [i].Label = p.place_name;
-							map.Pins [i].Position = p.GetPosition ();
-							map.Pins [i].Address = p.address;
-						}
-						PinList [p.key] = map.Pins [i];
+						Pin pin = new Pin {
+							Type = PinType.SearchResult,
+							Label = p.place_name,
+							Position = p.GetPosition (),
+							Address = p.address,
+						};
+						pin.Clicked += PinClick;
+						map.Pins.Add (pin);
+						PinList.Add (p.key, pin);
 						Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
-						
-						//				debugCount++;
 					}
 					Spinner.IsRunning = false;
 				});
@@ -97,14 +87,14 @@ namespace RayvMobileApp
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {
-				IsShowingUser = true,
+				IsShowingUser = false,
 				HeightRequest = 100,
 				WidthRequest = 960,
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
-			map.IsShowingUser = true;
-			PinList = new Dictionary<string, Pin> ();
+//			map.IsShowingUser = true;
 
+			PinList = new Dictionary<string, Pin> ();
 
 			SearchHereBtn = new RayvButton (" Search Here ");
 			SearchHereBtn.Clicked += DoSearch;
@@ -172,6 +162,14 @@ namespace RayvMobileApp
 				map.Pins.Clear ();
 				map.Pins.Add (pin);
 			}
+			Appearing += ( se, ev) => {
+				map.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) => {
+					if (e.PropertyName == "VisibleRegion") {
+						DoSearch (sender, null);
+						Console.WriteLine ("MapPage Dragged");
+					}
+				};
+			};
 		}
 
 		#endregion

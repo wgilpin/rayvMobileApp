@@ -258,6 +258,7 @@ namespace RayvMobileApp
 
 		public void LoadFromDb (String onlyWithCuisineType = null, LoadingPage loader = null)
 		{
+			Instance.LoadCategoriesFromDb ();
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
 					//load the data from the db

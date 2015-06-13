@@ -13,13 +13,13 @@ namespace RayvMobileApp
 			Grid grid = new Grid {
 				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
 				VerticalOptions = LayoutOptions.EndAndExpand,
-				RowSpacing = 0,
+				RowSpacing = 10,
 				ColumnSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (120, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (100, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (120, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
@@ -29,7 +29,7 @@ namespace RayvMobileApp
 				}
 			};
 			Image addImg = new Image {
-				Source = settings.DevicifyFilename ("Add place.png"),
+				Source = settings.DevicifyFilename ("Add_place.png"),
 				Aspect = Aspect.AspectFit,
 				HeightRequest = 80,
 			};
@@ -42,7 +42,7 @@ namespace RayvMobileApp
 
 			// FRIENDS
 			Image friendsImg = new Image {
-				Source = settings.DevicifyFilename ("Add friend.png"),
+				Source = settings.DevicifyFilename ("Add_friend.png"),
 				Aspect = Aspect.AspectFit,
 				HeightRequest = 80,
 			};

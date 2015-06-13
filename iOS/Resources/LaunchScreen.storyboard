@@ -30,11 +30,11 @@
                                 </variation>
                                 <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                             </textView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" id="135" translatesAutoresizingMaskIntoConstraints="NO" image="logo.png">
-                                <rect key="frame" x="80" y="66" width="160" height="161"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" id="146" translatesAutoresizingMaskIntoConstraints="NO" image="logo_white.png" alpha="1" misplaced="YES">
+                                <rect key="frame" x="82" y="58" width="157" height="152"/>
                                 <constraints>
-                                    <constraint id="138" firstAttribute="width" constant="160"/>
-                                    <constraint id="139" firstAttribute="height" constant="161"/>
+                                    <constraint id="167" firstAttribute="width" constant="157"/>
+                                    <constraint id="168" firstAttribute="height" constant="152"/>
                                 </constraints>
                             </imageView>
                         </subviews>
@@ -43,9 +43,8 @@
                             <constraint firstItem="yd7-JS-zBw" firstAttribute="bottom" secondItem="91" secondAttribute="bottom" constant="11" id="92"/>
                             <constraint firstItem="91" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="217" id="96"/>
                             <constraint firstItem="91" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="6" id="118"/>
-                            <constraint id="140" firstItem="91" firstAttribute="trailing" secondItem="135" secondAttribute="trailing" constant="0.0"/>
-                            <constraint id="141" firstItem="135" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="0.0"/>
-                            <constraint id="142" constant="66" firstItem="135" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
+                            <constraint id="178" firstItem="146" firstAttribute="centerX" secondItem="yd7-JS-zBw" secondAttribute="centerX" constant="0.0"/>
+                            <constraint id="179" constant="58" firstItem="146" firstAttribute="top" secondItem="yd7-JS-zBw" secondAttribute="top"/>
                         </constraints>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="constraints">
@@ -142,13 +141,13 @@
         <image name="Big activity.png" width="640" height="380"/>
         <image name="Big Add.png" width="640" height="380"/>
         <image name="Big find food.png" width="640" height="380"/>
-        <image name="Add friend.png" width="640" height="468"/>
-        <image name="Add place.png" width="640" height="468"/>
+        <image name="Add friend.png" width="240" height="152"/>
+        <image name="Add place.png" width="136" height="170"/>
         <image name="Icon default directions.png" width="46" height="42"/>
         <image name="Icon default directions1.png" width="72" height="80"/>
         <image name="Icon default Website.png" width="80" height="80"/>
         <image name="intro page 1.png" width="320" height="568"/>
-        <image name="logo.png" width="200" height="153"/>
+        <image name="logo.png" width="336" height="336"/>
         <image name="Location.png" width="28" height="40"/>
         <image name="Share.png" width="40" height="28"/>
         <image name="Wish1.png" width="40" height="40"/>
@@ -161,6 +160,21 @@
         <image name="Icon default Phone.png" width="80" height="80"/>
         <image name="checkbox_checked.png" width="32" height="26"/>
         <image name="checkbox_unchecked.png" width="32" height="26"/>
+        <image name="arrow.png" width="72" height="120"/>
+        <image name="Add_Vote.png" width="80" height="80"/>
+        <image name="Icon_active_Phone.png" width="82" height="80"/>
+        <image name="Icon_active_Website.png" width="82" height="80"/>
+        <image name="remove_vote.png" width="80" height="80"/>
+        <image name="a_breakfast.png" width="120" height="84"/>
+        <image name="a_coffee.png" width="120" height="116"/>
+        <image name="a_dinner.png" width="120" height="96"/>
+        <image name="a_fancy_place.png" width="88" height="164"/>
+        <image name="a_lunch.png" width="120" height="120"/>
+        <image name="a_quick_bite_place.png" width="164" height="148"/>
+        <image name="a_relaxed_place.png" width="166" height="92"/>
+        <image name="logo_white.png" width="258" height="306"/>
+        <image name="Add_friend.png" width="270" height="270"/>
+        <image name="Add_place.png" width="136" height="136"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

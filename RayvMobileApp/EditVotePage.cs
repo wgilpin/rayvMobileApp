@@ -104,7 +104,7 @@ namespace RayvMobileApp
 			_vote = vote;
 			var grid = new Grid { 
 				RowSpacing = 20,
-				ColumnSpacing = 50,
+				ColumnSpacing = 30,
 				VerticalOptions = LayoutOptions.Start,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (40) },
@@ -114,11 +114,11 @@ namespace RayvMobileApp
 					new RowDefinition (),
 				},
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (2, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (40) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-					new ColumnDefinition { Width = new GridLength (20) },
+					new ColumnDefinition { Width = new GridLength (10) },
+					new ColumnDefinition { Width = new GridLength (30) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (15) },
+					new ColumnDefinition { Width = new GridLength (5) },
 				}
 			};
 			var selectionFrame = new Frame { BackgroundColor = settings.BaseColor, HasShadow = false, };

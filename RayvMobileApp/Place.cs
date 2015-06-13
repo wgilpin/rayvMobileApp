@@ -177,11 +177,12 @@ namespace RayvMobileApp
 
 		public string img { 
 			get { 
-				if (string.IsNullOrEmpty (_img))
+				var server = Persist.Instance.GetConfig (settings.SERVER);
+				if (string.IsNullOrEmpty (_img) || string.IsNullOrEmpty (server))
 					return "";
 				if (_img [0] == 'h')
 					return _img;
-				Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+				Uri baseUri = new Uri (server);
 				Uri imgUri = new Uri (baseUri, _img);
 				return imgUri.ToString ();
 			} 
@@ -189,7 +190,12 @@ namespace RayvMobileApp
 				if (string.IsNullOrEmpty (value))
 					_img = "";
 				else {
-					Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));
+					var server = Persist.Instance.GetConfig (settings.SERVER);
+					if (string.IsNullOrEmpty (server)) {
+						_img = "";
+						return;
+					}
+					Uri baseUri = new Uri (server);
 					Uri imgUri = new Uri (baseUri, value);
 					_img = imgUri.ToString ();
 				}
@@ -200,7 +206,8 @@ namespace RayvMobileApp
 
 		public string thumbnail { 
 			get { 
-				if (string.IsNullOrEmpty (_thumbnail))
+				var server = Persist.Instance.GetConfig (settings.SERVER);
+				if (string.IsNullOrEmpty (_thumbnail) || string.IsNullOrEmpty (server))
 					return "";
 				if (_thumbnail [0] == 'h')
 					return _thumbnail;
@@ -209,7 +216,8 @@ namespace RayvMobileApp
 				return imgUri.ToString ();
 			} 
 			set {
-				if (string.IsNullOrEmpty (value))
+				var server = Persist.Instance.GetConfig (settings.SERVER);
+				if (string.IsNullOrEmpty (value) || string.IsNullOrEmpty (server))
 					_thumbnail = "";
 				else {
 					Uri baseUri = new Uri (Persist.Instance.GetConfig (settings.SERVER));

@@ -16,6 +16,8 @@ namespace RayvMobileApp
 
 	public class NewsPage: ContentPage
 	{
+		#region fields
+
 		const int NEWS_IMAGE_SIZE = 60;
 		const int NEWS_ICON_SIZE = 20;
 		const int ROW1 = 20;
@@ -34,6 +36,8 @@ namespace RayvMobileApp
 		ActivityIndicator Spinner;
 
 		NewsFilterKind Filter = NewsFilterKind.All;
+
+		#endregion
 
 		public NewsPage ()
 		{
@@ -200,6 +204,8 @@ namespace RayvMobileApp
 			SetSource ();
 		}
 
+		#region Events
+
 		async void DoListItemTap (object sender, ItemTappedEventArgs e)
 		{
 			if (Clicked) {
@@ -219,21 +225,21 @@ namespace RayvMobileApp
 				                "Add to Wishlist");
 			string errorMsg = "";
 			switch (action) {
-			case "Show Detail":
-				this.Navigation.PushAsync (new DetailPage (p));
-				break;
-			case "Like":
-				p.vote.vote = VoteValue.Liked;
-				p.SaveVote (out errorMsg);
-				break;
-			case "Dislike":
-				p.vote.vote = VoteValue.Disliked;
-				p.SaveVote (out errorMsg);
-				break;
-			case "Add to Wishlist":
-				p.vote.vote = VoteValue.Untried;
-				p.SaveVote (out errorMsg);
-				break;
+				case "Show Detail":
+					this.Navigation.PushAsync (new DetailPage (p));
+					break;
+				case "Like":
+					p.vote.vote = VoteValue.Liked;
+					p.SaveVote (out errorMsg);
+					break;
+				case "Dislike":
+					p.vote.vote = VoteValue.Disliked;
+					p.SaveVote (out errorMsg);
+					break;
+				case "Add to Wishlist":
+					p.vote.vote = VoteValue.Untried;
+					p.SaveVote (out errorMsg);
+					break;
 			}
 			if (errorMsg.Length > 0) {
 				await DisplayAlert ("Error Saving", errorMsg, "OK");
@@ -247,6 +253,10 @@ namespace RayvMobileApp
 			ShowRows += PAGE_SIZE;
 			SetSource ();
 		}
+
+		#endregion
+
+		#region Logic
 
 		void CheckForUpdates (object sender, EventArgs e)
 		{
@@ -288,21 +298,21 @@ namespace RayvMobileApp
 				List<Vote> News;
 				switch (Filter) {
 
-				case NewsFilterKind.Good:
-					News = (from v in Persist.Instance.Votes
-					        where v.voter != MyStringId
-					            && v.vote == VoteValue.Liked
-					        select v)
+					case NewsFilterKind.Good:
+						News = (from v in Persist.Instance.Votes
+						        where v.voter != MyStringId
+						            && v.vote == VoteValue.Liked
+						        select v)
 						.OrderByDescending (x => x.when)
 						.ToList ();
-					break;
-				default:
-					News = (from v in Persist.Instance.Votes
-					        where v.voter != MyStringId
-					        select v)
+						break;
+					default:
+						News = (from v in Persist.Instance.Votes
+						        where v.voter != MyStringId
+						        select v)
 						.OrderByDescending (x => x.when)
 						.ToList ();
-					break;
+						break;
 				}
 				Device.BeginInvokeOnMainThread (() => {
 					list.ItemsSource = null;
@@ -317,5 +327,7 @@ namespace RayvMobileApp
 
 
 		}
+
+		#endregion
 	}
 }

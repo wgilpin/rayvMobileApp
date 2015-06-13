@@ -318,7 +318,8 @@ namespace RayvMobileApp
 			SearchPosition = Persist.Instance.GpsPosition;
 			var searchBtn = new RayvButton ("Search Here") {
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
-				HorizontalOptions = LayoutOptions.FillAndExpand
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				BorderRadius = 0
 			};
 			searchBtn.OnClick += (s, e) => {
 				SearchHereBtn.IsVisible = false;
