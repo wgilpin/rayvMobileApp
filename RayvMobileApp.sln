@@ -5,7 +5,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "RayvMobileApp", "RayvMobile
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RayvMobileApp.iOS", "iOS\RayvMobileApp.iOS.csproj", "{39714F5F-9835-4204-9981-DFA00C6465AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RayvMobileApp.Droid", "Droid\RayvMobileApp.Droid.csproj", "{CDEC0839-6B80-4101-B072-1CA5788884AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taste5", "Droid\Taste5.csproj", "{CDEC0839-6B80-4101-B072-1CA5788884AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

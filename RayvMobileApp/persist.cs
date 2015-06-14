@@ -59,20 +59,25 @@ namespace RayvMobileApp
 
 		public bool Online {
 			get {
-				if (_online)
+				try {
+					if (_online)
+						return true;
+					restConnection conn = GetWebConnection ();
+					var resp = conn.get ("/api/login", null, getRetries: 1);
+					if (resp == null) {
+						Console.WriteLine ("Online: Response NULL");
+						return false;
+					}
+					if (resp.ResponseStatus != ResponseStatus.Completed) {
+						Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
+						return false;
+					}
+					_online = true;
 					return true;
-				restConnection conn = GetWebConnection ();
-				var resp = conn.get ("/api/login", null, getRetries: 1);
-				if (resp == null) {
-					Console.WriteLine ("Online: Response NULL");
+				} catch {
+					_online = false;
 					return false;
 				}
-				if (resp.ResponseStatus != ResponseStatus.Completed) {
-					Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
-					return false;
-				}
-				_online = true;
-				return true;
 			}
 			set { _online = value; }
 

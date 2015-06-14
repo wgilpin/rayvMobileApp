@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using System.Linq;
 
 namespace RayvMobileApp
 {
@@ -11,26 +12,26 @@ namespace RayvMobileApp
 		{
 			string server_url = "";
 			switch (SelectedIndex) {
-			case 0:
-				server_url = "http://localhost:8080/";
-				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-				restConnection.Instance.setBaseUrl (server_url);
-				break;
-			case 1:
-				server_url = "http://192.168.1.6:8080/";
-				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-				restConnection.Instance.setBaseUrl (server_url);
-				break;
-			case 2:
-				server_url = "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/";
-				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-				restConnection.Instance.setBaseUrl (server_url);
-				break;
-			case 3:
-				server_url = "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER;
-				System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-				restConnection.Instance.setBaseUrl (server_url);
-				break;
+				case 0:
+					server_url = "http://localhost:8080/";
+					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+					restConnection.Instance.setBaseUrl (server_url);
+					break;
+				case 1:
+					server_url = "http://192.168.1.6:8080/";
+					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+					restConnection.Instance.setBaseUrl (server_url);
+					break;
+				case 2:
+					server_url = "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/";
+					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+					restConnection.Instance.setBaseUrl (server_url);
+					break;
+				case 3:
+					server_url = "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER;
+					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+					restConnection.Instance.setBaseUrl (server_url);
+					break;
 			}
 			Persist.Instance.SetConfig (settings.SERVER, server_url);
 
@@ -51,17 +52,21 @@ namespace RayvMobileApp
 				SelectedIndex = 3;
 			}
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
+			var user = Persist.Instance.GetConfig (settings.USERNAME);
+			string[] admins = { "Will", "pegah", "georgia" };
+			if (admins.Contains (user))
+				IsVisible = true;
 		}
 
 		public static string GetServerVersionForAppVersion ()
 		{
 			switch (GetServerVersion ()) {
-			case "0.2":
-				return "";
-			case "0.3":
-				return "3-dot-";
-			case "0.4":
-				return "4-dot-";
+				case "0.2":
+					return "";
+				case "0.3":
+					return "3-dot-";
+				case "0.4":
+					return "4-dot-";
 			}
 			return "";
 		}
