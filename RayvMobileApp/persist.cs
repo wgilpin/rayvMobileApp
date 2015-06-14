@@ -144,7 +144,7 @@ namespace RayvMobileApp
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
 					int db_version;
-					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
+					if (!int.TryParse (GetConfig (settings.DB_VERSION, Db), out db_version)) {
 						db_version = 0;
 					}
 					if (db_version < 8) {
@@ -157,7 +157,7 @@ namespace RayvMobileApp
 							db_version = 8;
 							Console.WriteLine ("Schema updated to 8");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 							var server_url = "https://" +
 							                 ServerPicker.GetServerVersionForAppVersion () +
 							                 settings.DEFAULT_SERVER;
@@ -177,7 +177,7 @@ namespace RayvMobileApp
 							db_version = 1;
 							Console.WriteLine ("Schema updated to 1");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 1 {0}", ex);
@@ -194,7 +194,7 @@ namespace RayvMobileApp
 							db_version = 2;
 							Console.WriteLine ("Schema updated to 2");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 2 {0}", ex);
@@ -211,7 +211,7 @@ namespace RayvMobileApp
 							db_version = 3;
 							Console.WriteLine ("Schema updated to 3");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 3 {0}", ex);
@@ -228,7 +228,7 @@ namespace RayvMobileApp
 							db_version = 4;
 							Console.WriteLine ("Schema updated to 4");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 4 failed {0}", ex);
@@ -245,7 +245,7 @@ namespace RayvMobileApp
 							db_version = 5;
 							Console.WriteLine ("Schema updated to 5");
 							Db.Commit ();
-							SetConfig (settings.DB_VERSION, db_version, Db);
+							SetConfig (settings.DB_VERSION, db_version);
 						} catch (Exception ex) {
 							Insights.Report (ex);
 							restConnection.LogErrorToServer ("UpdateSchema to 5 failed {0}", ex);
@@ -470,7 +470,7 @@ namespace RayvMobileApp
 			}
 		}
 
-		static void CheckServerVersionCorrect (JObject obj)
+		static void IsServerVersionCorrect (JObject obj)
 		{
 			string appVersion = ServerPicker.GetServerVersion ();
 			string serverVersion = "None";
@@ -499,7 +499,7 @@ namespace RayvMobileApp
 				SetConfig ("is_admin", obj ["admin"].ToString ());
 				MyId = obj ["id"].Value<Int64> ();
 				SetConfig (settings.MY_ID, MyId);
-				CheckServerVersionCorrect (obj);
+				IsServerVersionCorrect (obj);
 				string placeStr = obj ["places"].ToString ();
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 				lock (Lock) {
@@ -553,7 +553,7 @@ namespace RayvMobileApp
 			try {
 				Console.WriteLine ("StoreUpdatedUserRecord: lock ");
 				JObject obj = JObject.Parse (resp.Content);
-				CheckServerVersionCorrect (obj);
+				IsServerVersionCorrect (obj);
 				MyId = obj ["id"].Value<Int64> ();
 				SetConfig (settings.MY_ID, MyId);
 				SetConfig ("is_admin", obj ["admin"].ToString ());
@@ -567,6 +567,7 @@ namespace RayvMobileApp
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
 								Place p = Places [PlacesIdx];
 								if (string.IsNullOrEmpty (p.vote.cuisineName)) {
+									Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
 									continue;
 								}
 								if (p.key == kvp.Key) {
@@ -617,6 +618,7 @@ namespace RayvMobileApp
 							}
 						}
 						Places.Where (p => p.vote.cuisine == null).ToList ().ForEach (p => {
+							Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
 							p.IsDraft = true;
 						});
 						saveVotesToDb ();
@@ -739,6 +741,10 @@ namespace RayvMobileApp
 						});
 					Console.WriteLine ("GetFullData: No login");
 					return;
+				} catch (ProtocolViolationException) {
+					Device.BeginInvokeOnMainThread (() => {
+						onFail.DynamicInvoke ();
+					});
 				}
 				if (onSucceed != null)
 					Device.BeginInvokeOnMainThread (() => {
@@ -808,6 +814,8 @@ namespace RayvMobileApp
 									p.up++;
 								else if (v.vote == VoteValue.Disliked)
 									p.down++;
+								if (p.vote == null)
+									p.vote = v;
 							}
 						});
 				}
@@ -962,21 +970,15 @@ namespace RayvMobileApp
 		/// <summary>
 		/// returns "" by default
 		/// </summary>
-		public string GetConfig (string key)
+		public string GetConfig (string key, SQLiteConnection conn = null)
 		{
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				try {
-					var ConfList = (from s in Db.Table<Configuration> ()
-					                where s.Key == key
-					                select s);
-					if (ConfList.Count () > 0)
-						return ConfList.First ().Value;
-				} catch (Exception ex) {
-					Insights.Report (ex);
-//					restConnection.LogErrorToServer ("GetConfig: {0} not found", key);
-				}
-				return "";
+			try {
+				if (Application.Current.Properties.ContainsKey (key))
+					return Application.Current.Properties [key] as string;
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
+			return "";
 		}
 
 		/// <summary>
@@ -1042,17 +1044,19 @@ namespace RayvMobileApp
 			}
 		}
 
-		void innerSetConfig (string key, string value, SQLiteConnection Db)
+		void innerSetConfig (string key, string value)
 		{
-			
-			Db.BusyTimeout = DbTimeout;
 			try {
 				if (value == null) {
 					//delete
-					Db.Delete (key);
+					if (Application.Current.Properties.ContainsKey (key))
+						Application.Current.Properties.Remove (key);
 				} else {
-					Db.InsertOrReplace (new Configuration (key, value));
+					Application.Current.Properties [key] = value;
+					var show_value = key == settings.PASSWORD ? "***" : value;
+					Debug.WriteLine ($"SetConfig {key}={show_value}");
 				}
+				Application.Current.SavePropertiesAsync ();
 			} catch (System.NotSupportedException ex) {
 				Console.WriteLine ("innerSetConfig NotSupportedException {0}", key);
 			} catch (Exception ex) {
@@ -1060,37 +1064,32 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void SetConfig (string key, string value, SQLiteConnection db = null)
+		public void SetConfig (string key, string value)
 		{
-			if (db != null) {
-				innerSetConfig (key, value, db);
-			} else
-				using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-					innerSetConfig (key, value, Db);
-				}
+			innerSetConfig (key, value);
 		}
 
-		public void SetConfig (string key, int value, SQLiteConnection db = null)
+		public void SetConfig (string key, int value)
 		{
-			SetConfig (key, value.ToString (), db);
+			SetConfig (key, value.ToString ());
 		}
 
-		public void SetConfig (string key, Double value, SQLiteConnection db = null)
+		public void SetConfig (string key, Double value)
 		{
 			SetConfig (key, Convert.ToString (value));
 		}
 
-		public void SetConfig (string key, Int64 value, SQLiteConnection db = null)
+		public void SetConfig (string key, Int64 value)
 		{
 			SetConfig (key, Convert.ToString (value));
 		}
 
-		public void SetConfig (string key, DateTime value, SQLiteConnection db = null)
+		public void SetConfig (string key, DateTime value)
 		{
 			SetConfig (key, value.ToUniversalTime ().ToString ("s"));
 		}
 
-		public void SetConfig (string key, bool value, SQLiteConnection db = null)
+		public void SetConfig (string key, bool value)
 		{
 			SetConfig (key, value.ToString ());
 		}

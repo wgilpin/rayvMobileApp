@@ -283,6 +283,8 @@ namespace RayvMobileApp
 							incremental: true);
 					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+					} catch (Exception ex) {
+						Insights.Report (ex);
 					}
 				}
 			})).Start ();

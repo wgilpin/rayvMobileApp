@@ -52,10 +52,7 @@ namespace RayvMobileApp
 				SelectedIndex = 3;
 			}
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
-			var user = Persist.Instance.GetConfig (settings.USERNAME);
-			string[] admins = { "Will", "pegah", "georgia" };
-			if (admins.Contains (user))
-				IsVisible = true;
+
 		}
 
 		public static string GetServerVersionForAppVersion ()

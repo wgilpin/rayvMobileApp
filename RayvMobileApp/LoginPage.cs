@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xamarin;
+using System.Linq;
 
 namespace RayvMobileApp
 {
@@ -15,6 +16,9 @@ namespace RayvMobileApp
 		Entry Password;
 		ActivityIndicator Spinner;
 		Label Error;
+		ServerPicker Servers;
+
+		string[] TesterWhitelist = { "Will", "pegah", "georgia" };
 
 		void DoLogin (object sender, EventArgs e)
 		{
@@ -94,6 +98,10 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.Start,
 				Text = Persist.Instance.GetConfig (settings.USERNAME),
 			};
+			UserName.TextChanged += (sender, e) => {
+				if (TesterWhitelist.Contains (e.NewTextValue))
+					Servers.IsVisible = true;
+			};
 			Password = new Entry {
 				VerticalOptions = LayoutOptions.Start,
 				Placeholder = "Password", 
@@ -115,6 +123,10 @@ namespace RayvMobileApp
 				FontAttributes = FontAttributes.Bold,
 				IsVisible = false,
 			};
+			Servers = new ServerPicker ();
+			var user = Persist.Instance.GetConfig (settings.USERNAME);
+			if (TesterWhitelist.Contains (user))
+				Servers.IsVisible = true;
 			this.Content = new StackLayout {
 				Padding = 20,
 				Children = {
@@ -123,7 +135,7 @@ namespace RayvMobileApp
 						VerticalOptions = LayoutOptions.Start,
 						HorizontalOptions = LayoutOptions.CenterAndExpand,
 					},
-					new ServerPicker (),
+					Servers,
 					UserName,
 					Password,
 					Error,

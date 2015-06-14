@@ -18,7 +18,7 @@ namespace RayvMobileApp
 		public const  string DB_VERSION = "db_version";
 		public const  string LAST_LAT = "LastLat";
 		public const  string LAST_LNG = "LastLng";
-		public const  string SKIP_INTRO = "ShowIntro";
+		public const  string SKIP_INTRO = "SkipIntro";
 		public const  string SERVER = "server";
 		public const  string DEFAULT_SERVER = "rayv-app.appspot.com/";
 		public const  string LAST_SYNC = "last_sync";
