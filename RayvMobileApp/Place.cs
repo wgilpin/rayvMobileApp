@@ -386,7 +386,11 @@ namespace RayvMobileApp
 		// iVoted ; true if I voted - for the template
 		public bool iVoted {
 			get {
-				return vote.vote != VoteValue.None;
+				if (vote.vote == VoteValue.None)
+					return false;
+				if (vote.voter == Persist.Instance.MyId.ToString ())
+					return true;
+				return false;
 			}
 		}
 

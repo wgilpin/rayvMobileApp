@@ -144,7 +144,7 @@ namespace RayvMobileApp
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 				try {
 					int db_version;
-					if (!int.TryParse (GetConfig (settings.DB_VERSION, Db), out db_version)) {
+					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
 						db_version = 0;
 					}
 					if (db_version < 8) {
@@ -565,6 +565,7 @@ namespace RayvMobileApp
 						foreach (KeyValuePair<String,Place> kvp in place_list) {
 							Added = false;
 							for (int PlacesIdx = 0; PlacesIdx < Places.Count (); PlacesIdx++) {
+								// for loop as we want the index
 								Place p = Places [PlacesIdx];
 								if (string.IsNullOrEmpty (p.vote.cuisineName)) {
 									Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
@@ -577,8 +578,10 @@ namespace RayvMobileApp
 									break;
 								}
 							}
-							if (!Added)
+							if (!Added) {
 								Places.Add (kvp.Value);
+								Console.WriteLine ($"Added {kvp.Value.place_name} {kvp.Key}");
+							}
 						}
 						foreach (JObject fr in obj ["friendsData"]) {
 							string fr_id = fr ["id"].ToString ();
@@ -589,6 +592,7 @@ namespace RayvMobileApp
 						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
 						if (vote_list != null) {
 							foreach (Vote v in vote_list) {
+								var p = GetPlace (v.key);
 								var existing_vote = Votes
 									.Where (old_vote => 
 										old_vote.key == v.key &&
@@ -596,7 +600,7 @@ namespace RayvMobileApp
 									.SingleOrDefault ();
 								if (existing_vote == null) {
 									Votes.Add (v);
-									existing_vote = v;
+									p.vote = v;
 								} else {
 									existing_vote.comment = v.comment;
 									existing_vote.vote = v.vote;
@@ -607,7 +611,6 @@ namespace RayvMobileApp
 									existing_vote.place_name = v.place_name;
 								}
 								if (v.voter == MyId.ToString ()) {
-									var p =	GetPlace (v.key);
 									if (v.vote == VoteValue.Liked)
 										p.up -= 1;
 									if (v.vote == VoteValue.Disliked)
@@ -617,10 +620,15 @@ namespace RayvMobileApp
 								}
 							}
 						}
+						var debugDrafts = false;
 						Places.Where (p => p.vote.cuisine == null).ToList ().ForEach (p => {
 							Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
+							Console.WriteLine ($"Place with no cuisine {p.place_name}" );
 							p.IsDraft = true;
+							debugDrafts = true;
 						});
+						if (debugDrafts)
+							Console.WriteLine (resp.Content);
 						saveVotesToDb ();
 					} catch (Exception ex) {
 						Insights.Report (ex);
@@ -798,26 +806,30 @@ namespace RayvMobileApp
 				var removeList = new List<Place> ();
 				foreach (Place p in Places) {
 					p.CalculateDistanceFromPlace (searchCentre);
-					db.InsertOrReplace (p);
-					p.up = p.down = 0;
-					var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
-					if (vote_list.Count == 0)
-						removeList.Add (p);
-					else
-						vote_list.ForEach (v => {
-							if (v.voter == myId) {
-								// my vote
-								p.vote = v;
-							} else {
-								//friend vote
-								if (v.vote == VoteValue.Liked)
-									p.up++;
-								else if (v.vote == VoteValue.Disliked)
-									p.down++;
-								if (p.vote == null)
+					try {
+						db.InsertOrReplace (p);
+						p.up = p.down = 0;
+						var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
+						if (vote_list.Count == 0)
+							removeList.Add (p);
+						else
+							vote_list.ForEach (v => {
+								if (v.voter == myId) {
+									// my vote
 									p.vote = v;
-							}
-						});
+								} else {
+									//friend vote
+									if (v.vote == VoteValue.Liked)
+										p.up++;
+									else if (v.vote == VoteValue.Disliked)
+										p.down++;
+									if (p.vote == null)
+										p.vote = v;
+								}
+							});
+					} catch (Exception ex) {
+						Insights.Report (ex, "Place", p.place_name);
+					}
 				}
 				foreach (Place p in removeList)
 					Places.Remove (p);
@@ -970,13 +982,13 @@ namespace RayvMobileApp
 		/// <summary>
 		/// returns "" by default
 		/// </summary>
-		public string GetConfig (string key, SQLiteConnection conn = null)
+		public string GetConfig (string key)
 		{
 			try {
 				if (Application.Current.Properties.ContainsKey (key))
 					return Application.Current.Properties [key] as string;
 			} catch (Exception ex) {
-				Insights.Report (ex);
+				Insights.Report (ex, "key", key);
 			}
 			return "";
 		}

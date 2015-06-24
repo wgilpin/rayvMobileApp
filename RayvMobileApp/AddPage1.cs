@@ -137,6 +137,7 @@ namespace RayvMobileApp
 			LocationResultsView.IsVisible = false;
 			DoSearch (PlaceNameBox.Text, "");
 			PlaceNameBox.ButtonText = "Search";
+			SearchHereBtn.IsVisible = true;
 		}
 
 		void DoSelectLocation (object s, ItemTappedEventArgs e)
@@ -280,7 +281,22 @@ namespace RayvMobileApp
 			LocationResultsView.ItemTapped += DoSelectLocation;
 			LocationResultsView.ItemTemplate = new DataTemplate (typeof(TextCell));
 			LocationResultsView.ItemTemplate.SetBinding (TextCell.TextProperty, "Name");
-
+			var searchBtn = new RayvButton ("Search Here") {
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				BorderRadius = 0
+			};
+			searchBtn.OnClick += (s, e) => {
+				SearchHereBtn.IsVisible = false;
+				DoSearchForPlace (s, e);
+			};
+			SearchHereBtn = new Frame {
+				BackgroundColor = Color.White,
+				HasShadow = false,
+				OutlineColor = Color.White,
+				Padding = 0,
+				Content = searchBtn,
+			};
 			PlaceNameBox = new EntryWithChangeButton {
 				PlaceHolder = "Search for a place",
 				OnClick = DoSearchForPlace,
@@ -304,6 +320,9 @@ namespace RayvMobileApp
 				LocationEditBox.Entry.Unfocus ();
 				DoFindLocation (sender, e);
 			};
+			LocationEditBox.Entry.TextChanged += (sender, e) => {
+				SearchHereBtn.IsVisible = string.IsNullOrWhiteSpace (e.NewTextValue);
+			};
 			AddManualAddress = new RayvButton {
 				HeightRequest = 30,
 				Text = "Add unlisted place",
@@ -316,22 +335,7 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			SearchPosition = Persist.Instance.GpsPosition;
-			var searchBtn = new RayvButton ("Search Here") {
-				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BorderRadius = 0
-			};
-			searchBtn.OnClick += (s, e) => {
-				SearchHereBtn.IsVisible = false;
-				DoSearchForPlace (s, e);
-			};
-			SearchHereBtn = new Frame {
-				BackgroundColor = Color.White,
-				HasShadow = false,
-				OutlineColor = Color.White,
-				Padding = 0,
-				Content = searchBtn,
-			};
+
 			StackLayout menu = new StackLayout { 
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
