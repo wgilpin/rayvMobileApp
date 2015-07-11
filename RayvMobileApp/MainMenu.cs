@@ -80,13 +80,13 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("Big find food.png"),
 				Aspect = Aspect.AspectFit,
 			};
-			var clickChoice = new TapGestureRecognizer ();
-			clickChoice.Tapped += (s, e) => {
+			var clickFind = new TapGestureRecognizer ();
+			clickFind.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
 				this.Navigation.PushModalAsync (
 					new RayvNav (new FindChoicePage ()));
 			};
-			choiceImg.GestureRecognizers.Add (clickChoice);
+			choiceImg.GestureRecognizers.Add (clickFind);
 
 			var FindText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
@@ -101,6 +101,7 @@ namespace RayvMobileApp
 					},
 				}
 			};
+			FindText.GestureRecognizers.Add (clickFind);
 
 			// ADD...
 			var AddText = new StackLayout { 
@@ -117,6 +118,7 @@ namespace RayvMobileApp
 					},
 				}
 			};
+			AddText.GestureRecognizers.Add (clickAdd);
 
 			// NEWS
 			var NewsText = new StackLayout { 
@@ -132,6 +134,7 @@ namespace RayvMobileApp
 					},
 				}
 			};
+			NewsText.GestureRecognizers.Add (clickNews);
 
 			// SHARE
 			grid.Children.Add (choiceImg, 0, 0);

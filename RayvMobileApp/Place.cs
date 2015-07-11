@@ -132,20 +132,27 @@ namespace RayvMobileApp
 		public Vote vote { 
 			get { 
 				if (_vote == null) {
-					// no vote - find ours
-					string myIdStr = Persist.Instance.MyId.ToString ();
-					Vote placeVote = Persist.Instance.Votes.Where (
-						                 v => v.key == _key && v.voter == myIdStr).SingleOrDefault ();
-					_vote = placeVote ?? new Vote ();
-					// if  our vote is empty it wont have a cusine name
-					if (string.IsNullOrEmpty (_vote.cuisineName)) {
-						Vote cuisineVote = Persist.Instance.Votes.Where (
-							                   v => v.key == _key).FirstOrDefault ();
-						if (cuisineVote != null) {
-							_vote.cuisineName = cuisineVote.cuisineName;
-							_vote.kind = cuisineVote.kind;
-							_vote.style = cuisineVote.style;
+					try {
+						// no vote - find ours
+						string myIdStr = Persist.Instance.MyId.ToString ();
+						Vote placeVote = Persist.Instance.Votes.Where (
+							                 v => v.key == _key && v.voter == myIdStr).SingleOrDefault ();
+						_vote = placeVote ?? new Vote ();
+						// if  our vote is empty it wont have a cusine name
+						if (string.IsNullOrEmpty (_vote.cuisineName)) {
+							Vote cuisineVote = Persist.Instance.Votes.Where (
+								                   v => v.key == _key).FirstOrDefault ();
+							if (cuisineVote != null) {
+								_vote.cuisineName = cuisineVote.cuisineName;
+								_vote.kind = cuisineVote.kind;
+								_vote.style = cuisineVote.style;
+							}
 						}
+					} catch (Exception ex) {
+						var dict = new Dictionary<string,string> ();
+						dict.Add ("key", _key);
+						dict.Add ("myId", Persist.Instance.MyId.ToString ());
+						Insights.Report (ex, dict);
 					}
 				}
 				return _vote;

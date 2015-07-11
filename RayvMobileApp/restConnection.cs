@@ -63,6 +63,8 @@ namespace RayvMobileApp
 				}
 			}
 			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
+
+			client.Timeout = 30000;
 			IRestResponse response = client.Execute (request);
 			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 			if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -81,7 +83,10 @@ namespace RayvMobileApp
 			return response;
 		}
 
-		public IRestResponse get (string url, Dictionary<string,string> parameters = null, Method method = Method.GET, int getRetries = settings.MAX_SERVER_TRIES)
+		public IRestResponse get (string url,
+		                          Dictionary<string,string> parameters = null,
+		                          Method method = Method.GET,
+		                          int getRetries = settings.MAX_SERVER_TRIES)
 		{
 			// only retry a Get
 			int MaxRetries = method == Method.GET ? getRetries : 1;

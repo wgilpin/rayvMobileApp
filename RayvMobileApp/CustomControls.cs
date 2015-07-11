@@ -2,12 +2,160 @@
 using Xamarin.Forms;
 using System.Text;
 using System.Collections.Generic;
+using Xamarin.Forms.Maps;
+using Xamarin;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace RayvMobileApp
 {
+	using Parameters = Dictionary<string, string>;
+
+	public class LocationListWithHistory: StackLayout
+	{
+		ListView _lv;
+		Entry _placeName;
+		Button _btn;
+		List<GeoLocation> LocationList;
+		PersistantQueueWithPosition SearchHistory;
+
+		public EventHandler<ItemTappedEventArgs> OnItemTapped {
+			get { return null; }
+			set { _lv.ItemTapped += value; }
+		}
+
+		public EventHandler OnButtonClicked {
+			get { return null; }
+			set { _btn.Clicked += value; }
+		}
+
+		public EventHandler NothingFound {
+			get;
+			set;
+		}
+
+		public EventHandler OnCancel {
+			get;
+			set;
+		}
+
+
+
+		void LoadHistory ()
+		{
+			// load the search histopry into the listview
+			LocationList = new List<GeoLocation> ();
+			for (int i = 0; i <= SearchHistory.Count (); i++) {
+				var point = SearchHistory.GetItem (i);
+				if (point != null)
+					LocationList.Add (point);
+			}
+			_lv.ItemsSource = LocationList;
+		}
+
+		public LocationListWithHistory ()
+		{
+			SearchHistory = new PersistantQueueWithPosition (3, "Search-History");
+			HorizontalOptions = LayoutOptions.FillAndExpand;
+			_placeName = new Entry (){ Placeholder = "Place (town, region)" };
+			_placeName.Completed += DoLookup;
+			_btn = new ButtonWide () { 
+				Text = "    Search    ", 
+				BackgroundColor = Color.White, 
+				BorderColor = settings.BaseColor 
+			};
+			_btn.Clicked += DoLookup;
+			var _cancelBtn = new ButtonWide () { 
+				Text = "    Cancel    ", 
+				BackgroundColor = Color.White, 
+				BorderColor = settings.BaseColor 
+			};
+			_cancelBtn.Clicked += (sender, e) => OnCancel?.Invoke (this, null);
+			_lv = new ListView ();
+			_lv.ItemTemplate = new DataTemplate (typeof(TextCell));
+			_lv.ItemTemplate.SetBinding (TextCell.TextProperty, "Name");
+			_lv.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => {
+				Persist.Instance.SearchHistory.Add ((GeoLocation)e.SelectedItem);
+			};
+			Children.Add (_placeName);
+			Children.Add (_lv);
+			Children.Add (new StackLayout {
+				Orientation = StackOrientation.Horizontal,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				Children = { _btn, _cancelBtn },
+			});
+			LoadHistory ();
+		}
+
+		public void Focus ()
+		{
+			_placeName.Focus ();
+			Console.WriteLine ("Geo box focused");
+		}
+
+		void DoLookup (Object sender, EventArgs e)
+		{
+			Console.WriteLine ("LocationListWithHistory.DoLookup");
+			Parameters parameters = new Parameters ();
+			parameters ["address"] = _placeName.Text;
+			try {
+				string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
+				JObject obj = JObject.Parse (result);
+				//obj["results"][1]["formatted_address"].ToString()
+				LocationList = new List<GeoLocation> ();
+				int count = obj ["results"].Count ();
+				if (count == 0) {
+					Console.WriteLine ($"LocationListWithHistory.DoLookup {count}");
+					NothingFound?.Invoke (this, null);
+				} else {
+					Double placeLat;
+					Double placeLng;
+					for (int idx = 0; idx < count; idx++) {
+						Double.TryParse (
+							obj ["results"] [idx] ["geometry"] ["location"] ["lat"].ToString (), out placeLat);
+						Double.TryParse (
+							obj ["results"] [idx] ["geometry"] ["location"] ["lng"].ToString (), out placeLng);
+						var pt = new GeoLocation {
+							Name = obj ["results"] [idx] ["formatted_address"].ToString (),
+							Lat = placeLat,
+							Lng = placeLng,
+						};
+						LocationList.Add (pt);
+
+					}
+				}
+				_lv.ItemsSource = LocationList;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+		}
+	}
+
+	public class HistoryLocationSelectedEventArgs : EventArgs
+	{
+		string _name;
+		Position _coords;
+
+		public string Name {
+			get { return _name; }
+		}
+
+		public Position Position {
+			get { return _coords; }
+		}
+
+		public HistoryLocationSelectedEventArgs (string name, Position coords)
+		{
+			_name = name;
+			_coords = coords;
+		}
+	}
+
 	public class HistoryList: TableView
 	{
-		public EventHandler<string> ItemSelected;
+		public EventHandler<HistoryLocationSelectedEventArgs> ItemSelected;
 
 		public string ListName {
 			get;
@@ -15,6 +163,16 @@ namespace RayvMobileApp
 		}
 
 		public PersistantQueue HistoryQueue;
+		PersistantQueue PositionsQueue;
+		List<string> names;
+		List<Position> positions;
+
+		HistoryLocationSelectedEventArgs GetNameAndPositionFromHistory (string name)
+		{
+			int idx = names.IndexOf (name);
+			var pos = positions [idx];
+			return new HistoryLocationSelectedEventArgs (name, pos);
+		}
 
 		public HistoryList (string listName) : base ()
 		{
@@ -23,19 +181,36 @@ namespace RayvMobileApp
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 //			VerticalOptions = LayoutOptions.Start;
 			HistoryQueue = new PersistantQueue (4, listName);
-			List<string> names = new List<string> ();
+			PositionsQueue = new PersistantQueue (4, $"{listName}-positions");
+			names = new List<string> ();
+			positions = new List<Position> ();
 			for (int i = 0; i < HistoryQueue.Length; i++) {
 				var str = HistoryQueue.GetItem (i);
-				if (!string.IsNullOrEmpty (str))
+				if (!string.IsNullOrEmpty (str)) {
 					names.Add (str);
+					try {
+						// scanf for float,float
+						string pattern = @"(-*\d{1,3}.\d*),(-*\d{1,3}.\d*)";
+						Match matches = Regex.Match (PositionsQueue.GetItem (i), pattern);
+						positions.Add (new Position (
+							Convert.ToDouble (matches.Groups [0]),
+							Convert.ToDouble (matches.Groups [1]))
+						);
+					} catch (Exception ex) {
+						Insights.Report (ex);
+					}
+				}
 			}
 			Root = new TableRoot ();
 			var section = new TableSection ("Previous");
 			foreach (string place in names) {
 				TextCell cell = new TextCell{ Text = place };
 				cell.Tapped += (sender, e) => {
-					if (ItemSelected != null)
-						ItemSelected (sender, (sender as TextCell).Text);
+					if (ItemSelected != null) {
+						var args = GetNameAndPositionFromHistory ((sender as TextCell).Text);
+						ItemSelected (sender, new HistoryLocationSelectedEventArgs (args.Name, args.Position));
+					}
+						              
 				};
 				section.Add (cell);
 			}

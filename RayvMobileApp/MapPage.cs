@@ -87,7 +87,7 @@ namespace RayvMobileApp
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {
-				IsShowingUser = false,
+				IsShowingUser = true,
 				HeightRequest = 100,
 				WidthRequest = 960,
 				VerticalOptions = LayoutOptions.FillAndExpand

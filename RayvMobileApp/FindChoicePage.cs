@@ -16,7 +16,6 @@ namespace RayvMobileApp
 	{
 		const string ALL_CUISINES = "All Cuisines";
 		Grid _grid;
-		Entry SearchLocationBox;
 		List<Place> DisplayList;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
@@ -27,8 +26,8 @@ namespace RayvMobileApp
 		string TitlePlaceStyle = "Style of Place";
 		string TitleFindMain = "Find...";
 		string TitleMealKind = "Eating Time";
-		HistoryList placeHistory;
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
+		LocationListWithHistory _geoLookupBox;
 
 		public MealKind Kind { get; private set; }
 
@@ -46,21 +45,12 @@ namespace RayvMobileApp
 			}
 		}
 
-		public async Task  NarrowGeoSearch ()
+		public void  NarrowGeoSearch (GeoLocation geoPt)
 		{
 			Debug.WriteLine ("Listpage.NarrowGeoSearch");
 			try {
-				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (SearchLocationBox.Text)).ToList ();
-				Console.WriteLine ("ListPage.NarrowGeoSearch: Got");
-				SearchLocationName = "";
-				if (positions.Count > 0) {
-					SearchCentre = positions.First ();
-					SearchLocationName = SearchLocationBox.Text;
-				} else if (DEBUG_ON_SIMULATOR) {
-					SearchCentre = new Position (53.1, -1.5);
-					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
-				}
-
+				SearchCentre = new Position (geoPt.Lat, geoPt.Lng);
+				SearchLocationName = geoPt.Name;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
@@ -283,15 +273,63 @@ namespace RayvMobileApp
 			});
 		}
 
-		async void DoSearchLocation (object o, EventArgs e)
+		void DoSearchAtLocation (object o, ItemTappedEventArgs e)
 		{
 			SearchLocationBtn.IsEnabled = false;
 			Spinner.IsRunning = true;
-			await NarrowGeoSearch ();
-			placeHistory.HistoryQueue.Add (SearchLocationBox.Text, unique: true);
+			var it = (GeoLocation)e.Item;
+			NarrowGeoSearch (it);
 			Spinner.IsRunning = false;
 			ChooseMainMenu ();
 			SearchLocationBtn.IsEnabled = true;
+		}
+
+		void DoFindLocation (object sender, EventArgs e)
+		{
+//			Spinner.IsRunning = true;
+//			SearchHereBtn.IsVisible = false;
+//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+//				Parameters parameters = new Parameters ();
+//				parameters ["address"] = LocationEditBox.Text;
+//				try {
+//					string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
+//					JObject obj = JObject.Parse (result);
+//					//obj["results"][1]["formatted_address"].ToString()
+//					LocationList = new List<GeoLocation> ();
+//					int count = obj ["results"].Count ();
+//					if (count == 0) {
+//						NothingFound.IsVisible = true;
+//					} else {
+//						Double placeLat;
+//						Double placeLng;
+//						for (int idx = 0; idx < count; idx++) {
+//							Double.TryParse (
+//								obj ["results"] [idx] ["geometry"] ["location"] ["lat"].ToString (), out placeLat);
+//							Double.TryParse (
+//								obj ["results"] [idx] ["geometry"] ["location"] ["lng"].ToString (), out placeLng);
+//							LocationList.Add (
+//								new GeoLocation {
+//									Name = obj ["results"] [idx] ["formatted_address"].ToString (),
+//									Lat = placeLat,
+//									Lng = placeLng,
+//								});
+//						}
+//						Device.BeginInvokeOnMainThread (() => {
+//							Spinner.IsRunning = false;
+//							LocationResultsView.ItemsSource = LocationList;
+//							LocationResultsView.IsVisible = true;
+//							ResetLocationBtn.IsVisible = true;
+//							LocationSearchedBox.IsVisible = false;
+//							LocationEditBox.IsVisible = true;
+//							NothingFound.IsVisible = false;
+//							PlacesListView.IsVisible = false;
+//						});
+//					}
+//				} catch (Exception ex) {
+//					Insights.Report (ex);
+//				}
+//
+//			})).Start ();
 		}
 
 		void ChooseLocation ()
@@ -299,6 +337,9 @@ namespace RayvMobileApp
 			Title = "Location";
 			_grid.RowDefinitions.Clear ();
 			_grid.Children.Clear ();
+			_geoLookupBox = new LocationListWithHistory ();
+			_geoLookupBox.OnItemTapped = DoSearchAtLocation;
+			_geoLookupBox.OnCancel = (s, e) => ChooseMainMenu ();
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
@@ -306,27 +347,26 @@ namespace RayvMobileApp
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Star) });
 			_grid.Children.Add (new LabelWide ("Search near..."){ TextColor = Color.White }, 0, 3, 0, 1);
-			SearchLocationBox = new Entry { Placeholder = "Enter location" };	
 			SearchLocationBtn = new RayvButton { 
-				Text = "Search", 
+				Text = "Lookup Place", 
 				BackgroundColor = settings.BaseColor,
 				BorderColor = Color.White,
 				BorderWidth = 1,
 				BorderRadius = 0,
 			};
-			SearchLocationBox.Completed += DoSearchLocation;
-			SearchLocationBtn.Clicked += DoSearchLocation;
-			placeHistory = new HistoryList ("FindChoiceLocation"){ HeightRequest = 230 };
-			placeHistory.ItemSelected = (sender, text) => {
-				SearchLocationBox.Text = text;
-				DoSearchLocation (sender, null);
-			};
-			_grid.Children.Add (SearchLocationBox, 0, 3, 1, 2);
-			_grid.Children.Add (placeHistory, 0, 3, 2, 3);
-			_grid.Children.Add (Spinner, 0, 3, 3, 4);
-			_grid.Children.Add (SearchLocationBtn, 0, 3, 4, 5);
-			SearchLocationBox.Focus ();
+//			_geoLookupBox..Clicked += DoSearchAtLocation;
+//			placeHistory = new HistoryList ("FindChoiceLocation"){ HeightRequest = 230 };
+//			placeHistory.ItemSelected = (sender, args) => {
+//				DoSearchAtLocation (sender, null);
+//			};
+			_grid.Children.Add (_geoLookupBox, 0, 3, 1, 6);
+//			_grid.Children.Add (SearchLocationBox, 0, 3, 1, 2);
+//			_grid.Children.Add (placeHistory, 0, 3, 2, 3);
+//			_grid.Children.Add (Spinner, 0, 3, 3, 4);
+//			_grid.Children.Add (SearchLocationBtn, 0, 3, 4, 5);
+			_geoLookupBox.Focus ();	
 		}
+
 
 		public FindChoicePage (bool showBackBtn = true)
 		{

@@ -41,7 +41,7 @@ namespace RayvMobileApp
 
 		public List<string> CuisineHistory;
 
-		public PersistantQueue SearchHistory;
+		public PersistantQueueWithPosition SearchHistory;
 		private List<Cuisine> _categories;
 		private Dictionary<string, int> _categoryCounts;
 		public Dictionary<string, Friend> Friends;
@@ -519,7 +519,11 @@ namespace RayvMobileApp
 						for (int i = 0; i < count; i++) {
 							try {
 								Vote v = obj ["votes"] [i].ToObject<Vote> ();
-								Votes.Add (v);
+								var matchedVotes = Votes.Where (v2 => v2.key == v.key && v2.voter == v.voter).ToList ();
+								if (matchedVotes.Count > 0)
+									Insights.Track ("Duplicate vote", "key", v.key);
+								else
+									Votes.Add (v);
 							} catch (Exception ex) {
 								Debug.WriteLine ("StoreFullUserRecord {0} Bad Structure: {1}", i, ex);
 							}
@@ -1114,7 +1118,7 @@ namespace RayvMobileApp
 			Votes = new List<Vote> ();
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, Friend> ();
-			SearchHistory = new PersistantQueue (3, "Search-History");
+			SearchHistory = new PersistantQueueWithPosition (3, "Search-History");
 			Online = false;
 			DbPath = Path.Combine (
 				Environment.GetFolderPath (Environment.SpecialFolder.Personal),

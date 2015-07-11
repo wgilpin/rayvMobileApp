@@ -33,10 +33,11 @@ namespace RayvMobileApp
 			if ((!IsMandatory) || (TextEditor.Text?.Length > 0)) {
 				if (Saved != null)
 					Saved (this, new CommentSavedEventArgs (TextEditor.Text));
-				Spinner.IsRunning = false;
 			} else {
-				DisplayAlert ("No Comment", "Please add a comment", "OK");
-				return;
+				Device.BeginInvokeOnMainThread (() => {
+					DisplayAlert ("No Comment", "Please add a comment", "OK");
+					Spinner.IsRunning = false;
+				});
 			}
 		}
 

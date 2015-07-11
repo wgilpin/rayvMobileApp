@@ -15,7 +15,7 @@ namespace RayvMobileApp
 
 	using Parameters = Dictionary<string, string>;
 
-	class GeoLocation
+	public class GeoLocation
 	{
 		public string Name { get; set; }
 
@@ -27,13 +27,12 @@ namespace RayvMobileApp
 
 	public class AddPage1 : ContentPage
 	{
-		ListView LocationResultsView;
-		ListView PlacesListView;
+		LocationListWithHistory GeoLookupBox;
+		PlacesListView PlacesLV;
 		Label NothingFound;
 		ActivityIndicator Spinner;
 		public Position SearchPosition;
 		EntryWithChangeButton PlaceNameBox;
-		EntryWithChangeButton LocationEditBox;
 		LabelWithChangeButton LocationSearchedBox;
 		Button ResetLocationBtn;
 		Button AddManualAddress;
@@ -47,67 +46,26 @@ namespace RayvMobileApp
 
 		void DoChangeLocation (object s, EventArgs e)
 		{
+			GeoLookupBox.IsVisible = true;
 			LocationSearchedBox.IsVisible = false;
 			ResetLocationBtn.IsVisible = false;
-			LocationEditBox.IsVisible = true;
 			PlaceNameBox.ButtonText = " ";
+			SearchHereBtn.IsVisible = false;
 		}
 
 		void DoSearchForPlace (object s, EventArgs e) => DoSearch (PlaceNameBox.Text, "");
 
 
-		void DoFindLocation (object sender, EventArgs e)
-		{
-			Spinner.IsRunning = true;
-			SearchHereBtn.IsVisible = false;
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				Parameters parameters = new Parameters ();
-				parameters ["address"] = LocationEditBox.Text;
-				try {
-					string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
-					JObject obj = JObject.Parse (result);
-					//obj["results"][1]["formatted_address"].ToString()
-					LocationList = new List<GeoLocation> ();
-					int count = obj ["results"].Count ();
-					if (count == 0) {
-						NothingFound.IsVisible = true;
-					} else {
-						Double placeLat;
-						Double placeLng;
-						for (int idx = 0; idx < count; idx++) {
-							Double.TryParse (
-								obj ["results"] [idx] ["geometry"] ["location"] ["lat"].ToString (), out placeLat);
-							Double.TryParse (
-								obj ["results"] [idx] ["geometry"] ["location"] ["lng"].ToString (), out placeLng);
-							LocationList.Add (
-								new GeoLocation {
-									Name = obj ["results"] [idx] ["formatted_address"].ToString (),
-									Lat = placeLat,
-									Lng = placeLng,
-								});
-						}
-						Device.BeginInvokeOnMainThread (() => {
-							Spinner.IsRunning = false;
-							LocationResultsView.ItemsSource = LocationList;
-							LocationResultsView.IsVisible = true;
-							ResetLocationBtn.IsVisible = true;
-							LocationSearchedBox.IsVisible = false;
-							LocationEditBox.IsVisible = true;
-							NothingFound.IsVisible = false;
-							PlacesListView.IsVisible = false;
-						});
-					}
-				} catch (Exception ex) {
-					Insights.Report (ex);
-				}
 
-			})).Start ();
-		}
 
 
 
 		void DoSelectPlace (object s, ItemTappedEventArgs e)
 		{
+			if (e == null || e.Item == null) {
+				Insights.Track ("AddPage1.DoSelectPlace No Item");
+				return;
+			}
 			addingPlace = (Place)e.Item;
 			// get google db stuff
 			Parameters parameters = new Parameters ();
@@ -133,8 +91,7 @@ namespace RayvMobileApp
 			ResetLocationBtn.IsVisible = false;
 			LocationSearchedBox.IsVisible = true;
 			LocationSearchedBox.Text = "Searching current location";
-			LocationEditBox.IsVisible = false;
-			LocationResultsView.IsVisible = false;
+			GeoLookupBox.IsVisible = false;
 			DoSearch (PlaceNameBox.Text, "");
 			PlaceNameBox.ButtonText = "Search";
 			SearchHereBtn.IsVisible = true;
@@ -146,11 +103,10 @@ namespace RayvMobileApp
 			LocationSearchedBox.Text = loc.Name;
 			LocationSearchedBox.IsVisible = true;
 			ResetLocationBtn.IsVisible = true;
-			LocationEditBox.IsVisible = false;
 			SearchPosition = new Position (loc.Lat, loc.Lng);
 			DoSearch (PlaceNameBox.Text, LocationSearchedBox.Text);
-			PlacesListView.IsVisible = false;
-			LocationResultsView.IsVisible = false;
+			PlacesLV.IsVisible = false;
+			GeoLookupBox.IsVisible = false;
 			PlaceNameBox.ButtonText = "Search";
 		}
 
@@ -158,7 +114,7 @@ namespace RayvMobileApp
 
 		void DoFail (object o, EventArgs e)
 		{
-			;
+			
 		}
 
 		#endregion
@@ -170,13 +126,12 @@ namespace RayvMobileApp
 
 		}
 
+		// Search for a place at a location
 		void DoSearch (String searchName, String searchLocation)
 		{
-
 			Console.WriteLine ("AddPage1.DoSearch: Activity");
 			Spinner.IsRunning = true;
 			PlaceNameBox.Entry.Unfocus ();
-			LocationEditBox.Entry.Unfocus ();
 			if (PlaceNameBox.ButtonText == "Search" && LocationSearchedBox.ButtonText == "Search") {
 				PlaceNameBox.ButtonText = " ";
 			}
@@ -205,17 +160,13 @@ namespace RayvMobileApp
 					Console.WriteLine ("AddPage1.DoSearch SORT");
 
 					points.Sort ();
-					if (!String.IsNullOrEmpty (searchLocation)) {
-						Persist.Instance.SearchHistory.Add (searchLocation, unique: true);
-						Console.WriteLine ("DoSearch: SearchHistory += {0}", searchLocation);
-					}
 					Device.BeginInvokeOnMainThread (() => {
 						Console.WriteLine ("AddPage1.DoSearch: MainThread");
 						SetupSearchHistory ();
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddPage1.DoSearch: Activity Over. push AddResultsPage");
-						PlacesListView.ItemsSource = points;
-						PlacesListView.IsVisible = points.Count > 0;
+						PlacesLV.ItemsSource = points;
+						PlacesLV.IsVisible = points.Count > 0;
 						NothingFound.IsVisible = points.Count == 0;
 						AddManualAddress.IsVisible = true;
 					});
@@ -240,7 +191,7 @@ namespace RayvMobileApp
 
 		public  IEnumerable ItemsSource {
 			set {
-				PlacesListView.ItemsSource = value;
+				PlacesLV.ItemsSource = value;
 				NothingFound.IsVisible = (value as List<Place>).Count == 0;
 			}
 		}
@@ -269,22 +220,29 @@ namespace RayvMobileApp
 			};
 			ResetLocationBtn.Clicked += DoResetLocation;
 
-			PlacesListView = new PlacesListView (showVotes: false) {
+			PlacesLV = new PlacesListView (showVotes: false) {
 //				ItemsSource = Persist.Instance.Places,
 				IsVisible = false,
 			};
-			PlacesListView.ItemTapped += DoSelectPlace;
+			PlacesLV.ItemTapped += DoSelectPlace;
 
-			LocationResultsView = new ListView {
+			GeoLookupBox = new LocationListWithHistory {
 				IsVisible = false,
 			};
-			LocationResultsView.ItemTapped += DoSelectLocation;
-			LocationResultsView.ItemTemplate = new DataTemplate (typeof(TextCell));
-			LocationResultsView.ItemTemplate.SetBinding (TextCell.TextProperty, "Name");
+			GeoLookupBox.OnItemTapped = DoSelectLocation;
 			var searchBtn = new RayvButton ("Search Here") {
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BorderRadius = 0
+			};
+			GeoLookupBox.OnCancel = (s, e) => {
+				GeoLookupBox.IsVisible = false;
+				LocationSearchedBox.IsVisible = true;
+				DoResetLocation (this, null);
+				ResetLocationBtn.IsVisible = true;
+				PlaceNameBox.ButtonText = "Search";
+				SearchHereBtn.IsVisible = true;
+				ResetLocationBtn.IsVisible = false;
 			};
 			searchBtn.OnClick += (s, e) => {
 				SearchHereBtn.IsVisible = false;
@@ -310,19 +268,6 @@ namespace RayvMobileApp
 				Text = "Searching current location",
 				OnClick = DoChangeLocation,
 			};
-			LocationEditBox = new EntryWithChangeButton {
-				PlaceHolder = "Where? e.g. Town or Address",
-				OnClick = DoFindLocation,
-				ButtonText = "Search",
-				IsVisible = false,
-			};
-			LocationEditBox.Entry.Completed += (sender, e) => {
-				LocationEditBox.Entry.Unfocus ();
-				DoFindLocation (sender, e);
-			};
-			LocationEditBox.Entry.TextChanged += (sender, e) => {
-				SearchHereBtn.IsVisible = string.IsNullOrWhiteSpace (e.NewTextValue);
-			};
 			AddManualAddress = new RayvButton {
 				HeightRequest = 30,
 				Text = "Add unlisted place",
@@ -344,11 +289,10 @@ namespace RayvMobileApp
 				Children = {
 					PlaceNameBox,
 					LocationSearchedBox,
-					LocationEditBox,
 					ResetLocationBtn,
 					Spinner,
 					SearchHereBtn,
-					LocationResultsView,
+					GeoLookupBox,
 					NothingFound,
 				}
 			};
@@ -356,7 +300,7 @@ namespace RayvMobileApp
 			Content = new StackLayout {
 				Children = {
 					menu,
-					PlacesListView,
+					PlacesLV,
 					AddManualAddress,
 					tools
 				}

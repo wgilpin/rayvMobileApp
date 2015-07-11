@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Xamarin.Forms.Maps;
 
 namespace RayvMobileApp
 {
@@ -65,6 +66,71 @@ namespace RayvMobileApp
 				return "";
 			}
 		}
+
+		public bool Contains (string item)
+		{
+			for (int idx = 0; idx <= Length; idx++) {
+				// thingy1 is set to val(thingy0)
+				string item_i = GetItem (idx - 1);
+				if (item_i == item) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	public class PersistantQueueWithPosition
+	{
+		PersistantQueue _namesQ;
+		PersistantQueue _latQ;
+		PersistantQueue _lngQ;
+		string _namesTag = "Name ";
+		string _latTag = "Lat ";
+		string _lngTag = "Lng ";
+
+		private int _size;
+
+		// usage: new PersistantQueue (nSize, "Name Identfying this queue")
+		public PersistantQueueWithPosition (int size, string queueName)
+		{
+			_size = size;
+			_namesQ = new PersistantQueue (size,$"{queueName}.{_namesTag}");
+			_latQ = new PersistantQueue (size,$"{queueName}.{_latTag}");
+			_lngQ = new PersistantQueue (size,$"{queueName}.{_lngTag}");
+		}
+
+		public bool Contains (string name)
+		{
+			return _namesQ.Contains (name);
+		}
+
+		public int Count ()
+		{
+			return _namesQ.Length;
+		}
+
+		public GeoLocation GetItem (int idx)
+		{
+			try {
+				var geo = new GeoLocation ();
+				geo.Name = _namesQ.GetItem (idx);
+				geo.Lat = Convert.ToDouble (_latQ.GetItem (idx));
+				geo.Lng = Convert.ToDouble (_lngQ.GetItem (idx));
+				return geo;
+			} catch (Exception) {
+				return null;
+			}
+		}
+
+		public void Add (GeoLocation posn)
+		{
+			if (_namesQ.Contains (posn.Name))
+				return;
+			_namesQ.Add (posn.Name);
+			_latQ.Add (posn.Lat.ToString ());
+			_lngQ.Add (posn.Lng.ToString ());
+		}
+
 	}
 }
-

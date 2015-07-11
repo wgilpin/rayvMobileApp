@@ -45,6 +45,7 @@ namespace RayvMobileApp
 			Insights.Track ("News Page");
 			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
+				BackgroundColor = Color.White,
 
 				ItemTemplate = new DataTemplate (() => {
 					Grid grid = new Grid {
