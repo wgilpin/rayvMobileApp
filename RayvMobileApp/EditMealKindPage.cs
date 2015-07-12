@@ -37,9 +37,9 @@ namespace RayvMobileApp
 		CheckBox dinner;
 		CheckBox coffee;
 		bool InFlow;
-		Label StyleQuickLbl;
-		Label StyleRelaxedLbl;
-		Label StylefancyLbl;
+		LabelClickable StyleQuickLbl;
+		LabelClickable StyleRelaxedLbl;
+		LabelClickable StylefancyLbl;
 
 		const string STYLE_FANCY = "fancy",
 			STYLE_QUICK = "quick bite",
@@ -68,7 +68,7 @@ namespace RayvMobileApp
 			_kind = MealKind.None;
 			if (sender is LabelClickable) {
 				var lbl = (sender as LabelClickable);
-				switch (lbl.Text) {
+				switch (lbl.Label.Text) {
 					case "breakfast":
 						breakfast.Checked = true;
 						break;
@@ -118,12 +118,12 @@ namespace RayvMobileApp
 
 		void SetupStyles ()
 		{
-			StyleQuickLbl.TextColor = (_style == PlaceStyle.QuickBite) ? Color.White : Color.Black;
-			StyleQuickLbl.BackgroundColor = (_style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent;
-			StyleRelaxedLbl.TextColor = (_style == PlaceStyle.Relaxed) ? Color.White : Color.Black;
-			StyleRelaxedLbl.BackgroundColor = (_style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent;
-			StylefancyLbl.TextColor = (_style == PlaceStyle.Fancy) ? Color.White : Color.Black;
-			StylefancyLbl.BackgroundColor = (_style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent;
+			StyleQuickLbl.Label.TextColor = (_style == PlaceStyle.QuickBite) ? Color.White : Color.Black;
+			StyleQuickLbl.SetBackgroundColor ((_style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent);
+			StyleRelaxedLbl.Label.TextColor = (_style == PlaceStyle.Relaxed) ? Color.White : Color.Black;
+			StyleRelaxedLbl.SetBackgroundColor ((_style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent);
+			StylefancyLbl.Label.TextColor = (_style == PlaceStyle.Fancy) ? Color.White : Color.Black;
+			StylefancyLbl.SetBackgroundColor ((_style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent);
 		}
 
 		public EditPlaceKindPage (MealKind kind, PlaceStyle style, bool inFlow = true)
@@ -162,17 +162,25 @@ namespace RayvMobileApp
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
 			};
 			breakfast = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Breakfast & kind) > 0) };
+			var breakfastVoteLbl = new LabelClickable{ OnClick = DoClickKind };
+			breakfastVoteLbl.Label.Text = "breakfast";
 			lunch = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Lunch & kind) > 0)  };
+			var lunchVoteLbl = new LabelClickable{ OnClick = DoClickKind };
+			lunchVoteLbl.Label.Text = "lunch";
 			dinner = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Dinner & kind) > 0)  };
+			var dinnerVoteLbl = new LabelClickable{ OnClick = DoClickKind };
+			dinnerVoteLbl.Label.Text = "dinner";
 			coffee = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Coffee & kind) > 0)  };
+			var coffeeVoteLbl = new LabelClickable{ OnClick = DoClickKind };
+			coffeeVoteLbl.Label.Text = "coffee";
 			grid.Children.Add (MealType, 0, 3, 0, 1);
-			grid.Children.Add (new LabelClickable{ Text = "breakfast", OnClick = DoClickKind }, 1, 2, 1, 2);
+			grid.Children.Add (breakfastVoteLbl, 1, 2, 1, 2);
 			grid.Children.Add (breakfast, 2, 3, 1, 2);
-			grid.Children.Add (new LabelClickable{ Text = "lunch", OnClick = DoClickKind }, 1, 2, 2, 3);
+			grid.Children.Add (lunchVoteLbl, 1, 2, 2, 3);
 			grid.Children.Add (lunch, 2, 3, 2, 3);
-			grid.Children.Add (new LabelClickable{ Text = "dinner", OnClick = DoClickKind }, 1, 2, 3, 4);
+			grid.Children.Add (dinnerVoteLbl, 1, 2, 3, 4);
 			grid.Children.Add (dinner, 2, 3, 3, 4);
-			grid.Children.Add (new LabelClickable{ Text = "coffee", OnClick = DoClickKind }, 1, 2, 4, 5);
+			grid.Children.Add (coffeeVoteLbl, 1, 2, 4, 5);
 			grid.Children.Add (coffee, 2, 3, 4, 5);
 
 			Label PlaceType = new Label { 
@@ -183,28 +191,30 @@ namespace RayvMobileApp
 			};
 			grid.Children.Add (PlaceType, 0, 3, 5, 6);
 			StyleQuickLbl = new LabelClickable { 
-				Text = STYLE_QUICK, 
 				OnClick = DoClickStyleQuick, 
-				YAlign = TextAlignment.Center,
 			};
+			StyleQuickLbl.Label.Text = STYLE_QUICK;
+			StyleQuickLbl.Label.YAlign = TextAlignment.Center;
 			var StyleQuickImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleQuick
 			};
-			StyleRelaxedLbl = new LabelClickable { Text = STYLE_RELAXED, 
+			StyleRelaxedLbl = new LabelClickable { 
 				OnClick = DoClickStyleRelaxed, 
-				YAlign = TextAlignment.Center,
 			};
+			StyleRelaxedLbl.Label.YAlign = TextAlignment.Center;
+			StyleRelaxedLbl.Label.Text = STYLE_RELAXED;
 			var StyleRelaxedImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleRelaxed 
 			};
-			StylefancyLbl = new LabelClickable { Text = STYLE_FANCY, 
+			StylefancyLbl = new LabelClickable { 
 				OnClick = DoClickStyleFancy, 
-				YAlign = TextAlignment.Center,
 			};
+			StylefancyLbl.Label.Text = STYLE_FANCY;
+			StylefancyLbl.Label.YAlign = TextAlignment.Center;
 			var StylefancyImgBtn = new ImageButton {
 				Height = 20,
 				Source = settings.DevicifyFilename ("arrow.png"), 

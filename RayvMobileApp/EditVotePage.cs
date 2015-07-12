@@ -9,11 +9,11 @@ namespace RayvMobileApp
 	{
 		public VoteLabel (bool selected)
 		{			
-			XAlign = TextAlignment.Start;
-			FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
-			FontAttributes = FontAttributes.Bold;
-			YAlign = TextAlignment.Center;
-			TextColor = selected ? Color.White : Color.Black;
+			Label.XAlign = TextAlignment.Start;
+			Label.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
+			Label.FontAttributes = FontAttributes.Bold;
+			Label.YAlign = TextAlignment.Center;
+			Label.TextColor = selected ? Color.White : Color.Black;
 			BackgroundColor = selected ? settings.BaseColor : Color.White;
 		}
 	}
@@ -126,20 +126,22 @@ namespace RayvMobileApp
 				grid.Children.Add (selectionFrame, 0, 5, 1, 2); 
 			}
 			grid.Children.Add (new ImageButton ("Like.png", VoteLiked), 1, 2, 1, 2);
-			grid.Children.Add (new VoteLabel (vote == VoteValue.Liked) { 
-				Text = "Like", 
+			var likeVoteLbl = new VoteLabel (vote == VoteValue.Liked) { 
 				OnClick = VoteLiked, 
-			}, 2, 3, 1, 2);
+			};
+			likeVoteLbl.Label.Text = "Like";
+			grid.Children.Add (likeVoteLbl, 2, 3, 1, 2);
 			grid.Children.Add (new ImageButton (
 				settings.DevicifyFilename ("arrow.png"), VoteLiked), 3, 4, 1, 2);
 			if (vote == VoteValue.Disliked) {
 				grid.Children.Add (selectionFrame, 0, 5, 2, 3); 
 			}
 			grid.Children.Add (new ImageButton ("Dislike.png", VoteDisliked), 1, 2, 2, 3);
-			grid.Children.Add (new VoteLabel (vote == VoteValue.Disliked) {
-				Text = "Dislike", 
+			var dislikeVoteLbl = new VoteLabel (vote == VoteValue.Disliked) {
 				OnClick = VoteDisliked, 
-			}, 2, 3, 2, 3);
+			};
+			dislikeVoteLbl.Label.Text = "Dislike";
+			grid.Children.Add (dislikeVoteLbl, 2, 3, 2, 3);
 			grid.Children.Add (new ImageButton (
 				settings.DevicifyFilename ("arrow.png"), VoteDisliked), 3, 4, 2, 3);
 			if (vote == VoteValue.Untried) {
@@ -147,19 +149,21 @@ namespace RayvMobileApp
 			}
 
 			grid.Children.Add (new ImageButton ("Wish1.png", VoteUntried), 1, 2, 3, 4);
-			grid.Children.Add (new VoteLabel (vote == VoteValue.Untried) { 
-				Text = "Wish", 
+			var untriedVoteLbl = new VoteLabel (vote == VoteValue.Untried) { 
 				OnClick = VoteUntried,
-			}, 2, 3, 3, 4);
+			};
+			untriedVoteLbl.Label.Text = "Wish";
+			grid.Children.Add (untriedVoteLbl, 2, 3, 3, 4);
 			grid.Children.Add (new ImageButton (
 				settings.DevicifyFilename ("arrow.png"), VoteUntried), 3, 4, 3, 4);
 
 			if (vote != VoteValue.None) {
 				grid.Children.Add (new ImageButton ("remove_vote.png", VoteNone), 1, 2, 4, 5);
-				grid.Children.Add (new VoteLabel (selected: false) { 
-					Text = "Remove", 
+				var removeVoteLbl = new VoteLabel (selected: false) { 
 					OnClick = VoteNone,
-				}, 2, 3, 4, 5);
+				};
+				removeVoteLbl.Label.Text = "Remove";
+				grid.Children.Add (removeVoteLbl, 2, 3, 4, 5);
 				grid.Children.Add (new ImageButton (
 					settings.DevicifyFilename ("arrow.png"), VoteUntried), 3, 4, 4, 5);
 			}

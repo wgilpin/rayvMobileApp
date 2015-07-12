@@ -263,8 +263,14 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class LabelClickable: Label
+	public class LabelClickable: Frame
 	{
+
+		public Label Label {
+			get;
+			set;
+		}
+
 		TapGestureRecognizer _click;
 
 		public EventHandler OnClick {
@@ -272,10 +278,24 @@ namespace RayvMobileApp
 			set { _click.Tapped += value; }
 		}
 
+		public void SetBackgroundColor (Color color)
+		{
+			Label.BackgroundColor = color;
+			this.BackgroundColor = color;
+		}
+
+
 		public LabelClickable () : base ()
 		{
+			Label = new Label () { TextColor = Color.Black };
+			this.HasShadow = false;
+			this.OutlineColor = Color.Transparent;
 			_click = new TapGestureRecognizer ();
 			this.GestureRecognizers.Add (_click);
+			Label.GestureRecognizers.Add (_click);
+			this.Padding = 8;
+			this.Content = Label;
+			this.
 		}
 	}
 
