@@ -33,6 +33,7 @@ namespace RayvMobileApp
 		static ListView listView;
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisine;
+		VoteFilterWho FilterVotesBy;
 		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
@@ -251,12 +252,18 @@ namespace RayvMobileApp
 		 * Constructor when a kind & style is supplied
 		 */
 		// Todo: this should be setting a property, not a ctor
-		public ListPage (MealKind kind, PlaceStyle style, Position? location = null, string cuisine = null) : this ()
+		public ListPage (
+			MealKind kind, 
+			PlaceStyle style, 
+			Position? location = null, 
+			string cuisine = null, 
+			VoteFilterWho byWho = VoteFilterWho.All) : this ()
 		{
 			FilterPlaceKind = kind;
 			FilterPlaceStyle = style;
 			FilterSearchCenter = location;
 			FilterCuisine = cuisine;
+			FilterVotesBy = byWho;
 //			FilterList ();
 		}
 
@@ -461,6 +468,15 @@ namespace RayvMobileApp
 					IsFiltered = true;
 					styleDescriptionItems.Add ($"Name is '{text}'");
 					Console.WriteLine ("ListPage filter text");
+				}
+				if (FilterVotesBy != VoteFilterWho.All) {
+					if (FilterVotesBy == VoteFilterWho.Mine) {
+						filteredList = filteredList.Where (p => p.iVoted);
+						IsFiltered = true;
+						styleDescriptionItems.Add ("My votes only");
+						Console.WriteLine ("ListPage filter text");
+					} else
+						throw new NotImplementedException ("Filter by all or mine");
 				}
 				if (FilterPlaceKind != MealKind.None) {
 					filteredList = filteredList.Where (p => (p.vote.kind & FilterPlaceKind) != MealKind.None);

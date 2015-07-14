@@ -14,6 +14,9 @@ namespace RayvMobileApp
 
 	public class FindChoicePage : ContentPage
 	{
+		#region Fields Properties
+
+
 		const string ALL_CUISINES = "All Cuisines";
 		Grid _grid;
 		List<Place> DisplayList;
@@ -21,9 +24,11 @@ namespace RayvMobileApp
 		ActivityIndicator Spinner;
 		string SearchLocationName;
 		string SearchCuisine;
+		VoteFilterWho ByWho;
 		RayvButton SearchLocationBtn;
 		ToolbarItem BackBtn;
 		string TitlePlaceStyle = "Style of Place";
+		string TitleWho = "Who?";
 		string TitleFindMain = "Find...";
 		string TitleMealKind = "Eating Time";
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
@@ -32,6 +37,10 @@ namespace RayvMobileApp
 		public MealKind Kind { get; private set; }
 
 		public PlaceStyle Style { get; private set; }
+
+		#endregion
+
+		#region Cards
 
 		public int RowCount {
 			set { 
@@ -45,16 +54,6 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void  NarrowGeoSearch (GeoLocation geoPt)
-		{
-			Debug.WriteLine ("Listpage.NarrowGeoSearch");
-			try {
-				SearchCentre = new Position (geoPt.Lat, geoPt.Lng);
-				SearchLocationName = geoPt.Name;
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
-		}
 
 		void AddImgCard (int line, string imageSource, string text, EventHandler onClick)
 		{
@@ -143,10 +142,16 @@ namespace RayvMobileApp
 			//			_grid.Children.Add (_line, 0, 1, line, line + 1);	
 		}
 
+		#endregion
+
+
+		#region Choice Pages
+
 		void Done (object sender, EventArgs e)
 		{
+			Persist.Instance.SetConfig (settings.CHOICE_BY_WHO, ByWho.ToString ());
 			var cuisine = SearchCuisine == ALL_CUISINES ? null : SearchCuisine;
-			Navigation.PushModalAsync (new RayvNav (new ListPage (Kind, Style, SearchCentre, cuisine)));
+			Navigation.PushModalAsync (new RayvNav (new ListPage (Kind, Style, SearchCentre, cuisine, ByWho)));
 		}
 
 		void ChooseStyle ()
@@ -167,6 +172,20 @@ namespace RayvMobileApp
 			});
 			AddImgCard (3, "a_fancy_place.png", "Fancy", (s, e) => {
 				Style = PlaceStyle.Fancy;
+				ChooseMainMenu ();
+			});
+		}
+
+		void ChooseWho ()
+		{
+			Title = TitleWho;
+			RowCount = 2;
+			AddImgCard (0, "", "My Places Only", (s, e) => {
+				ByWho = VoteFilterWho.Mine;
+				ChooseMainMenu ();
+			});
+			AddImgCard (1, "", "All Places", (s, e) => {
+				ByWho = VoteFilterWho.All;
 				ChooseMainMenu ();
 			});
 		}
@@ -194,7 +213,7 @@ namespace RayvMobileApp
 		void ChooseMainMenu ()
 		{
 			Title = TitleFindMain;
-			RowCount = 4;
+			RowCount = 5;
 			ToolbarItems.Clear ();
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			bool isFiltered = false;
@@ -236,6 +255,9 @@ namespace RayvMobileApp
 			AddTextCard (3, "Cuisine?", SearchCuisine, (s, e) => {
 				ChooseCuisine ();
 			});
+			AddTextCard (4, "Who?", ByWho.ToString (), (s, e) => {
+				ChooseWho ();
+			});
 			var goBtn = new RayvButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
 				BackgroundColor = settings.BaseColor,
@@ -244,7 +266,7 @@ namespace RayvMobileApp
 				BorderRadius = 0,
 			};
 			goBtn.Clicked += Done;
-			_grid.Children.Add (goBtn, 0, 3, 4, 5);
+			_grid.Children.Add (goBtn, 0, 3, 5, 6);
 		}
 
 		void ChooseMealTime ()
@@ -272,6 +294,57 @@ namespace RayvMobileApp
 				ChooseMainMenu ();
 			});
 		}
+
+		void ChooseLocation ()
+		{
+			Title = "Location";
+			_grid.RowDefinitions.Clear ();
+			_grid.Children.Clear ();
+			_geoLookupBox = new LocationListWithHistory ();
+			_geoLookupBox.OnItemTapped = DoSearchAtLocation;
+			_geoLookupBox.OnCancel = (s, e) => ChooseMainMenu ();
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Star) });
+			_grid.Children.Add (new LabelWide ("Search near..."){ TextColor = Color.White }, 0, 3, 0, 1);
+			SearchLocationBtn = new RayvButton { 
+				Text = "Lookup Place", 
+				BackgroundColor = settings.BaseColor,
+				BorderColor = Color.White,
+				BorderWidth = 1,
+				BorderRadius = 0,
+			};
+			//			_geoLookupBox..Clicked += DoSearchAtLocation;
+			//			placeHistory = new HistoryList ("FindChoiceLocation"){ HeightRequest = 230 };
+			//			placeHistory.ItemSelected = (sender, args) => {
+			//				DoSearchAtLocation (sender, null);
+			//			};
+			_grid.Children.Add (_geoLookupBox, 0, 3, 1, 6);
+			//			_grid.Children.Add (SearchLocationBox, 0, 3, 1, 2);
+			//			_grid.Children.Add (placeHistory, 0, 3, 2, 3);
+			//			_grid.Children.Add (Spinner, 0, 3, 3, 4);
+			//			_grid.Children.Add (SearchLocationBtn, 0, 3, 4, 5);
+			_geoLookupBox.Focus ();	
+		}
+
+		#endregion
+
+		#region Locations
+
+		public void  NarrowGeoSearch (GeoLocation geoPt)
+		{
+			Debug.WriteLine ("Listpage.NarrowGeoSearch");
+			try {
+				SearchCentre = new Position (geoPt.Lat, geoPt.Lng);
+				SearchLocationName = geoPt.Name;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+			}
+		}
+
 
 		void DoSearchAtLocation (object o, ItemTappedEventArgs e)
 		{
@@ -332,44 +405,23 @@ namespace RayvMobileApp
 //			})).Start ();
 		}
 
-		void ChooseLocation ()
-		{
-			Title = "Location";
-			_grid.RowDefinitions.Clear ();
-			_grid.Children.Clear ();
-			_geoLookupBox = new LocationListWithHistory ();
-			_geoLookupBox.OnItemTapped = DoSearchAtLocation;
-			_geoLookupBox.OnCancel = (s, e) => ChooseMainMenu ();
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Star) });
-			_grid.Children.Add (new LabelWide ("Search near..."){ TextColor = Color.White }, 0, 3, 0, 1);
-			SearchLocationBtn = new RayvButton { 
-				Text = "Lookup Place", 
-				BackgroundColor = settings.BaseColor,
-				BorderColor = Color.White,
-				BorderWidth = 1,
-				BorderRadius = 0,
-			};
-//			_geoLookupBox..Clicked += DoSearchAtLocation;
-//			placeHistory = new HistoryList ("FindChoiceLocation"){ HeightRequest = 230 };
-//			placeHistory.ItemSelected = (sender, args) => {
-//				DoSearchAtLocation (sender, null);
-//			};
-			_grid.Children.Add (_geoLookupBox, 0, 3, 1, 6);
-//			_grid.Children.Add (SearchLocationBox, 0, 3, 1, 2);
-//			_grid.Children.Add (placeHistory, 0, 3, 2, 3);
-//			_grid.Children.Add (Spinner, 0, 3, 3, 4);
-//			_grid.Children.Add (SearchLocationBtn, 0, 3, 4, 5);
-			_geoLookupBox.Focus ();	
-		}
+		#endregion
 
+		#region Constructor
 
 		public FindChoicePage (bool showBackBtn = true)
 		{
+			string savedVoteChoice = Persist.Instance.GetConfig (settings.CHOICE_BY_WHO);
+			if (string.IsNullOrEmpty (savedVoteChoice))
+				ByWho = VoteFilterWho.All;
+			else {
+				if (savedVoteChoice == "All") {
+					ByWho = VoteFilterWho.All;
+				}
+				if (savedVoteChoice == "Mine") {
+					ByWho = VoteFilterWho.Mine;
+				}
+			}
 			_grid = new Grid {
 				Padding = 20,
 				BackgroundColor = settings.BaseColor,
@@ -397,6 +449,8 @@ namespace RayvMobileApp
 				ToolbarItems.Add (BackBtn);
 			}
 		}
+
+		#endregion
 	}
 }
 

@@ -9,6 +9,13 @@ using System.Linq;
 
 namespace RayvMobileApp
 {
+	public enum VoteFilterWho
+	{
+		Mine,
+		All}
+
+	;
+
 	public enum VoteValue
 	{
 		None = 0,

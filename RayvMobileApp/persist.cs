@@ -519,8 +519,8 @@ namespace RayvMobileApp
 						for (int i = 0; i < count; i++) {
 							try {
 								Vote v = obj ["votes"] [i].ToObject<Vote> ();
-								var matchedVotes = Votes.Where (v2 => v2.key == v.key && v2.voter == v.voter).ToList ();
-								if (matchedVotes.Count > 0)
+								var matchedVotes = Votes.Where (v2 => v2.key == v.key && v2.voter == v.voter);
+								if (matchedVotes.Count () > 0)
 									Insights.Track ("Duplicate vote", "key", v.key);
 								else
 									Votes.Add (v);
@@ -529,6 +529,7 @@ namespace RayvMobileApp
 							}
 						}
 //						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
+						var vs = Votes.Where (v => v.place_name == "Heirloom").ToList ();
 						if (Votes != null) {
 							saveVotesToDb ();
 						}

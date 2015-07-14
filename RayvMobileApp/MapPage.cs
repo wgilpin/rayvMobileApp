@@ -10,7 +10,6 @@ namespace RayvMobileApp
 	{
 		public event EventHandler Changed;
 
-		Button SearchHereBtn;
 		Map map;
 		ToolbarItem ListBtn;
 		ActivityIndicator Spinner;
@@ -96,9 +95,6 @@ namespace RayvMobileApp
 
 			PinList = new Dictionary<string, Pin> ();
 
-			SearchHereBtn = new RayvButton (" Search Here ");
-			SearchHereBtn.Clicked += DoSearch;
-
 			Image GoToHomeBtn = new Image { Source = settings.DevicifyFilename ("centre-button.png"), };
 			var clickHome = new TapGestureRecognizer ();
 			clickHome.Tapped += (s, e) => {
@@ -120,12 +116,6 @@ namespace RayvMobileApp
 			                               AbsoluteLayoutFlags.SizeProportional);
 			AbsoluteLayout.SetLayoutBounds (map,
 			                                new Rectangle (0, 0, 1, 1));
-
-			mapLayout.Children.Add (SearchHereBtn);
-			AbsoluteLayout.SetLayoutFlags (SearchHereBtn,
-			                               AbsoluteLayoutFlags.PositionProportional);
-			AbsoluteLayout.SetLayoutBounds (SearchHereBtn,
-			                                new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			mapLayout.Children.Add (Spinner);
 			AbsoluteLayout.SetLayoutFlags (Spinner,

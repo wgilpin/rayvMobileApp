@@ -295,7 +295,6 @@ namespace RayvMobileApp
 			Label.GestureRecognizers.Add (_click);
 			this.Padding = 8;
 			this.Content = Label;
-			this.
 		}
 	}
 
