@@ -271,8 +271,11 @@ namespace RayvMobileApp
 					try {
 						Persist.Instance.GetUserData (
 							onFail: () => {
-								Navigation.PushModalAsync (new LoginPage ());
-							}, 
+								if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+									Navigation.PushModalAsync (new LoginPage ());
+								else
+									DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+							},
 							onSucceed: () => {
 								SetSource ();
 								LastUpdate = DateTime.UtcNow;

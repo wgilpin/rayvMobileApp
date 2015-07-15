@@ -8,14 +8,19 @@ namespace RayvMobileApp
 	{
 		private const int IMAGE_SIZE = 78;
 		private bool ShowVotes;
+		bool showingDistance = true;
 
-		public PlacesListView () : base ()
+		public bool IsShowingDistance {
+			get { return showingDistance; }
+			set {
+				showingDistance = value;
+				ItemTemplate = GetTemplate ();
+			}
+		}
+
+		DataTemplate GetTemplate ()
 		{
-			Console.WriteLine ("PlacesListView()");
-			ShowVotes = true;
-			RowHeight = 80;
-
-			ItemTemplate = new DataTemplate (() => {
+			return new DataTemplate (() => {
 				// Create views with bindings for displaying each property.
 				BackgroundColor = Color.White;
 				Label nameLabel = new Label {
@@ -38,7 +43,8 @@ namespace RayvMobileApp
 					TextColor = Color.Gray,
 					BackgroundColor = Color.Transparent,
 				};
-				distLabel.SetBinding (Label.TextProperty, "distance");
+				if (IsShowingDistance)
+					distLabel.SetBinding (Label.TextProperty, "distance");
 
 				Label addressLabel = new Label {
 					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
@@ -75,9 +81,9 @@ namespace RayvMobileApp
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
-//						new RowDefinition { Height = new GridLength (19, GridUnitType.Absolute)  },
-//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
-//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
+						//						new RowDefinition { Height = new GridLength (19, GridUnitType.Absolute)  },
+						//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
+						//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
 					},
 					ColumnDefinitions = {
 						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
@@ -121,7 +127,7 @@ namespace RayvMobileApp
 					downVotes.SetBinding (
 						Label.TextProperty, 
 						new Binding ("key", converter: new KeyToDownVotersConverter ()));
-					
+
 					downVotes.SetBinding (
 						Label.IsVisibleProperty, 
 						new Binding ("key", converter: new KeyToShowDownBoolConverter ()));
@@ -147,7 +153,7 @@ namespace RayvMobileApp
 						Label.FontSizeProperty,
 						new Binding ("key", converter: new KeyToMyVoteSizeConverter ()));
 
-				
+
 					Label noVoteLiked = new Label {
 						Text = "Liked",
 						BackgroundColor = Color.Transparent,
@@ -172,8 +178,8 @@ namespace RayvMobileApp
 					}, 2, 3, 0, 3);
 					grid.Children.Add (downVotes, 2, 3, 1, 3);
 					grid.Children.Add (myVote, 2, 3, 1, 4);
-//					grid.Children.Add (noVoteLiked, 3, 4, 1, 2);
-//					grid.Children.Add (noVoteDisliked, 3, 4, 2, 3);
+					//					grid.Children.Add (noVoteLiked, 3, 4, 1, 2);
+					//					grid.Children.Add (noVoteDisliked, 3, 4, 2, 3);
 				}
 
 
@@ -183,13 +189,20 @@ namespace RayvMobileApp
 				};
 				// Return an assembled ViewCell.
 			});
+		}
+
+		public PlacesListView (bool showVotes = true, bool showDistance = true) : base ()
+		{
+			Console.WriteLine ("PlacesListView()");
+			ShowVotes = showVotes;
+			RowHeight = 80;
+
+			//isShowingDistance setter also sets the data template
+			IsShowingDistance = showDistance;
 			VerticalOptions = LayoutOptions.FillAndExpand;
 		}
 
-		public PlacesListView (bool showVotes) : this ()
-		{
-			ShowVotes = showVotes;
-		}
+
 	}
 }
 

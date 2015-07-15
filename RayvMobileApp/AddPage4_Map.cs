@@ -32,6 +32,7 @@ namespace RayvMobileApp
 
 		public AddPage4_Map (Position searchPosition)
 		{
+			BackgroundColor = settings.BaseColor;
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
 					Persist.Instance.GpsPosition, Distance.FromMiles (0.3))) {
@@ -123,7 +124,12 @@ namespace RayvMobileApp
 				}),
 				heightConstraint: Constraint.Constant (1));
 
-			grid.Children.Add (new Frame { HasShadow = false, Content = NameEd, Padding = new Thickness (5, 2), }, 0, 0);
+			grid.Children.Add (new Frame { 
+				BackgroundColor = settings.BaseColor,
+				HasShadow = false, 
+				Content = NameEd, 
+				Padding = new Thickness (5, 2),
+			}, 0, 0);
 			grid.Children.Add (AddressEd, 0, 1);
 			grid.Children.Add (relativeLayout, 0, 2);
 			grid.Children.Add (HereBtn, 0, 3);

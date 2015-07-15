@@ -16,14 +16,18 @@ namespace RayvMobileApp
 	{
 		#region Fields Properties
 
+		string currentLocationStr;
+		string currentLocationName;
+		string currentCuisine;
+		public MealKind currentKind;
+		public PlaceStyle currentStyle;
 
+		Page callingPage;
 		const string ALL_CUISINES = "All Cuisines";
 		Grid _grid;
 		List<Place> DisplayList;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
-		string SearchLocationName;
-		string SearchCuisine;
 		VoteFilterWho ByWho;
 		RayvButton SearchLocationBtn;
 		ToolbarItem BackBtn;
@@ -33,10 +37,6 @@ namespace RayvMobileApp
 		string TitleMealKind = "Eating Time";
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		LocationListWithHistory _geoLookupBox;
-
-		public MealKind Kind { get; private set; }
-
-		public PlaceStyle Style { get; private set; }
 
 		#endregion
 
@@ -94,7 +94,7 @@ namespace RayvMobileApp
 			_grid.Children.Add (_text, 1, 3, line, line + 1);	
 		}
 
-		void AddTextCard (int line, string left, string right, EventHandler onClick)
+		void AddTextCard (int line, string left, string right, EventHandler onClick, bool highlight = false)
 		{
 			Label _left;
 			Label _right;
@@ -117,10 +117,10 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Start,
 			};
 			_right = new Label {
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
-				TextColor = Color.White,
+				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				TextColor = highlight ? Color.White : settings.ColorDarkGray,
 				Text = right,
-				FontAttributes = FontAttributes.Italic,
+				FontAttributes = highlight ? FontAttributes.Italic | FontAttributes.Bold : FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.Center,
 				HorizontalOptions = LayoutOptions.End,
 			};
@@ -149,9 +149,21 @@ namespace RayvMobileApp
 
 		void Done (object sender, EventArgs e)
 		{
-			Persist.Instance.SetConfig (settings.CHOICE_BY_WHO, ByWho.ToString ());
-			var cuisine = SearchCuisine == ALL_CUISINES ? null : SearchCuisine;
-			Navigation.PushModalAsync (new RayvNav (new ListPage (Kind, Style, SearchCentre, cuisine, ByWho)));
+			Persist.Instance.SetConfig (settings.FILTER_WHO, (int)ByWho);
+			var cuisine = currentCuisine == ALL_CUISINES ? null : currentCuisine;
+			Persist.Instance.SetConfig (settings.FILTER_CUISINE, cuisine);
+			Persist.Instance.SetConfig (settings.FILTER_KIND, (int)currentKind);
+			Persist.Instance.SetConfig (settings.FILTER_STYLE, (int)currentStyle);
+			if (SearchCentre.Equals (null)) {
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_LAT, null);
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_LNG, null);
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_NAME, null);
+			} else {
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_LAT, ((Position)SearchCentre).Latitude);
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_LNG, ((Position)SearchCentre).Longitude);
+				Persist.Instance.SetConfig (settings.FILTER_WHERE_NAME, currentLocationName);
+			}
+			Navigation.PushModalAsync (new RayvNav (new ListPage (currentKind, currentStyle, SearchCentre, cuisine, ByWho)));
 		}
 
 		void ChooseStyle ()
@@ -159,19 +171,19 @@ namespace RayvMobileApp
 			Title = TitlePlaceStyle;
 			RowCount = 4;
 			AddImgCard (0, "", "Any", (s, e) => {
-				Style = PlaceStyle.None;
+				currentStyle = PlaceStyle.None;
 				ChooseMainMenu ();
 			});
 			AddImgCard (1, "a_quick_bite_place.png", "Quick Bite", (s, e) => {
-				Style = PlaceStyle.QuickBite;
+				currentStyle = PlaceStyle.QuickBite;
 				ChooseMainMenu ();
 			});
 			AddImgCard (2, "a_relaxed_place.png", "Relaxed", (s, e) => {
-				Style = PlaceStyle.Relaxed;
+				currentStyle = PlaceStyle.Relaxed;
 				ChooseMainMenu ();
 			});
 			AddImgCard (3, "a_fancy_place.png", "Fancy", (s, e) => {
-				Style = PlaceStyle.Fancy;
+				currentStyle = PlaceStyle.Fancy;
 				ChooseMainMenu ();
 			});
 		}
@@ -194,70 +206,97 @@ namespace RayvMobileApp
 		{
 			var cuisinePage = new EditCuisinePage (null, inFlow: false);
 			cuisinePage.Saved += (sender, e) => {
-				SearchCuisine = e.Cuisine.Title;
+				currentCuisine = e.Cuisine.Title;
 				Navigation.PopAsync ();
 				ChooseMainMenu ();
 			};
-			Navigation.PushAsync (new RayvNav (cuisinePage));
+			try {
+				Navigation.PushAsync (new RayvNav (cuisinePage));
+			} catch (InvalidOperationException) {
+				Navigation.PushAsync (cuisinePage);
+			}
 		}
 
 		void DoBackBtn ()
 		{
 			if (Title == TitleFindMain) {
-				Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
+				Console.WriteLine ("DoBackBtn Pop");
+				Navigation.PopModalAsync ();
 			} else {
 				ChooseMainMenu ();
 			}
+		}
+
+		void LoadPreviousSearch ()
+		{
+			ByWho = (VoteFilterWho)Persist.Instance.GetConfigInt (settings.FILTER_WHO);
+			currentCuisine = Persist.Instance.GetConfig (settings.FILTER_CUISINE);
+			if (string.IsNullOrEmpty (currentCuisine)) {
+				currentCuisine = ALL_CUISINES;
+			}
+			currentKind = (MealKind)Persist.Instance.GetConfigInt (settings.FILTER_KIND);
+			currentStyle = (PlaceStyle)Persist.Instance.GetConfigInt (settings.FILTER_STYLE);
+			var lat = Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LAT);
+			SearchCentre = null;
+			if (lat != 0.0) {
+				SearchCentre = new Position (
+					lat,
+					Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LAT));
+				currentLocationName = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
+			} 
 		}
 
 		void ChooseMainMenu ()
 		{
 			Title = TitleFindMain;
 			RowCount = 5;
-			ToolbarItems.Clear ();
+
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			bool isFiltered = false;
-			string kindStr;
-			string styleStr;
-			string locationStr;
-			if (Kind == MealKind.None || (int)Kind == Vote.MAX_MEALKIND)
-				kindStr = "Any time";
-			else {
-				kindStr = Kind.ToString ();
+			string currentKindStr;
+			bool kindFiltered = false;
+			if (currentKind == MealKind.None || (int)currentKind == Vote.MAX_MEALKIND) {
+				currentKindStr = "Any time";
+			} else {
+				currentKindStr = currentKind.ToString ();
+				kindFiltered = true;
 				isFiltered = true;
 			}
-			if (Style == PlaceStyle.None)
-				styleStr = "Any style";
+			string currentStyleStr;
+			var anyStyleStr = "Any style";
+			if (currentStyle == PlaceStyle.None)
+				currentStyleStr = anyStyleStr;
 			else {
-				styleStr = Style.ToString ();
+				currentStyleStr = currentStyle.ToString ();
 				isFiltered = true;
 			}
-			if (string.IsNullOrEmpty (SearchLocationName))
-				locationStr = "Near Me";
+			var nearMeStr = "Near Me";
+			if (string.IsNullOrEmpty (currentLocationName))
+				currentLocationStr = nearMeStr;
 			else {
-				locationStr = SearchLocationName;
+				currentLocationStr = currentLocationName;
 				isFiltered = true;
 			}
-			if (string.IsNullOrEmpty (SearchCuisine))
-				SearchCuisine = ALL_CUISINES;
+			if (string.IsNullOrEmpty (currentCuisine))
+				currentCuisine = ALL_CUISINES;
 			else {
 				isFiltered = true;
 			}
-			AddTextCard (0, "When?", kindStr, (s, e) => {
+			AddTextCard (0, "When?", currentKindStr, (s, e) => {
 				ChooseMealTime ();
-			});
-			AddTextCard (1, "Style?", styleStr, (s, e) => {
+			}, highlight: kindFiltered);
+			AddTextCard (1, "Style?", currentStyleStr, (s, e) => {
 				ChooseStyle ();
-			});
-			AddTextCard (2, "Where?", locationStr, (s, e) => {
+			}, highlight: currentStyleStr != anyStyleStr);
+			AddTextCard (2, "Where?", currentLocationStr, (s, e) => {
 				ChooseLocation ();
-			});
-			AddTextCard (3, "Cuisine?", SearchCuisine, (s, e) => {
+			}, highlight: currentLocationStr != nearMeStr);
+			AddTextCard (3, "Cuisine?", currentCuisine, (s, e) => {
 				ChooseCuisine ();
-			});
+			}, highlight: currentCuisine != ALL_CUISINES);
 			AddTextCard (4, "Who?", ByWho.ToString (), (s, e) => {
 				ChooseWho ();
-			});
+			}, highlight: ByWho != VoteFilterWho.All);
 			var goBtn = new RayvButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
 				BackgroundColor = settings.BaseColor,
@@ -274,23 +313,23 @@ namespace RayvMobileApp
 			Title = TitleMealKind;
 			RowCount = 5;
 			AddImgCard (0, "", "Any", (s, e) => {
-				Kind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner;
+				currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner;
 				ChooseMainMenu ();
 			});
 			AddImgCard (1, "a_breakfast.png", "Breakfast", (s, e) => {
-				Kind = MealKind.Breakfast;
+				currentKind = MealKind.Breakfast;
 				ChooseMainMenu ();
 			});
 			AddImgCard (2, "a_coffee.png", "Coffee", (s, e) => {
-				Kind = MealKind.Coffee;
+				currentKind = MealKind.Coffee;
 				ChooseMainMenu ();
 			});
 			AddImgCard (3, "a_lunch.png", "Lunch", (s, e) => {
-				Kind = MealKind.Lunch;
+				currentKind = MealKind.Lunch;
 				ChooseMainMenu ();
 			});
 			AddImgCard (4, "a_dinner.png", "Dinner", (s, e) => {
-				Kind = MealKind.Dinner;
+				currentKind = MealKind.Dinner;
 				ChooseMainMenu ();
 			});
 		}
@@ -339,7 +378,7 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Listpage.NarrowGeoSearch");
 			try {
 				SearchCentre = new Position (geoPt.Lat, geoPt.Lng);
-				SearchLocationName = geoPt.Name;
+				currentLocationName = geoPt.Name;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
@@ -405,13 +444,26 @@ namespace RayvMobileApp
 //			})).Start ();
 		}
 
+
+		void DoClearFilters ()
+		{
+			ByWho = VoteFilterWho.All;
+			currentCuisine = ALL_CUISINES;
+			currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner;
+			currentStyle = PlaceStyle.None;
+			SearchCentre = null;
+			currentLocationName = "";
+			ChooseMainMenu ();
+		}
+
 		#endregion
 
 		#region Constructor
 
-		public FindChoicePage (bool showBackBtn = true)
+		public FindChoicePage (Page caller)
 		{
-			string savedVoteChoice = Persist.Instance.GetConfig (settings.CHOICE_BY_WHO);
+			callingPage = caller;
+			string savedVoteChoice = Persist.Instance.GetConfig (settings.FILTER_WHO);
 			if (string.IsNullOrEmpty (savedVoteChoice))
 				ByWho = VoteFilterWho.All;
 			else {
@@ -434,20 +486,28 @@ namespace RayvMobileApp
 				}
 			};
 			Spinner = new ActivityIndicator{ Color = Color.Red, IsRunning = false };
+			SearchCentre = null;
+			LoadPreviousSearch ();
 			ChooseMainMenu ();
 			Content = _grid;
-			SearchCentre = null;
-			if (showBackBtn) {
-				BackBtn = new ToolbarItem {
-					Text = "Back ",
-					//				Icon = "icon-map.png",
-					Order = ToolbarItemOrder.Primary,
-					Command = new Command (() => {
-						DoBackBtn ();
-					}),
-				};
-				ToolbarItems.Add (BackBtn);
-			}
+			var ClearBtn = new ToolbarItem {
+				Text = " Clear ",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => {
+					DoClearFilters ();
+				}),
+			};
+			ToolbarItems.Add (ClearBtn);
+			
+			BackBtn = new ToolbarItem {
+				Text = "Back ",
+				//				Icon = "icon-map.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => {
+					DoBackBtn ();
+				}),
+			};
+			ToolbarItems.Add (BackBtn);
 		}
 
 		#endregion

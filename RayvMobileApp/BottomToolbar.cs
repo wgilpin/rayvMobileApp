@@ -9,7 +9,6 @@ namespace RayvMobileApp
 		public ActivityIndicator Spinner;
 		private ImageButton _ib;
 
-
 		public ImageSource Source {
 			get { return _ib.Source; }
 			set { _ib.Source = value; }
@@ -47,13 +46,15 @@ namespace RayvMobileApp
 		Grid grid;
 		BottomToolbarButton friendsBtn;
 		BottomToolbarButton FindBtn;
+		Page CurrentPage;
+
 
 		void ShowFind (object s, EventArgs e)
 		{
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: List button - push ListPage");
-				this.Navigation.PushAsync (new FindChoicePage (showBackBtn: false
-				), false);
+				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (CurrentPage)), false);
+
 				FindBtn.Spinner.IsRunning = false;
 				FindBtn.Spinner.IsVisible = false;
 			});
@@ -103,6 +104,7 @@ namespace RayvMobileApp
 
 		public BottomToolbar (Page page, String pressed = null)
 		{
+			CurrentPage = page;
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {

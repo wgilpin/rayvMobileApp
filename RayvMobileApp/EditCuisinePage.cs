@@ -23,6 +23,7 @@ namespace RayvMobileApp
 	public class EditCuisinePage : ContentPage
 	{
 		bool InFlow;
+		Page Caller;
 
 		public event EventHandler<CuisineSavedEventArgs> Saved;
 		public event EventHandler Cancelled;
@@ -46,8 +47,9 @@ namespace RayvMobileApp
 			SaveSelected (item);
 		}
 
-		public EditCuisinePage (string cuisine, bool inFlow = true)
+		public EditCuisinePage (string cuisine, bool inFlow = true, Page caller = null)
 		{
+			Caller = caller;
 			InFlow = inFlow;
 			Title = "Type of food";
 			ListView list = new ListView ();
@@ -71,6 +73,16 @@ namespace RayvMobileApp
 							SaveSelected ((list.SelectedItem as Cuisine).Title);
 						else
 							Cancelled?.Invoke (this, null);
+					})
+				});
+			}
+			if (caller != null) {
+				ToolbarItems.Add (new ToolbarItem {
+					Text = "  Back  ",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => { 
+						Navigation.PopModalAsync ();
+						Cancelled?.Invoke (this, null);
 					})
 				});
 			}

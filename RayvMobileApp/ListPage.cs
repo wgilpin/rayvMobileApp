@@ -30,7 +30,7 @@ namespace RayvMobileApp
 	{
 		#region Fields
 
-		static ListView listView;
+		static PlacesListView listView;
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisine;
 		VoteFilterWho FilterVotesBy;
@@ -41,7 +41,6 @@ namespace RayvMobileApp
 		Label FilterDescr;
 
 		EntryWithButton FilterSearchBox;
-		string FilterAreaName;
 		//		Entry AreaBox;
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
@@ -91,9 +90,7 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			IsFiltered = false;
-			listView = new PlacesListView {
-				//ItemsSource = Persist.Instance.Places,
-			};
+			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
 			listView.ItemTapped += DoSelectListItem;
 			listView.Refreshing += DoServerRefresh;
 			listView.IsPullToRefreshEnabled = true;
@@ -122,6 +119,11 @@ namespace RayvMobileApp
 				TextColor = Color.White, 
 				FontAttributes = FontAttributes.Bold 
 			};
+			var tapFilterDescr = new TapGestureRecognizer ();
+			tapFilterDescr.Tapped += (sender, e) => {
+				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (this)), false);
+			};
+			FilterDescr.GestureRecognizers.Add (tapFilterDescr);
 			filters = new Frame { 
 				Padding = 4,
 				HasShadow = false,
@@ -193,7 +195,7 @@ namespace RayvMobileApp
 				Command = new Command (() => {
 					Console.WriteLine ("ListPage Toolbar Filter");
 					this.Navigation.PushModalAsync (
-						new RayvNav (new FindChoicePage ()));
+						new RayvNav (new FindChoicePage (this)));
 				})
 			};
 			ToolbarItems.Add (FilterTool);
@@ -262,6 +264,8 @@ namespace RayvMobileApp
 			FilterPlaceKind = kind;
 			FilterPlaceStyle = style;
 			FilterSearchCenter = location;
+			if (!location.Equals (null))
+				listView.IsShowingDistance = false;
 			FilterCuisine = cuisine;
 			FilterVotesBy = byWho;
 //			FilterList ();
@@ -303,7 +307,10 @@ namespace RayvMobileApp
 			try {
 				Persist.Instance.GetUserData (
 					() => {
-						Navigation.PushModalAsync (new LoginPage ());
+						if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+							Navigation.PushModalAsync (new LoginPage ());
+						else
+							DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
 					},
 					() => {
 						Refresh ();
@@ -316,58 +323,15 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void DoPickMyLocation (object s, EventArgs e)
-		{
-			Console.WriteLine ("Listpage.DoPickMyLocation");
-
-			FilterAreaName = "";
-			Console.WriteLine ("ListPage.FilterList pick MY location set posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
-
-			DisplayPosition = Persist.Instance.GpsPosition;
-			IsFiltered = false;
-			Spinner.IsVisible = true;
-			Spinner.IsRunning = true;
-			Console.WriteLine ("Spin");
-
-//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-			FilterList ();
-//			})).Start ();
-			Spinner.IsVisible = false;
-			Spinner.IsRunning = false;
-		}
 
 
 
-		async public void DoPlaceSearch (object s, EventArgs e)
-		{
-			Console.WriteLine ("ListPage.DoPlaceSearch");
-//			Spinner.IsVisible = true;
-//			Spinner.IsRunning = true;
-			var geoCodePositions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaName));
-//			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-			var positions = geoCodePositions.ToList ();
-			if (DEBUG_ON_SIMULATOR || positions.Count > 0) {
-				Console.WriteLine ("AddMenu.SearchHere: Got");
 
-				if (DEBUG_ON_SIMULATOR) {
-					DisplayPosition = new Position (53.1, -1.5);
-					Console.WriteLine ("AddMenu.SearchHere: DEBUG_ON_SIMULATOR");
-				} else {
-					Console.WriteLine ("ListPage.FilterList places search posn to {0},{1}", DisplayPosition.Latitude, DisplayPosition.Longitude);
-
-					DisplayPosition = positions.First ();
-				}
-			}
-			IsFiltered = true;
-			FilterList ();
-//			})).Start ();
-		}
 
 		void ClearFilter (object s, EventArgs e)
 		{ 
 			Console.WriteLine ("Listpage.ClearFilter");
 			FilterSearchBox.Text = "";
-			FilterAreaName = "";
 			FilterCuisine = "";
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
@@ -418,24 +382,6 @@ namespace RayvMobileApp
 			Navigation.PushAsync (map);
 		}
 
-		public async Task  NarrowGeoSearch ()
-		{
-			Debug.WriteLine ("Listpage.NarrowGeoSearch");
-			try {
-				FilterSearchCenter = new Position ();
-				var positions = (await (new Geocoder ()).GetPositionsForAddressAsync (FilterAreaName)).ToList ();
-				Console.WriteLine ("ListPage.NarrowGeoSearch: Got");
-				if (positions.Count > 0) {
-					FilterSearchCenter = positions.First ();
-				} else if (DEBUG_ON_SIMULATOR) {
-					FilterSearchCenter = new Position (53.1, -1.5);
-					Console.WriteLine ("ListPage.NarrowGeoSearch DEBUG_ON_SIMULATOR");
-				}
-
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
-		}
 
 		void ResetCuisinePicker ()
 		{
@@ -449,12 +395,6 @@ namespace RayvMobileApp
 			List<string> styleDescriptionItems = new List<string> ();
 			try {
 				Persist.Instance.DisplayList = data.Places;
-				if (FilterAreaName?.Length > 0) {
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Near '{FilterAreaName}'");
-					await NarrowGeoSearch ();
-				}
-
 				IEnumerable<Place> filteredList = Persist.Instance.DisplayList;
 				String text = FilterSearchBox.Text.ToLower ();
 				if (!string.IsNullOrEmpty (FilterCuisine)) {
@@ -514,6 +454,7 @@ namespace RayvMobileApp
 					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
 					Persist.Instance.DisplayList = distance_list.ToList ();
 					Console.WriteLine ("ListPage filter location");
+					styleDescriptionItems.Add ("Near location specified");
 					IsFiltered = true;
 				} else {
 					Persist.Instance.DisplayList = filteredList.ToList ();
@@ -574,7 +515,11 @@ namespace RayvMobileApp
 				try {
 					Persist.Instance.GetUserData (
 						onFail: () => {
-							Navigation.PushModalAsync (new LoginPage ());
+							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+								Navigation.PushModalAsync (new LoginPage ());
+							else
+								DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+						
 						}, 
 						onSucceed: () => {
 							InnerSetList (Persist.Instance.Places);

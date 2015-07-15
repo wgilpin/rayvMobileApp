@@ -5,7 +5,14 @@ namespace RayvMobileApp
 {
 	public class settings
 	{
-		public const string CHOICE_BY_WHO = "CHOICE_BY_WHO";
+		public const string FILTER_WHEN = "FILTER_WHEN";
+		public const string FILTER_STYLE = "FILTER_STYLE";
+		public const string FILTER_KIND = "FILTER_KIND";
+		public const string FILTER_WHO = "CHOICE_BY_WHO";
+		public const string FILTER_CUISINE = "FILTER_CUISINE";
+		public const string FILTER_WHERE_NAME = "FILTER_WHERE_NAME";
+		public const string FILTER_WHERE_LAT = "FILTER_WHERE_LAT";
+		public const string FILTER_WHERE_LNG = "FILTER_WHERE_LNG";
 		public const string PLACE_TYPES = "food|restaurant|bar|cafe|meal_delivery|meal_takeaway";
 		public const string SECRET_KEY = "=r-$b*8hglm+858&9t043hlm6-&6-3d3vfc4((7yd0dbrakhvi";
 		public const string GOOGLE_API_KEY = "AIzaSyDiTThta8R7EFuFo8cGfPHxIGYoFkc77Bw";

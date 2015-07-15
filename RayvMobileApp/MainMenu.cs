@@ -84,7 +84,7 @@ namespace RayvMobileApp
 			clickFind.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: choice button - push ListPage");
 				this.Navigation.PushModalAsync (
-					new RayvNav (new FindChoicePage ()));
+					new RayvNav (new FindChoicePage (this)));
 			};
 			choiceImg.GestureRecognizers.Add (clickFind);
 

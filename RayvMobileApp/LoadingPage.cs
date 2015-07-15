@@ -34,7 +34,10 @@ namespace RayvMobileApp
 				Persist.Instance.GetUserData (
 					onFail: () => {
 						Device.BeginInvokeOnMainThread (() => {
-							Navigation.PushModalAsync (new LoginPage ());
+							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+								Navigation.PushModalAsync (new LoginPage ());
+							else
+								DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
 						});
 					}, 
 					onSucceed: () => {
@@ -48,7 +51,10 @@ namespace RayvMobileApp
 				Persist.Instance.LoadCategories ();
 			} else
 				Device.BeginInvokeOnMainThread (() => {
-					Navigation.PushModalAsync (new LoginPage ());
+					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+						Navigation.PushModalAsync (new LoginPage ());
+					else
+						DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
 				});
 		}
 
