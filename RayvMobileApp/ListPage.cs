@@ -34,6 +34,7 @@ namespace RayvMobileApp
 		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisine;
 		VoteFilterWho FilterVotesBy;
+		VoteFilterWhat FilterVotesKind;
 		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
@@ -154,7 +155,6 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("TB active search.png"),
 				OnClick = DoTextSearch,
 				Text = "",
-
 			};
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
 			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
@@ -259,7 +259,10 @@ namespace RayvMobileApp
 			PlaceStyle style, 
 			Position? location = null, 
 			string cuisine = null, 
-			VoteFilterWho byWho = VoteFilterWho.All) : this ()
+			VoteFilterWho byWho = VoteFilterWho.All,
+			string filterByPlaceName = "",
+			VoteFilterWhat voteKind = VoteFilterWhat.All
+		) : this ()
 		{
 			FilterPlaceKind = kind;
 			FilterPlaceStyle = style;
@@ -267,7 +270,11 @@ namespace RayvMobileApp
 			if (!location.Equals (null))
 				listView.IsShowingDistance = false;
 			FilterCuisine = cuisine;
+			FilterVotesKind = voteKind;
 			FilterVotesBy = byWho;
+			if (!string.IsNullOrEmpty (filterByPlaceName)) {
+				FilterSearchBox.Text = filterByPlaceName;
+			}
 //			FilterList ();
 		}
 
@@ -409,25 +416,96 @@ namespace RayvMobileApp
 					styleDescriptionItems.Add ($"Name is '{text}'");
 					Console.WriteLine ("ListPage filter text");
 				}
-				if (FilterVotesBy != VoteFilterWho.All) {
-					if (FilterVotesBy == VoteFilterWho.Mine) {
-						filteredList = filteredList.Where (p => p.iVoted);
-						IsFiltered = true;
-						styleDescriptionItems.Add ("My votes only");
-						Console.WriteLine ("ListPage filter text");
-					} else
-						throw new NotImplementedException ("Filter by all or mine");
+				if (FilterVotesBy == VoteFilterWho.Mine) {
+					filteredList = filteredList.Where (p => p.iVoted);
+					IsFiltered = true;
+					styleDescriptionItems.Add ("My votes only");
+					Console.WriteLine ("ListPage filter text");
+				} 
+
+				if (FilterVotesBy == VoteFilterWho.Chosen) {
+					var chosenFriends = (from kvp in Persist.Instance.Friends
+					                     where ((Friend)kvp.Value).InFilter
+					                     select kvp.Key).ToList ();
+					var placesList = (from v in Persist.Instance.Votes
+					                  where chosenFriends.IndexOf (v.voter) > -1
+					                  select v.key).Distinct ().ToList ();
+
+
+					filteredList = filteredList.Where (p => placesList.IndexOf (p.key) > -1);
+					IsFiltered = true;
+					styleDescriptionItems.Add ("From chosen friends");
+					Console.WriteLine ("ListPage filter chosen friends");
 				}
+				switch (FilterVotesKind) {
+					case VoteFilterWhat.Like:
+						{
+							var likedList = (
+							                    from v in Persist.Instance.Votes
+							                    where v.vote == VoteValue.Liked
+							                    select v.key).
+								ToList ();
+							var newFilteredList = new List<Place> ();
+							foreach (Place p in filteredList)
+								if (likedList.IndexOf (p.key) > -1)
+									// it was in the wished list
+									newFilteredList.Add (p);
+							filteredList = newFilteredList;
+							IsFiltered = true;
+							styleDescriptionItems.Add ("liked places");
+							break;
+						}
+					case VoteFilterWhat.Try:
+						{
+							var votedToTryList = (
+							                         from v in Persist.Instance.Votes
+							                         where v.vote == VoteValue.Untried || v.vote == VoteValue.Liked
+							                         select v.key).
+								ToList ();
+							var newFilteredList = new List<Place> ();
+							foreach (Place p in filteredList)
+								if (votedToTryList.IndexOf (p.key) > -1)
+									// it was in the wished list
+									newFilteredList.Add (p);
+							filteredList = newFilteredList;
+							IsFiltered = true;
+							styleDescriptionItems.Add ("places to try");
+							break;
+						}
+					case VoteFilterWhat.Wish:
+						{
+							var wishedPlaces = (
+							                       from v in Persist.Instance.Votes
+							                       where v.vote == VoteValue.Untried
+							                       select v.key).
+								ToList ();
+							var newFilteredList = new List<Place> ();
+							foreach (Place p in filteredList)
+								if (wishedPlaces.IndexOf (p.key) > -1)
+									// it was in the wished list
+									newFilteredList.Add (p);
+							filteredList = newFilteredList;
+							IsFiltered = true;
+							styleDescriptionItems.Add ("wishlist places");
+							break;
+						}
+					default:
+						break;
+
+				}
+
 				if (FilterPlaceKind != MealKind.None) {
 					filteredList = filteredList.Where (p => (p.vote.kind & FilterPlaceKind) != MealKind.None);
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Kind is {FilterPlaceKind}");
+					if (FilterPlaceKind != MealKind.None && (int)FilterPlaceKind != Vote.MAX_MEALKIND) {
+						IsFiltered = true;
+						styleDescriptionItems.Add ($"{FilterPlaceKind}");
+					}
 					Console.WriteLine ("ListPage filter Kind");
 				}
 				if (FilterPlaceStyle != PlaceStyle.None) {
 					filteredList = filteredList.Where (p => p.vote.style == FilterPlaceStyle);
 					IsFiltered = true;
-					styleDescriptionItems.Add ($"Style is {FilterPlaceStyle}");
+					styleDescriptionItems.Add ($"{FilterPlaceStyle}");
 					Console.WriteLine ("ListPage filter style");
 				}
 				switch (MainFilter) {
@@ -454,7 +532,11 @@ namespace RayvMobileApp
 					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
 					Persist.Instance.DisplayList = distance_list.ToList ();
 					Console.WriteLine ("ListPage filter location");
-					styleDescriptionItems.Add ("Near location specified");
+					var savedLocation = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
+					if (string.IsNullOrEmpty (savedLocation))
+						styleDescriptionItems.Add ("Near location specified");
+					else
+						styleDescriptionItems.Add ($"Near {savedLocation}");
 					IsFiltered = true;
 				} else {
 					Persist.Instance.DisplayList = filteredList.ToList ();

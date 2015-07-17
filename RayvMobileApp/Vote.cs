@@ -12,9 +12,18 @@ namespace RayvMobileApp
 	public enum VoteFilterWho
 	{
 		Mine,
-		All}
+		All,
+		Chosen
+	}
 
-	;
+	public enum VoteFilterWhat
+	{
+		All,
+		Like,
+		Wish,
+		Try
+		// Wish plus Like
+	}
 
 	public enum VoteValue
 	{
@@ -23,7 +32,6 @@ namespace RayvMobileApp
 		Disliked = -1,
 		Untried = 2
 	}
-
 
 
 	[Flags]

@@ -240,6 +240,7 @@ namespace RayvMobileApp
 		{
 			try {
 				string key = (value as string);
+				Console.WriteLine (key);
 				if (key == null) {
 					return null;
 				}
@@ -248,6 +249,7 @@ namespace RayvMobileApp
 					return String.Format ("{0} disliked", p.down);
 				Vote vote = (from v in Persist.Instance.Votes
 				             where v.key == key
+				                 && v.vote == VoteValue.Disliked
 				                 && v.VoterName.Length > 0
 				             select v).FirstOrDefault ();
 				if (vote != null)

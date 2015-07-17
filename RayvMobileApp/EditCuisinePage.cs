@@ -14,9 +14,15 @@ namespace RayvMobileApp
 			get { return _cuisine; }
 		}
 
-		public CuisineSavedEventArgs (Cuisine category)
+		public bool ShowAll {
+			get;
+			set;
+		}
+
+		public CuisineSavedEventArgs (Cuisine category, bool showAll)
 		{
 			_cuisine = category;
+			ShowAll = showAll;
 		}
 	}
 
@@ -28,26 +34,26 @@ namespace RayvMobileApp
 		public event EventHandler<CuisineSavedEventArgs> Saved;
 		public event EventHandler Cancelled;
 
-		protected virtual void OnSaved (Cuisine cuisine)
+		protected virtual void OnSaved (Cuisine cuisine, bool showAll)
 		{
 			if (Saved != null)
-				Saved (this, new CuisineSavedEventArgs (cuisine));
+				Saved (this, new CuisineSavedEventArgs (cuisine, showAll));
 		}
 
-		void SaveSelected (string item)
+		void SaveSelected (string item, bool showAll)
 		{
 			Cuisine cuisine = Persist.Instance.Cuisines.Where (c => c.Title == item).SingleOrDefault ();
-			if (cuisine != null)
-				OnSaved (cuisine);
+			if (showAll || cuisine != null)
+				OnSaved (cuisine, showAll);
 		}
 
 		void DoListChoice (object s, ItemTappedEventArgs e)
 		{
 			string item = e.Item.ToString ();
-			SaveSelected (item);
+			SaveSelected (item, false);
 		}
 
-		public EditCuisinePage (string cuisine, bool inFlow = true, Page caller = null)
+		public EditCuisinePage (string cuisine, bool inFlow = true, Page caller = null, bool showAllButton = false)
 		{
 			Caller = caller;
 			InFlow = inFlow;
@@ -58,9 +64,16 @@ namespace RayvMobileApp
 			list.SelectedItem = Persist.Instance.Cuisines.Where (c => c.Title == cuisine).FirstOrDefault ();
 			list.ScrollTo (list.SelectedItem, ScrollToPosition.Center, true);
 			StackLayout tools = new BottomToolbar (this, "add");
+			RayvButton AllBtn = new RayvButton ("All Kinds") {
+				IsVisible = showAllButton
+			};
+			AllBtn.OnClick += (s, e) => {
+				SaveSelected (null, true);
+			};
 			Content = new StackLayout {
 				Children = {
 					list,
+					AllBtn,
 					tools
 				}
 			};
@@ -70,7 +83,7 @@ namespace RayvMobileApp
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => { 
 						if (InFlow)
-							SaveSelected ((list.SelectedItem as Cuisine).Title);
+							SaveSelected ((list.SelectedItem as Cuisine).Title, false);
 						else
 							Cancelled?.Invoke (this, null);
 					})

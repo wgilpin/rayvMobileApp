@@ -111,7 +111,7 @@ namespace RayvMobileApp
 				var FriendLine = new FormattedString ();
 				var voter = Persist.Instance.Friends [vote.voter].Name;
 				FriendLine.Spans.Add (new Span {
-					Text =$"{voter}  {vote.GetVoteAsString}  ",
+					Text = $"{voter}  {vote.GetVoteAsString}  ",
 				});
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
@@ -137,7 +137,7 @@ namespace RayvMobileApp
 
 		Grid GetFriendsComments ()
 		{
-			Grid friendCommentsGrid = new Grid {
+			GridWithCounter friendCommentsGrid = new GridWithCounter {
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (31) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -145,8 +145,8 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				},
-
 			};
+			friendCommentsGrid.ShowGrid = true;
 
 			try {
 				int whichRow = 0;
@@ -254,13 +254,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text = $" {DisplayPlace.place_name}",
+						Text =$" {DisplayPlace.place_name}",
 						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text = $"  {DisplayPlace.distance}",
+						Text =$"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});

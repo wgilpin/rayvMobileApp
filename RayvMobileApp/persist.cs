@@ -310,7 +310,8 @@ namespace RayvMobileApp
 						loader.SetMessage ("Loading friends", 0.4);
 					var friends_q = Db.Table<Friend> ();
 					foreach (var friend in friends_q)
-						Friends [friend.Key] = new Friend (friend.Name, friend.Key);
+						if (!string.IsNullOrEmpty (friend.Name))
+							Friends [friend.Key] = new Friend (friend.Name, friend.Key);
 					MyId = (long)GetConfigInt (settings.MY_ID);
 				} catch (Exception ex) {
 					Insights.Report (ex);
@@ -510,9 +511,12 @@ namespace RayvMobileApp
 						Console.WriteLine ("StoreFullUserRecord sorted");
 						Votes.Clear ();
 						foreach (JObject fr in obj ["friendsData"]) {
-							string fr_id = fr ["id"].ToString ();
-							string name = fr ["name"].ToString ();
-							Friends [fr_id] = new Friend (name, fr_id);
+							var f_name = fr ["name"].ToString ();
+							if (!string.IsNullOrEmpty (f_name)) {
+								string fr_id = fr ["id"].ToString ();
+								string name = f_name;
+								Friends [fr_id] = new Friend (name, fr_id);
+							}
 						}
 						Console.WriteLine ("StoreFullUserRecord friends stored");
 						int count = obj ["votes"].Count ();
@@ -589,10 +593,13 @@ namespace RayvMobileApp
 							}
 						}
 						foreach (JObject fr in obj ["friendsData"]) {
-							string fr_id = fr ["id"].ToString ();
-							string name = fr ["name"].ToString ();
-							Friends [fr_id] = new Friend (name, fr_id);
-							Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
+							var f_name = fr ["name"].ToString ();
+							if (!string.IsNullOrEmpty (f_name)) {
+								string fr_id = fr ["id"].ToString ();
+								string name = f_name;
+								Friends [fr_id] = new Friend (name, fr_id);
+								Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
+							}
 						}
 						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
 						if (vote_list != null) {
@@ -859,8 +866,10 @@ namespace RayvMobileApp
 					
 				foreach (KeyValuePair<string, Friend> f in Friends) {
 					try {
-						db.InsertOrReplace (f.Value);
-						Debug.WriteLine (f.Value.Name);
+						if (!string.IsNullOrEmpty (f.Value.Name)) {
+							db.InsertOrReplace (f.Value);
+							Debug.WriteLine (f.Value.Name);
+						}
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						Console.WriteLine ("Persist.updatePlaces: Friends {0}", ex);

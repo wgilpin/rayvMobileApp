@@ -8,7 +8,9 @@ namespace RayvMobileApp
 		public const string FILTER_WHEN = "FILTER_WHEN";
 		public const string FILTER_STYLE = "FILTER_STYLE";
 		public const string FILTER_KIND = "FILTER_KIND";
+		public const string FILTER_WHAT = "CHOICE_BY_VOTE_KIND";
 		public const string FILTER_WHO = "CHOICE_BY_WHO";
+		public const string FILTER_WHO_LIST = "CHOICE_BY_WHO_LIST";
 		public const string FILTER_CUISINE = "FILTER_CUISINE";
 		public const string FILTER_WHERE_NAME = "FILTER_WHERE_NAME";
 		public const string FILTER_WHERE_LAT = "FILTER_WHERE_LAT";
