@@ -317,7 +317,7 @@ namespace RayvMobileApp
 						if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 							Navigation.PushModalAsync (new LoginPage ());
 						else
-							DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+							DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 					},
 					() => {
 						Refresh ();
@@ -402,129 +402,101 @@ namespace RayvMobileApp
 			List<string> styleDescriptionItems = new List<string> ();
 			try {
 				Persist.Instance.DisplayList = data.Places;
-				IEnumerable<Place> filteredList = Persist.Instance.DisplayList;
+				IEnumerable<Vote> filteredList = Persist.Instance.Votes;
 				String text = FilterSearchBox.Text.ToLower ();
+
+				// VOTE FILTERS
+				// - Cuisine
 				if (!string.IsNullOrEmpty (FilterCuisine)) {
-					filteredList = filteredList.Where (p => p.vote.cuisineName == FilterCuisine);
+					filteredList = filteredList.Where (v => v.cuisineName == FilterCuisine);
 					IsFiltered = true;
 					styleDescriptionItems.Add ($"Cuisine is {FilterCuisine}");
 					Console.WriteLine ("ListPage filter cuisine");
 				}
-				if (!string.IsNullOrEmpty (text)) {
-					filteredList = filteredList.Where (p => p.place_name.ToLower ().Contains (text));
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Name is '{text}'");
-					Console.WriteLine ("ListPage filter text");
-				}
+				// - Mine
 				if (FilterVotesBy == VoteFilterWho.Mine) {
-					filteredList = filteredList.Where (p => p.iVoted);
+					filteredList = filteredList.Where (v => v.voter == Persist.Instance.MyId.ToString ());
 					IsFiltered = true;
 					styleDescriptionItems.Add ("My votes only");
 					Console.WriteLine ("ListPage filter text");
 				} 
-
+				// - chosen friends
 				if (FilterVotesBy == VoteFilterWho.Chosen) {
 					var chosenFriends = (from kvp in Persist.Instance.Friends
 					                     where ((Friend)kvp.Value).InFilter
 					                     select kvp.Key).ToList ();
-					var placesList = (from v in Persist.Instance.Votes
-					                  where chosenFriends.IndexOf (v.voter) > -1
-					                  select v.key).Distinct ().ToList ();
-
-
-					filteredList = filteredList.Where (p => placesList.IndexOf (p.key) > -1);
+					filteredList = filteredList.Where (v => chosenFriends.IndexOf (v.voter) > -1);
 					IsFiltered = true;
 					styleDescriptionItems.Add ("From chosen friends");
 					Console.WriteLine ("ListPage filter chosen friends");
 				}
+				// - vote value
 				switch (FilterVotesKind) {
 					case VoteFilterWhat.Like:
 						{
-							var likedList = (
-							                    from v in Persist.Instance.Votes
-							                    where v.vote == VoteValue.Liked
-							                    select v.key).
-								ToList ();
-							var newFilteredList = new List<Place> ();
-							foreach (Place p in filteredList)
-								if (likedList.IndexOf (p.key) > -1)
-									// it was in the wished list
-									newFilteredList.Add (p);
-							filteredList = newFilteredList;
+							filteredList = filteredList.Where (v => v.vote == VoteValue.Liked);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("liked places");
 							break;
 						}
 					case VoteFilterWhat.Try:
 						{
-							var votedToTryList = (
-							                         from v in Persist.Instance.Votes
-							                         where v.vote == VoteValue.Untried || v.vote == VoteValue.Liked
-							                         select v.key).
-								ToList ();
-							var newFilteredList = new List<Place> ();
-							foreach (Place p in filteredList)
-								if (votedToTryList.IndexOf (p.key) > -1)
-									// it was in the wished list
-									newFilteredList.Add (p);
-							filteredList = newFilteredList;
+							filteredList = filteredList.Where (v => v.vote == VoteValue.Untried || v.vote == VoteValue.Liked);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("places to try");
 							break;
 						}
 					case VoteFilterWhat.Wish:
 						{
-							var wishedPlaces = (
-							                       from v in Persist.Instance.Votes
-							                       where v.vote == VoteValue.Untried
-							                       select v.key).
-								ToList ();
-							var newFilteredList = new List<Place> ();
-							foreach (Place p in filteredList)
-								if (wishedPlaces.IndexOf (p.key) > -1)
-									// it was in the wished list
-									newFilteredList.Add (p);
-							filteredList = newFilteredList;
+							filteredList = filteredList.Where (v => v.vote == VoteValue.Untried);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("wishlist places");
 							break;
 						}
 					default:
 						break;
-
 				}
-
+				// - meal kind
 				if (FilterPlaceKind != MealKind.None) {
-					filteredList = filteredList.Where (p => (p.vote.kind & FilterPlaceKind) != MealKind.None);
+					filteredList = filteredList.Where (v => (v.kind & FilterPlaceKind) != MealKind.None);
 					if (FilterPlaceKind != MealKind.None && (int)FilterPlaceKind != Vote.MAX_MEALKIND) {
 						IsFiltered = true;
 						styleDescriptionItems.Add ($"{FilterPlaceKind}");
 					}
 					Console.WriteLine ("ListPage filter Kind");
 				}
+				// - place style
 				if (FilterPlaceStyle != PlaceStyle.None) {
-					filteredList = filteredList.Where (p => p.vote.style == FilterPlaceStyle);
+					filteredList = filteredList.Where (v => v.style == FilterPlaceStyle);
 					IsFiltered = true;
 					styleDescriptionItems.Add ($"{FilterPlaceStyle}");
 					Console.WriteLine ("ListPage filter style");
 				}
-				switch (MainFilter) {
-					case FilterKind.Mine:
-						filteredList = filteredList.Where (p => p.iVoted == true);
-						styleDescriptionItems.Add ("My places only");
-						Console.WriteLine ("ListPage filter mine");
-						break;
-					case FilterKind.Wishlist:
-						styleDescriptionItems.Add ("Wishlist only");
-						filteredList = filteredList.Where (p => p.vote.vote == VoteValue.Untried);
-						Console.WriteLine ("ListPage filter untried");
-						break;
+
+				// turn vote list into place list
+				List<string> placeKeyList = new List<string> ();
+				foreach (Vote v in filteredList) {
+					if (!placeKeyList.Contains (v.key)) {
+						placeKeyList.Add (v.key);
+					}
+				}
+				List<Place> placeList = new List<Place> ();
+				foreach (string key in placeKeyList) {
+					placeList.Add (Persist.Instance.GetPlace (key));
+				}
+
+				// PLACE FILTERS
+				if (!string.IsNullOrEmpty (text)) {
+					placeList = placeList.Where (p => p.place_name.ToLower ().Contains (text)).ToList ();
+					IsFiltered = true;
+					styleDescriptionItems.Add ($"Name is '{text}'");
+					Console.WriteLine ("ListPage filter text");
 				}
 				if (FilterSearchCenter != null) {
 					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
 					DisplayPosition = (Position)FilterSearchCenter;
-					List<Place> distance_list = filteredList.ToList ();
-					foreach (var p in filteredList) {
+					List<Place> distance_list = placeList.ToList ();
+					foreach (var p in placeList) {
 						p.distance_for_search = p.distance_from (DisplayPosition);
 						if (p.distance_for_search < 0.1)
 							Console.WriteLine ($"{p.place_name} is {p.distance_for_search}");
@@ -539,7 +511,7 @@ namespace RayvMobileApp
 						styleDescriptionItems.Add ($"Near {savedLocation}");
 					IsFiltered = true;
 				} else {
-					Persist.Instance.DisplayList = filteredList.ToList ();
+					Persist.Instance.DisplayList = placeList.ToList ();
 					Persist.Instance.DisplayList.Sort ();
 				}
 			} catch (Exception ex) {
@@ -600,7 +572,7 @@ namespace RayvMobileApp
 							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 								Navigation.PushModalAsync (new LoginPage ());
 							else
-								DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+								DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 						
 						}, 
 						onSucceed: () => {

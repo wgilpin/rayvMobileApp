@@ -59,5 +59,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)PlaceEditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FindChoicePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsChooserView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IShareable.cs" />
   </ItemGroup>
 </Project>

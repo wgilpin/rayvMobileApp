@@ -90,7 +90,7 @@ namespace RayvMobileApp
 
 			var FindText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -27,
+				TranslationY = -17,
 				Children = { 
 					new Label {
 						Text = "Find Food",
@@ -106,7 +106,7 @@ namespace RayvMobileApp
 			// ADD...
 			var AddText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -30,
+				TranslationY = -20,
 				TranslationX = -5,
 				Children = { 
 					new Label {
@@ -123,7 +123,7 @@ namespace RayvMobileApp
 			// NEWS
 			var NewsText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -27,
+				TranslationY = -17,
 				Children = { 
 					new Label {
 						Text = "Activity",
@@ -152,6 +152,13 @@ namespace RayvMobileApp
 //			AppDelegate.locationMgr = new LocationManager ();
 
 			App.locationMgr.StartLocationUpdates ();
+			Appearing += (sender, e) => {
+				double y = (Height - 250) / 15;
+				FindText.TranslationY = -y;
+				AddText.TranslationY = -y;
+				NewsText.TranslationY = -y;
+				Console.WriteLine ($"MainMenu Appearing {y}");
+			};
 		}
 
 

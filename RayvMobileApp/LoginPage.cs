@@ -17,12 +17,26 @@ namespace RayvMobileApp
 		ActivityIndicator Spinner;
 		Label Error;
 		ServerPicker Servers;
+		Label LoadingMessage;
+		ProgressBar progBar;
+
 
 		string[] TesterWhitelist = { "Will", "pegah", "georgia" };
+
+		public void SetProgress (string message, Double progress)
+		{
+			Device.BeginInvokeOnMainThread (() => {
+				LoadingMessage.Text = message;
+				Console.WriteLine ("Loading message: {0}", message);
+				progBar.ProgressTo (progress, 250, Easing.Linear);
+			});
+		}
 
 		void DoLogin (object sender, EventArgs e)
 		{
 			Spinner.IsRunning = true;
+			LoadingMessage.IsVisible = true;
+			progBar.IsVisible = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
 					Persist.Instance.SetConfig (settings.SERVER, settings.DEFAULT_SERVER);
@@ -41,6 +55,8 @@ namespace RayvMobileApp
 							onFail: () => {
 								Device.BeginInvokeOnMainThread (() => {
 									Spinner.IsRunning = false;
+									LoadingMessage.IsVisible = true;
+									progBar.IsVisible = true;
 								});
 							},
 							onSucceed: () => {
@@ -50,7 +66,8 @@ namespace RayvMobileApp
 									this.Navigation.PushModalAsync (new MainMenu ());
 								});
 							}, 
-							incremental: false);
+							incremental: false,
+							statusMessage: SetProgress);
 					
 					} else {
 						//login failed
@@ -85,8 +102,17 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("LoginPage");
 			Console.WriteLine ("LoginPage()");
-			Spinner = new ActivityIndicator { Color = Color.Red, };
-
+			Spinner = new ActivityIndicator { Color = settings.BaseColor, };
+			LoadingMessage = new Label { 
+				Text = "Loading...",
+				TextColor = settings.BaseColor,
+				HorizontalOptions = LayoutOptions.Center,
+				IsVisible = false,
+			};
+			progBar = new ProgressBar () { 
+				HorizontalOptions = LayoutOptions.FillAndExpand, 
+				IsVisible = false 
+			};
 			RayvButton loginButton = new RayvButton {
 				Text = " Login ",
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
@@ -140,6 +166,8 @@ namespace RayvMobileApp
 					Password,
 					Error,
 					Spinner,
+					LoadingMessage,
+					progBar,
 					loginButton,
 					Register,
 				}

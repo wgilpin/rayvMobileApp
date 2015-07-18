@@ -160,6 +160,7 @@
     <Compile Include="AppDataDroid.cs" />
     <Compile Include="LocationManagerDroid.cs" />
     <Compile Include="DeviceSpecificDroid.cs" />
+    <Compile Include="ShareIntent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

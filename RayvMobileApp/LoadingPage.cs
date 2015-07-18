@@ -9,8 +9,8 @@ namespace RayvMobileApp
 	public class LoadingPage : ContentPage
 	{
 		BackgroundWorker worker;
-		Label LoadingMessage;
 		Label ServerMessage;
+		Label LoadingMessage;
 		ProgressBar progBar;
 
 		private void WorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
@@ -31,30 +31,36 @@ namespace RayvMobileApp
 			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
 			if (Persist.Instance.Online) {
+				SetMessage ("Connecting", 0.5);
 				Persist.Instance.GetUserData (
 					onFail: () => {
 						Device.BeginInvokeOnMainThread (() => {
 							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 								Navigation.PushModalAsync (new LoginPage ());
-							else
-								DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+							else {
+								//DisplayAlert ("Offline", "Unable to contact server", "OK");
+								Navigation.PushModalAsync (new MainMenu ());
+							}
 						});
 					}, 
 					onSucceed: () => {
 						Device.BeginInvokeOnMainThread (() => {
 							Persist.Instance.Online = true;
 							Navigation.PushModalAsync (new MainMenu ());
+							Persist.Instance.LoadCategories ();
 						});
 					},
 					incremental: true, 
 					statusMessage: SetMessage);
-				Persist.Instance.LoadCategories ();
+				
 			} else
 				Device.BeginInvokeOnMainThread (() => {
 					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 						Navigation.PushModalAsync (new LoginPage ());
-					else
-						DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+					else {
+						DisplayAlert ("Offline", "Unable to contact server", "OK");
+						Navigation.PushModalAsync (new MainMenu ());
+					}
 				});
 		}
 

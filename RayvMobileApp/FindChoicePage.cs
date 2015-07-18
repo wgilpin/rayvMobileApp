@@ -322,7 +322,7 @@ namespace RayvMobileApp
 			if (lat != 0.0) {
 				SearchCentre = new Position (
 					lat,
-					Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LAT));
+					Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LNG));
 				currentLocationName = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
 			} 
 		}

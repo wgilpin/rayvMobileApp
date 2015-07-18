@@ -59,6 +59,7 @@ namespace RayvMobileApp
 
 		public bool Online {
 			get {
+//				return true;
 				try {
 					if (_online)
 						return true;
@@ -362,7 +363,6 @@ namespace RayvMobileApp
 			var response = conn.get ("/getCuisines_ajax", getRetries: 1);
 			if (response == null) {
 				//OFFLINE
-				LoadCategoriesFromDb ();
 				return;
 			}
 			string result = response.Content;
@@ -731,7 +731,6 @@ namespace RayvMobileApp
 			}
 			restConnection webReq = GetWebConnection ();
 			if (webReq != null) {
-				statusMessage?.Invoke ("Checking network", 0.5);
 				IRestResponse resp;
 				try {
 					Console.WriteLine ("Contacting server");

@@ -104,7 +104,7 @@ namespace RayvMobileApp
 					return "Liked";
 				if (vote == VoteValue.Disliked)
 					return "Disliked";
-				return "Starred";
+				return "wants to try";
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return null;

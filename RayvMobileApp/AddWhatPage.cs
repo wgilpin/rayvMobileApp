@@ -1,12 +1,33 @@
 ﻿using System;
 
 using Xamarin.Forms;
+using System.Collections.Generic;
 
 
 namespace RayvMobileApp
 {
 	public class AddWhatPage : ContentPage
 	{
+		void DoSendInvite (object s, EventArgs e)
+		{
+			try {
+				var resp = restConnection.Instance.get ("/api/invite");
+				if (resp.ResponseStatus == RestSharp.ResponseStatus.Error) {
+					DisplayAlert ("Error", "Unable to create invite", "OK");
+					return;
+				}
+				string uri = resp.Content;
+				var sharer = DependencyService.Get<IShareable> ();
+				var shareBody = 
+					"I'd like to invite you to use the Taste 5 app so we can share the restaurants and cafes we like.\n" +
+					"Using your phone, click on this link to join me!\n\n" +
+					uri;
+				sharer.OpenShareIntent (shareBody);
+			} catch (Exception ex) {
+				DisplayAlert ("Error", "Invite Error", "OK");
+			}
+		}
+
 		public AddWhatPage ()
 		{
 			Analytics.TrackPage ("AddWhatPage");
@@ -18,6 +39,7 @@ namespace RayvMobileApp
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (50, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
@@ -47,17 +69,14 @@ namespace RayvMobileApp
 				HeightRequest = 80,
 			};
 			var clickFriends = new TapGestureRecognizer ();
-			clickFriends.Tapped += (s, e) => {
-				Console.WriteLine ("MainMenu: friends button - not implemented");
-				DisplayAlert ("Friends", "Not Implemented (yet)", "Shame");
-			};
+			clickFriends.Tapped += DoSendInvite;
 			friendsImg.GestureRecognizers.Add (clickFriends);
 
 			StackLayout tools = new BottomToolbar (this, "add");
 
 			var PlaceText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -70,
+				TranslationY = -40,
 				Children = { 
 					new Label {
 						Text = "Add Place",
@@ -71,7 +90,7 @@ namespace RayvMobileApp
 			PlaceText.GestureRecognizers.Add (clickAdd);
 			var FriendText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -70,
+				TranslationY = -40,
 				Children = { 
 					new Label {
 						Text = "Add Friend",
@@ -83,13 +102,17 @@ namespace RayvMobileApp
 				}
 			};
 			FriendText.GestureRecognizers.Add (clickFriends);
-			grid.Children.Add (addImg, 0, 0);
-			grid.Children.Add (PlaceText, 0, 1);
-			grid.Children.Add (friendsImg, 0, 2);
-			grid.Children.Add (FriendText, 0, 3);
-			grid.Children.Add (tools, 0, 4);
+			grid.Children.Add (friendsImg, 0, 0);
+			grid.Children.Add (FriendText, 0, 1);
+			grid.Children.Add (addImg, 0, 3);
+			grid.Children.Add (PlaceText, 0, 4);
+			grid.Children.Add (tools, 0, 5);
 			Content = grid;
 			BackgroundColor = settings.BaseColor;
+			Appearing += (sender, e) => {
+				grid.RowDefinitions [2].Height = new GridLength ((Height - 250) / 6, GridUnitType.Absolute);
+				Console.WriteLine (Height / 10);
+			};
 		}
 	}
 }

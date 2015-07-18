@@ -135,7 +135,7 @@ namespace RayvMobileApp
 				if (vote == VoteValue.Disliked)
 					imageUrl = "Disliked";
 				if (untried)
-					imageUrl = "Saved";
+					imageUrl = "wants to try";
 				return imageUrl;
 			}
 		}

@@ -43,6 +43,7 @@ namespace RayvMobileApp
 		{
 			Title = "Activity";
 			Insights.Track ("News Page");
+			BackgroundColor = Color.White;
 			list = new ListView () {
 				RowHeight = ROW_HEIGHT,
 				BackgroundColor = Color.White,
@@ -274,7 +275,7 @@ namespace RayvMobileApp
 								if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 									Navigation.PushModalAsync (new LoginPage ());
 								else
-									DisplayAlert ("Offline", "Unable to conatct server - try later", "OK");
+									DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 							},
 							onSucceed: () => {
 								SetSource ();

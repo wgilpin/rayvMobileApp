@@ -38,6 +38,7 @@ namespace RayvMobileApp
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			Children.Add (_ib, 0, 0);
 			Children.Add (Spinner, 0, 0);
+			HeightRequest = 15;
 		}
 	}
 
@@ -108,8 +109,8 @@ namespace RayvMobileApp
 			VerticalOptions = LayoutOptions.EndAndExpand;
 			Console.WriteLine ("toolbar()");
 			grid = new Grid {
-				Padding = 5,
-				ColumnSpacing = 13,
+				Padding = 7,
+				ColumnSpacing = 30,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
