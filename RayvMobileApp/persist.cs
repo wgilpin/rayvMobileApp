@@ -59,7 +59,7 @@ namespace RayvMobileApp
 
 		public bool Online {
 			get {
-//				return true;
+				return true;
 				try {
 					if (_online)
 						return true;

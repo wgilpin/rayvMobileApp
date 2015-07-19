@@ -7,6 +7,30 @@ using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
+	public class UserProfile
+	{
+		public string ScreenName { get; private set; }
+
+		public string Email { get; private set; }
+
+		public string Gender { get; private set; }
+
+		public UserProfile ()
+		{
+			try {
+				String result = restConnection.Instance.get ("api/profile").Content;
+				restConnection.LogToServer (LogLevel.INFO, "DoGetProfile" + result);
+				JObject obj = JObject.Parse (result);
+				ScreenName = obj ["profile"] ["screen_name"].ToString ();
+				Email = obj ["profile"] ["email"].ToString ();
+				Gender = obj ["profile"] ["sex"].ToString ();
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				restConnection.LogErrorToServer ("DoGetProfile {0}", ex);
+			}
+		}
+	}
+
 	public class LineGrid3: Grid
 	{
 	
@@ -51,22 +75,17 @@ namespace RayvMobileApp
 
 		void DoGetProfile ()
 		{
+			var profile = new UserProfile ();
+
+			ScreenNameEd.Text = profile.ScreenName;
+			EmailEd.Text = profile.Email;
 			try {
-				String result = restConnection.Instance.get ("api/profile").Content;
-				restConnection.LogToServer (LogLevel.INFO, "DoGetProfile" + result);
-				JObject obj = JObject.Parse (result);
-				ScreenNameEd.Text = obj ["profile"] ["screen_name"].ToString ();
-				EmailEd.Text = obj ["profile"] ["email"].ToString ();
-				try {
-					GenderEd.SelectedIndex = GenderEd.Items.IndexOf (obj ["profile"] ["sex"].ToString ());
-				} catch {
-					GenderEd.SelectedIndex = 0;
-				}
-				SaveBtn.IsVisible = false;
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				restConnection.LogErrorToServer ("DoGetProfile {0}", ex);
+				GenderEd.SelectedIndex = GenderEd.Items.IndexOf (profile.Gender);
+			} catch {
+				GenderEd.SelectedIndex = 0;
 			}
+			SaveBtn.IsVisible = false;
+			
 		}
 
 		void DoSaveProfile (object s, EventArgs e)
@@ -116,6 +135,9 @@ namespace RayvMobileApp
 
 			ActivityBtn = new RayvButton ("My Activity");
 			PwdBtn = new RayvButton ("Change Password");
+			PwdBtn.Clicked += (sender, e) => {
+				
+			};
 			PushSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 			EmailsSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 

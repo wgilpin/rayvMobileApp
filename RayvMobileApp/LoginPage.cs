@@ -98,6 +98,43 @@ namespace RayvMobileApp
 		{
 		}
 
+		void SendResetEmail (string email)
+		{
+			var cparams = new Dictionary<string,string> ();
+			cparams ["username"] = email;
+
+			try {
+				restConnection.Instance.post ("/forgot", cparams);
+				DisplayAlert ("Password", "An email has been sent to your registered account", "OK");
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				DisplayAlert ("Password", "Unable to contact server - try later", "OK");
+			}
+		}
+
+		void AskForEmail ()
+		{
+			// no password - ask for it
+			var emailEd = new Entry {
+				Placeholder = "Email Address"
+			};
+			var emailSend = new Button {
+				Text = "Reset Password",
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor),
+				TextColor = ColorUtil.Darker (settings.BaseColor),
+			};
+			Content = new StackLayout {
+				Children = {
+					new LabelWide ("Enter your email address"),
+					emailEd,
+					emailSend
+				}
+			};
+			emailSend.Clicked += (sender, ev) => {
+				SendResetEmail (emailEd.Text);
+			};
+		}
+
 		public LoginPage ()
 		{
 			Analytics.TrackPage ("LoginPage");
@@ -134,13 +171,26 @@ namespace RayvMobileApp
 				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
 			};
 			RayvButton Register = new RayvButton {
-				Text = "Register New Account", 
-				BackgroundColor = Color.Yellow, 
+				Text = "Sign Up", 
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
 				TextColor = ColorUtil.Darker (settings.BaseColor),
 			};
 			Register.Clicked += (s, e) => {
 				this.Navigation.PushModalAsync (
 					new RayvNav (new RegisterPage ()), false);
+			};
+			RayvButton Reset = new RayvButton {
+				Text = "Forgot Password", 
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
+				TextColor = ColorUtil.Darker (settings.BaseColor),
+			};
+			Reset.Clicked += (s, e) => {
+				var email = new UserProfile ().Email;
+				if (string.IsNullOrEmpty (email)) {
+					AskForEmail ();
+				}
+				;
+				SendResetEmail (email);
 			};
 			Error = new Label {
 				Text = "User Name & Password Don't match", 
@@ -169,6 +219,7 @@ namespace RayvMobileApp
 					LoadingMessage,
 					progBar,
 					loginButton,
+					Reset,
 					Register,
 				}
 			};
