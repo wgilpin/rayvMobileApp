@@ -24,6 +24,17 @@ namespace RayvMobileApp
 			lv.ItemsSource = Persist.Instance.Friends;
 		}
 
+		void DoToggleSelection (object sender, EventArgs e)
+		{
+			RayvButton btn = (RayvButton)sender;
+			bool on = (btn.Text == "Select All");
+			foreach (var kvp in Persist.Instance.Friends)
+				kvp.Value.InFilter = on;
+			btn.Text = on ? "Clear All" : "Select All";
+			lv.ItemsSource = null;
+			lv.ItemsSource = Persist.Instance.Friends;
+		}
+
 		public FriendsChooserView ()
 		{
 			lv = new ListView ();
@@ -53,12 +64,12 @@ namespace RayvMobileApp
 						new RowDefinition { Height = new GridLength (22)  },
 					},
 					ColumnDefinitions = {
-						new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
+						new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 					}
 				};
-				grid.Children.Add (nameLabel, 0, 0);
-				grid.Children.Add (checkBox, 1, 0);
+				grid.Children.Add (checkBox, 0, 0);
+				grid.Children.Add (nameLabel, 1, 0);
 
 				return new ViewCell {
 					View = grid,
@@ -70,10 +81,13 @@ namespace RayvMobileApp
 			lv.ItemTapped += DoSelectItem;
 			var DoneBtn = new RayvButton ("Done");
 			DoneBtn.Clicked += (sender, e) => Saved?.Invoke (this, null);
+			var toggleBtn = new RayvButton ("Clear All");
+			toggleBtn.Clicked += DoToggleSelection;
 			var stack = new StackLayout {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
+					toggleBtn,
 					lv,
 					DoneBtn
 				}

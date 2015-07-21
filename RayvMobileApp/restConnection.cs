@@ -71,7 +71,7 @@ namespace RayvMobileApp
 				throw new UnauthorizedAccessException ("Bad Login");
 			try {
 				int code = (int)response.StatusCode.GetTypeCode ();
-				if (code > 400)
+				if (code > 400 || response.Content.IndexOf ("<html") > -1)
 					throw new InvalidOperationException (
 						String.Format (
 							"Status {0} {1}", 

@@ -264,9 +264,9 @@ namespace RayvMobileApp
 
 		public void LoadFromDb (String onlyWithCuisineType = null, LoadingPage loader = null)
 		{
-			Instance.LoadCategoriesFromDb ();
-			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
-				try {
+			try {
+				Instance.LoadCategoriesFromDb ();
+				using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
 					//load the data from the db
 					Console.WriteLine ("Persist.LoadFromDb loading");
 
@@ -314,10 +314,12 @@ namespace RayvMobileApp
 						if (!string.IsNullOrEmpty (friend.Name))
 							Friends [friend.Key] = new Friend (friend.Name, friend.Key);
 					MyId = (long)GetConfigInt (settings.MY_ID);
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
 				}
+			} catch (UnauthorizedAccessException) {
+				Console.WriteLine ("Persist.LoadFromDb - Not Logged In");
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				Console.WriteLine ("Persist.LoadFromDb {0}", ex.Message);
 			}
 		}
 
@@ -755,9 +757,11 @@ namespace RayvMobileApp
 				} catch (UnauthorizedAccessException) {
 					// not logged in
 					if (onFail != null)
-						Device.BeginInvokeOnMainThread (() => {
-							onFail.DynamicInvoke ();
-						});
+						Persist.Instance.SetConfig (settings.PASSWORD, "");
+					Device.BeginInvokeOnMainThread (() => {
+
+						onFail.DynamicInvoke ();
+					});
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				} catch (ProtocolViolationException) {
