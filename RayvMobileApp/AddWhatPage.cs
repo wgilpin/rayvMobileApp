@@ -8,26 +8,6 @@ namespace RayvMobileApp
 {
 	public class AddWhatPage : ContentPage
 	{
-		void DoSendInvite (object s, EventArgs e)
-		{
-			try {
-				var resp = restConnection.Instance.get ("/api/invite");
-				if (resp.ResponseStatus == RestSharp.ResponseStatus.Error) {
-					DisplayAlert ("Error", "Unable to create invite", "OK");
-					return;
-				}
-				string uri = resp.Content;
-				var sharer = DependencyService.Get<IShareable> ();
-				var shareBody = 
-					"I'd like to invite you to use the Taste 5 app so we can share the restaurants and cafes we like.\n" +
-					"Using your phone, click on this link to join me!\n\n" +
-					uri;
-				sharer.OpenShareIntent (shareBody);
-			} catch (Exception ex) {
-				DisplayAlert ("Error", "Invite Error", "OK");
-			}
-		}
-
 		public AddWhatPage ()
 		{
 			Analytics.TrackPage ("AddWhatPage");
@@ -69,7 +49,11 @@ namespace RayvMobileApp
 				HeightRequest = 80,
 			};
 			var clickFriends = new TapGestureRecognizer ();
-			clickFriends.Tapped += DoSendInvite;
+			clickFriends.Tapped += (sender, e) => {
+				Console.WriteLine ("MainMenu: Add button - push AddFriend");
+				this.Navigation.PushAsync (new AddFriendPage ());
+			};
+			;
 			friendsImg.GestureRecognizers.Add (clickFriends);
 
 			StackLayout tools = new BottomToolbar (this, "add");

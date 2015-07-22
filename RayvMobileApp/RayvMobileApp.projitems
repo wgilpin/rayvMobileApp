@@ -60,5 +60,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FindChoicePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsChooserView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IShareable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddFriendPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AddFindUserPage.cs" />
   </ItemGroup>
 </Project>

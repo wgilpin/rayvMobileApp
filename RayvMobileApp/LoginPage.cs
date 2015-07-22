@@ -57,6 +57,8 @@ namespace RayvMobileApp
 									Spinner.IsRunning = false;
 									LoadingMessage.IsVisible = true;
 									progBar.IsVisible = true;
+									if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+										this.Navigation.PushModalAsync (new LoginPage ());
 								});
 							},
 							onSucceed: () => {

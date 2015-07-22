@@ -261,6 +261,7 @@
     <BundleResource Include="Resources\logo_white.png" />
     <BundleResource Include="Resources\Add_friend.png" />
     <BundleResource Include="Resources\Add_place.png" />
+    <BundleResource Include="Resources\envelope_2x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
