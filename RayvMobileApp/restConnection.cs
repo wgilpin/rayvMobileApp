@@ -117,7 +117,8 @@ namespace RayvMobileApp
 
 		public string post (string url, Dictionary<string,string> parameters = null)
 		{
-			return this.get (url, parameters, Method.POST).Content;
+			var res = this.get (url, parameters, Method.POST);
+			return res?.Content;
 		}
 
 		public static restConnection Instance {
