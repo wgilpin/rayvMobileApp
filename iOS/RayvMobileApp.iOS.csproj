@@ -262,6 +262,7 @@
     <BundleResource Include="Resources\Add_friend.png" />
     <BundleResource Include="Resources\Add_place.png" />
     <BundleResource Include="Resources\envelope_2x.png" />
+    <BundleResource Include="Resources\Big_activity_dot.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
