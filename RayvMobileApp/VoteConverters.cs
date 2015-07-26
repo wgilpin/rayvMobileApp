@@ -219,6 +219,19 @@ namespace RayvMobileApp
 
 	public class VoterToRandomColorConverter: IValueConverter
 	{
+		public static Color stringToColor (string name)
+		{
+			if (name.Length > 3) {
+				int i1 = ((Encoding.ASCII.GetBytes (name) [0] - 97) % 26) * 10;
+				int i2 = ((Encoding.ASCII.GetBytes (name) [1] - 97) % 26) * 10;
+				int i3 = ((Encoding.ASCII.GetBytes (name) [2] - 97) % 26) * 10;
+				Color c = Color.FromRgb (i1, i2, i3);
+				Console.WriteLine ("{0} {1}", name, c);
+				return c;
+			}
+			return Color.Black;
+		}
+
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			var voter = value as string;
@@ -226,15 +239,7 @@ namespace RayvMobileApp
 				return null;
 			try {
 				string name = Persist.Instance.Friends [voter].Name.ToLower ();
-				if (name.Length > 3) {
-					int i1 = ((Encoding.ASCII.GetBytes (name) [0] - 97) % 26) * 10;
-					int i2 = ((Encoding.ASCII.GetBytes (name) [1] - 97) % 26) * 10;
-					int i3 = ((Encoding.ASCII.GetBytes (name) [2] - 97) % 26) * 10;
-					Color c = Color.FromRgb (i1, i2, i3);
-					Console.WriteLine ("{0} {1}", name, c);
-					return c;
-				}
-				return Color.Black;
+				return stringToColor (name);
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return Color.Black;

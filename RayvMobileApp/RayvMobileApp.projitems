@@ -62,5 +62,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IShareable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddFriendPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddFindUserPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Invite.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FriendsPage.cs" />
   </ItemGroup>
 </Project>

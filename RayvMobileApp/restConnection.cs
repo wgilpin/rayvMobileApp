@@ -84,6 +84,19 @@ namespace RayvMobileApp
 		}
 
 		public IRestResponse get (string url,
+		                          string param_name,
+		                          string param_value,
+		                          Method method = Method.GET,
+		                          int getRetries = settings.MAX_SERVER_TRIES)
+		{
+			var parms = new Dictionary<string,string> {
+				{ param_name, param_value }
+			};
+			return get (url, parms, method, getRetries);
+		}
+
+
+		public IRestResponse get (string url,
 		                          Dictionary<string,string> parameters = null,
 		                          Method method = Method.GET,
 		                          int getRetries = settings.MAX_SERVER_TRIES)
@@ -115,6 +128,15 @@ namespace RayvMobileApp
 			return null;
 		}
 
+		public string post (string url, string param_name, string param_value)
+		{
+			var parms = new Dictionary<string,string> {
+				{ param_name, param_value }
+			};
+			var res = this.get (url, parms, Method.POST);
+			return res?.Content;
+		}
+
 		public string post (string url, Dictionary<string,string> parameters = null)
 		{
 			var res = this.get (url, parameters, Method.POST);
@@ -128,6 +150,11 @@ namespace RayvMobileApp
 				}
 				return instance;
 			}
+		}
+
+		public void ClearCredentials ()
+		{
+			instance = null;
 		}
 
 		public static void LogToServer (LogLevel level, String message)

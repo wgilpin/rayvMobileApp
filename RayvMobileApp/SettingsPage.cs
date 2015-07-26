@@ -13,6 +13,8 @@ namespace RayvMobileApp
 		void DoLogout (object sender, EventArgs e)
 		{
 			//Persist.Instance.SetConfig ("pwd", "");
+			Persist.Instance.Wipe ();
+			restConnection.Instance.ClearCredentials ();
 			Debug.WriteLine ("SettingsPage.DoLogout: Push LoginPage");
 			this.Navigation.PushModalAsync (new LoginPage ());
 		}
@@ -41,9 +43,10 @@ namespace RayvMobileApp
 							Persist.Instance.GpsPosition.Longitude),
 					},
 					new Label {
-						Text = String.Format (
-							"Server: {0}",
-							Persist.Instance.GetConfig (settings.SERVER)),
+						Text = $"Server: {Persist.Instance.GetConfig (settings.SERVER)}"
+					},
+					new Label {
+						Text =$"UID: {Persist.Instance.MyId}",
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,

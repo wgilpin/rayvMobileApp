@@ -61,8 +61,9 @@ namespace RayvMobileApp
 			addImg.GestureRecognizers.Add (clickAdd);
 
 			// NEWS
+			var newsSrc = Persist.Instance.HaveActivity ? "Big_activity_dot.png" : "Big activity.png";
 			Image newsImg = new Image {
-				Source = settings.DevicifyFilename ("Big activity.png"),
+				Source = settings.DevicifyFilename (newsSrc),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickNews = new TapGestureRecognizer ();

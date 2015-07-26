@@ -240,7 +240,6 @@ namespace RayvMobileApp
 		{
 			try {
 				string key = (value as string);
-				Console.WriteLine (key);
 				if (key == null) {
 					return null;
 				}

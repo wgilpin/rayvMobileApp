@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Xamarin;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace RayvMobileApp
 {
@@ -12,6 +13,15 @@ namespace RayvMobileApp
 	{
 		Good,
 		All,
+	}
+
+	public class ListItem : Frame
+	{
+		public string Key { get; set; }
+
+		public ListItem () : base ()
+		{
+		}
 	}
 
 	public class NewsPage: ContentPage
@@ -27,15 +37,195 @@ namespace RayvMobileApp
 		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + ROW4 + 13;
 		const int PAGE_SIZE = 10;
 
-		ListView list;
+		StackLayout list;
 		DateTime? LastUpdate;
 		bool Clicked;
 		Button MoreBtn;
 		int ShowRows;
 		StackLayout Toolbar;
 		ActivityIndicator Spinner;
-
 		NewsFilterKind Filter = NewsFilterKind.All;
+
+		#endregion
+
+		#region Content
+
+
+		Grid CreateGrid ()
+		{
+			return new Grid {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (ROW1, GridUnitType.Absolute)  },
+					new RowDefinition { Height = new GridLength (ROW2, GridUnitType.Absolute)  },
+					new RowDefinition { Height = new GridLength (ROW3, GridUnitType.Absolute)  },
+					new RowDefinition { Height = new GridLength (ROW4, GridUnitType.Absolute)  },
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 20, GridUnitType.Absolute) },
+				}
+			};
+		}
+
+		void AddName (Grid grid, string name, string comment)
+		{
+			Button LetterBtn = new Button {
+				WidthRequest = 30,
+				HeightRequest = 30,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+				BorderRadius = 15,
+				BackgroundColor = Vote.RandomColor (name),
+				Text = Vote.FirstLetter (name),
+				TextColor = Color.White,
+				VerticalOptions = LayoutOptions.Start,
+			};
+
+			Label nameLbl = new Label {
+				FontAttributes = FontAttributes.Bold,
+				TranslationY = 2,
+				TextColor = Color.FromHex ("#444444"),
+				Text = name,
+			};
+			Label CommentLbl = new Label {
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				FontAttributes = FontAttributes.Italic,
+				TextColor = Color.FromHex ("#444444"),
+				HorizontalOptions = LayoutOptions.Start,
+				TranslationY = 4,
+				Text = comment,
+			};
+			grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 1, }, 0, 1, 0, 2);
+			var inner = new StackLayout {
+				Orientation = StackOrientation.Horizontal,
+				Children = {
+					nameLbl,
+					CommentLbl,
+				}
+			};
+			grid.Children.Add (inner, 1, 2, 0, 1);
+		}
+
+		ListItem CreateInviteItem (string name,
+		                           string action,
+		                           string btn1text,
+		                           EventHandler btn1click,
+		                           string btn2text = null,
+		                           EventHandler btn2click = null)
+		{
+			Grid grid = CreateGrid ();
+			grid.RowDefinitions [2].Height = 30;
+			AddName (grid, name, "");
+			var btn1 = new Button {
+				BackgroundColor = settings.BaseColor,
+				TextColor = settings.BaseTextColor,
+				Text = btn1text,
+				FontAttributes = FontAttributes.Bold,
+				CommandParameter = name
+			};
+			btn1.Clicked += btn1click;
+			Button btn2 = new Button {
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor),
+				Text = btn2text,
+				TextColor = settings.InvertTextColor,
+				CommandParameter = name
+			};
+			btn2.Clicked += btn2click;
+			Label ActionLbl = new Label {
+				FontAttributes = FontAttributes.Italic,
+				HorizontalOptions = LayoutOptions.Start,
+				LineBreakMode = LineBreakMode.CharacterWrap,
+				Text = action,
+				TextColor = settings.InvertTextColor
+			};
+
+			grid.Children.Add (ActionLbl, 1, 3, 1, 2);
+			if (string.IsNullOrEmpty (btn2text)) {
+				// one btn
+				grid.Children.Add (btn1, 1, 3, 2, 3);
+			} else {
+				// two btns
+				grid.Children.Add (btn1, 1, 2, 2, 3);
+				grid.Children.Add (btn2, 2, 3, 2, 3);
+			}
+			grid.RowDefinitions [3].Height = 0;
+			return new ListItem {
+				HasShadow = false,
+				BackgroundColor = Color.White,
+				OutlineColor = Color.White,
+				Content = grid,
+				Padding = 0,
+			};
+		}
+
+		Frame CreateNewsItem (Vote vote)
+		{
+			Grid grid = CreateGrid ();
+
+			Label TimeLbl = new Label {
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				FontAttributes = FontAttributes.Italic,
+				HorizontalOptions = LayoutOptions.End,
+				Text = vote.PrettyHowLongAgo,
+			};
+
+			Image PlaceImg = new Image { 
+				Aspect = Aspect.AspectFill,
+				WidthRequest = NEWS_IMAGE_SIZE, 
+				HeightRequest = ROW_HEIGHT,
+				TranslationX = 0,
+				VerticalOptions = LayoutOptions.Start,
+				Opacity = 0.45,
+				Source = vote.PlaceImage
+			};
+
+			Label PlaceLbl = new Label {
+				FontAttributes = FontAttributes.Bold,
+				HorizontalOptions = LayoutOptions.Center,
+				LineBreakMode = LineBreakMode.TailTruncation,
+				Text = vote.place_name
+			};
+
+			Label CommentLbl = new Label {
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				FontAttributes = FontAttributes.Italic,
+				BackgroundColor = Color.White,
+				TextColor = Color.FromHex ("#606060"),
+				HorizontalOptions = LayoutOptions.Start,
+				LineBreakMode = LineBreakMode.WordWrap,
+				Text = vote.PrettyComment
+			};
+
+			//TODO: Get address from vote
+			Label AddressLbl = new Label {
+				FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
+				LineBreakMode = LineBreakMode.TailTruncation,
+				TextColor = Color.FromHex ("#808080"),
+			};
+			// number then anything
+			string addressPattern = @"^(\d+[-\d+]* )(.*)";
+			MatchCollection matches = Regex.Matches (vote.Place.address, addressPattern);
+			AddressLbl.Text = matches.Count < 1 ? 
+				vote.Place.address : 
+				AddressLbl.Text = matches [0].Groups [2].ToString ();
+
+			grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
+			grid.Children.Add (TimeLbl, 1, 3, 0, 1);
+			grid.Children.Add (PlaceImg, 2, 3, 0, 4);
+			grid.Children.Add (AddressLbl, 1, 2, 2, 3);
+			grid.Children.Add (CommentLbl, 1, 2, 3, 4);
+			AddName (grid, vote.VoterName, vote.GetVoteAsString);
+
+			return new ListItem {
+				HasShadow = false,
+				BackgroundColor = Color.White,
+				OutlineColor = Color.White,
+				Content = grid,
+				Key = vote.key,
+				Padding = 2,
+			};
+		}
 
 		#endregion
 
@@ -44,139 +234,10 @@ namespace RayvMobileApp
 			Title = "Activity";
 			Insights.Track ("News Page");
 			BackgroundColor = Color.White;
-			list = new ListView () {
-				RowHeight = ROW_HEIGHT,
-				BackgroundColor = Color.White,
-
-				ItemTemplate = new DataTemplate (() => {
-					Grid grid = new Grid {
-						VerticalOptions = LayoutOptions.FillAndExpand,
-						RowDefinitions = {
-							new RowDefinition { Height = new GridLength (ROW1, GridUnitType.Absolute)  },
-							new RowDefinition { Height = new GridLength (ROW2, GridUnitType.Absolute)  },
-							new RowDefinition { Height = new GridLength (ROW3, GridUnitType.Absolute)  },
-							new RowDefinition { Height = new GridLength (ROW4, GridUnitType.Absolute)  },
-						},
-						ColumnDefinitions = {
-							new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
-							new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-							new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 20, GridUnitType.Absolute) },
-						}
-					};
-
-
-					Button LetterBtn = new Button {
-						WidthRequest = 30,
-						HeightRequest = 30,
-						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
-						BorderRadius = 15,
-						BackgroundColor = Color.Red,
-						Text = "X",
-						TextColor = Color.White,
-						VerticalOptions = LayoutOptions.Start,
-					};
-					LetterBtn.SetBinding (
-						Button.TextProperty, 
-						new Binding ("voter", converter: new VoterToFirstLetterConverter ()));
-					LetterBtn.SetBinding (
-						Button.BackgroundColorProperty, 
-						new Binding ("voter", converter: new VoterToRandomColorConverter ()));
-
-					Label CommenterLbl = new Label {
-						FontAttributes = FontAttributes.Bold,
-						TranslationY = 2,
-						TextColor = Color.FromHex ("#444444"),
-					};
-					CommenterLbl.SetBinding (Label.TextProperty, "VoterName");
-
-					Label TimeLbl = new Label {
-						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-						FontAttributes = FontAttributes.Italic,
-						//TextColor = Color.FromHex ("#606060"),
-						HorizontalOptions = LayoutOptions.End,
-					};
-					TimeLbl.SetBinding (
-						Label.TextProperty, 
-						new Binding ("when", converter: new WhenToPrettyStringConverter ()));
-
-					Label VoteLbl = new Label {
-						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-						FontAttributes = FontAttributes.Italic,
-						TextColor = Color.FromHex ("#444444"),
-						HorizontalOptions = LayoutOptions.Start,
-						TranslationY = 4,
-					};
-					VoteLbl.SetBinding (
-						Label.TextProperty, 
-						new Binding ("vote", converter: new VoteToVerbConverter ()));
-
-
-					Image VoteImg = new Image { 
-						Aspect = Aspect.AspectFit,
-						WidthRequest = NEWS_ICON_SIZE, 
-						HeightRequest = NEWS_ICON_SIZE,
-						TranslationX = 0,
-					};
-					VoteImg.SetBinding (Image.SourceProperty, "GetIconName");
-
-					Image PlaceImg = new Image { 
-						Aspect = Aspect.AspectFill,
-						WidthRequest = NEWS_IMAGE_SIZE, 
-						HeightRequest = ROW_HEIGHT,
-						TranslationX = 0,
-						VerticalOptions = LayoutOptions.Start,
-						Opacity = 0.45,
-					};
-					PlaceImg.SetBinding (Image.SourceProperty, "PlaceImage");
-
-					Label PlaceLbl = new Label {
-						FontAttributes = FontAttributes.Bold,
-						HorizontalOptions = LayoutOptions.Center,
-						LineBreakMode = LineBreakMode.TailTruncation,
-					};
-					PlaceLbl.SetBinding (Label.TextProperty, "place_name");
-
-					Label CommentLbl = new Label {
-						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-						FontAttributes = FontAttributes.Italic,
-						BackgroundColor = Color.White,
-						TextColor = Color.FromHex ("#606060"),
-						HorizontalOptions = LayoutOptions.Start,
-						LineBreakMode = LineBreakMode.WordWrap,
-					};
-					CommentLbl.SetBinding (
-						Label.TextProperty, 
-						new Binding ("comment", converter: new CommentToPrettyStringConverter ()));
-
-
-					//TODO: Get address from vote
-					Label AddressLbl = new Label {
-						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
-						LineBreakMode = LineBreakMode.TailTruncation,
-						TextColor = Color.FromHex ("#808080"),
-					};
-					AddressLbl.SetBinding (
-						Label.TextProperty, 
-						new Binding ("key", converter: new KeyToShortAddressConverter ()));
-					
-					grid.Children.Add (PlaceLbl, 1, 3, 1, 2);
-					grid.Children.Add (TimeLbl, 1, 3, 0, 1);
-					grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 1, }, 0, 1, 0, 2);
-					grid.Children.Add (new StackLayout {
-						Orientation = StackOrientation.Horizontal,
-						Children = {
-							CommenterLbl,
-							VoteLbl,
-						}
-					}, 1, 2, 0, 1);
-					grid.Children.Add (PlaceImg, 2, 3, 0, 4);
-					grid.Children.Add (AddressLbl, 1, 2, 2, 3);
-					grid.Children.Add (CommentLbl, 1, 2, 3, 4);
-
-					return new ViewCell {
-						View = grid,
-					};
-				})
+			list = new StackLayout () {
+				Padding = 5,
+				Spacing = 10,
+				BackgroundColor = Color.FromHex ("EEE"),
 			};
 			Spinner = new ActivityIndicator { Color = Color.Red, };
 			Toolbar = new BottomToolbar (this, "news");
@@ -198,17 +259,12 @@ namespace RayvMobileApp
 				}
 			};
 			Clicked = false;
-			list.ItemTapped += DoListItemTap;
-		
-
-
 			this.Appearing += CheckForUpdates;
-			SetSource ();
 		}
 
 		#region Events
 
-		async void DoListItemTap (object sender, ItemTappedEventArgs e)
+		async void DoListItemTap (object sender, EventArgs e)
 		{
 			if (Clicked) {
 				Console.WriteLine ("Click ignored");
@@ -216,7 +272,7 @@ namespace RayvMobileApp
 			}
 			//				Clicked = true;
 			Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
-			Place p = Persist.Instance.GetPlace ((e.Item as Vote).key);
+			Place p = Persist.Instance.GetPlace ((sender as ListItem).Key);
 			string action = await DisplayActionSheet (
 				                p.place_name, 
 				                "Cancel",
@@ -260,6 +316,85 @@ namespace RayvMobileApp
 
 		#region Logic
 
+		void DoAccept (object sender, EventArgs e)
+		{
+			string name = ((sender as Button).CommandParameter as string);
+			var friendId = Persist.Instance.InviteNames.Where (kvp => kvp.Value == name).Select (kvp2 => kvp2.Key).FirstOrDefault ();
+			Console.WriteLine ("DoAccept " + name);
+			if (Invite.AcceptInvite (friendId)) {
+				CheckForUpdates (sender, e);
+			} else
+				DisplayAlert ("Failed", "Unable to accept friend request", "OK");
+		}
+
+		void DoGotoFriend (object sender, EventArgs e)
+		{
+			Persist.Instance.GetUserData (
+				onFail: () => {
+					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
+						Navigation.PushModalAsync (new LoginPage ());
+					else {
+						DisplayAlert ("Error", "Couldn't contact server", "OK");
+					}
+				},
+				onSucceed: () => {
+					string name = ((sender as Button).CommandParameter as string);
+					var friendId = Persist.Instance.Friends.
+						Where (f => f.Value.Name == name).
+						Select (f2 => f2.Key).
+						FirstOrDefault ().
+						ToString ();
+					foreach (var fr in Persist.Instance.Friends)
+						fr.Value.InFilter = fr.Key == friendId;
+					Navigation.PushModalAsync (new RayvNav (new ListPage (
+						MealKind.None, 
+						PlaceStyle.None, 
+						null, 
+						null, 
+						VoteFilterWho.Chosen, 
+						null,
+						VoteFilterWhat.All)));
+				},
+				since: LastUpdate, 
+				incremental: true);
+			
+		}
+
+		void DoRemoveAccept (object sender, EventArgs e)
+		{
+
+		}
+
+		void DoReject (object sender, EventArgs e)
+		{
+
+		}
+
+		void LoadList (IEnumerable<Vote> newsList)
+		{
+			list.Children.Clear ();
+			foreach (var accept in Persist.Instance.Acceptances) {
+				list.Children.Add (CreateInviteItem (accept.name,
+				                                     "is now a friend!", 
+				                                       $"See {accept.name}'s places", DoGotoFriend, 
+				                                     "Dismiss", DoRemoveAccept));
+			}
+			foreach (var invIn in Persist.Instance.InvitationsIn) {
+				list.Children.Add (CreateInviteItem (invIn.name,
+				                                     "sent you a friend request!", 
+				                                     "Accept", DoAccept, 
+				                                     "Reject", DoReject));
+			}
+
+			var clickVote = new TapGestureRecognizer ();
+			clickVote.Tapped += DoListItemTap;
+			foreach (Vote v in newsList) {
+				var view = CreateNewsItem (v);
+				list.Children.Add (view);
+				view.GestureRecognizers.Add (clickVote);
+			}
+		}
+
 		void CheckForUpdates (object sender, EventArgs e)
 		{
 			Spinner.IsVisible = true;
@@ -274,8 +409,9 @@ namespace RayvMobileApp
 							onFail: () => {
 								if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
 									Navigation.PushModalAsync (new LoginPage ());
-								else
-									DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
+								else {
+									SetSource ();
+								}
 							},
 							onSucceed: () => {
 								SetSource ();
@@ -322,8 +458,7 @@ namespace RayvMobileApp
 						break;
 				}
 				Device.BeginInvokeOnMainThread (() => {
-					list.ItemsSource = null;
-					list.ItemsSource = News.Take (ShowRows);
+					LoadList (News.Take (ShowRows));
 				});
 
 

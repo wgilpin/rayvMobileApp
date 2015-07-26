@@ -40,7 +40,10 @@ namespace RayvMobileApp
 		public List<Place> Places { get; set; }
 
 		public List<string> CuisineHistory;
-
+		public List<Invite> InvitationsIn;
+		public List<Invite> InvitationsOut;
+		public List<Invite> Acceptances;
+		public Dictionary<string,string> InviteNames;
 		public PersistantQueueWithPosition SearchHistory;
 		private List<Cuisine> _categories;
 		private Dictionary<string, int> _categoryCounts;
@@ -56,6 +59,12 @@ namespace RayvMobileApp
 		#endregion
 
 		#region Properties
+
+		public bool HaveActivity {
+			get {
+				return InvitationsIn.Count + Acceptances.Count > 0;
+			}
+		}
 
 		public bool Online {
 			get {
@@ -148,7 +157,7 @@ namespace RayvMobileApp
 					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
 						db_version = 0;
 					}
-					if (db_version < 8) {
+					if (db_version < 9) {
 						//Migration  -  plus wipe
 						Db.BeginTransaction ();
 						try {
@@ -156,7 +165,7 @@ namespace RayvMobileApp
 							createDb ();
 							SetConfig (settings.SERVER, null);
 							db_version = 8;
-							Console.WriteLine ("Schema updated to 8");
+							Console.WriteLine ("Schema updated to 9");
 							Db.Commit ();
 							SetConfig (settings.DB_VERSION, db_version);
 							var server_url = "https://" +
@@ -418,6 +427,24 @@ namespace RayvMobileApp
 			}
 		}
 
+		public void SaveFriendsToDb ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = DbTimeout;
+				try {
+					Db.BeginTransaction ();
+					Db.DeleteAll<Friend> ();
+					foreach (var f in Friends) {
+						Db.Insert (f);
+					}
+					Db.Commit ();
+				} catch (Exception ex) {
+					Db.Rollback ();
+					Insights.Report (ex);
+				}
+
+			}
+		}
 
 		public void saveVotesToDb ()
 		{
@@ -428,6 +455,7 @@ namespace RayvMobileApp
 					Db.DeleteAll<Vote> ();
 					foreach (Vote v in Votes) {
 						Db.Insert (v);
+						Console.WriteLine ($"saveVotesToDb {v.place_name} by {v.VoterName}");
 					}
 					Db.Commit ();
 				} catch (Exception ex) {
@@ -441,6 +469,20 @@ namespace RayvMobileApp
 		#endregion
 
 		#region Sync Methods
+
+		public bool Unfriend (string friendKey)
+		{
+			Console.WriteLine ($"Unfriend {friendKey}");
+			string serverResult = restConnection.Instance.post ("/api/friends/remove", "unfriend_id", friendKey);
+			if (serverResult == "OK") {
+				Persist.Instance.Friends.Remove (friendKey);
+				var tempVotes = Persist.Instance.Votes.Where (v => v.voter != friendKey).ToList ();
+				Persist.Instance.Votes = tempVotes;
+				Console.WriteLine ("Friend data removed");
+				return true;
+			}
+			return false;
+		}
 
 		void StartTimerIfOffline ()
 		{
@@ -493,6 +535,50 @@ namespace RayvMobileApp
 			throw new ProtocolViolationException (string.Format ("App: {0} != Server {1}", appVersion, serverVersion));
 		}
 
+		void ExtractInvites (JObject obj)
+		{
+			List<Invite> invOut = JsonConvert.DeserializeObject<List<Invite>> (obj ["sentInvites"].ToString ());
+			List<Invite> invIn = JsonConvert.DeserializeObject<List<Invite>> (obj ["receivedInvites"].ToString ());
+			if (invIn == null) {
+				InvitationsIn = new List<Invite> ();
+				Acceptances = new List<Invite> ();
+			} else {
+				InvitationsIn = invIn.Where (i => i.accepted == false).ToList ();
+				Acceptances = invIn.Where (i => i.accepted == true).ToList ();
+			}
+			InvitationsOut = invOut == null ?
+				new List<Invite> () :
+				InvitationsOut = invOut.Where (i => i.accepted == false).ToList ();
+			foreach (var inv in invIn)
+				InviteNames [inv.inviter] = inv.name;
+		}
+
+		bool syncServerFriendsdata (JObject obj)
+		{
+			var oldFriends = new Dictionary<string, Friend> ();
+			foreach (var kvp in Friends)
+				oldFriends.Add (kvp.Key, kvp.Value);
+			Friends.Clear ();
+			bool NewFriend = false;
+			foreach (JObject fr in obj ["friendsData"]) {
+				var f_name = fr ["name"].ToString ();
+				if (!string.IsNullOrEmpty (f_name)) {
+					string fr_id = fr ["id"].ToString ();
+					string name = f_name;
+					Friends [fr_id] = new Friend (name, fr_id);
+					if (!oldFriends.ContainsKey (fr_id))
+						//new friend
+						NewFriend = true;
+				}
+			}
+			foreach (var oldF in oldFriends)
+				if (Friends.ContainsKey (oldF.Key))
+					Friends [oldF.Key].InFilter = oldF.Value.InFilter;
+			SaveFriendsToDb ();
+			if (NewFriend)
+				Console.WriteLine ("New Friend found");
+			return NewFriend;
+		}
 
 		void StoreFullUserRecord (IRestResponse resp)
 		{
@@ -512,14 +598,8 @@ namespace RayvMobileApp
 						Places.Sort ();
 						Console.WriteLine ("StoreFullUserRecord sorted");
 						Votes.Clear ();
-						foreach (JObject fr in obj ["friendsData"]) {
-							var f_name = fr ["name"].ToString ();
-							if (!string.IsNullOrEmpty (f_name)) {
-								string fr_id = fr ["id"].ToString ();
-								string name = f_name;
-								Friends [fr_id] = new Friend (name, fr_id);
-							}
-						}
+						syncServerFriendsdata (obj);
+						ExtractInvites (obj);
 						Console.WriteLine ("StoreFullUserRecord friends stored");
 						int count = obj ["votes"].Count ();
 						for (int i = 0; i < count; i++) {
@@ -535,7 +615,6 @@ namespace RayvMobileApp
 							}
 						}
 //						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
-						var vs = Votes.Where (v => v.place_name == "Heirloom").ToList ();
 						if (Votes != null) {
 							saveVotesToDb ();
 						}
@@ -550,7 +629,7 @@ namespace RayvMobileApp
 				}
 				Online = true;
 				Console.WriteLine ("StoreFullUserRecord loaded");
-			} catch (ProtocolViolationException ex) {
+			} catch (ProtocolViolationException) {
 				throw;
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -594,15 +673,9 @@ namespace RayvMobileApp
 								Console.WriteLine ($"Added {kvp.Value.place_name} {kvp.Key}");
 							}
 						}
-						foreach (JObject fr in obj ["friendsData"]) {
-							var f_name = fr ["name"].ToString ();
-							if (!string.IsNullOrEmpty (f_name)) {
-								string fr_id = fr ["id"].ToString ();
-								string name = f_name;
-								Friends [fr_id] = new Friend (name, fr_id);
-								Console.WriteLine ("StoreUpdatedUserRecord: Friend {0}", name);
-							}
-						}
+						if (syncServerFriendsdata (obj))
+							throw new OperationCanceledException ("New friends found");
+						ExtractInvites (obj);
 						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
 						if (vote_list != null) {
 							foreach (Vote v in vote_list) {
@@ -644,6 +717,8 @@ namespace RayvMobileApp
 						if (debugDrafts)
 							Console.WriteLine (resp.Content);
 						saveVotesToDb ();
+					} catch (OperationCanceledException) {
+						throw;
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
@@ -658,6 +733,8 @@ namespace RayvMobileApp
 				Online = true;
 
 				Console.WriteLine ("StoreUpdatedUserRecord loaded");
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("StoreUpdatedUserRecord Exception {0}", ex);
@@ -742,8 +819,17 @@ namespace RayvMobileApp
 						// incremental
 						Console.WriteLine ("Storing update");
 						statusMessage?.Invoke ("Storing Update", 0.9);
-						StoreUpdatedUserRecord (resp);
+						try {
+							StoreUpdatedUserRecord (resp);
+						} catch (OperationCanceledException) {
+							if (Persist.Instance.Places.Count > 0) {
+								//don't do this is places.count == 0 as that is caugh by the next test
+								resp = InnerGetUserData (null, webReq);
+								StoreFullUserRecord (resp);
+							}
+						}
 						if (Persist.Instance.Places.Count == 0) {
+							// assume the partial update has failed if there are no places
 							resp = InnerGetUserData (null, webReq);
 							StoreFullUserRecord (resp);
 						}
@@ -820,6 +906,7 @@ namespace RayvMobileApp
 				db.BusyTimeout = DbTimeout;
 				var removeList = new List<Place> ();
 				foreach (Place p in Places) {
+					Console.WriteLine ($"updatePlaces {p.place_name}");
 					p.CalculateDistanceFromPlace (searchCentre);
 					try {
 						db.InsertOrReplace (p);
@@ -979,7 +1066,10 @@ namespace RayvMobileApp
 
 		public Place GetPlace (string key)
 		{
-			return Places.FirstOrDefault (p => p.key == key);
+			var place = Places.FirstOrDefault (p => p.key == key);
+			if (place == null)
+				Console.WriteLine ($"GetPlace {key} = NULL");
+			return place;
 		}
 
 		public Place GetPlaceFromDb (string key)
@@ -1131,6 +1221,10 @@ namespace RayvMobileApp
 			Votes = new List<Vote> ();
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, Friend> ();
+			InvitationsIn = new List<Invite> ();
+			InvitationsOut = new List<Invite> ();
+			Acceptances = new List<Invite> ();
+			InviteNames = new Dictionary<string, string> ();
 			SearchHistory = new PersistantQueueWithPosition (3, "Search-History");
 			Online = false;
 			DbPath = Path.Combine (

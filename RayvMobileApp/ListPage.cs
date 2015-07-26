@@ -474,20 +474,21 @@ namespace RayvMobileApp
 				}
 
 				// turn vote list into place list
-				List<string> placeKeyList = new List<string> ();
-				foreach (Vote v in filteredList) {
-					if (!placeKeyList.Contains (v.key)) {
-						placeKeyList.Add (v.key);
-					}
-				}
-				List<Place> placeList = new List<Place> ();
-				foreach (string key in placeKeyList) {
-					placeList.Add (Persist.Instance.GetPlace (key));
-				}
+				IEnumerable<Place> placeList = filteredList.Select (v => Persist.Instance.GetPlace (v.key)).Distinct ();
+//				List<string> placeKeyList = new List<string> ();
+//				foreach (Vote v in filteredList) {
+//					if (!placeKeyList.Contains (v.key)) {
+//						placeKeyList.Add (v.key);
+//					}
+//				}
+//				List<Place> placeList = new List<Place> ();
+//				foreach (string key in placeKeyList) {
+//					placeList.Add (Persist.Instance.GetPlace (key));
+//				}
 
 				// PLACE FILTERS
 				if (!string.IsNullOrEmpty (text)) {
-					placeList = placeList.Where (p => p.place_name.ToLower ().Contains (text)).ToList ();
+					placeList = placeList.Where (p => p.place_name.ToLower ().Contains (text));
 					IsFiltered = true;
 					styleDescriptionItems.Add ($"Name is '{text}'");
 					Console.WriteLine ("ListPage filter text");
@@ -502,7 +503,7 @@ namespace RayvMobileApp
 							Console.WriteLine ($"{p.place_name} is {p.distance_for_search}");
 					}
 					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
-					Persist.Instance.DisplayList = distance_list.ToList ();
+					Persist.Instance.DisplayList = distance_list;
 					Console.WriteLine ("ListPage filter location");
 					var savedLocation = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
 					if (string.IsNullOrEmpty (savedLocation))

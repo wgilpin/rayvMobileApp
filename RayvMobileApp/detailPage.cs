@@ -105,8 +105,8 @@ namespace RayvMobileApp
 					TextColor = Color.White,
 					VerticalOptions = LayoutOptions.Start,
 				};
-				LetterBtn.Text = vote.FirstLetter;
-				LetterBtn.BackgroundColor = vote.RandomColor;
+				LetterBtn.Text = Vote.FirstLetter (vote.VoterName);
+				LetterBtn.BackgroundColor = Vote.RandomColor (vote.VoterName);
 				grid.Children.Add (LetterBtn, 0, 1, whichRow * 3 + 1, whichRow * 3 + 2);
 				var FriendLine = new FormattedString ();
 				var voter = Persist.Instance.Friends [vote.voter].Name;

@@ -41,9 +41,11 @@ namespace RayvMobileApp
 		//		public static Color ColorDark = Color.FromHex ("6883B5");
 		//		public static Color ColorVeryDark = Color.FromHex ("4863B5");
 		public static Color ColorLightGray = Color.FromHex ("EEE");
-		public static Color ColorMidGray = Color.FromHex ("AAA");
 		public static Color ColorDarkGray = Color.FromHex ("444");
+		public static Color ColorMidGray = Color.FromHex ("AAA");
 		public static Color ColorOffWhite = Color.FromHex ("E7E7E7");
+		public static Color BaseTextColor = ColorLightGray;
+		public static Color InvertTextColor = ColorDarkGray;
 
 
 		public static string DevicifyFilename (string filename)

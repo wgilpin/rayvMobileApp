@@ -3,6 +3,7 @@
 using Xamarin.Forms;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using Xamarin;
 
 namespace RayvMobileApp
 {
@@ -26,12 +27,24 @@ namespace RayvMobileApp
 					if (result == "FOUND") {
 						await DisplayAlert ("Sent", "Invite Sent", "OK");
 						Succeeded?.Invoke (this, null);
+						return;
 					} else {
-						Failed?.Invoke (this, null);
+						if (await DisplayAlert ("Not Found", "User could not be found. Send a direct email?", "Send", "Cancel")) {
+							String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
+							if (emailResult == "OK") {
+								await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
+								Succeeded?.Invoke (this, null);
+								return;
+							} else {
+								Failed?.Invoke (this, null);
+							}
+						} else
+							Failed?.Invoke (this, null);
 					}
-				} catch {
-					Failed?.Invoke (this, null);
+				} catch (Exception ex) {
+					Insights.Report (ex);
 				}
+				Failed?.Invoke (this, null);
 			};
 			var top = new StackLayout () {
 				Spacing = 15,

@@ -6,6 +6,7 @@ using Xamarin;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
@@ -110,7 +111,14 @@ namespace RayvMobileApp
 		[Ignore]
 		public string VoterName {
 			get {
-				return Persist.Instance.Friends [voter].Name;
+				try {
+					return Persist.Instance.Friends [voter].Name;
+				} catch (KeyNotFoundException) {
+					if (Persist.Instance.InviteNames.ContainsKey (voter))
+						return Persist.Instance.InviteNames [voter];
+					else
+						return "?";
+				}
 			}
 		}
 
@@ -196,35 +204,30 @@ namespace RayvMobileApp
 			}
 		}
 
-		[Ignore]
-		public Color RandomColor {
-			get {
-				try {
-					string name = Persist.Instance.Friends [voter].Name.ToLower ();
-					if (name.Length > 3) {
-						int i1 = ((Encoding.ASCII.GetBytes (name) [0] - 97) % 26) * 10;
-						int i2 = ((Encoding.ASCII.GetBytes (name) [1] - 97) % 26) * 10;
-						int i3 = ((Encoding.ASCII.GetBytes (name) [2] - 97) % 26) * 10;
-						Color c = Color.FromRgb (i1, i2, i3);
-						Console.WriteLine ("{0} {1}", name, c);
-						return c;
-					}
-					return Color.Black;
-				} catch (Exception ex) {
-					Insights.Report (ex);
-					return Color.Black;
+		public static Color RandomColor (string name)
+		{
+			try {
+				string lname = name.ToLower ();
+				if (lname.Length > 3) {
+					int i1 = ((Encoding.ASCII.GetBytes (lname) [0] - 97) % 26) * 10;
+					int i2 = ((Encoding.ASCII.GetBytes (lname) [1] - 97) % 26) * 10;
+					int i3 = ((Encoding.ASCII.GetBytes (lname) [2] - 97) % 26) * 10;
+					Color c = Color.FromRgb (i1, i2, i3);
+					return c;
 				}
+				return Color.Black;
+			} catch (Exception ex) {
+				Insights.Report (ex);
+				return Color.Black;
 			}
 		}
 
-		[Ignore]
-		public string FirstLetter {
-			get {
-				try {
-					return Persist.Instance.Friends [voter].Name.Remove (1); 
-				} catch (Exception ex) {
-					return "?";
-				}
+		public static string FirstLetter (string name)
+		{
+			try {
+				return name.Remove (1); 
+			} catch (Exception ex) {
+				return "?";
 			}
 		}
 

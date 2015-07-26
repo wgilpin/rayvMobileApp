@@ -57,8 +57,9 @@ namespace RayvMobileApp
 				var addPage = new AddFindUserPage ();
 				addPage.Failed += async (o, ev) => {
 					Navigation.PopAsync ();
-					if (await DisplayAlert ("Not Found", "User could not be found", "Send Message", "Cancel"))
-						DoSendInvite (o, ev);
+					if (await DisplayAlert ("Failed", "Message could not be sent. Try wiht a phone app?", "Yes", "Cancel")) {
+						DoSendInvite (this, null);
+					}
 				};
 				addPage.Succeeded += (o2, e2) => {
 					this.Navigation.PushModalAsync (new MainMenu ());

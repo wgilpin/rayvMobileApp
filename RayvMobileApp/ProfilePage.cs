@@ -138,6 +138,7 @@ namespace RayvMobileApp
 			PwdBtn.Clicked += (sender, e) => {
 				
 			};
+
 			PushSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 			EmailsSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 
