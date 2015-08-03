@@ -21,7 +21,7 @@ namespace RayvMobileApp
 		ProgressBar progBar;
 
 
-		string[] TesterWhitelist = { "Will", "pegah", "georgia" };
+
 
 		public void SetProgress (string message, Double progress)
 		{
@@ -29,6 +29,17 @@ namespace RayvMobileApp
 				LoadingMessage.Text = message;
 				Console.WriteLine ("Loading message: {0}", message);
 				progBar.ProgressTo (progress, 250, Easing.Linear);
+			});
+		}
+
+		void ShowLogin ()
+		{
+			Device.BeginInvokeOnMainThread (() => {
+				Spinner.IsRunning = false;
+				LoadingMessage.IsVisible = false;
+				progBar.IsVisible = false;
+				if (!string.IsNullOrEmpty (Error.Text))
+					Error.IsVisible = true;
 			});
 		}
 
@@ -40,8 +51,7 @@ namespace RayvMobileApp
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
 					Persist.Instance.SetConfig (settings.SERVER, settings.DEFAULT_SERVER);
-				Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
-				Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
+				
 				try {
 					Persist.Instance.Online = false;
 					if (Persist.Instance.Online) {
@@ -49,16 +59,17 @@ namespace RayvMobileApp
 						Persist.Instance.SetConfig (settings.LAST_SYNC, null);
 						restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
 						Insights.Identify (UserName.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
+						Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
+						Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
 						Persist.Instance.Wipe ();
 						Persist.Instance.LoadFromDb ();
 						Persist.Instance.GetUserData (
 							onFail: () => {
 								Device.BeginInvokeOnMainThread (() => {
-									Spinner.IsRunning = false;
-									LoadingMessage.IsVisible = true;
-									progBar.IsVisible = true;
-									if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-										this.Navigation.PushModalAsync (new LoginPage ());
+									Error.Text = "Bad Login";
+									Persist.Instance.SetConfig (settings.USERNAME, null);
+									Persist.Instance.SetConfig (settings.PASSWORD, null);
+									ShowLogin ();
 								});
 							},
 							onSucceed: () => {
@@ -68,8 +79,14 @@ namespace RayvMobileApp
 									this.Navigation.PushModalAsync (new MainMenu ());
 								});
 							}, 
+							onFailVersion: () => {
+								Device.BeginInvokeOnMainThread (() => {
+									Error.Text = "Wrong Server Version";
+									ShowLogin ();
+								});
+							},
 							incremental: false,
-							statusMessage: SetProgress);
+							setStatusMessage: SetProgress);
 					
 					} else {
 						//login failed
@@ -164,7 +181,7 @@ namespace RayvMobileApp
 				Text = Persist.Instance.GetConfig (settings.USERNAME),
 			};
 			UserName.TextChanged += (sender, e) => {
-				if (TesterWhitelist.Contains (e.NewTextValue))
+				if (settings.TesterWhitelist.Contains (e.NewTextValue))
 					Servers.IsVisible = true;
 			};
 			Password = new Entry {
@@ -200,10 +217,13 @@ namespace RayvMobileApp
 				BackgroundColor = Color.Red, 
 				FontAttributes = FontAttributes.Bold,
 				IsVisible = false,
+				HeightRequest = 30,
+				YAlign = TextAlignment.Center,
+				XAlign = TextAlignment.Center,
 			};
 			Servers = new ServerPicker ();
 			var user = Persist.Instance.GetConfig (settings.USERNAME);
-			if (TesterWhitelist.Contains (user))
+			if (settings.TesterWhitelist.Contains (user))
 				Servers.IsVisible = true;
 			this.Content = new StackLayout {
 				Padding = 20,
@@ -226,6 +246,12 @@ namespace RayvMobileApp
 				}
 			};
 
+		}
+
+		public LoginPage (string message) : this ()
+		{
+			Error.Text = message;
+			Error.IsVisible = true;
 		}
 	}
 }

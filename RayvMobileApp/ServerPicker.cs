@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
@@ -8,51 +9,34 @@ namespace RayvMobileApp
 	{
 		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 
+		Dictionary<string, string> ServerChoices = new Dictionary<string, string> ();
+
 		void DoSelect (object s, EventArgs e)
 		{
 			string server_url = "";
-			switch (SelectedIndex) {
-				case 0:
-					server_url = "http://localhost:8080/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 1:
-					server_url = "http://192.168.1.8:8080/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 2:
-					server_url = "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/";
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-				case 3:
-					server_url = "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER;
-					System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
-					restConnection.Instance.setBaseUrl (server_url);
-					break;
-			}
+			server_url = ServerChoices [Items [SelectedIndex]];
+			System.Diagnostics.Debug.WriteLine ("Server: " + server_url);
+			restConnection.Instance.setBaseUrl (server_url);
 			Persist.Instance.SetConfig (settings.SERVER, server_url);
-
 		}
 
 		public ServerPicker () : base ()
 		{
 			Title = "Server";
 			VerticalOptions = LayoutOptions.Start;
-			Items.Add ("Local");
-			Items.Add ("Dev");
-			Items.Add ("Pre-Prod");
-			Items.Add ("Production");
-			SelectedIndexChanged += DoSelect;
+			ServerChoices.Add ("Local", "http://localhost:8080/");
+			ServerChoices.Add ("Dev", "http://192.168.1.2:8080/");
+			ServerChoices.Add ("Pre-Prod", "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/");
+			ServerChoices.Add ("Production", "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER);
+			foreach (var kvp in ServerChoices)
+				Items.Add (kvp.Key);
 			try {
-				SelectedIndex = Items.IndexOf (Persist.Instance.GetConfig (settings.SERVER));
+				SelectedIndex = ServerChoices.Values.ToList ().IndexOf (Persist.Instance.GetConfig (settings.SERVER));
 			} catch {
-				SelectedIndex = 3;
+				SelectedIndex = ServerChoices.Count - 1;
 			}
+			SelectedIndexChanged += DoSelect;
 			IsVisible = DEBUG_ON_SIMULATOR ? true : Persist.Instance.IsAdmin;
-
 		}
 
 		public static string GetServerVersionForAppVersion ()

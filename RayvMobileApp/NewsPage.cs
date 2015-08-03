@@ -327,15 +327,38 @@ namespace RayvMobileApp
 				DisplayAlert ("Failed", "Unable to accept friend request", "OK");
 		}
 
+		void DoRemoveAccept (object sender, EventArgs e)
+		{
+			string name = ((sender as Button).CommandParameter as string);
+			var friendId = Persist.Instance.InviteNames.Where (kvp => kvp.Value == name).Select (kvp2 => kvp2.Key).FirstOrDefault ();
+			Console.WriteLine ("DoDismiss " + name);
+			if (!Invite.DismissAcceptance (friendId)) {
+				DisplayAlert ("Failed", "Unable to dismiss friend request", "OK");
+			}
+			CheckForUpdates (sender, e);
+		}
+
+		void DoReject (object sender, EventArgs e)
+		{
+			string name = ((sender as Button).CommandParameter as string);
+			var friendId = Persist.Instance.InviteNames.Where (kvp => kvp.Value == name).Select (kvp2 => kvp2.Key).FirstOrDefault ();
+			Console.WriteLine ("DoDismiss " + name);
+			if (Invite.RejectInvite (friendId)) { 
+				DisplayAlert ("Rejected", "Friend request rejected", "OK");
+				CheckForUpdates (sender, e);
+			} else
+				DisplayAlert ("Failed", "Please try later", "OK");
+		}
+
+
 		void DoGotoFriend (object sender, EventArgs e)
 		{
 			Persist.Instance.GetUserData (
 				onFail: () => {
-					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-						Navigation.PushModalAsync (new LoginPage ());
-					else {
-						DisplayAlert ("Error", "Couldn't contact server", "OK");
-					}
+					DisplayAlert ("Error", "Couldn't contact server", "OK");
+				},
+				onFailVersion: () => {
+					Navigation.PushModalAsync (new LoginPage ());
 				},
 				onSucceed: () => {
 					string name = ((sender as Button).CommandParameter as string);
@@ -360,15 +383,6 @@ namespace RayvMobileApp
 			
 		}
 
-		void DoRemoveAccept (object sender, EventArgs e)
-		{
-
-		}
-
-		void DoReject (object sender, EventArgs e)
-		{
-
-		}
 
 		void LoadList (IEnumerable<Vote> newsList)
 		{
@@ -407,11 +421,10 @@ namespace RayvMobileApp
 					try {
 						Persist.Instance.GetUserData (
 							onFail: () => {
-								if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-									Navigation.PushModalAsync (new LoginPage ());
-								else {
-									SetSource ();
-								}
+								SetSource ();
+							},
+							onFailVersion: () => {
+								Navigation.PushModalAsync (new LoginPage ());
 							},
 							onSucceed: () => {
 								SetSource ();
@@ -420,8 +433,8 @@ namespace RayvMobileApp
 								Spinner.IsVisible = false;
 								Console.WriteLine ("Spin down");
 							},
-							since: LastUpdate, 
-							incremental: true);
+							since: null, 
+							incremental: false);
 					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 					} catch (Exception ex) {

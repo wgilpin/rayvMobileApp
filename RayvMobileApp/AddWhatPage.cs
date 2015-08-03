@@ -19,7 +19,7 @@ namespace RayvMobileApp
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (50, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (40, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },

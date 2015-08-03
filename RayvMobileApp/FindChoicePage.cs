@@ -57,6 +57,7 @@ namespace RayvMobileApp
 					});
 				}
 			}
+			get { return _grid.RowDefinitions.Count; }
 		}
 
 
@@ -66,7 +67,7 @@ namespace RayvMobileApp
 			Label _text;
 			Frame _bg;
 			TapGestureRecognizer _gesture;
-
+			var imgWidth = RowCount < 6 ? 60 : 50;
 			_bg = new Frame { 
 				HasShadow = false, 
 				OutlineColor = settings.BaseColor, 
@@ -74,7 +75,12 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
-			_img = new Image { Source = imageSource, Aspect = Aspect.AspectFit, WidthRequest = 60 };
+			_img = new Image {
+				Source = imageSource,
+				Aspect = Aspect.AspectFit,
+				WidthRequest = imgWidth,
+				HeightRequest = imgWidth
+			};
 			_text = new Label {
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				TextColor = Color.White,
@@ -396,9 +402,9 @@ namespace RayvMobileApp
 		void ChooseMealTime ()
 		{
 			Title = TitleMealKind;
-			RowCount = 5;
+			RowCount = 6;
 			AddImgCard (0, "", "Any", (s, e) => {
-				currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner;
+				currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner | MealKind.Bar;
 				ChooseMainMenu ();
 			});
 			AddImgCard (1, "a_breakfast.png", "Breakfast", (s, e) => {
@@ -415,6 +421,10 @@ namespace RayvMobileApp
 			});
 			AddImgCard (4, "a_dinner.png", "Dinner", (s, e) => {
 				currentKind = MealKind.Dinner;
+				ChooseMainMenu ();
+			});
+			AddImgCard (5, "a_drinks.png", "Bar", (s, e) => {
+				currentKind = MealKind.Bar;
 				ChooseMainMenu ();
 			});
 		}

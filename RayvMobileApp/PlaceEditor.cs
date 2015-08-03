@@ -36,6 +36,9 @@ namespace RayvMobileApp
 		{
 			EditPlace.vote.kind = ev.Kind;
 			EditPlace.vote.style = ev.Style;
+			if (ev.Kind == MealKind.Bar)
+				// #674 default cuisine for Bar is Bar
+				EditPlace.vote.cuisine = new Cuisine{ Title = "Bar" };
 			Debug.Assert (ev.Style != PlaceStyle.None);
 			Debug.Assert (ev.Kind != MealKind.None);
 			var commentPage = new EditCommentPage (

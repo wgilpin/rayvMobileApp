@@ -293,7 +293,7 @@ namespace RayvMobileApp
 			_click = new TapGestureRecognizer ();
 			this.GestureRecognizers.Add (_click);
 			Label.GestureRecognizers.Add (_click);
-			this.Padding = 8;
+			this.Padding = 6;
 			this.Content = Label;
 		}
 	}

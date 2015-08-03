@@ -39,6 +39,8 @@ namespace RayvMobileApp
 
 		public List<Place> Places { get; set; }
 
+		public RestResponse ServerResponseToBeProcessed { get; set; }
+
 		public List<string> CuisineHistory;
 		public List<Invite> InvitationsIn;
 		public List<Invite> InvitationsOut;
@@ -142,6 +144,8 @@ namespace RayvMobileApp
 
 		#region Db Methods
 
+
+
 		public static bool TableExists<T> (SQLiteConnection connection)
 		{    
 			const string cmdText = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
@@ -163,8 +167,8 @@ namespace RayvMobileApp
 						try {
 							deleteDb ();
 							createDb ();
-							SetConfig (settings.SERVER, null);
-							db_version = 8;
+							//SetConfig (settings.SERVER, null);
+							db_version = 9;
 							Console.WriteLine ("Schema updated to 9");
 							Db.Commit ();
 							SetConfig (settings.DB_VERSION, db_version);
@@ -455,7 +459,6 @@ namespace RayvMobileApp
 					Db.DeleteAll<Vote> ();
 					foreach (Vote v in Votes) {
 						Db.Insert (v);
-						Console.WriteLine ($"saveVotesToDb {v.place_name} by {v.VoterName}");
 					}
 					Db.Commit ();
 				} catch (Exception ex) {
@@ -469,6 +472,16 @@ namespace RayvMobileApp
 		#endregion
 
 		#region Sync Methods
+
+		public List<Place> GetData ()
+		{
+			if (ServerResponseToBeProcessed != null) {
+				Console.WriteLine ("Persist GetData Do Process");
+				StoreFullUserRecord (ServerResponseToBeProcessed);
+			} else
+				Console.WriteLine ("Persist GetData Existing");
+			return Places;
+		}
 
 		public bool Unfriend (string friendKey)
 		{
@@ -735,6 +748,8 @@ namespace RayvMobileApp
 				Console.WriteLine ("StoreUpdatedUserRecord loaded");
 			} catch (OperationCanceledException) {
 				throw;
+			} catch (ProtocolViolationException) {
+				throw;
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("StoreUpdatedUserRecord Exception {0}", ex);
@@ -796,9 +811,11 @@ namespace RayvMobileApp
 		// Throws Protocol Exception if server version doesn't match
 		public void GetUserData (BasicDelegate onFail,
 		                         BasicDelegate onSucceed,
+		                         BasicDelegate onFailVersion,
+		                         BasicDelegate onFailLogin = null,
 		                         DateTime? since = null,
 		                         bool incremental = false,
-		                         StatusMessageDelegate statusMessage = null)
+		                         StatusMessageDelegate setStatusMessage = null)
 		{
 			if (incremental) {
 				if (since == null) {
@@ -812,16 +829,23 @@ namespace RayvMobileApp
 			if (webReq != null) {
 				IRestResponse resp;
 				try {
-					Console.WriteLine ("Contacting server");
-					statusMessage?.Invoke ("Contacting server", 0.7);
+					Console.WriteLine ("GetUserData: Contacting server");
+					setStatusMessage?.Invoke ("Contacting server", 0.7);
 					resp = InnerGetUserData (since, webReq);
+					if (resp == null) {
+						Debug.WriteLine ("GetUserData: NO RESPONSE");
+						onFail?.Invoke ();
+						return;
+					}
 					if (since != null) {
 						// incremental
-						Console.WriteLine ("Storing update");
-						statusMessage?.Invoke ("Storing Update", 0.9);
+						Console.WriteLine ("GetUserData: Storing update");
+						setStatusMessage?.Invoke ("Storing Update", 0.9);
 						try {
+							Console.WriteLine ("GetUserData call StoreUpdatedUserRecord");
 							StoreUpdatedUserRecord (resp);
 						} catch (OperationCanceledException) {
+							Console.WriteLine ("GetUserData OperationCanceledException");
 							if (Persist.Instance.Places.Count > 0) {
 								//don't do this is places.count == 0 as that is caugh by the next test
 								resp = InnerGetUserData (null, webReq);
@@ -834,26 +858,25 @@ namespace RayvMobileApp
 							StoreFullUserRecord (resp);
 						}
 					} else {
-						Console.WriteLine ("Storing data");
-						statusMessage?.Invoke ("Storing data", 0.9);
+						Console.WriteLine ("GetUserData Storing increment");
+						setStatusMessage?.Invoke ("Storing data", 0.9);
 						StoreFullUserRecord (resp);
 					}
 					SortPlaces ();
 					SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
 				} catch (UnauthorizedAccessException) {
 					// not logged in
-					if (onFail != null)
-						Persist.Instance.SetConfig (settings.PASSWORD, "");
 					Device.BeginInvokeOnMainThread (() => {
-
-						onFail.DynamicInvoke ();
+						var handler = onFailLogin ?? onFail;
+						handler?.Invoke ();
 					});
 					Console.WriteLine ("GetFullData: No login");
 					return;
 				} catch (ProtocolViolationException) {
 					Device.BeginInvokeOnMainThread (() => {
-						onFail.DynamicInvoke ();
+						onFailVersion.DynamicInvoke ();
 					});
+					return;
 				}
 				if (onSucceed != null)
 					Device.BeginInvokeOnMainThread (() => {
@@ -906,7 +929,6 @@ namespace RayvMobileApp
 				db.BusyTimeout = DbTimeout;
 				var removeList = new List<Place> ();
 				foreach (Place p in Places) {
-					Console.WriteLine ($"updatePlaces {p.place_name}");
 					p.CalculateDistanceFromPlace (searchCentre);
 					try {
 						db.InsertOrReplace (p);
@@ -1218,6 +1240,7 @@ namespace RayvMobileApp
 		public Persist ()
 		{
 			Console.WriteLine ("Persist()");
+			ServerResponseToBeProcessed = null;
 			Votes = new List<Vote> ();
 			Places = new List<Place> ();
 			Friends = new Dictionary<string, Friend> ();

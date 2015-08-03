@@ -37,7 +37,7 @@ namespace RayvMobileApp
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (50, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (40, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (100, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (120, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Auto) },
@@ -47,7 +47,7 @@ namespace RayvMobileApp
 				}
 			};
 			Image findUserImg = new Image {
-				Source = settings.DevicifyFilename ("Add_friend.png"),
+				Source = settings.DevicifyFilename ("Find_friend.png"),
 				Aspect = Aspect.AspectFit,
 				HeightRequest = 80,
 			};
@@ -57,7 +57,7 @@ namespace RayvMobileApp
 				var addPage = new AddFindUserPage ();
 				addPage.Failed += async (o, ev) => {
 					Navigation.PopAsync ();
-					if (await DisplayAlert ("Failed", "Message could not be sent. Try wiht a phone app?", "Yes", "Cancel")) {
+					if (await DisplayAlert ("Failed", "Message could not be sent. Try with a phone app?", "Yes", "Cancel")) {
 						DoSendInvite (this, null);
 					}
 				};
@@ -70,7 +70,7 @@ namespace RayvMobileApp
 
 			// FRIENDS
 			Image messageExternalImg = new Image {
-				Source = settings.DevicifyFilename ("envelope_2x.png"),
+				Source = settings.DevicifyFilename ("Invite_friend2.png"),
 				Aspect = Aspect.AspectFit,
 				HeightRequest = 80,
 			};
@@ -85,7 +85,7 @@ namespace RayvMobileApp
 				TranslationY = -40,
 				Children = { 
 					new Label {
-						Text = "Invite someone new",
+						Text = "Send invite",
 						FontSize = 35,
 						VerticalOptions = LayoutOptions.End,
 						HorizontalOptions = LayoutOptions.Center,
@@ -93,13 +93,13 @@ namespace RayvMobileApp
 					},
 				}
 			};
-			sendMessageTxt.GestureRecognizers.Add (clickFind);
+			sendMessageTxt.GestureRecognizers.Add (clickMessage);
 			var addUserTxt = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
 				TranslationY = -40,
 				Children = { 
 					new Label {
-						Text = "Find Friend",
+						Text = "Connect to a user",
 						FontSize = 35,
 						VerticalOptions = LayoutOptions.End,
 						HorizontalOptions = LayoutOptions.Center,
@@ -107,11 +107,11 @@ namespace RayvMobileApp
 					},
 				}
 			};
-			addUserTxt.GestureRecognizers.Add (clickMessage);
+			addUserTxt.GestureRecognizers.Add (clickFind);
 			grid.Children.Add (findUserImg, 0, 0);
 			grid.Children.Add (addUserTxt, 0, 1);
-			grid.Children.Add (messageExternalImg, 0, 2);
-			grid.Children.Add (sendMessageTxt, 0, 3);
+			grid.Children.Add (messageExternalImg, 0, 3);
+			grid.Children.Add (sendMessageTxt, 0, 4);
 			grid.Children.Add (tools, 0, 5);
 			Content = grid;
 			BackgroundColor = settings.BaseColor;

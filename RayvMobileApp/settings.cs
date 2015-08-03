@@ -5,6 +5,9 @@ namespace RayvMobileApp
 {
 	public class settings
 	{
+		public static string[] TesterWhitelist = { "Will", "pegah", "georgia" };
+		// milliseconds
+		public const int WEB_TIMEOUT = 10000;
 		public const string FILTER_WHEN = "FILTER_WHEN";
 		public const string FILTER_STYLE = "FILTER_STYLE";
 		public const string FILTER_KIND = "FILTER_KIND";

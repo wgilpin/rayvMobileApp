@@ -18,15 +18,21 @@ namespace RayvMobileApp
 		public UserProfile ()
 		{
 			try {
-				String result = restConnection.Instance.get ("api/profile").Content;
-				restConnection.LogToServer (LogLevel.INFO, "DoGetProfile" + result);
-				JObject obj = JObject.Parse (result);
-				ScreenName = obj ["profile"] ["screen_name"].ToString ();
-				Email = obj ["profile"] ["email"].ToString ();
-				Gender = obj ["profile"] ["sex"].ToString ();
+				var restResult = restConnection.Instance.get ("api/profile");
+				if (restResult != null) {
+					String result = restConnection.Instance.get ("api/profile").Content;
+					JObject obj = JObject.Parse (result);
+					ScreenName = obj ["profile"] ["screen_name"].ToString ();
+					Email = obj ["profile"] ["email"].ToString ();
+					Gender = obj ["profile"] ["sex"].ToString ();
+				} else {
+					// no response
+					throw new ApplicationException ("No server response");
+				}
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoGetProfile {0}", ex);
+				throw;
 			}
 		}
 	}
@@ -70,21 +76,26 @@ namespace RayvMobileApp
 		RayvButton SaveBtn;
 		Xamarin.Forms.Switch PushSw;
 		Xamarin.Forms.Switch EmailsSw;
+		StackLayout stack;
 
 		#endregion
 
 		void DoGetProfile ()
 		{
-			var profile = new UserProfile ();
-
-			ScreenNameEd.Text = profile.ScreenName;
-			EmailEd.Text = profile.Email;
 			try {
-				GenderEd.SelectedIndex = GenderEd.Items.IndexOf (profile.Gender);
-			} catch {
-				GenderEd.SelectedIndex = 0;
+				var profile = new UserProfile ();
+
+				ScreenNameEd.Text = profile.ScreenName;
+				EmailEd.Text = profile.Email;
+				try {
+					GenderEd.SelectedIndex = GenderEd.Items.IndexOf (profile.Gender);
+				} catch {
+					GenderEd.SelectedIndex = 0;
+				}
+				SaveBtn.IsVisible = false;
+			} catch (ApplicationException) {
+				Content = new Label{ Text = "Could not load profile" };
 			}
-			SaveBtn.IsVisible = false;
 			
 		}
 
@@ -142,7 +153,7 @@ namespace RayvMobileApp
 			PushSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 			EmailsSw = new Xamarin.Forms.Switch{ IsToggled = true, };
 
-			StackLayout stack = new StackLayout {
+			stack = new StackLayout {
 				Orientation = StackOrientation.Vertical,
 			};
 			stack.Children.Add (new LineGrid3 (

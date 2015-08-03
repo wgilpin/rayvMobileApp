@@ -64,7 +64,7 @@ namespace RayvMobileApp
 			}
 			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
 
-			client.Timeout = 30000;
+			client.Timeout = settings.WEB_TIMEOUT;
 			IRestResponse response = client.Execute (request);
 			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 			if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -189,13 +189,15 @@ namespace RayvMobileApp
 
 		public static void LogErrorToServer (string format, params object[] args)
 		{
-			try {
-				String msg = String.Format (format, args);
-				Console.WriteLine ("LOG ERROR: {0}", msg);
-				LogToServer (LogLevel.ERROR, msg);
-			} catch (Exception ex) {
-				Insights.Report (ex);
-			}
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				try {
+					String msg = String.Format (format, args);
+					Console.WriteLine ("LOG ERROR: {0}", msg);
+					LogToServer (LogLevel.ERROR, msg);
+				} catch (Exception ex) {
+					Insights.Report (ex);
+				}
+			}));
 		}
 
 		public static void LogErrorToServer (string message)

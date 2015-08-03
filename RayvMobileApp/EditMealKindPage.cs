@@ -36,6 +36,7 @@ namespace RayvMobileApp
 		CheckBox lunch;
 		CheckBox dinner;
 		CheckBox coffee;
+		CheckBox bar;
 		bool InFlow;
 		LabelClickable StyleQuickLbl;
 		LabelClickable StyleRelaxedLbl;
@@ -59,6 +60,8 @@ namespace RayvMobileApp
 				_kind = _kind | MealKind.Dinner;
 			if (coffee.Checked)
 				_kind = _kind | MealKind.Coffee;
+			if (bar.Checked)
+				_kind = _kind | MealKind.Bar;
 			if (Saved != null)
 				Saved (this, new KindSavedEventArgs (_kind, _style));
 		}
@@ -81,6 +84,9 @@ namespace RayvMobileApp
 					case "coffee":
 						coffee.Checked = true;
 						break;
+					case "bar":
+						bar.Checked = true;
+						break;
 				}
 			}
 
@@ -89,7 +95,7 @@ namespace RayvMobileApp
 		public void DoClickStyleFancy (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked) {
+			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
 				_style = PlaceStyle.Fancy;
 				OnSaved ();
 			} else
@@ -99,7 +105,7 @@ namespace RayvMobileApp
 		public void DoClickStyleRelaxed (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked) {
+			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
 				_style = PlaceStyle.Relaxed;
 				OnSaved ();
 			} else
@@ -109,7 +115,7 @@ namespace RayvMobileApp
 		public void DoClickStyleQuick (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked) {
+			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
 				_style = PlaceStyle.QuickBite;
 				OnSaved ();
 			} else
@@ -138,6 +144,7 @@ namespace RayvMobileApp
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
@@ -173,6 +180,10 @@ namespace RayvMobileApp
 			coffee = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Coffee & kind) > 0)  };
 			var coffeeVoteLbl = new LabelClickable{ OnClick = DoClickKind };
 			coffeeVoteLbl.Label.Text = "coffee";
+
+			bar = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Bar & kind) > 0)  };
+			var barVoteLbl = new LabelClickable{ OnClick = DoClickKind };
+			barVoteLbl.Label.Text = "bar";
 			grid.Children.Add (MealType, 0, 3, 0, 1);
 			grid.Children.Add (breakfastVoteLbl, 1, 2, 1, 2);
 			grid.Children.Add (breakfast, 2, 3, 1, 2);
@@ -182,14 +193,15 @@ namespace RayvMobileApp
 			grid.Children.Add (dinner, 2, 3, 3, 4);
 			grid.Children.Add (coffeeVoteLbl, 1, 2, 4, 5);
 			grid.Children.Add (coffee, 2, 3, 4, 5);
-
+			grid.Children.Add (barVoteLbl, 1, 2, 5, 6);
+			grid.Children.Add (bar, 2, 3, 5, 6);
 			Label PlaceType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Style", 
 				TextColor = Color.White,
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
 			};
-			grid.Children.Add (PlaceType, 0, 3, 5, 6);
+			grid.Children.Add (PlaceType, 0, 3, 6, 7);
 			StyleQuickLbl = new LabelClickable { 
 				OnClick = DoClickStyleQuick, 
 			};
@@ -221,12 +233,12 @@ namespace RayvMobileApp
 				OnClick = DoClickStyleFancy 
 			};
 			grid.Children.Add (
-				StyleQuickLbl, 1, 2, 6, 7);
-			grid.Children.Add (StyleQuickImgBtn, 2, 3, 6, 7);
-			grid.Children.Add (StyleRelaxedLbl, 1, 2, 7, 8);
-			grid.Children.Add (StyleRelaxedImgBtn, 2, 3, 7, 8);
-			grid.Children.Add (StylefancyLbl, 1, 2, 8, 9);
-			grid.Children.Add (StylefancyImgBtn, 2, 3, 8, 9);
+				StyleQuickLbl, 1, 2, 7, 8);
+			grid.Children.Add (StyleQuickImgBtn, 2, 3, 7, 8);
+			grid.Children.Add (StyleRelaxedLbl, 1, 2, 8, 9);
+			grid.Children.Add (StyleRelaxedImgBtn, 2, 3, 8, 9);
+			grid.Children.Add (StylefancyLbl, 1, 2, 9, 10);
+			grid.Children.Add (StylefancyImgBtn, 2, 3, 9, 10);
 			Content = grid;
 
 			if (!(kind == MealKind.None || style == PlaceStyle.None)) {

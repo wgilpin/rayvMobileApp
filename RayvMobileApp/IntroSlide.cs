@@ -63,9 +63,9 @@ namespace RayvMobileApp
 				OutlineColor = settings.BaseColor,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				Padding = 40,
+				Padding = 20,
 			};
-			TopImage = new Image{ Source = topPic, Aspect = Aspect.AspectFit, };
+			TopImage = new Image{ Source = topPic, Aspect = Aspect.AspectFit,  };
 			ImageBg.Content = TopImage;
 			grid.Children.Add (ImageBg, 0, 5, 0, 1);
 			Label Heading = new Label { 

@@ -23,23 +23,29 @@ namespace RayvMobileApp
 					{ "email",emailEd.Text }
 				};
 				try {
-					String result = restConnection.Instance.get ("api/find_friend", param).Content;
-					if (result == "FOUND") {
-						await DisplayAlert ("Sent", "Invite Sent", "OK");
-						Succeeded?.Invoke (this, null);
-						return;
-					} else {
-						if (await DisplayAlert ("Not Found", "User could not be found. Send a direct email?", "Send", "Cancel")) {
-							String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
-							if (emailResult == "OK") {
-								await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
-								Succeeded?.Invoke (this, null);
-								return;
-							} else {
-								Failed?.Invoke (this, null);
+					String result = restConnection.Instance.get ("api/friend/invite", param).Content;
+					switch (result) {
+						case "FOUND":
+							await DisplayAlert ("Sent", "Invite Sent", "OK");
+							Succeeded?.Invoke (this, null);
+							return;
+							break; 
+						case "EMAIL TO SELF":
+							DisplayAlert ("Errr..", "You have invited yourself. Does not compute!", "OK");
+							break;
+						case "NOT FOUND":
+							if (await DisplayAlert ("Not Found", "That user could not be found. Send them an invite email?", "Send", "Cancel")) {
+								String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
+								if (emailResult == "OK") {
+									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
+									Succeeded?.Invoke (this, null);
+									return;
+								}
 							}
-						} else
+							break;
+						default:
 							Failed?.Invoke (this, null);
+							break;
 					}
 				} catch (Exception ex) {
 					Insights.Report (ex);

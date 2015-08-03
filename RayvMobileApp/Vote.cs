@@ -42,7 +42,8 @@ namespace RayvMobileApp
 		Breakfast = 0x1,
 		Lunch = 0x2,
 		Dinner = 0x4,
-		Coffee = 0x8
+		Coffee = 0x8,
+		Bar = 0x16
 	}
 
 
@@ -56,7 +57,7 @@ namespace RayvMobileApp
 
 	public class Vote: IComparable<Vote>
 	{
-		public const int MAX_MEALKIND = 0 + 1 + 2 + 4 + 8;
+		public const int MAX_MEALKIND = 0 + 1 + 2 + 4 + 8 + 16;
 
 		#region sqlLite columns
 
@@ -112,6 +113,8 @@ namespace RayvMobileApp
 		public string VoterName {
 			get {
 				try {
+					if (Persist.Instance.MyId.ToString () == voter)
+						return "Me";
 					return Persist.Instance.Friends [voter].Name;
 				} catch (KeyNotFoundException) {
 					if (Persist.Instance.InviteNames.ContainsKey (voter))

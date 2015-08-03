@@ -127,7 +127,8 @@ namespace RayvMobileApp
 			friendsBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default friends.png"), ShowFriends) { 
 				HorizontalOptions = LayoutOptions.Center
 			};
-			var newsBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default news.png"), ShowNews) { 
+			var newsIconFile = Persist.Instance.HaveActivity ? "Alert_activity2.png" : "TB default news.png";
+			var newsBtn = new BottomToolbarButton (settings.DevicifyFilename (newsIconFile), ShowNews) { 
 				HorizontalOptions = LayoutOptions.Center
 			};
 			FindBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowFind) { 

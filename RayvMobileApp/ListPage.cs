@@ -313,15 +313,15 @@ namespace RayvMobileApp
 		{
 			try {
 				Persist.Instance.GetUserData (
-					() => {
-						if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-							Navigation.PushModalAsync (new LoginPage ());
-						else
-							DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
+					onFail: () => {
+						DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 					},
-					() => {
+					onSucceed: () => {
 						Refresh ();
 						listView.EndRefresh ();
+					},
+					onFailVersion: () => {
+						Navigation.PushModalAsync (new LoginPage ());
 					},
 					since: DateTime.UtcNow, 
 					incremental: true);
@@ -395,30 +395,42 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Listpage.ResetCuisinePicker");
 		}
 
+		void DebugList (string step, IEnumerable<Vote> filteredList, Dictionary<string,Vote> myVotes)
+		{
+			//debug
+			if (false)
+				foreach (var v in filteredList.ToList ()) {
+					bool res = (myVotes.ContainsKey (v.key));
+//						?
+//					            myVotes [v.key].style == FilterPlaceStyle :
+//					            v.style == FilterPlaceStyle);
+					Console.WriteLine ($"[{step}]{v.key} {v.place_name} by {v.VoterName} style {res}");
+				}
+		}
+
 		async Task FilterList ()
 		{
 			Console.WriteLine ("Listpage.FilterList");
-			Persist data = Persist.Instance;
 			List<string> styleDescriptionItems = new List<string> ();
 			try {
-				Persist.Instance.DisplayList = data.Places;
+				Persist.Instance.DisplayList = Persist.Instance.GetData ();
 				IEnumerable<Vote> filteredList = Persist.Instance.Votes;
+				// dict mapping vote place key to vote
+				Dictionary<string,Vote> myVotes = Persist.Instance.Votes
+					.Where (v => v.voter == Persist.Instance.MyId.ToString ())
+					.ToDictionary (v => v.key, v => v);
 				String text = FilterSearchBox.Text.ToLower ();
 
 				// VOTE FILTERS
 				// - Cuisine
-				if (!string.IsNullOrEmpty (FilterCuisine)) {
-					filteredList = filteredList.Where (v => v.cuisineName == FilterCuisine);
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Cuisine is {FilterCuisine}");
-					Console.WriteLine ("ListPage filter cuisine");
-				}
 				// - Mine
 				if (FilterVotesBy == VoteFilterWho.Mine) {
 					filteredList = filteredList.Where (v => v.voter == Persist.Instance.MyId.ToString ());
 					IsFiltered = true;
 					styleDescriptionItems.Add ("My votes only");
 					Console.WriteLine ("ListPage filter text");
+					DebugList ("Mine", filteredList, myVotes);
+
 				} 
 				// - chosen friends
 				if (FilterVotesBy == VoteFilterWho.Chosen) {
@@ -426,50 +438,87 @@ namespace RayvMobileApp
 					                     where ((Friend)kvp.Value).InFilter
 					                     select kvp.Key).ToList ();
 					filteredList = filteredList.Where (v => chosenFriends.IndexOf (v.voter) > -1);
+					// as I am not one of the chosen friends, clear my vote dict so my votes don't override theirs
+					myVotes.Clear ();
 					IsFiltered = true;
 					styleDescriptionItems.Add ("From chosen friends");
-					Console.WriteLine ("ListPage filter chosen friends");
+					Console.WriteLine ("ListPage filter chosen friends (no override for my votes)");
+					DebugList ("Friends", filteredList, myVotes);
+
 				}
+				if (!string.IsNullOrEmpty (FilterCuisine)) {
+					filteredList = filteredList.Where (v => 
+						myVotes.ContainsKey (v.key) ?
+						myVotes [v.key].cuisineName == FilterCuisine :
+						v.cuisineName == FilterCuisine);
+					IsFiltered = true;
+					styleDescriptionItems.Add ($"Cuisine is {FilterCuisine}");
+					Console.WriteLine ("ListPage filter cuisine");
+					DebugList ("Cuisine", filteredList, myVotes);
+				}
+
 				// - vote value
 				switch (FilterVotesKind) {
 					case VoteFilterWhat.Like:
 						{
-							filteredList = filteredList.Where (v => v.vote == VoteValue.Liked);
+							filteredList = filteredList.Where (v =>
+                                myVotes.ContainsKey (v.key) ?
+								myVotes [v.key].vote == VoteValue.Liked :
+								v.vote == VoteValue.Liked);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("liked places");
+							DebugList ("Vote Like", filteredList, myVotes);
+
 							break;
 						}
 					case VoteFilterWhat.Try:
 						{
+							filteredList = filteredList.Where (v =>
+                                myVotes.ContainsKey (v.key) ?
+								myVotes [v.key].vote == VoteValue.Untried || myVotes [v.key].vote == VoteValue.Liked :
+								v.vote == VoteValue.Untried || v.vote == VoteValue.Liked);
 							filteredList = filteredList.Where (v => v.vote == VoteValue.Untried || v.vote == VoteValue.Liked);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("places to try");
+							DebugList ("Vote Try", filteredList, myVotes);
 							break;
 						}
 					case VoteFilterWhat.Wish:
 						{
-							filteredList = filteredList.Where (v => v.vote == VoteValue.Untried);
+							filteredList = filteredList.Where (v =>
+                               myVotes.ContainsKey (v.key) ?
+                               myVotes [v.key].vote == VoteValue.Untried :
+                               v.vote == VoteValue.Untried);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("wishlist places");
+							DebugList ("Vote Wish", filteredList, myVotes);
 							break;
 						}
 					default:
 						break;
 				}
 				// - meal kind
-				if (FilterPlaceKind != MealKind.None) {
-					filteredList = filteredList.Where (v => (v.kind & FilterPlaceKind) != MealKind.None);
-					if (FilterPlaceKind != MealKind.None && (int)FilterPlaceKind != Vote.MAX_MEALKIND) {
-						IsFiltered = true;
-						styleDescriptionItems.Add ($"{FilterPlaceKind}");
-					}
+				if (FilterPlaceKind != MealKind.None && (int)FilterPlaceKind != Vote.MAX_MEALKIND) {
+					filteredList = filteredList.Where (v => 
+					                                   myVotes.ContainsKey (v.key) ?
+					                                   (myVotes [v.key].kind & FilterPlaceKind) != MealKind.None :
+					                                   (v.kind & FilterPlaceKind) != MealKind.None);
+					IsFiltered = true;
+					styleDescriptionItems.Add ($"{FilterPlaceKind}");
+					DebugList ("Kind", filteredList, myVotes);
 					Console.WriteLine ("ListPage filter Kind");
 				}
 				// - place style
 				if (FilterPlaceStyle != PlaceStyle.None) {
-					filteredList = filteredList.Where (v => v.style == FilterPlaceStyle);
+					DebugList ("pre", filteredList, myVotes);
+					filteredList = filteredList.Where (v => 
+					                                   (myVotes.ContainsKey (v.key) ?
+					                                   myVotes [v.key].style == FilterPlaceStyle :
+					                                   v.style == FilterPlaceStyle));
+					DebugList ("post", filteredList, myVotes);
 					IsFiltered = true;
 					styleDescriptionItems.Add ($"{FilterPlaceStyle}");
+					DebugList ("Style", filteredList, myVotes);
 					Console.WriteLine ("ListPage filter style");
 				}
 
@@ -570,15 +619,14 @@ namespace RayvMobileApp
 				try {
 					Persist.Instance.GetUserData (
 						onFail: () => {
-							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-								Navigation.PushModalAsync (new LoginPage ());
-							else
-								DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
-						
+							DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 						}, 
 						onSucceed: () => {
 							InnerSetList (Persist.Instance.Places);
 						},
+						onFailVersion: () => {
+							Navigation.PushModalAsync (new LoginPage ());
+						}, 
 						incremental: false);
 				} catch (ProtocolViolationException) {
 					DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");

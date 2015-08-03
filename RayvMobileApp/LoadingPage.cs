@@ -8,7 +8,6 @@ namespace RayvMobileApp
 {
 	public class LoadingPage : ContentPage
 	{
-		BackgroundWorker worker;
 		Label ServerMessage;
 		Label LoadingMessage;
 		ProgressBar progBar;
@@ -25,33 +24,42 @@ namespace RayvMobileApp
 //			}
 		}
 
-		void loadDataFromServer (object sender, DoWorkEventArgs e)
+		void loadDataFromServer ()
 		{
-			Console.WriteLine ("loadDataFromServer");
-			Persist.Instance.LoadFromDb (loader: this);
 			Console.WriteLine ("loadDataFromServer");
 			if (Persist.Instance.Online) {
 				SetMessage ("Connecting", 0.5);
 				Persist.Instance.GetUserData (
 					onFail: () => {
+						Console.WriteLine ("loadDataFromServer: Fail");
+//						Device.BeginInvokeOnMainThread (() => {
+//							Navigation.PushModalAsync (new MainMenu ());
+//						});
+					}, 
+					onFailLogin: () => {
+						Console.WriteLine ("loadDataFromServer: Fail Login");
+
 						Device.BeginInvokeOnMainThread (() => {
-							if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-								Navigation.PushModalAsync (new LoginPage ());
-							else {
-								//DisplayAlert ("Offline", "Unable to contact server", "OK");
-								Navigation.PushModalAsync (new MainMenu ());
-							}
+							Navigation.PushModalAsync (new LoginPage ("Login failed"));
 						});
 					}, 
 					onSucceed: () => {
+						Console.WriteLine ("loadDataFromServer: Success");
 						Device.BeginInvokeOnMainThread (() => {
 							Persist.Instance.Online = true;
-							Navigation.PushModalAsync (new MainMenu ());
+//							Navigation.PushModalAsync (new MainMenu ());
 							Persist.Instance.LoadCategories ();
 						});
 					},
+					onFailVersion: () => {
+						Console.WriteLine ("loadDataFromServer: Fail Version");
+						Device.BeginInvokeOnMainThread (() => {
+							Navigation.PushModalAsync (new LoginPage ("Wrong Server Version"));
+							Persist.Instance.SetConfig (settings.SERVER, null);
+						});
+					}, 
 					incremental: true, 
-					statusMessage: SetMessage);
+					setStatusMessage: SetMessage);
 				
 			} else
 				Device.BeginInvokeOnMainThread (() => {
@@ -67,11 +75,11 @@ namespace RayvMobileApp
 		void DoAppearing (object sender, EventArgs e)
 		{
 			progBar.WidthRequest = this.Width;
-			worker.DoWork += 
-				new DoWorkEventHandler (loadDataFromServer);
-			worker.RunWorkerCompleted += 
-				new RunWorkerCompletedEventHandler (WorkerCompleted);
-			worker.RunWorkerAsync ();
+			Persist.Instance.LoadFromDb (loader: this);
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				loadDataFromServer ();
+			})).Start ();
+			Navigation.PushModalAsync (new MainMenu ());
 //
 //
 //
@@ -113,18 +121,8 @@ namespace RayvMobileApp
 				// we are not on prod
 				ServerMessage.Text = server;
 			}
-
 			BackgroundColor = settings.BaseColor;
-			Content = new StackLayout { 
-				VerticalOptions = LayoutOptions.Center,
-				Children = {
-					new ActivityIndicator { IsRunning = true, Color = Color.White, },
-					LoadingMessage,
-					progBar,
-					ServerMessage,
-				}
-			};
-			worker = new BackgroundWorker ();
+			Padding = 30;
 			Appearing += DoAppearing;
 		}
 	}
