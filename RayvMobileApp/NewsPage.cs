@@ -42,7 +42,7 @@ namespace RayvMobileApp
 		bool Clicked;
 		Button MoreBtn;
 		int ShowRows;
-		StackLayout Toolbar;
+		BottomToolbar Toolbar;
 		ActivityIndicator Spinner;
 		NewsFilterKind Filter = NewsFilterKind.All;
 
@@ -323,6 +323,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("DoAccept " + name);
 			if (Invite.AcceptInvite (friendId)) {
 				CheckForUpdates (sender, e);
+				Toolbar.SetActivityIcon ();
 			} else
 				DisplayAlert ("Failed", "Unable to accept friend request", "OK");
 		}
@@ -336,6 +337,7 @@ namespace RayvMobileApp
 				DisplayAlert ("Failed", "Unable to dismiss friend request", "OK");
 			}
 			CheckForUpdates (sender, e);
+			Toolbar.SetActivityIcon ();
 		}
 
 		void DoReject (object sender, EventArgs e)
@@ -346,6 +348,7 @@ namespace RayvMobileApp
 			if (Invite.RejectInvite (friendId)) { 
 				DisplayAlert ("Rejected", "Friend request rejected", "OK");
 				CheckForUpdates (sender, e);
+				Toolbar.SetActivityIcon ();
 			} else
 				DisplayAlert ("Failed", "Please try later", "OK");
 		}
