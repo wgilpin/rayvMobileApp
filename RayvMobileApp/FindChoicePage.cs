@@ -545,7 +545,7 @@ namespace RayvMobileApp
 			currentVoteKindFilter = VoteFilterWhat.All;
 			currentVoteByWho = VoteFilterWho.All;
 			currentCuisine = ALL_CUISINES;
-			currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner;
+			currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner | MealKind.Bar;
 			currentStyle = PlaceStyle.None;
 			SearchCentre = null;
 			currentLocationName = "";

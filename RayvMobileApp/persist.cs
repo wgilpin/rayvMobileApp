@@ -928,39 +928,41 @@ namespace RayvMobileApp
 			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
 				db.BusyTimeout = DbTimeout;
 				var removeList = new List<Place> ();
-				foreach (Place p in Places) {
-					p.CalculateDistanceFromPlace (searchCentre);
-					try {
-						db.InsertOrReplace (p);
-						p.up = p.down = 0;
-						var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
-						if (vote_list.Count == 0)
-							removeList.Add (p);
-						else
-							vote_list.ForEach (v => {
-								if (v.voter == myId) {
-									// my vote
-									p.vote = v;
-								} else {
-									//friend vote
-									if (v.vote == VoteValue.Liked)
-										p.up++;
-									else if (v.vote == VoteValue.Disliked)
-										p.down++;
-									if (p.vote == null)
+
+				lock (Places) {
+					foreach (Place p in Places) {
+						p.CalculateDistanceFromPlace (searchCentre);
+						try {
+							db.InsertOrReplace (p);
+							p.up = p.down = 0;
+							var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
+							if (vote_list.Count == 0)
+								removeList.Add (p);
+							else
+								vote_list.ForEach (v => {
+									if (v.voter == myId) {
+										// my vote
 										p.vote = v;
-								}
-							});
-					} catch (Exception ex) {
-						Insights.Report (ex, "Place", p.place_name);
+									} else {
+										//friend vote
+										if (v.vote == VoteValue.Liked)
+											p.up++;
+										else if (v.vote == VoteValue.Disliked)
+											p.down++;
+										if (p.vote == null)
+											p.vote = v;
+									}
+								});
+						} catch (Exception ex) {
+							Insights.Report (ex, "Place", p.place_name);
+						}
 					}
-				}
-				foreach (Place p in removeList)
-					Places.Remove (p);
-				UpdateCategoryCounts ();
-				Console.WriteLine ("updatePlaces SORT");
-				Places.Sort ();
-//					foreach (Vote v in Votes) {
+					foreach (Place p in removeList)
+						Places.Remove (p);
+					UpdateCategoryCounts ();
+					Console.WriteLine ("updatePlaces SORT");
+					Places.Sort ();
+				}//					foreach (Vote v in Votes) {
 //						try {
 //							//Todo: does this allow n votes per place?
 //							var found_v = (from fv in db.Table<Vote> ()
@@ -1117,7 +1119,6 @@ namespace RayvMobileApp
 				if (Application.Current.Properties.ContainsKey (key))
 					return Application.Current.Properties [key] as string;
 			} catch (Exception ex) {
-				Insights.Report (ex, "key", key);
 			}
 			return "";
 		}

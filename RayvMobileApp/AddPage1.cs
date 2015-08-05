@@ -27,7 +27,7 @@ namespace RayvMobileApp
 
 	public class AddPage1 : ContentPage
 	{
-		LocationListWithHistory GeoLookupBox;
+		LocationListWithHistory LocationsListBox;
 		PlacesListView PlacesLV;
 		Label NothingFound;
 		ActivityIndicator Spinner;
@@ -41,24 +41,22 @@ namespace RayvMobileApp
 		Place addingPlace;
 		bool editAsDraft;
 		Frame SearchHereBtn;
+		StackLayout menu;
+		BottomToolbar tools;
 
 		#region Events
 
 		void DoChangeLocation (object s, EventArgs e)
 		{
-			GeoLookupBox.IsVisible = true;
+			LocationsListBox.IsVisible = true;
 			LocationSearchedBox.IsVisible = false;
 			ResetLocationBtn.IsVisible = false;
 			PlaceNameBox.ButtonText = " ";
 			SearchHereBtn.IsVisible = false;
+			PlacesLV.IsVisible = false;
 		}
 
-		void DoSearchForPlace (object s, EventArgs e) => DoSearch (PlaceNameBox.Text, "");
-
-
-
-
-
+		void DoSearchForPlace (object s, EventArgs e) => DoSearch ( "");
 
 		void DoSelectPlace (object s, ItemTappedEventArgs e)
 		{
@@ -91,8 +89,8 @@ namespace RayvMobileApp
 			ResetLocationBtn.IsVisible = false;
 			LocationSearchedBox.IsVisible = true;
 			LocationSearchedBox.Text = "Searching current location";
-			GeoLookupBox.IsVisible = false;
-			DoSearch (PlaceNameBox.Text, "");
+			LocationsListBox.IsVisible = false;
+			DoSearch ("");
 			PlaceNameBox.ButtonText = "Search";
 			SearchHereBtn.IsVisible = true;
 		}
@@ -104,9 +102,9 @@ namespace RayvMobileApp
 			LocationSearchedBox.IsVisible = true;
 			ResetLocationBtn.IsVisible = true;
 			SearchPosition = new Position (loc.Lat, loc.Lng);
-			DoSearch (PlaceNameBox.Text, LocationSearchedBox.Text);
-			PlacesLV.IsVisible = false;
-			GeoLookupBox.IsVisible = false;
+			DoSearch (LocationSearchedBox.Text);
+			PlacesLV.IsVisible = true;
+			LocationsListBox.IsVisible = false;
 			PlaceNameBox.ButtonText = "Search";
 		}
 
@@ -127,59 +125,74 @@ namespace RayvMobileApp
 		}
 
 		// Search for a place at a location
-		void DoSearch (String searchName, String searchLocation)
+		void DoSearch (String searchLocation)
 		{
-			Console.WriteLine ("AddPage1.DoSearch: Activity");
 			Spinner.IsRunning = true;
+			Spinner.IsVisible = true;
 			PlaceNameBox.Entry.Unfocus ();
 			if (PlaceNameBox.ButtonText == "Search" && LocationSearchedBox.ButtonText == "Search") {
 				PlaceNameBox.ButtonText = " ";
 			}
-			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				Console.WriteLine ("AddPage1.DoSearch: Thread");
-				Dictionary<string, string> parameters = new Dictionary<string, string> ();
-				parameters ["lat"] = SearchPosition.Latitude.ToString ();
-				parameters ["lng"] = SearchPosition.Longitude.ToString ();
-				if (searchLocation != null) {
-					parameters ["addr"] = searchLocation;
-				}
-				if (PlaceNameBox.Text != null) {
-					parameters ["place_name"] = searchName;
-				}
-				parameters ["near_me"] = "1";
-				try {
-					string result = restConnection.Instance.get ("/getAddresses_ajax", parameters).Content;
-					JObject obj = JObject.Parse (result);
-					List<Place> points = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
-					foreach (Place point in points) {
-						if (point == null)
-							continue;
-						Console.WriteLine (point.place_name);
-						point.CalculateDistanceFromPlace ();
-					}
-					Console.WriteLine ("AddPage1.DoSearch SORT");
 
-					points.Sort ();
-					Device.BeginInvokeOnMainThread (() => {
-						Console.WriteLine ("AddPage1.DoSearch: MainThread");
-						SetupSearchHistory ();
-						Spinner.IsRunning = false;
-						Console.WriteLine ("AddPage1.DoSearch: Activity Over. push AddResultsPage");
-						PlacesLV.ItemsSource = points;
-						PlacesLV.IsVisible = points.Count > 0;
-						NothingFound.IsVisible = points.Count == 0;
-						AddManualAddress.IsVisible = true;
-					});
-				} catch (Exception e) {
-					restConnection.LogErrorToServer ("AddPage1.DoSearch: Exception {0}", e);
-					Device.BeginInvokeOnMainThread (async() => {
-						Console.WriteLine ("AddPage1.DoSearch: MainThread Exception");
-						Spinner.IsRunning = false;
-						editAsDraft = await DisplayAlert ("No Network", "Unable to search. Network problems?", "Edit as draft", "Cancel");
-						if (editAsDraft) {
-							Persist.Instance.Online = false;
-							var editor = new PlaceEditor (addingPlace, this, isDraft: true);
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				try {
+					Console.WriteLine ("AddPage1.DoSearch: Activity");
+					Console.WriteLine ("AddPage1.DoSearch: Thread");
+					Dictionary<string, string> parameters = new Dictionary<string, string> ();
+					parameters ["lat"] = SearchPosition.Latitude.ToString ();
+					parameters ["lng"] = SearchPosition.Longitude.ToString ();
+					if (searchLocation != null) {
+						parameters ["addr"] = searchLocation;
+					}
+					if (!string.IsNullOrEmpty (PlaceNameBox.Text)) {
+						parameters ["place_name"] = PlaceNameBox.Text;
+					}
+					parameters ["near_me"] = "1";
+					var restResult = restConnection.Instance.get ("/getAddresses_ajax", parameters, timeout: 30000);
+					if (restResult == null) {
+						throw new SystemException ("DoSearch: No Server Response");
+					} else {
+						string result = restResult.Content;
+						JObject obj = JObject.Parse (result);
+						List<Place> points = new List<Place> ();
+						List<Place> pointsIn = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
+						foreach (Place point in pointsIn) {
+							if (point == null)
+								continue;
+							point.CalculateDistanceFromPlace (SearchPosition);
+							points.Add (point);
 						}
+						pointsIn = null;
+						points.Sort ();
+						foreach (Place p in points.Take (30))
+							if (p != null)
+								Console.WriteLine ($"{p.place_name}, {p.distance}");
+
+						Console.WriteLine ($"Search Position {SearchPosition.Latitude} {SearchPosition.Longitude}");
+						Console.WriteLine ($"AddPage1.DoSearch N={points.Count}");
+						Console.WriteLine ("AddPage1.DoSearch: MainThread");
+						Device.BeginInvokeOnMainThread (() => {
+			
+							SetupSearchHistory ();
+							Spinner.IsRunning = false;
+							Console.WriteLine ("AddPage1.DoSearch: Activity Over. source set");
+							PlacesLV.ItemsSource = null;
+							PlacesLV.ItemsSource = points.Take (30).ToList ();
+
+							NothingFound.IsVisible = points.Count == 0;
+							PlacesLV.IsVisible = !NothingFound.IsVisible;
+							Console.WriteLine ($"AddPage1.DoSearch Visible {PlacesLV.IsVisible}");
+							AddManualAddress.IsVisible = true;
+							Spinner.IsRunning = false;
+							Spinner.IsVisible = false;
+						});
+					}
+				} catch (Exception e) {
+					Insights.Report (e, "SearchLocation", searchLocation);
+					Console.WriteLine ($"AddPage1.DoSearch: MainThread {e}");
+					Device.BeginInvokeOnMainThread (() => {
+						Spinner.IsRunning = false;
+						DisplayAlert ("No Response", "Unable to search. Network problems?", "OK");
 					});
 				}
 			})).Start ();
@@ -189,12 +202,6 @@ namespace RayvMobileApp
 
 		#region Properties
 
-		public  IEnumerable ItemsSource {
-			set {
-				PlacesLV.ItemsSource = value;
-				NothingFound.IsVisible = (value as List<Place>).Count == 0;
-			}
-		}
 
 		#endregion
 
@@ -209,7 +216,7 @@ namespace RayvMobileApp
 
 			Spinner = new ActivityIndicator {
 				IsRunning = false,
-				Color = Color.Red,
+				Color = Color.White,
 			};
 
 			ResetLocationBtn = new Button {
@@ -226,17 +233,17 @@ namespace RayvMobileApp
 			};
 			PlacesLV.ItemTapped += DoSelectPlace;
 
-			GeoLookupBox = new LocationListWithHistory {
+			LocationsListBox = new LocationListWithHistory {
 				IsVisible = false,
 			};
-			GeoLookupBox.OnItemTapped = DoSelectLocation;
+			LocationsListBox.OnItemTapped = DoSelectLocation;
 			var searchBtn = new RayvButton ("Search Here") {
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				BorderRadius = 0
 			};
-			GeoLookupBox.OnCancel = (s, e) => {
-				GeoLookupBox.IsVisible = false;
+			LocationsListBox.OnCancel = (s, e) => {
+				LocationsListBox.IsVisible = false;
 				LocationSearchedBox.IsVisible = true;
 				DoResetLocation (this, null);
 				ResetLocationBtn.IsVisible = true;
@@ -281,7 +288,7 @@ namespace RayvMobileApp
 			};
 			SearchPosition = Persist.Instance.GpsPosition;
 
-			StackLayout menu = new StackLayout { 
+			menu = new StackLayout { 
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 10,
 				Padding = 4,
@@ -292,11 +299,11 @@ namespace RayvMobileApp
 					ResetLocationBtn,
 					Spinner,
 					SearchHereBtn,
-					GeoLookupBox,
+					LocationsListBox,
 					NothingFound,
 				}
 			};
-			StackLayout tools = new BottomToolbar (this, "add");
+			tools = new BottomToolbar (this, "add");
 			Content = new StackLayout {
 				Children = {
 					menu,

@@ -164,15 +164,6 @@ namespace RayvMobileApp
 			}
 		}
 
-		public VoteValue voteValue {
-			get {
-				return vote.vote;
-			}
-			set {
-				vote.vote = value;
-			}
-		}
-
 		public string descr { 
 			get { return _descr; } 
 			set {

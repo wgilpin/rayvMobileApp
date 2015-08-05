@@ -53,7 +53,7 @@ namespace RayvMobileApp
 			} 
 		}
 
-		IRestResponse innerGet (string url, Dictionary<string, string> parameters, Method method)
+		IRestResponse innerGet (string url, Dictionary<string, string> parameters, Method method, int timeout = 0)
 		{
 			var request = new RestRequest (url);
 			request.Method = method;
@@ -64,7 +64,7 @@ namespace RayvMobileApp
 			}
 			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
 
-			client.Timeout = settings.WEB_TIMEOUT;
+			client.Timeout = timeout == 0 ? settings.WEB_TIMEOUT : timeout;
 			IRestResponse response = client.Execute (request);
 			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 			if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -99,7 +99,8 @@ namespace RayvMobileApp
 		public IRestResponse get (string url,
 		                          Dictionary<string,string> parameters = null,
 		                          Method method = Method.GET,
-		                          int getRetries = settings.MAX_SERVER_TRIES)
+		                          int getRetries = settings.MAX_SERVER_TRIES,
+		                          int timeout = 0)
 		{
 			// only retry a Get
 			int MaxRetries = method == Method.GET ? getRetries : 1;
@@ -107,7 +108,7 @@ namespace RayvMobileApp
 				try {
 					if (try_number > 0)
 						Thread.Sleep (1000);
-					var response = innerGet (url, parameters, method);
+					var response = innerGet (url, parameters, method, timeout);
 					if (response == null) {
 						// try again soon
 						continue;

@@ -18,12 +18,19 @@ namespace RayvMobileApp
 			BackgroundColor = settings.BaseColor;
 			var emailEd = new Entry { Placeholder = "Email" };
 			var searchBtn = new RayvButton ("Invite as Friend");
+			string result = null;
 			searchBtn.Clicked += async (sender, e) => {
 				var param = new Dictionary<string, string> () {
 					{ "email",emailEd.Text }
 				};
 				try {
-					String result = restConnection.Instance.get ("api/friend/invite", param).Content;
+					result = restConnection.Instance.get ("api/friend/invite", param).Content;
+				} catch (Exception ex) {
+					Insights.Report (ex, "Email", emailEd.Text);
+					Failed?.Invoke (this, null);
+					return;
+				}
+				try {
 					switch (result) {
 						case "FOUND":
 							await DisplayAlert ("Sent", "Invite Sent", "OK");
@@ -37,7 +44,7 @@ namespace RayvMobileApp
 							if (await DisplayAlert ("Not Found", "That user could not be found. Send them an invite email?", "Send", "Cancel")) {
 								String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
 								if (emailResult == "OK") {
-									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
+									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK");
 									Succeeded?.Invoke (this, null);
 									return;
 								}

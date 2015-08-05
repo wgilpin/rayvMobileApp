@@ -43,29 +43,31 @@ namespace RayvMobileApp
 				if (center != Persist.Instance.DisplayPosition)
 					Changed?.Invoke (this, null);
 				Persist.Instance.DisplayPosition = center;
-				foreach (var p in Persist.Instance.DisplayList)
-					p.distance_for_search = p.distance_from (center);
-				Persist.Instance.DisplayList.Sort ((a, b) => 
+				if (Persist.Instance.DisplayList != null) {
+					foreach (var p in Persist.Instance.DisplayList)
+						p.distance_for_search = p.distance_from (center);
+					Persist.Instance.DisplayList.Sort ((a, b) => 
 	                                   a.distance_for_search.CompareTo (b.distance_for_search));
-				Console.WriteLine ("SetupMapList SORT");
-				Device.BeginInvokeOnMainThread (() => {
-					map.Pins.Clear ();
-					PinList.Clear ();
-					for (int i = 0; i < Math.Min (9, Persist.Instance.DisplayList.Count); i++) {
-						Place p = Persist.Instance.DisplayList [i];
-						Pin pin = new Pin {
-							Type = PinType.SearchResult,
-							Label = p.place_name,
-							Position = p.GetPosition (),
-							Address = p.address,
-						};
-						pin.Clicked += PinClick;
-						map.Pins.Add (pin);
-						PinList.Add (p.key, pin);
-						Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
-					}
-					Spinner.IsRunning = false;
-				});
+					Console.WriteLine ("SetupMapList SORT");
+					Device.BeginInvokeOnMainThread (() => {
+						map.Pins.Clear ();
+						PinList.Clear ();
+						for (int i = 0; i < Math.Min (9, Persist.Instance.DisplayList.Count); i++) {
+							Place p = Persist.Instance.DisplayList [i];
+							Pin pin = new Pin {
+								Type = PinType.SearchResult,
+								Label = p.place_name,
+								Position = p.GetPosition (),
+								Address = p.address,
+							};
+							pin.Clicked += PinClick;
+							map.Pins.Add (pin);
+							PinList.Add (p.key, pin);
+							Console.WriteLine ("SetupMapList: Pin for  {0}", p.place_name);
+						}
+						Spinner.IsRunning = false;
+					});
+				}
 			})).Start ();
 //			Console.WriteLine ("SetupMapList: Pinned {0} places, map has {1}", debugCount, map.Pins.Count);
 

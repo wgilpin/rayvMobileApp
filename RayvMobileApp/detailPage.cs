@@ -109,9 +109,20 @@ namespace RayvMobileApp
 				LetterBtn.BackgroundColor = Vote.RandomColor (vote.VoterName);
 				grid.Children.Add (LetterBtn, 0, 1, whichRow * 3 + 1, whichRow * 3 + 2);
 				var FriendLine = new FormattedString ();
-				var voter = Persist.Instance.Friends [vote.voter].Name;
+
+				string voter = "";
+				try {
+					voter = Persist.Instance.Friends [vote.voter].Name;
+				} catch (Exception ex) {
+					var data = new Dictionary<string,string> { 
+						{ "Friend", $"{vote.voter}" },
+						{ "Vote",$"{vote.Id}" }
+					};
+					Insights.Report (ex, data);
+					throw new KeyNotFoundException ();
+				}
 				FriendLine.Spans.Add (new Span {
-					Text = $"{voter}  {vote.GetVoteAsString}  ",
+					Text =$"{voter}  {vote.GetVoteAsString}  ",
 				});
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
@@ -128,6 +139,8 @@ namespace RayvMobileApp
 						FontAttributes = FontAttributes.Italic,
 					}, 0, 5, whichRow * 3 + 2, whichRow * 3 + 3);
 				}
+			} catch (KeyNotFoundException) {
+				// already handled
 			} catch (Exception ex) {
 				Console.WriteLine ("detailPage.AddFriendCommentToGrid {0}", ex);
 				Insights.Report (ex);
@@ -254,13 +267,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text =$" {DisplayPlace.place_name}",
+						Text = $" {DisplayPlace.place_name}",
 						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text =$"  {DisplayPlace.distance}",
+						Text = $"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});

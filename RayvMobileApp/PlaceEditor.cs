@@ -16,37 +16,47 @@ namespace RayvMobileApp
 
 		void DoVoteSaved (object sender, VoteSavedEventArgs ev)
 		{
-			EditPlace.voteValue = ev.Vote;
-			var cuisinePage = new EditCuisinePage (EditPlace.vote.cuisineName);
-			cuisinePage.Saved += DoCuisineSaved;
-			Debug.WriteLine ("PlaceEditor DoVoteSaved");
-			CallingPage.Navigation.PushAsync (cuisinePage);
-		}
-
-		void DoCuisineSaved (object sender, CuisineSavedEventArgs ev)
-		{
-			EditPlace.vote.cuisine = ev.Cuisine;
+			EditPlace.vote.vote = ev.Vote;
 			var kindPage = new EditPlaceKindPage (EditPlace.vote.kind, EditPlace.vote.style);
 			kindPage.Saved += DoKindSaved;
 			Debug.WriteLine ("PlaceEditor DoCuisineSaved");
 			CallingPage.Navigation.PushAsync (kindPage);
 		}
 
-		void DoKindSaved (object sender, KindSavedEventArgs ev)
+		void DoCuisineSaved (object sender, CuisineSavedEventArgs ev)
 		{
-			EditPlace.vote.kind = ev.Kind;
-			EditPlace.vote.style = ev.Style;
-			if (ev.Kind == MealKind.Bar)
-				// #674 default cuisine for Bar is Bar
-				EditPlace.vote.cuisine = new Cuisine{ Title = "Bar" };
-			Debug.Assert (ev.Style != PlaceStyle.None);
-			Debug.Assert (ev.Kind != MealKind.None);
+			EditPlace.vote.cuisine = ev.Cuisine;
 			var commentPage = new EditCommentPage (
 				                  EditPlace.Comment (), 
 				                  vote: EditPlace.vote.vote);
 			commentPage.Saved += DoCommentSaved;
 			Debug.WriteLine ("PlaceEditor DoKindSaved");
 			CallingPage.Navigation.PushAsync (commentPage);
+		}
+
+		void DoKindSaved (object sender, KindSavedEventArgs ev)
+		{
+			EditPlace.vote.kind = ev.Kind;
+			EditPlace.vote.style = ev.Style;
+			Debug.Assert (ev.Style != PlaceStyle.None);
+			Debug.Assert (ev.Kind != MealKind.None);
+			if (ev.Kind == MealKind.Bar) {
+				// #674 default cuisine for Bar is Bar
+				EditPlace.vote.cuisine = new Cuisine{ Title = "Bar" };
+				// #681 skip cuisine selection if its a bar
+				var commentPage = new EditCommentPage (
+					                  EditPlace.Comment (), 
+					                  vote: EditPlace.vote.vote);
+				commentPage.Saved += DoCommentSaved;
+				Debug.WriteLine ("PlaceEditor DoKindSaved");
+				CallingPage.Navigation.PushAsync (commentPage);
+			} else {
+				// not a bar
+				var cuisinePage = new EditCuisinePage (EditPlace.vote.cuisineName);
+				cuisinePage.Saved += DoCuisineSaved;
+				Debug.WriteLine ("PlaceEditor DoVoteSaved");
+				CallingPage.Navigation.PushAsync (cuisinePage);
+			}
 		}
 
 		void DoCommentSaved (object sender, CommentSavedEventArgs ev)
@@ -70,7 +80,7 @@ namespace RayvMobileApp
 		{
 			EditPlace = place;
 			CallingPage = caller;
-			VotePage = new EditVotePage (EditPlace.voteValue);
+			VotePage = new EditVotePage (EditPlace.vote.vote);
 			VotePage.Saved += DoVoteSaved;
 		}
 	}

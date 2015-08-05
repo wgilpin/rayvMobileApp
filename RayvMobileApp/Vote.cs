@@ -43,7 +43,7 @@ namespace RayvMobileApp
 		Lunch = 0x2,
 		Dinner = 0x4,
 		Coffee = 0x8,
-		Bar = 0x16
+		Bar = 0x10
 	}
 
 

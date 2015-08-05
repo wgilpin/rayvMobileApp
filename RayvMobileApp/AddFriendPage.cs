@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Xamarin.Forms;
+using Xamarin;
 
 namespace RayvMobileApp
 {
@@ -23,6 +24,7 @@ namespace RayvMobileApp
 				sharer.OpenShareIntent (shareBody);
 			} catch (Exception ex) {
 				DisplayAlert ("Error", "Invite Error", "OK");
+				Insights.Report (ex);
 			}
 		}
 

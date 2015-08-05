@@ -9,10 +9,12 @@ namespace RayvMobileApp
 		public ActivityIndicator Spinner;
 		private ImageButton _ib;
 
+
 		public ImageSource Source {
 			get { return _ib.Source; }
 			set { _ib.Source = value; }
 		}
+
 
 		void ButtonClicked (object o, EventArgs e)
 		{
@@ -48,7 +50,13 @@ namespace RayvMobileApp
 		BottomToolbarButton friendsBtn;
 		BottomToolbarButton FindBtn;
 		Page CurrentPage;
+		BottomToolbarButton newsBtn;
 
+		public void SetActivityIcon ()
+		{
+			if (!(CurrentPage is NewsPage))
+				newsBtn.Source = Persist.Instance.HaveActivity ? "Alert_activity2.png" : "TB default news.png";
+		}
 
 		void ShowFind (object s, EventArgs e)
 		{
@@ -128,7 +136,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Center
 			};
 			var newsIconFile = Persist.Instance.HaveActivity ? "Alert_activity2.png" : "TB default news.png";
-			var newsBtn = new BottomToolbarButton (settings.DevicifyFilename (newsIconFile), ShowNews) { 
+			newsBtn = new BottomToolbarButton (settings.DevicifyFilename (newsIconFile), ShowNews) { 
 				HorizontalOptions = LayoutOptions.Center
 			};
 			FindBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowFind) { 
@@ -164,6 +172,7 @@ namespace RayvMobileApp
 			grid.Children.Add (addBtn, 2, 0);
 			grid.Children.Add (newsBtn, 3, 0);
 			grid.Children.Add (settingsBtn, 4, 0);
+			SetActivityIcon ();
 			Children.Add (grid);
 		}
 	}

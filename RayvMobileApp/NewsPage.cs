@@ -424,6 +424,8 @@ namespace RayvMobileApp
 					try {
 						Persist.Instance.GetUserData (
 							onFail: () => {
+								Spinner.IsRunning = false;
+								Spinner.IsVisible = false;
 								SetSource ();
 							},
 							onFailVersion: () => {

@@ -145,7 +145,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="Resources\Icon-60%402x.png" />
     <BundleResource Include="Resources\Icon-60%403x.png" />
     <BundleResource Include="Resources\Icon-76.png" />
     <BundleResource Include="Resources\Icon-76%402x.png" />
@@ -267,6 +266,8 @@
     <BundleResource Include="Resources\a_drinks.png" />
     <BundleResource Include="Resources\Find_friend.png" />
     <BundleResource Include="Resources\logo.png" />
+    <BundleResource Include="Resources\icon-60%402x.png" />
+    <BundleResource Include="Resources\Icon-60%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

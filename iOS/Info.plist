@@ -41,7 +41,6 @@
 		<string>Default-Portrait@2x</string>
 		<string>Icon-Small-40</string>
 		<string>Icon-Small-40@2x</string>
-		<string>Icon-Small-40@3x</string>
 		<string>Icon-Small</string>
 		<string>Icon-Small@2x</string>
 		<string>Icon-Small@3x</string>
@@ -55,10 +54,10 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5-c2</string>
+	<string>0.5-c6</string>
 	<key>CFBundleDisplayName</key>
 	<string>Taste 5</string>
 	<key>CFBundleVersion</key>
-	<string>c2</string>
+	<string>c6</string>
 </dict>
 </plist>
