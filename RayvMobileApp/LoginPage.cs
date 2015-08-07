@@ -57,10 +57,10 @@ namespace RayvMobileApp
 					if (Persist.Instance.Online) {
 						//Delete Last Sync time to force a full refresh
 						Persist.Instance.SetConfig (settings.LAST_SYNC, null);
-						restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
+						restConnection.Instance.setCredentials (UserName.Text, Password.Text.ToLowerInvariant (), "");
 						Insights.Identify (UserName.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
 						Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
-						Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
+						Persist.Instance.SetConfig (settings.PASSWORD, Password.Text.ToLowerInvariant ());
 						Persist.Instance.Wipe ();
 						Persist.Instance.LoadFromDb ();
 						Persist.Instance.GetUserData (
