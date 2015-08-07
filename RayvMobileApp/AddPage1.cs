@@ -36,10 +36,10 @@ namespace RayvMobileApp
 		LabelWithChangeButton LocationSearchedBox;
 		Button ResetLocationBtn;
 		Button AddManualAddress;
-		List<GeoLocation> LocationList;
-		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
+		//		List<GeoLocation> LocationList;
+		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		Place addingPlace;
-		bool editAsDraft;
+		//		bool editAsDraft;
 		Frame SearchHereBtn;
 		StackLayout menu;
 		BottomToolbar tools;

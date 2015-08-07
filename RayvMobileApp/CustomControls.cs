@@ -89,7 +89,7 @@ namespace RayvMobileApp
 			LoadHistory ();
 		}
 
-		public void Focus ()
+		new public void Focus ()
 		{
 			_placeName.Focus ();
 			Console.WriteLine ("Geo box focused");
@@ -653,7 +653,7 @@ namespace RayvMobileApp
 
 		}
 
-		public Double Height {
+		new public Double Height {
 			set { HeightRequest = value; }
 		}
 

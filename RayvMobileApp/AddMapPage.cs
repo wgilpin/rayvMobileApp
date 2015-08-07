@@ -145,31 +145,31 @@ namespace RayvMobileApp
 			};
 			mapLayout.Children.Add (map);
 			AbsoluteLayout.SetLayoutFlags (map,
-				AbsoluteLayoutFlags.SizeProportional);
+			                               AbsoluteLayoutFlags.SizeProportional);
 			AbsoluteLayout.SetLayoutBounds (map,
-				new Rectangle (0, 0, 1, 1));
+			                                new Rectangle (0, 0, 1, 1));
 			mapLayout.Children.Add (vertical);
 			AbsoluteLayout.SetLayoutFlags (vertical,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (vertical,
-				new Rectangle (0.5, 0, 2, AbsoluteLayout.AutoSize));
+			                                new Rectangle (0.5, 0, 2, AbsoluteLayout.AutoSize));
 			mapLayout.Children.Add (horizontal);
 			AbsoluteLayout.SetLayoutFlags (horizontal,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (horizontal,
-				new Rectangle (0, 0.5, AbsoluteLayout.AutoSize, 2));
+			                                new Rectangle (0, 0.5, AbsoluteLayout.AutoSize, 2));
 
 			mapLayout.Children.Add (addHereBtn);
 			AbsoluteLayout.SetLayoutFlags (addHereBtn,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (addHereBtn,
-				new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+			                                new Rectangle (0.5, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			mapLayout.Children.Add (AddressBox);
 			AbsoluteLayout.SetLayoutFlags (AddressBox,
-				AbsoluteLayoutFlags.PositionProportional);
+			                               AbsoluteLayoutFlags.PositionProportional);
 			AbsoluteLayout.SetLayoutBounds (AddressBox,
-				new Rectangle (0.5, 0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+			                                new Rectangle (0.5, 0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
 
 			Console.WriteLine (String.Format ("vert {0},{1}:{2},{3}", vertical.X, vertical.Y, vertical.Width, vertical.Height));
 
@@ -190,7 +190,7 @@ namespace RayvMobileApp
 				posn, 
 				Distance.FromMiles (0.3)
 			));
-			Appearing += async (sender, e) => {
+			Appearing += (sender, e) => {
 				GetAddressFromMap ();
 			};
 		}

@@ -229,7 +229,7 @@ namespace RayvMobileApp
 		{
 			try {
 				return name.Remove (1); 
-			} catch (Exception ex) {
+			} catch (Exception) {
 				return "?";
 			}
 		}

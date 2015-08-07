@@ -46,7 +46,7 @@ namespace RayvMobileApp
 
 		public bool loggedIn { 
 			get { 
-				lock (Persist.Instance.Lock) {
+				lock (restConnection.instance) {
 					string ping = this.get ("/ping").Content;
 					return ping == "OK";
 				}

@@ -55,7 +55,7 @@ namespace RayvMobileApp
 
 		public Object Lock = new Object ();
 		public List<Place> DisplayList;
-		private bool _online = false;
+		//		private bool _online = false;
 		private System.Timers.Timer _onlineTimer;
 
 		#endregion
@@ -71,27 +71,27 @@ namespace RayvMobileApp
 		public bool Online {
 			get {
 				return true;
-				try {
-					if (_online)
-						return true;
-					restConnection conn = GetWebConnection ();
-					var resp = conn.get ("/api/login", null, getRetries: 1);
-					if (resp == null) {
-						Console.WriteLine ("Online: Response NULL");
-						return false;
-					}
-					if (resp.ResponseStatus != ResponseStatus.Completed) {
-						Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
-						return false;
-					}
-					_online = true;
-					return true;
-				} catch {
-					_online = false;
-					return false;
-				}
+//				try {
+//					if (_online)
+//						return true;
+//					restConnection conn = GetWebConnection ();
+//					var resp = conn.get ("/api/login", null, getRetries: 1);
+//					if (resp == null) {
+//						Console.WriteLine ("Online: Response NULL");
+//						return false;
+//					}
+//					if (resp.ResponseStatus != ResponseStatus.Completed) {
+//						Console.WriteLine ("Online: Bad Response {0}", resp.ResponseStatus);
+//						return false;
+//					}
+//					_online = true;
+//					return true;
+//				} catch {
+//					_online = false;
+//					return false;
+//				}
 			}
-			set { _online = value; }
+			set { ; }
 
 		}
 
@@ -929,7 +929,7 @@ namespace RayvMobileApp
 				db.BusyTimeout = DbTimeout;
 				var removeList = new List<Place> ();
 
-				lock (Places) {
+				lock (Lock) {
 					foreach (Place p in Places) {
 						p.CalculateDistanceFromPlace (searchCentre);
 						try {
@@ -1118,7 +1118,7 @@ namespace RayvMobileApp
 			try {
 				if (Application.Current.Properties.ContainsKey (key))
 					return Application.Current.Properties [key] as string;
-			} catch (Exception ex) {
+			} catch (Exception) {
 			}
 			return "";
 		}
@@ -1199,7 +1199,7 @@ namespace RayvMobileApp
 					Debug.WriteLine ($"SetConfig {key}={show_value}");
 				}
 				Application.Current.SavePropertiesAsync ();
-			} catch (System.NotSupportedException ex) {
+			} catch (System.NotSupportedException) {
 				Console.WriteLine ("innerSetConfig NotSupportedException {0}", key);
 			} catch (Exception ex) {
 				Insights.Report (ex, key, value);

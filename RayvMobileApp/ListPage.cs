@@ -31,11 +31,10 @@ namespace RayvMobileApp
 		#region Fields
 
 		static PlacesListView listView;
-		static FilterKind MainFilter = FilterKind.All;
 		static String FilterCuisine;
 		VoteFilterWho FilterVotesBy;
 		VoteFilterWhat FilterVotesKind;
-		StackLayout FilterCuisinePicker;
+		//		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
 		Frame filters;
@@ -45,11 +44,11 @@ namespace RayvMobileApp
 		//		Entry AreaBox;
 		ActivityIndicator Spinner;
 		ToolbarItem FilterTool;
-		string ALL_TYPES_OF_FOOD = "All Types of Food";
+		//		string ALL_TYPES_OF_FOOD = "All Types of Food";
 
 		Label NothingFound;
 		bool IsFiltered;
-		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
+		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		public bool NeedsReload = true;
 
 		Position DisplayPosition;
@@ -284,21 +283,25 @@ namespace RayvMobileApp
 
 		void DoSelectListItem (object sender, ItemTappedEventArgs e)
 		{
-			Console.WriteLine ("Listpage.DoSelectListItem");
-			var place = e.Item as Place;
-			if (place.IsDraft) {
-				NeedsReload = true;
-				var editPage = new PlaceEditor (place, this);
-				editPage.Edit ();
-			} else {
-				var detailPage = new DetailPage (place);
-				detailPage.Closed += (s, ev) => {
-					if ((s as DetailPage).Dirty) {
-						Refresh ();
-					}
-				};
-				NeedsReload = false;
-				Navigation.PushAsync (detailPage);
+			try {
+				Console.WriteLine ("Listpage.DoSelectListItem");
+				var place = e.Item as Place;
+				if (place.IsDraft) {
+					NeedsReload = true;
+					var editPage = new PlaceEditor (place, this);
+					editPage.Edit ();
+				} else {
+					var detailPage = new DetailPage (place);
+					detailPage.Closed += (s, ev) => {
+						if ((s as DetailPage).Dirty) {
+							Refresh ();
+						}
+					};
+					NeedsReload = false;
+					Navigation.PushAsync (detailPage);
+				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
 		}
 
@@ -325,7 +328,7 @@ namespace RayvMobileApp
 					},
 					since: DateTime.UtcNow, 
 					incremental: true);
-			} catch (ProtocolViolationException ex) {
+			} catch (ProtocolViolationException) {
 				DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 			}
 		}
@@ -343,7 +346,6 @@ namespace RayvMobileApp
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
 			FilterSearchCenter = null;
-			MainFilter = FilterKind.All;
 			DisplayPosition = Persist.Instance.GpsPosition;
 			IsFiltered = false;
 			FilterList ();
@@ -408,7 +410,7 @@ namespace RayvMobileApp
 				}
 		}
 
-		async Task FilterList ()
+		void FilterList ()
 		{
 			Console.WriteLine ("Listpage.FilterList");
 			List<string> styleDescriptionItems = new List<string> ();
@@ -543,7 +545,7 @@ namespace RayvMobileApp
 					Console.WriteLine ("ListPage filter text");
 				}
 				if (FilterSearchCenter != null) {
-					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
+//					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
 					DisplayPosition = (Position)FilterSearchCenter;
 					List<Place> distance_list = placeList.ToList ();
 					foreach (var p in placeList) {

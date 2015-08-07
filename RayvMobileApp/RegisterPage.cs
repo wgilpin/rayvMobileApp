@@ -41,7 +41,7 @@ namespace RayvMobileApp
 				return;
 			}
 			try {
-				MailAddress m = new MailAddress (EmailEd.Text);
+				new MailAddress (EmailEd.Text);
 				//good email
 			} catch (FormatException) {
 				await DisplayAlert ("Invalid Email", "Please supply a valid email address", "OK");

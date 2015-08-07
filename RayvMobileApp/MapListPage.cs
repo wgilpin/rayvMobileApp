@@ -29,7 +29,7 @@ namespace RayvMobileApp
 
 		public static IEnumerable ItemsSource {
 			set {
-				lock (Persist.Instance.Lock) {
+				lock (listView) {
 					listView.ItemsSource = value;
 				}
 			}
@@ -114,7 +114,7 @@ namespace RayvMobileApp
 
 		public void SetList (List<Place> list)
 		{
-			lock (Persist.Instance.Lock) {
+			lock (listView) {
 				try {
 					Console.WriteLine ("SetList {0}", list.Count);
 					if (list.Count == 0) {

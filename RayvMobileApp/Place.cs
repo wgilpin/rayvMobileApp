@@ -43,7 +43,7 @@ namespace RayvMobileApp
 		private string _postcode;
 		private string _pretty_dist;
 		private string _commentSet;
-		private bool _isSynced;
+		//		private bool _isSynced;
 		private bool _isDraft;
 
 		public event PropertyChangedEventHandler PropertyChanged = delegate {};
@@ -561,27 +561,50 @@ namespace RayvMobileApp
 					string wasDraftKey = _key;
 					string result = restConnection.Instance.post ("/item", parameters);
 					//			JObject obj = JObject.Parse (result);
-					JObject obj = JObject.Parse (result);
-					string placeStr = obj ["place"].ToString ();
-					Place place = JsonConvert.DeserializeObject<Place> (placeStr);
-					string voteStr = obj ["vote"].ToString ();
-					place.vote = JsonConvert.DeserializeObject<Vote> (voteStr);
-					place.IsDraft = false;
-					this.key = place.key;
-					lock (Persist.Instance.Lock) {
-						// no try..catch as it's inside one
-						if (!Persist.Instance.UpdatePlace (place)) {
-							errorMessage = "Failed to update";
-							return false;
+					try {
+						restConnection.LogToServer (LogLevel.DEBUG, $"Place.Save result {result}");
+						JObject obj = null;
+						try {
+							obj = JObject.Parse (result);
+						} catch (Exception ex) {
+							Insights.Report (ex, "result", result);
+							throw;
 						}
-						if (wasDraft) {
-							// delete the old one
-							Persist.RemovePlaceKeyFromDb (wasDraftKey);
+						string placeStr = obj ["place"].ToString ();
+						Place place = null;
+						try {
+							place = JsonConvert.DeserializeObject<Place> (placeStr);
+						} catch (Exception ex) {
+							Insights.Report (ex, "result", result);
+							throw;
 						}
-						if (!Persist.Instance.UpdateVote (place)) {
-							errorMessage = "Failed to update vote";
-							return false;
+						string voteStr = obj ["vote"].ToString ();
+						try {
+							place.vote = JsonConvert.DeserializeObject<Vote> (voteStr);
+						} catch (Exception ex) {
+							Insights.Report (ex, "result", result);
+							throw;
 						}
+						place.IsDraft = false;
+						this.key = place.key;
+						lock (Persist.Instance.Lock) {
+							// no try..catch as it's inside one
+							if (!Persist.Instance.UpdatePlace (place)) {
+								errorMessage = "Failed to update";
+								return false;
+							}
+							if (wasDraft) {
+								// delete the old one
+								Persist.RemovePlaceKeyFromDb (wasDraftKey);
+							}
+							if (!Persist.Instance.UpdateVote (place)) {
+								errorMessage = "Failed to update vote";
+								return false;
+							}
+						}
+					} catch (Exception e) {
+						Insights.Report (e, "Result", result);
+						throw;
 					}
 				} else {
 					lock (Persist.Instance.Lock) {

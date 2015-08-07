@@ -157,7 +157,8 @@ namespace RayvMobileApp
 		async public void SetMapFromAddress (object o, EventArgs e)
 		{
 			if (String.IsNullOrEmpty (AddressEd.Text)) {
-				DisplayAlert ("Address", "You need to type an address to find it. If you want to look up the map location, press 'Use this location' below the map", "OK");
+				await DisplayAlert ("Address", "You need to type an address to find it. If you want to look up the map location, press 'Use this location' below the map", "OK");
+				return;
 			}
 			var geo = new Geocoder ();
 			IEnumerable<Position> posns = await geo.GetPositionsForAddressAsync (AddressEd.Text);

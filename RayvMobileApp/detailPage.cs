@@ -61,7 +61,7 @@ namespace RayvMobileApp
 		Label Address;
 		LabelWithImageButton Comment;
 		EditCommentPage CommentEditor;
-		private bool ShowToolbar;
+		//		private bool ShowToolbar;
 		public bool Dirty;
 		bool IsNew;
 		TopRowBtn WebImgBtn;
@@ -245,11 +245,10 @@ namespace RayvMobileApp
 			voteBtn.TextColor = Color.White;
 		}
 
-		object Lock = new object ();
 
 		void LoadPage (Place place)
 		{
-			lock (Lock) {
+			lock (DisplayPlace) {
 				try {
 //					if (!string.IsNullOrEmpty (place.key)) {
 //						DisplayPlace = (from p in Persist.Instance.Places
@@ -601,7 +600,7 @@ namespace RayvMobileApp
 			DisplayPlace = place;
 			IsNew = showSave;
 			BackgroundColor = Color.White;
-			ShowToolbar = showToolbar;
+//			ShowToolbar = showToolbar;
 			const int IMAGE_HEIGHT = 0;
 			Spinner = new ActivityIndicator {
 				BackgroundColor = Color.FromRgba (55, 55, 55, 0.5),
@@ -633,7 +632,7 @@ namespace RayvMobileApp
 			var cancelBtn = new RayvButton ("Cancel"){ HorizontalOptions = LayoutOptions.FillAndExpand, };
 			cancelBtn.OnClick += async (s, e) => {
 				if (await DisplayAlert ("Are you sure?", "Your changes will be lost", "Yes", "No"))
-					Navigation.PushModalAsync (
+					await Navigation.PushModalAsync (
 						new RayvNav (new MainMenu ()));
 			};
 			SaveFrame = new Frame {
@@ -791,7 +790,7 @@ namespace RayvMobileApp
 					DoEdit ();
 				})
 			});
-			this.Disappearing += async (object sender, EventArgs e) => {
+			this.Disappearing += (object sender, EventArgs e) => {
 //				if (Dirty) {
 //					if (await DisplayAlert ("Not Saved", "You will lose your changes", "Save", "Ignore"))
 //						DoSave (sender, e);

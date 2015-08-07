@@ -44,7 +44,7 @@ namespace RayvMobileApp
 		#region Fields
 
 		static ListView listView;
-		bool FirstTime;
+		//		bool FirstTime;
 		Label NothingFound;
 		StackLayout ProposedDetails;
 		string PlaceName;

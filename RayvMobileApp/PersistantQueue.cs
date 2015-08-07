@@ -89,12 +89,12 @@ namespace RayvMobileApp
 		string _latTag = "Lat ";
 		string _lngTag = "Lng ";
 
-		private int _size;
+		//		private int _size;
 
 		// usage: new PersistantQueue (nSize, "Name Identfying this queue")
 		public PersistantQueueWithPosition (int size, string queueName)
 		{
-			_size = size;
+//			_size = size;
 			_namesQ = new PersistantQueue (size,$"{queueName}.{_namesTag}");
 			_latQ = new PersistantQueue (size,$"{queueName}.{_latTag}");
 			_lngQ = new PersistantQueue (size,$"{queueName}.{_lngTag}");

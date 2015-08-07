@@ -22,7 +22,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("PIN CLICKED");
 			string key = "";
 			foreach (KeyValuePair<string, Pin> kvp in PinList) {
-				if (kvp.Value == send)
+				if (kvp.Value == (send as Pin))
 					key = kvp.Key;
 			}
 			if (string.IsNullOrEmpty (key)) {
