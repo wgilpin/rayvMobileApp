@@ -3,8 +3,6 @@ using SQLite;
 using Xamarin.Forms;
 using System.Text;
 using Xamarin;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -211,10 +209,12 @@ namespace RayvMobileApp
 		{
 			try {
 				string lname = name.ToLower ();
-				if (lname.Length > 3) {
+				if (lname.Length > 1) {
 					int i1 = ((Encoding.ASCII.GetBytes (lname) [0] - 97) % 26) * 10;
 					int i2 = ((Encoding.ASCII.GetBytes (lname) [1] - 97) % 26) * 10;
-					int i3 = ((Encoding.ASCII.GetBytes (lname) [2] - 97) % 26) * 10;
+					int i3 = 255;
+					if (lname.Length > 2)
+						i3 = ((Encoding.ASCII.GetBytes (lname) [2] - 97) % 26) * 10;
 					Color c = Color.FromRgb (i1, i2, i3);
 					return c;
 				}

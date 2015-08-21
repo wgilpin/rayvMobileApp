@@ -46,16 +46,16 @@ namespace RayvMobileApp
 
 	public class BottomToolbar : StackLayout
 	{
-		Grid grid;
-		BottomToolbarButton friendsBtn;
-		BottomToolbarButton FindBtn;
+		StackLayout bar;
+		ImageButton friendsBtn;
+		ImageButton FindBtn;
 		Page CurrentPage;
-		BottomToolbarButton newsBtn;
+		ImageButton newsBtn;
 
 		public void SetActivityIcon ()
 		{
 			if (!(CurrentPage is NewsPage))
-				newsBtn.Source = Persist.Instance.HaveActivity ? "Alert_activity2.png" : "TB default news.png";
+				newsBtn.Source = Persist.Instance.HaveActivity ? "Alert_activity2.png" : settings.DevicifyFilename ("TB default news.png");
 		}
 
 		void ShowFind (object s, EventArgs e)
@@ -64,8 +64,8 @@ namespace RayvMobileApp
 				Console.WriteLine ("Toolbar: List button - push ListPage");
 				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (CurrentPage)), false);
 
-				FindBtn.Spinner.IsRunning = false;
-				FindBtn.Spinner.IsVisible = false;
+//			FindBtn.Spinner.IsRunning = false;
+//				FindBtn.Spinner.IsVisible = false;
 			});
 		}
 
@@ -109,41 +109,33 @@ namespace RayvMobileApp
 		public BottomToolbar (Page page, String pressed = null)
 		{
 			CurrentPage = page;
-			VerticalOptions = LayoutOptions.EndAndExpand;
+			VerticalOptions = LayoutOptions.End;
 			Console.WriteLine ("toolbar()");
-			grid = new Grid {
-				Padding = 7,
-				ColumnSpacing = 30,
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-				},
-				RowDefinitions = {
-//					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (50, GridUnitType.Absolute) },
-				},
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BackgroundColor = settings.BaseColor,
+			HeightRequest = 70;
+			Padding = 7;
+			HorizontalOptions = LayoutOptions.FillAndExpand;
+			BackgroundColor = settings.BaseColor;
+			Orientation = StackOrientation.Horizontal;
+			var addBtn = new ImageButton (settings.DevicifyFilename ("TB default add.png"), ShowAdd) { 
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 40,
 			};
-
-			var addBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default add.png"), ShowAdd) { 
-				HorizontalOptions = LayoutOptions.Center
-			};
-			friendsBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default friends.png"), ShowFriends) { 
-				HorizontalOptions = LayoutOptions.Center
+			friendsBtn = new ImageButton (settings.DevicifyFilename ("TB default friends.png"), ShowFriends) { 
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 40,
 			};
 			var newsIconFile = Persist.Instance.HaveActivity ? "Alert_activity2.png" : "TB default news.png";
-			newsBtn = new BottomToolbarButton (settings.DevicifyFilename (newsIconFile), ShowNews) { 
-				HorizontalOptions = LayoutOptions.Center
+			newsBtn = new ImageButton (settings.DevicifyFilename (newsIconFile), ShowNews) { 
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 40,
 			};
-			FindBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default search.png"), ShowFind) { 
-				HorizontalOptions = LayoutOptions.Center
+			FindBtn = new ImageButton (settings.DevicifyFilename ("TB default search.png"), ShowFind) { 
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 40,
 			};
-			var settingsBtn = new BottomToolbarButton (settings.DevicifyFilename ("TB default profile.png"), ShowProfile) { 
-				HorizontalOptions = LayoutOptions.Center
+			var settingsBtn = new ImageButton (settings.DevicifyFilename ("TB default profile.png"), ShowProfile) { 
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HeightRequest = 40,
 			};
 
 
@@ -166,14 +158,12 @@ namespace RayvMobileApp
 						break;
 				}
 			}
-			grid.RowSpacing = 0;
-			grid.Children.Add (FindBtn, 0, 0);
-			grid.Children.Add (friendsBtn, 1, 0);
-			grid.Children.Add (addBtn, 2, 0);
-			grid.Children.Add (newsBtn, 3, 0);
-			grid.Children.Add (settingsBtn, 4, 0);
+			Children.Add (FindBtn);
+			Children.Add (friendsBtn);
+			Children.Add (addBtn);
+			Children.Add (newsBtn);
+			Children.Add (settingsBtn);
 			SetActivityIcon ();
-			Children.Add (grid);
 		}
 	}
 

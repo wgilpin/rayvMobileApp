@@ -134,7 +134,7 @@ namespace RayvMobileApp
 			addHereBtn = new RayvButton (" Add Here ");
 			addHereBtn.Clicked += DoGetAddress;
 			AddressBox = new Label {
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				XAlign = TextAlignment.Start,
 				LineBreakMode = LineBreakMode.TailTruncation,

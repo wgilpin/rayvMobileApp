@@ -69,7 +69,7 @@ namespace RayvMobileApp
 			ImageBg.Content = TopImage;
 			grid.Children.Add (ImageBg, 0, 5, 0, 1);
 			Label Heading = new Label { 
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)), 
+				FontSize = settings.FontSizeLabelLarge, 
 				Text = heading, 
 			};
 			grid.Children.Add (Heading, 1, 4, 1, 2);

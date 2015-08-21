@@ -171,7 +171,7 @@ namespace RayvMobileApp
 			};
 			RayvButton loginButton = new RayvButton {
 				Text = " Login ",
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+				FontSize = settings.FontSizeButtonLarge,
 			};
 			loginButton.Clicked += this.DoLogin;
 

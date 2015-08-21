@@ -151,7 +151,7 @@ namespace RayvMobileApp
 				Children = {
 					new Label {
 						Text = placeName,
-						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+						FontSize = settings.FontSizeLabelLarge,
 						FontAttributes = FontAttributes.Bold,
 					},
 					new Label {

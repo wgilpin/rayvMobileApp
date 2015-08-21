@@ -8,6 +8,8 @@ namespace RayvMobileApp
 {
 	public class AddWhatPage : ContentPage
 	{
+		BottomToolbar tools;
+
 		public AddWhatPage ()
 		{
 			Analytics.TrackPage ("AddWhatPage");
@@ -56,7 +58,7 @@ namespace RayvMobileApp
 			;
 			friendsImg.GestureRecognizers.Add (clickFriends);
 
-			StackLayout tools = new BottomToolbar (this, "add");
+			tools = new BottomToolbar (this, "add");
 
 			var PlaceText = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 

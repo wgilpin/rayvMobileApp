@@ -426,9 +426,9 @@ namespace RayvMobileApp
 		public LabelWithImageButton () : base ()
 		{
 			Padding = 2;
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (5, GridUnitType.Absolute) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (3, GridUnitType.Absolute) });
 			RowDefinitions.Add (new RowDefinition { Height = GridLength.Auto });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (5) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (3) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20.0) });
 			HorizontalOptions = LayoutOptions.FillAndExpand;
@@ -479,11 +479,12 @@ namespace RayvMobileApp
 		public LabelWithChangeButton () : base ()
 		{
 			ButtonChange = new Button {
-				Text = "Change",
+				Text = " Change ",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				HeightRequest = Device.OnPlatform (20, 50, 50)
 			};
-			ButtonChange.HeightRequest = 20;
 			ButtonLabel = new Label {
 				Text = "",
 				TextColor = Color.White,
@@ -493,9 +494,13 @@ namespace RayvMobileApp
 
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, 
+				                                                                Device.OnPlatform (GridUnitType.Absolute,
+				                                                                                   GridUnitType.Auto,
+				                                                                                   GridUnitType.Auto))
+			});
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (Device.OnPlatform (60, 100, 100), GridUnitType.Absolute) });
 			Children.Add (ButtonLabel, 0, 1, 0, 1);
 			Children.Add (ButtonChange, 1, 2, 0, 1);
 		}
@@ -541,10 +546,11 @@ namespace RayvMobileApp
 		public EntryWithChangeButton () : base ()
 		{
 			ButtonChange = new Button {
-				Text = "Change",
+				Text = " Change ",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor)
 			};
 			ButtonChange.HeightRequest = 30;
 			TextEntry = new Entry {
@@ -555,9 +561,18 @@ namespace RayvMobileApp
 
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (30, Device.OnPlatform (
+					GridUnitType.Absolute, 
+					GridUnitType.Auto, 
+					GridUnitType.Auto)) 
+			});
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (
+					Device.OnPlatform (
+						60,
+						100,
+						100), GridUnitType.Absolute)
+			});
 			Children.Add (TextEntry, 0, 1, 0, 1);
 			Children.Add (ButtonChange, 1, 2, 0, 1);
 		}
@@ -577,7 +592,7 @@ namespace RayvMobileApp
 			BorderRadius = 0;
 			TextColor = Color.White;
 			BackgroundColor = ColorUtil.Darker (settings.BaseColor);
-			FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
+			FontSize = settings.FontSizeButtonLarge;
 			if (text != null)
 				Text = text;
 //			HorizontalOptions = LayoutOptions.FillAndExpand;
@@ -663,6 +678,7 @@ namespace RayvMobileApp
 			OnClick = onClick;
 			VerticalOptions = LayoutOptions.Center;
 			HorizontalOptions = LayoutOptions.Center;
+
 		}
 	}
 
@@ -697,7 +713,7 @@ namespace RayvMobileApp
 		public  ButtonWithImage () : base ()
 		{
 			ButtonLeft = new Button {
-				Text = "Change",
+				Text = " Change ",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
 			};

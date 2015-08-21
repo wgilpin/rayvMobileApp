@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Xamarin.Forms;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Xamarin;
 
@@ -66,7 +65,7 @@ namespace RayvMobileApp
 					new Label {
 						Text = "Find someone who uses Taste5", 
 						TextColor = Color.White,
-						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
+						FontSize = settings.FontSizeLabelLarge
 					},
 					new Label { Text = "Enter their email address", TextColor = Color.White },
 					emailEd,

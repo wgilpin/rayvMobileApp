@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xamarin;
 
 namespace RayvMobileApp
 {
@@ -83,85 +84,89 @@ namespace RayvMobileApp
 
 		public MapPage (Place place = null)
 		{
-			Analytics.TrackPage ("MapPage");
-			Title = "Map";
-			map = new Map (
-				MapSpan.FromCenterAndRadius (
-					Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {
-				IsShowingUser = true,
-				HeightRequest = 100,
-				WidthRequest = 960,
-				VerticalOptions = LayoutOptions.FillAndExpand
-			};
-//			map.IsShowingUser = true;
-
-			PinList = new Dictionary<string, Pin> ();
-
-			Image GoToHomeBtn = new Image { Source = settings.DevicifyFilename ("centre-button.png"), };
-			var clickHome = new TapGestureRecognizer ();
-			clickHome.Tapped += (s, e) => {
-				map.MoveToRegion (MapSpan.FromCenterAndRadius (
-					Persist.Instance.GpsPosition, Distance.FromMiles (0.3)));
-				DoSearch (s, e);
-			};
-			GoToHomeBtn.GestureRecognizers.Add (clickHome);
-
-			Spinner = new ActivityIndicator (){ Color = Color.Red };
-
-			AbsoluteLayout mapLayout = new AbsoluteLayout {
-				BackgroundColor = Color.Blue.WithLuminosity (0.9),
-				//				VerticalOptions = LayoutOptions.FillAndExpand,
-
-			};
-			mapLayout.Children.Add (map);
-			AbsoluteLayout.SetLayoutFlags (map,
-			                               AbsoluteLayoutFlags.SizeProportional);
-			AbsoluteLayout.SetLayoutBounds (map,
-			                                new Rectangle (0, 0, 1, 1));
-
-			mapLayout.Children.Add (Spinner);
-			AbsoluteLayout.SetLayoutFlags (Spinner,
-			                               AbsoluteLayoutFlags.PositionProportional);
-			AbsoluteLayout.SetLayoutBounds (Spinner,
-			                                new Rectangle (0.5, 0.5, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
-
-			mapLayout.Children.Add (GoToHomeBtn);
-			AbsoluteLayout.SetLayoutFlags (GoToHomeBtn,
-			                               AbsoluteLayoutFlags.PositionProportional);
-			AbsoluteLayout.SetLayoutBounds (GoToHomeBtn,
-			                                new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
-			Content = mapLayout;
-			ListBtn = new ToolbarItem {
-				Text = "",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					this.Navigation.PushAsync (new MapListPage ());
-				}),
-			};
-//			ToolbarItems.Add (ListBtn);
-			if (place == null)
-				SetupMapList (Persist.Instance.DisplayPosition);
-			else {
-				Console.WriteLine ($"MapPage for {place.place_name}");
-				map.MoveToRegion (MapSpan.FromCenterAndRadius (
-					place.GetPosition (), Distance.FromMiles (0.3)));
-				var pin = new Pin {
-					Type = PinType.Place,
-					Position = place.GetPosition (),
-					Label = place.place_name,
-					Address = place.address,
+			try {
+				Analytics.TrackPage ("MapPage");
+				Title = "Map";
+				map = new Map (
+					MapSpan.FromCenterAndRadius (
+						Persist.Instance.DisplayPosition, Distance.FromMiles (0.3))) {
+					IsShowingUser = true,
+					HeightRequest = 100,
+					WidthRequest = 960,
+					VerticalOptions = LayoutOptions.FillAndExpand
 				};
-				map.Pins.Clear ();
-				map.Pins.Add (pin);
+				//			map.IsShowingUser = true;
+				
+				PinList = new Dictionary<string, Pin> ();
+				
+				Image GoToHomeBtn = new Image { Source = settings.DevicifyFilename ("centre-button.png"), };
+				var clickHome = new TapGestureRecognizer ();
+				clickHome.Tapped += (s, e) => {
+					map.MoveToRegion (MapSpan.FromCenterAndRadius (
+						Persist.Instance.GpsPosition, Distance.FromMiles (0.3)));
+					DoSearch (s, e);
+				};
+				GoToHomeBtn.GestureRecognizers.Add (clickHome);
+				
+				Spinner = new ActivityIndicator (){ Color = Color.Red };
+				
+				AbsoluteLayout mapLayout = new AbsoluteLayout {
+					BackgroundColor = Color.Blue.WithLuminosity (0.9),
+					//				VerticalOptions = LayoutOptions.FillAndExpand,
+				
+				};
+				mapLayout.Children.Add (map);
+				AbsoluteLayout.SetLayoutFlags (map,
+				                               AbsoluteLayoutFlags.SizeProportional);
+				AbsoluteLayout.SetLayoutBounds (map,
+				                                new Rectangle (0, 0, 1, 1));
+				
+				mapLayout.Children.Add (Spinner);
+				AbsoluteLayout.SetLayoutFlags (Spinner,
+				                               AbsoluteLayoutFlags.PositionProportional);
+				AbsoluteLayout.SetLayoutBounds (Spinner,
+				                                new Rectangle (0.5, 0.5, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+				
+				mapLayout.Children.Add (GoToHomeBtn);
+				AbsoluteLayout.SetLayoutFlags (GoToHomeBtn,
+				                               AbsoluteLayoutFlags.PositionProportional);
+				AbsoluteLayout.SetLayoutBounds (GoToHomeBtn,
+				                                new Rectangle (1.0, 1.0, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
+				Content = mapLayout;
+				ListBtn = new ToolbarItem {
+					Text = "",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => {
+						this.Navigation.PushAsync (new MapListPage ());
+					}),
+				};
+				//			ToolbarItems.Add (ListBtn);
+				if (place == null)
+					SetupMapList (Persist.Instance.DisplayPosition);
+				else {
+					Console.WriteLine ($"MapPage for {place.place_name}");
+					map.MoveToRegion (MapSpan.FromCenterAndRadius (
+						place.GetPosition (), Distance.FromMiles (0.3)));
+					var pin = new Pin {
+						Type = PinType.Place,
+						Position = place.GetPosition (),
+						Label = place.place_name,
+						Address = place.address,
+					};
+					map.Pins.Clear ();
+					map.Pins.Add (pin);
+				}
+				Appearing += ( se, ev) => {
+					map.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) => {
+						if (e.PropertyName == "VisibleRegion") {
+							DoSearch (sender, null);
+							Console.WriteLine ("MapPage Dragged");
+						}
+					};
+				};
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
-			Appearing += ( se, ev) => {
-				map.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) => {
-					if (e.PropertyName == "VisibleRegion") {
-						DoSearch (sender, null);
-						Console.WriteLine ("MapPage Dragged");
-					}
-				};
-			};
 		}
 
 		#endregion

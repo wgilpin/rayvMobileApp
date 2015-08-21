@@ -166,7 +166,7 @@ namespace RayvMobileApp
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Meal Kind", 
 				TextColor = Color.White,
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
+				FontSize = settings.FontSizeLabelLarge
 			};
 			breakfast = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Breakfast & kind) > 0) };
 			var breakfastVoteLbl = new LabelClickable{ OnClick = DoClickKind };
@@ -199,7 +199,7 @@ namespace RayvMobileApp
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Style", 
 				TextColor = Color.White,
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))
+				FontSize = settings.FontSizeLabelLarge
 			};
 			grid.Children.Add (PlaceType, 0, 3, 6, 7);
 			StyleQuickLbl = new LabelClickable { 

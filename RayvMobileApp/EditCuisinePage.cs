@@ -29,7 +29,6 @@ namespace RayvMobileApp
 	public class EditCuisinePage : ContentPage
 	{
 		bool InFlow;
-		Page Caller;
 
 		public event EventHandler<CuisineSavedEventArgs> Saved;
 		public event EventHandler Cancelled;
@@ -55,7 +54,6 @@ namespace RayvMobileApp
 
 		public EditCuisinePage (string cuisine, bool inFlow = true, Page caller = null, bool showAllButton = false)
 		{
-			Caller = caller;
 			InFlow = inFlow;
 			Title = "Type of food";
 			ListView list = new ListView ();

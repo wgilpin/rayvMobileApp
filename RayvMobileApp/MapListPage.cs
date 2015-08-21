@@ -2,8 +2,6 @@
 using Xamarin.Forms;
 using System.Collections.Generic;
 using System.Net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections;
@@ -23,7 +21,6 @@ namespace RayvMobileApp
 		static ListView listView;
 
 		ActivityIndicator Spinner;
-		Position _position;
 
 		Label NothingFound;
 

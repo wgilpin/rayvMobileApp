@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
+using Xamarin;
 
 namespace RayvMobileApp
 {
@@ -11,11 +12,16 @@ namespace RayvMobileApp
 
 		public static void HandleLocationChanged (object sender, LocationUpdatedEventArgs e)
 		{
-			if (e.Location.Latitude != Persist.Instance.GpsPosition.Latitude || e.Location.Longitude != Persist.Instance.GpsPosition.Longitude) {
-				Position NewPosition = e.Location;
-				Persist.Instance.GpsPosition = NewPosition;
-				Persist.Instance.SetConfig (settings.LAST_LAT, e.Location.Latitude);
-				Persist.Instance.SetConfig (settings.LAST_LNG, e.Location.Longitude);
+			
+			try {
+				if (e.Location.Latitude != Persist.Instance.GpsPosition.Latitude || e.Location.Longitude != Persist.Instance.GpsPosition.Longitude) {
+					Position NewPosition = e.Location;
+					Persist.Instance.GpsPosition = NewPosition;
+					Persist.Instance.SetConfig (settings.LAST_LAT, e.Location.Latitude);
+					Persist.Instance.SetConfig (settings.LAST_LNG, e.Location.Longitude);
+				}
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
 //			Console.WriteLine (String.Format (
 //				"GPS: {0:0.0000},{1:0.0000}",
@@ -30,15 +36,18 @@ namespace RayvMobileApp
 			Console.WriteLine ("MainMenu()");
 
 			BackgroundColor = settings.ColorOffWhite;
-			Grid grid = new Grid {
+			Grid grid = new GridWithCounter {
 				Padding = new Thickness (20),
 				VerticalOptions = LayoutOptions.Center,
 				RowSpacing = 0,
 				ColumnSpacing = 0,
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 					new RowDefinition { Height = new GridLength (2, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 //					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 				},
@@ -47,6 +56,7 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
 				}
 			};
+			(grid as GridWithCounter).ShowGrid = true;
 			// ADD
 			Image addImg = new Image {
 				Source = settings.DevicifyFilename ("Big Add.png"),
@@ -89,72 +99,57 @@ namespace RayvMobileApp
 			};
 			choiceImg.GestureRecognizers.Add (clickFind);
 
-			var FindText = new StackLayout { 
-				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -17,
-				Children = { 
-					new Label {
-						Text = "Find Food",
-						FontSize = 35,
-						VerticalOptions = LayoutOptions.End,
-						HorizontalOptions = LayoutOptions.Center,
-						TextColor = Color.White,
-					},
-				}
-			};
+			var FindText =
+				new Label {
+					Text = "Find Food",
+					FontSize = 35,
+					TranslationY = -30,
+					VerticalOptions = LayoutOptions.Start,
+					HorizontalOptions = LayoutOptions.Center,
+					TextColor = Color.White,
+				};
 			FindText.GestureRecognizers.Add (clickFind);
 
 			// ADD...
-			var AddText = new StackLayout { 
-				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -20,
-				TranslationX = -5,
-				Children = { 
-					new Label {
-						Text = "Add",
-						FontSize = 35,
-						VerticalOptions = LayoutOptions.End,
-						HorizontalOptions = LayoutOptions.Center,
-						TextColor = Color.White,
-					},
-				}
+			var AddText = new Label {
+				Text = "Add",
+				FontSize = 35,
+				TranslationY = -30,
+
+				VerticalOptions = LayoutOptions.Start,
+				HorizontalOptions = LayoutOptions.Center,
+				TextColor = Color.White,
+					
+
 			};
 			AddText.GestureRecognizers.Add (clickAdd);
 
 			// NEWS
-			var NewsText = new StackLayout { 
-				VerticalOptions = LayoutOptions.End, 
-				TranslationY = -17,
-				Children = { 
-					new Label {
-						Text = "Activity",
-						FontSize = 35,
-						VerticalOptions = LayoutOptions.End,
-						HorizontalOptions = LayoutOptions.Center,
-						TextColor = Color.White,
-					},
-				}
-			};
+			var NewsText = 
+				new Label {
+					Text = "Activity",
+					FontSize = 35,
+					TranslationY = -30,
+					VerticalOptions = LayoutOptions.Start,
+					HorizontalOptions = LayoutOptions.Center,
+					TextColor = Color.White,
+				};
 			NewsText.GestureRecognizers.Add (clickNews);
 
 			// SHARE
 			grid.Children.Add (choiceImg, 0, 0);
-			grid.Children.Add (FindText, 0, 0);
-//			grid.Children.Add (DarkBg, 0, 1);
-			grid.Children.Add (addImg, 0, 1);
-			grid.Children.Add (AddText, 0, 1);
-			grid.Children.Add (newsImg, 0, 2);
-			grid.Children.Add (NewsText, 0, 2);
-//			grid.Children.Add (friendsImg, 0, 3);
-//			grid.Children.Add (profileImg, 0, 4);
+			grid.Children.Add (FindText, 0, 1);
+			grid.Children.Add (addImg, 0, 2);
+			grid.Children.Add (AddText, 0, 3);
+			grid.Children.Add (newsImg, 0, 4);
+			grid.Children.Add (NewsText, 0, 5);
 			this.BackgroundColor = settings.BaseColor;
 			this.Content = grid;
 
-//			AppDelegate.locationMgr = new LocationManager ();
-
 			App.locationMgr.StartLocationUpdates ();
 			Appearing += (sender, e) => {
-				double y = (Height - 250) / 15;
+				return;
+				double y = (Height - 250) / 10;
 				FindText.TranslationY = -y;
 				AddText.TranslationY = -y;
 				NewsText.TranslationY = -y;

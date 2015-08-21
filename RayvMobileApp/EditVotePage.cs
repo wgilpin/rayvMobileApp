@@ -10,7 +10,7 @@ namespace RayvMobileApp
 		public VoteLabel (bool selected)
 		{			
 			Label.XAlign = TextAlignment.Start;
-			Label.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
+			Label.FontSize = settings.FontSizeLabelLarge;
 			Label.FontAttributes = FontAttributes.Bold;
 			Label.YAlign = TextAlignment.Center;
 			Label.TextColor = selected ? Color.White : Color.Black;
@@ -102,6 +102,7 @@ namespace RayvMobileApp
 		{
 			InFlow = inFlow;
 			_vote = vote;
+			BackgroundColor = Color.White;
 			var grid = new Grid { 
 				RowSpacing = 20,
 				ColumnSpacing = 30,

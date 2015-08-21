@@ -36,6 +36,7 @@ namespace RayvMobileApp
 		const int ROW4 = 45;
 		const int ROW_HEIGHT = ROW1 + ROW2 + ROW3 + ROW4 + 13;
 		const int PAGE_SIZE = 10;
+		int buttonSize = Device.OnPlatform (30, 50, 30);
 
 		StackLayout list;
 		DateTime? LastUpdate;
@@ -62,20 +63,24 @@ namespace RayvMobileApp
 					new RowDefinition { Height = new GridLength (ROW4, GridUnitType.Absolute)  },
 				},
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (31, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (buttonSize + 1, GridUnitType.Absolute) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 20, GridUnitType.Absolute) },
+					new ColumnDefinition { Width = new GridLength (NEWS_IMAGE_SIZE + 40, GridUnitType.Absolute) },
 				}
 			};
 		}
 
 		void AddName (Grid grid, string name, string comment)
 		{
+			var letterFontSize = Device.OnPlatform (
+				                     settings.FontSizeButtonLarge,
+				                     settings.FontSizeButtonMedium,
+				                     settings.FontSizeButtonLarge);
 			Button LetterBtn = new Button {
-				WidthRequest = 30,
-				HeightRequest = 30,
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
-				BorderRadius = 15,
+				WidthRequest = buttonSize,
+				HeightRequest = buttonSize,
+				FontSize = letterFontSize,
+				BorderRadius = buttonSize / 2,
 				BackgroundColor = Vote.RandomColor (name),
 				Text = Vote.FirstLetter (name),
 				TextColor = Color.White,
@@ -96,7 +101,12 @@ namespace RayvMobileApp
 				TranslationY = 4,
 				Text = comment,
 			};
-			grid.Children.Add (new StackLayout{ Children = { LetterBtn, }, Padding = 1, }, 0, 1, 0, 2);
+			grid.Children.Add (new StackLayout { 
+				Children = { 
+					LetterBtn, 
+				}, 
+				Padding = 1, 
+			}, 0, 1, 0, 2);
 			var inner = new StackLayout {
 				Orientation = StackOrientation.Horizontal,
 				Children = {
@@ -115,7 +125,7 @@ namespace RayvMobileApp
 		                           EventHandler btn2click = null)
 		{
 			Grid grid = CreateGrid ();
-			grid.RowDefinitions [2].Height = 30;
+			grid.RowDefinitions [2].Height = Device.OnPlatform (30, new GridLength (20, GridUnitType.Auto), 20);
 			AddName (grid, name, "");
 			var btn1 = new Button {
 				BackgroundColor = settings.BaseColor,
@@ -424,22 +434,28 @@ namespace RayvMobileApp
 					try {
 						Persist.Instance.GetUserData (
 							onFail: () => {
-								Spinner.IsRunning = false;
-								Spinner.IsVisible = false;
-								SetSource ();
+								Device.BeginInvokeOnMainThread (() => {
+									Spinner.IsRunning = false;
+									Spinner.IsVisible = false;
+									SetSource ();
+								});
 							},
 							onFailVersion: () => {
-								Navigation.PushModalAsync (new LoginPage ());
+								Device.BeginInvokeOnMainThread (() => {
+									Navigation.PushModalAsync (new LoginPage ());
+								});
 							},
 							onSucceed: () => {
-								SetSource ();
-								LastUpdate = DateTime.UtcNow;
-								Spinner.IsRunning = false;
-								Spinner.IsVisible = false;
-								Console.WriteLine ("Spin down");
+								Device.BeginInvokeOnMainThread (() => {
+									SetSource ();
+									LastUpdate = DateTime.UtcNow;
+									Spinner.IsRunning = false;
+									Spinner.IsVisible = false;
+									Console.WriteLine ("Spin down");
+								});
 							},
 							since: null, 
-							incremental: false);
+							incremental: true);
 					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 					} catch (Exception ex) {

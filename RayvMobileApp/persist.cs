@@ -469,6 +469,25 @@ namespace RayvMobileApp
 			}
 		}
 
+		public void savePlacesToDb ()
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = DbTimeout;
+				try {
+					Db.BeginTransaction ();
+					Db.DeleteAll<Place> ();
+					foreach (Place p in Places) {
+						Db.Insert (p);
+					}
+					Db.Commit ();
+				} catch (Exception ex) {
+					Db.Rollback ();
+					Insights.Report (ex);
+				}
+
+			}
+		}
+
 		#endregion
 
 		#region Sync Methods
@@ -596,7 +615,8 @@ namespace RayvMobileApp
 		void StoreFullUserRecord (IRestResponse resp)
 		{
 			try {
-				Console.WriteLine ("StoreFullUserRecord: lock get full");
+				var now = DateTime.Now;
+				Console.WriteLine ($"StoreFullUserRecord  {now} ");
 				JObject obj = JObject.Parse (resp.Content);
 				SetConfig ("is_admin", obj ["admin"].ToString ());
 				MyId = obj ["id"].Value<Int64> ();
@@ -606,14 +626,18 @@ namespace RayvMobileApp
 				Dictionary<string, Place> place_list = JsonConvert.DeserializeObject<Dictionary<string, Place>> (placeStr);
 				lock (Lock) {
 					try {
+						Console.WriteLine ($"StoreFullUserRecord 1 {DateTime.Now - now} ");
+
 						Places = place_list.Values.ToList ();
-						Console.WriteLine ("StoreFullUserRecord SORT");
+						Console.WriteLine ($"StoreFullUserRecord 2 {DateTime.Now - now} ");
+
 						Places.Sort ();
-						Console.WriteLine ("StoreFullUserRecord sorted");
+						Console.WriteLine ($"StoreFullUserRecord 3 {DateTime.Now - now} ");
+
 						Votes.Clear ();
 						syncServerFriendsdata (obj);
 						ExtractInvites (obj);
-						Console.WriteLine ("StoreFullUserRecord friends stored");
+						Console.WriteLine ($"StoreFullUserRecord 4 {DateTime.Now - now} ");
 						int count = obj ["votes"].Count ();
 						for (int i = 0; i < count; i++) {
 							try {
@@ -628,10 +652,13 @@ namespace RayvMobileApp
 							}
 						}
 //						List<Vote> vote_list = obj ["votes"].ToObject< List<Vote> > ();
+						Console.WriteLine ($"StoreFullUserRecord 5 {DateTime.Now - now} ");
+
 						if (Votes != null) {
 							saveVotesToDb ();
 						}
-						Console.WriteLine ("StoreFullUserRecord votes stored");
+						Console.WriteLine ($"StoreFullUserRecord 6 {DateTime.Now - now} ");
+
 						//sort
 						updatePlaces (MyId.ToString ());
 					} catch (Exception ex) {
@@ -641,7 +668,8 @@ namespace RayvMobileApp
 					}
 				}
 				Online = true;
-				Console.WriteLine ("StoreFullUserRecord loaded");
+				Console.WriteLine ($"StoreFullUserRecord 7 {DateTime.Now - now} ");
+
 			} catch (ProtocolViolationException) {
 				throw;
 			} catch (Exception ex) {
@@ -654,7 +682,8 @@ namespace RayvMobileApp
 		void StoreUpdatedUserRecord (IRestResponse resp)
 		{
 			try {
-				Console.WriteLine ("StoreUpdatedUserRecord: lock ");
+				var now = DateTime.Now;
+				Console.WriteLine ($"StoreUpdatedUserRecord {now} ");
 				JObject obj = JObject.Parse (resp.Content);
 				IsServerVersionCorrect (obj);
 				MyId = obj ["id"].Value<Int64> ();
@@ -673,7 +702,7 @@ namespace RayvMobileApp
 								if (string.IsNullOrEmpty (p.vote.cuisineName)) {
 									Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
 									continue;
-								}
+								} 
 								if (p.key == kvp.Key) {
 									kvp.Value.IsDraft = false;
 									Places [PlacesIdx] = kvp.Value;
@@ -686,10 +715,18 @@ namespace RayvMobileApp
 								Console.WriteLine ($"Added {kvp.Value.place_name} {kvp.Key}");
 							}
 						}
-						if (syncServerFriendsdata (obj))
+						Console.WriteLine ($"StoreUpdatedUserRecord 1 {DateTime.Now - now} ");
+
+						if (syncServerFriendsdata (obj)) {
+							Console.WriteLine ($"StoreUpdatedUserRecord 1a {DateTime.Now - now} ");
 							throw new OperationCanceledException ("New friends found");
+						}
+						Console.WriteLine ($"StoreUpdatedUserRecord 1b {DateTime.Now - now} ");
 						ExtractInvites (obj);
+						Console.WriteLine ($"StoreUpdatedUserRecord 2 {DateTime.Now - now} ");
+
 						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
+						Console.WriteLine ($"StoreUpdatedUserRecord 2a {DateTime.Now - now} ");
 						if (vote_list != null) {
 							foreach (Vote v in vote_list) {
 								var p = GetPlace (v.key);
@@ -720,6 +757,8 @@ namespace RayvMobileApp
 								}
 							}
 						}
+						Console.WriteLine ($"StoreUpdatedUserRecord 3 {DateTime.Now - now} ");
+
 						var debugDrafts = false;
 						Places.Where (p => p.vote.cuisine == null).ToList ().ForEach (p => {
 							Insights.Track ("Place with no cuisine", "PlaceName", p.place_name);
@@ -729,6 +768,8 @@ namespace RayvMobileApp
 						});
 						if (debugDrafts)
 							Console.WriteLine (resp.Content);
+						Console.WriteLine ($"StoreUpdatedUserRecord 4 {DateTime.Now - now} ");
+
 						saveVotesToDb ();
 					} catch (OperationCanceledException) {
 						throw;
@@ -737,11 +778,14 @@ namespace RayvMobileApp
 						restConnection.LogErrorToServer ("StoreUpdatedUserRecord lock Exception {0}", ex);
 					}
 					//sort
+					Console.WriteLine ($"StoreUpdatedUserRecord 5 {DateTime.Now - now} ");
+
 					updatePlaces (MyId.ToString ());
 					var updated_dict = new Dictionary<string,string> ();
 					updated_dict.Add ("userId", MyId.ToString ());
-					Console.WriteLine ("StoreUpdatedUserRecord clear updates");
+					Console.WriteLine ($"StoreUpdatedUserRecord 6 {DateTime.Now - now} ");
 					restConnection.Instance.post ("clear_user_updates", updated_dict);
+					Console.WriteLine ($"StoreUpdatedUserRecord 7 {DateTime.Now - now} ");
 				}
 				Online = true;
 
@@ -783,10 +827,11 @@ namespace RayvMobileApp
 			if (since != null) {
 				paramList.Add ("since", ((DateTime)since).ToString ("s"));
 			}
+			var timeNow = DateTime.Now;
 			resp = webReq.get ("/getFullUserRecord", paramList);
 			if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
 				//unable to contact server
-				Console.WriteLine ("InnerGetUserData - NO RESPONSE");
+				Console.WriteLine ($"InnerGetUserData - NO RESPONSE after {DateTime.Now - timeNow}");
 				return null;
 			}
 			return resp;
@@ -925,21 +970,27 @@ namespace RayvMobileApp
 		 */
 		public void updatePlaces (string myId, Position? searchCentre = null)
 		{
+			var now = DateTime.Now;
+			Console.WriteLine ($"updatePlaces {now}");
 			using (SQLiteConnection db = new SQLiteConnection (DbPath)) {
 				db.BusyTimeout = DbTimeout;
-				var removeList = new List<Place> ();
+				Console.WriteLine ($"updatePlaces 1 {DateTime.Now-now}");
 
 				lock (Lock) {
-					foreach (Place p in Places) {
-						p.CalculateDistanceFromPlace (searchCentre);
-						try {
-							db.InsertOrReplace (p);
+					Dictionary<string, Place> PlacesByKey = new Dictionary<string, Place> ();
+					try {
+						foreach (Place p in Places) {
 							p.up = p.down = 0;
-							var vote_list = Votes.Where (v => v.key == p.key && v.vote != VoteValue.None).ToList ();
-							if (vote_list.Count == 0)
-								removeList.Add (p);
-							else
-								vote_list.ForEach (v => {
+							p.CalculateDistanceFromPlace (searchCentre);
+							p.adjusted = false;
+							if (!PlacesByKey.ContainsKey (p.key))
+								PlacesByKey.Add (p.key, p);
+						}
+						Console.WriteLine ($"updatePlaces 2 {DateTime.Now-now}");
+						foreach (Vote v in Votes) {
+							try {
+								if (PlacesByKey.ContainsKey (v.key)) {
+									Place p = PlacesByKey [v.key];
 									if (v.voter == myId) {
 										// my vote
 										p.vote = v;
@@ -952,16 +1003,45 @@ namespace RayvMobileApp
 										if (p.vote == null)
 											p.vote = v;
 									}
-								});
-						} catch (Exception ex) {
-							Insights.Report (ex, "Place", p.place_name);
+									p.adjusted = true;
+								}
+							} catch (Exception ex) {
+								Insights.Report (ex, "Vote", v.Id.ToString ());
+							}
+						
 						}
+						Places.Clear ();
+						try {
+							db.BeginTransaction ();
+							db.DeleteAll<Place> ();
+							foreach (var kvp in PlacesByKey) {
+								if (kvp.Value.adjusted) {
+									Places.Add (kvp.Value);
+									db.Insert (kvp.Value);
+								}
+							}
+							db.Commit ();
+						} catch (Exception ex) {
+							db.Rollback ();
+							Console.WriteLine ("UpdatePlaces ROLLBACK");
+							Insights.Report (ex);
+						}
+						foreach (var kvp in PlacesByKey) {
+							if (kvp.Value.adjusted)
+								Places.Add (kvp.Value);
+						}
+
+					} catch (Exception ex) {
+						Console.WriteLine (ex);
+						Insights.Report (ex);
+					} finally {
+						PlacesByKey.Clear ();
 					}
-					foreach (Place p in removeList)
-						Places.Remove (p);
+					Console.WriteLine ($"updatePlaces 3 {DateTime.Now-now}");
 					UpdateCategoryCounts ();
-					Console.WriteLine ("updatePlaces SORT");
+					Console.WriteLine ($"updatePlaces 4 {DateTime.Now-now}");
 					Places.Sort ();
+					Console.WriteLine ($"updatePlaces 5 {DateTime.Now-now}");
 				}//					foreach (Vote v in Votes) {
 //						try {
 //							//Todo: does this allow n votes per place?
@@ -997,7 +1077,8 @@ namespace RayvMobileApp
 		 */
 		public void SortPlaces (List<Place> placeList = null, Position? updateDistancePosition = null)
 		{
-			Console.WriteLine ("SortPlaces");
+			var now = DateTime.Now;
+			Console.WriteLine ($"SortPlaces {now}");
 			if (placeList == null)
 				placeList = Places;
 			if (updateDistancePosition != null) {
@@ -1010,10 +1091,9 @@ namespace RayvMobileApp
 					p.CalculateDistanceFromPlace (updateDistancePosition);
 				}
 			}
-			Console.WriteLine ("SortPlaces SORT");
+			Console.WriteLine ($"SortPlaces SORT {DateTime.Now - now}");
 			placeList.Sort ();
-
-			Console.WriteLine ("SortPlaces SORTED");
+			Console.WriteLine ($"SortPlaces SORTED {DateTime.Now - now}");
 
 		}
 

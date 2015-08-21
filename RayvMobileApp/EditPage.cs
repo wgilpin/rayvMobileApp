@@ -261,7 +261,7 @@ namespace RayvMobileApp
 				OnClick = DoConfirmAddress,
 				IsVisible = false,
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+				FontSize = settings.FontSizeButtonLarge,
 			};
 			var editAddress = new StackLayout {
 				Children = {
@@ -329,7 +329,7 @@ namespace RayvMobileApp
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
 			};
-			SaveBtn.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
+			SaveBtn.FontSize = settings.FontSizeButtonLarge;
 			SaveBtn.Clicked += DoSave;
 			MainGrid.Children.Add (SaveBtn, 0, 3, Row, Row + 1);
 			MainGrid.Children.Add (Spinner, 0, 3, Row, Row + 1);
@@ -342,7 +342,7 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.End,
 				IsVisible = false,
 			};
-			DeleteButton.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button));
+			DeleteButton.FontSize = settings.FontSizeButtonLarge;
 			DeleteButton.Clicked += DeletePlace;
 			MainGrid.Children.Add (DeleteButton, 0, 3, Row, Row + 1);
 			Row++;

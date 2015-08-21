@@ -16,7 +16,7 @@ namespace RayvMobileApp
 				Button delBtn = new RayvButton {
 					Text = "  Unfriend  ",
 					IsVisible = false,
-					FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Button))
+					FontSize = settings.FontSizeButtonMedium
 				};
 				delBtn.SetBinding (Button.CommandParameterProperty, "Key");
 				delBtn.Clicked += async (object sender, EventArgs e) => {
@@ -31,18 +31,19 @@ namespace RayvMobileApp
 							if (Persist.Instance.Unfriend (friend.Key))
 								GetContent ();
 							else
-								DisplayAlert ("Fail", $"Couldn't unfriend {friend.Name} - Try Later", "OK"); 
+								DisplayAlert ("Fail", $"Couldn't unfriend {friend.Name} - Try Later", "OK");
 						} else {
 							delBtn.IsVisible = false;
 						}
 					}
 				};
+				NamedSize fontSize = Device.OnPlatform (NamedSize.Large, NamedSize.Medium, NamedSize.Medium);
 				Button nameBtn = new Button {
 					TextColor = Color.Black,
 					BackgroundColor = Color.Transparent,
 					FontAttributes = FontAttributes.Bold,
 					CommandParameter = delBtn,
-					FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button))
+					FontSize = Device.GetNamedSize (fontSize, typeof(Button))
 				};
 				nameBtn.SetBinding (Button.TextProperty, "Value.Name");
 				nameBtn.Clicked += (object sender, EventArgs e) => {
@@ -71,7 +72,7 @@ namespace RayvMobileApp
 					ItemsSource = Persist.Instance.Friends,
 					SeparatorColor = settings.ColorDarkGray,
 					SeparatorVisibility = SeparatorVisibility.Default,
-
+					RowHeight = Device.OnPlatform (100, 120, 120),
 					// Define template for displaying each item.
 					ItemTemplate = GetDataTemplate (),
 				};

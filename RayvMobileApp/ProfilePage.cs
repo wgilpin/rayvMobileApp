@@ -71,7 +71,6 @@ namespace RayvMobileApp
 		Entry ScreenNameEd;
 		Label EmailEd;
 		Picker GenderEd;
-		RayvButton ActivityBtn;
 		RayvButton PwdBtn;
 		RayvButton SaveBtn;
 		Xamarin.Forms.Switch PushSw;
@@ -144,7 +143,6 @@ namespace RayvMobileApp
 				SaveBtn.IsVisible = true;
 			};
 
-			ActivityBtn = new RayvButton ("My Activity");
 			PwdBtn = new RayvButton ("Change Password");
 			PwdBtn.Clicked += (sender, e) => {
 				
@@ -155,6 +153,7 @@ namespace RayvMobileApp
 
 			stack = new StackLayout {
 				Orientation = StackOrientation.Vertical,
+				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 			stack.Children.Add (new LineGrid3 (
 				new Image{ Source = settings.DevicifyFilename ("18-envelope@2x.png") }, 
@@ -175,7 +174,7 @@ namespace RayvMobileApp
 				new Image{ Source = settings.DevicifyFilename ("54-lock@2x.png") }, 
 				PwdBtn));
 			stack.Children.Add (new LabelWide ("Notifications") {
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 			});
 			stack.Children.Add (new LineGrid3 (new LabelWide ("Push Notifications"), PushSw));
 			stack.Children.Add (new LineGrid3 (new LabelWide ("Email Notifications"), EmailsSw));
@@ -200,6 +199,7 @@ namespace RayvMobileApp
 				})
 			});
 			Content = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					stack,
 					new BottomToolbar (this, "profile")
@@ -209,4 +209,3 @@ namespace RayvMobileApp
 		}
 	}
 }
-

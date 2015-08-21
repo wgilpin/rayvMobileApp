@@ -63,6 +63,48 @@ namespace RayvMobileApp
 					return filename;
 			}
 		}
+
+		// font sizes - Large font too big on android
+
+		public static double FontSizeLabelMedium {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Medium, typeof(Label))
+				);
+			}
+		}
+
+		public static double FontSizeLabelLarge {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Large, typeof(Label))
+				);
+			}
+		}
+
+		public static double FontSizeButtonMedium {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Medium, typeof(Button)),
+					Device.GetNamedSize (NamedSize.Small, typeof(Button)),
+					Device.GetNamedSize (NamedSize.Medium, typeof(Button))
+				);
+			}
+		}
+
+		public static double FontSizeButtonLarge {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+					Device.GetNamedSize (NamedSize.Medium, typeof(Button)),
+					Device.GetNamedSize (NamedSize.Large, typeof(Button))
+				);
+			}
+		}
 	}
 }
 

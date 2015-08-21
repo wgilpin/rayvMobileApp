@@ -70,6 +70,7 @@ namespace RayvMobileApp
 			parameters ["place_id"] = addingPlace.place_id;
 			try {
 				string result = restConnection.Instance.get ("/api/place_details", parameters).Content;
+
 				JObject obj = JObject.Parse (result);
 				if (obj ["website"] != null)
 					addingPlace.website = obj ["website"].ToString ();
@@ -91,7 +92,7 @@ namespace RayvMobileApp
 			LocationSearchedBox.Text = "Searching current location";
 			LocationsListBox.IsVisible = false;
 			DoSearch ("");
-			PlaceNameBox.ButtonText = "Search";
+			PlaceNameBox.ButtonText = " Search ";
 			SearchHereBtn.IsVisible = true;
 		}
 
@@ -105,7 +106,7 @@ namespace RayvMobileApp
 			DoSearch (LocationSearchedBox.Text);
 			PlacesLV.IsVisible = true;
 			LocationsListBox.IsVisible = false;
-			PlaceNameBox.ButtonText = "Search";
+			PlaceNameBox.ButtonText = " Search ";
 		}
 
 		void DoSuccess (object o, EventArgs e) => Navigation.PopAsync ();
@@ -130,7 +131,7 @@ namespace RayvMobileApp
 			Spinner.IsRunning = true;
 			Spinner.IsVisible = true;
 			PlaceNameBox.Entry.Unfocus ();
-			if (PlaceNameBox.ButtonText == "Search" && LocationSearchedBox.ButtonText == "Search") {
+			if (PlaceNameBox.ButtonText == " Search " && LocationSearchedBox.ButtonText == " Search ") {
 				PlaceNameBox.ButtonText = " ";
 			}
 
@@ -247,7 +248,7 @@ namespace RayvMobileApp
 				LocationSearchedBox.IsVisible = true;
 				DoResetLocation (this, null);
 				ResetLocationBtn.IsVisible = true;
-				PlaceNameBox.ButtonText = "Search";
+				PlaceNameBox.ButtonText = " Search ";
 				SearchHereBtn.IsVisible = true;
 				ResetLocationBtn.IsVisible = false;
 			};
@@ -265,7 +266,7 @@ namespace RayvMobileApp
 			PlaceNameBox = new EntryWithChangeButton {
 				PlaceHolder = "Search for a place",
 				OnClick = DoSearchForPlace,
-				ButtonText = "Search",
+				ButtonText = " Search ",
 			};
 			PlaceNameBox.Entry.Completed += (sender, e) => {
 				PlaceNameBox.Entry.Unfocus ();
@@ -305,6 +306,7 @@ namespace RayvMobileApp
 			};
 			tools = new BottomToolbar (this, "add");
 			Content = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					menu,
 					PlacesLV,

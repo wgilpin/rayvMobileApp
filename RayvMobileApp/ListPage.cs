@@ -2,8 +2,6 @@
 using Xamarin.Forms;
 using System.Collections.Generic;
 using System.Net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections;
@@ -84,7 +82,7 @@ namespace RayvMobileApp
 				TextColor = Color.White,
 				XAlign = TextAlignment.Center,
 				YAlign = TextAlignment.Center,
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				IsVisible = false,
@@ -104,7 +102,7 @@ namespace RayvMobileApp
 				ColumnSpacing = 0,
 				RowSpacing = 0,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (35, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (35, Device.OnPlatform (GridUnitType.Absolute, GridUnitType.Auto, GridUnitType.Auto)) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
 				},
 				ColumnDefinitions = {

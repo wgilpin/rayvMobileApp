@@ -98,7 +98,7 @@ namespace RayvMobileApp
 				Button LetterBtn = new Button {
 					WidthRequest = 30,
 					HeightRequest = 30,
-					FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Button)),
+					FontSize = settings.FontSizeButtonLarge,
 					BorderRadius = 15,
 					BackgroundColor = Color.Red,
 					Text = "X",
@@ -267,7 +267,7 @@ namespace RayvMobileApp
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
 						Text = $" {DisplayPlace.place_name}",
-						FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+						FontSize = settings.FontSizeLabelLarge,
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
@@ -558,7 +558,7 @@ namespace RayvMobileApp
 
 		Frame GetVoteCountText ()
 		{
-			Double MedFont = Device.GetNamedSize (NamedSize.Medium, typeof(Label));
+			Double MedFont = settings.FontSizeLabelMedium;
 			var VoteCountText = new FormattedString ();
 			VoteCountText.Spans.Add (new Span {
 				Text = "Likes   ",
@@ -659,7 +659,7 @@ namespace RayvMobileApp
 			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
 			Place_name = new Label ();
 //			Place_name.FontAttributes = FontAttributes.Bold;
-//			Place_name.FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label));
+//			Place_name.FontSize = settings.FontSizeLabelLarge;
 //			Place_name.XAlign = TextAlignment.Center;
 			CuisineEd = new LabelWide { };
 			distance = new LabelWide {
@@ -712,7 +712,7 @@ namespace RayvMobileApp
 				Text = "DRAFT",
 				TextColor = Color.Red,
 				FontAttributes = FontAttributes.Bold,
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 				XAlign = TextAlignment.Center,
 				IsVisible = false,
 			};
@@ -722,7 +722,7 @@ namespace RayvMobileApp
 				LoadPage (DisplayPlace);
 			var styleGrid = new Grid {
 				Padding = new Thickness (5, 20, 5, 5),
-				RowSpacing = 20,
+				RowSpacing = 10,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (100) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },

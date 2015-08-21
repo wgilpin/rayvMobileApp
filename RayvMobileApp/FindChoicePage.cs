@@ -21,13 +21,10 @@ namespace RayvMobileApp
 		string currentCuisine;
 		public MealKind currentKind;
 		public PlaceStyle currentStyle;
-		bool currentlyFilteredByFriends;
 		VoteFilterWhat currentVoteKindFilter;
 
-		Page callingPage;
 		const string ALL_CUISINES = "All Cuisines";
 		Grid _grid;
-		List<Place> DisplayList;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
 		VoteFilterWho currentVoteByWho;
@@ -38,7 +35,6 @@ namespace RayvMobileApp
 		string TitleVote = "Votes...";
 		string TitleFindMain = "Find...";
 		string TitleMealKind = "Eating Time";
-		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		LocationListWithHistory _geoLookupBox;
 		Entry FilterSearchBox;
 
@@ -51,7 +47,10 @@ namespace RayvMobileApp
 			set { 
 				_grid.RowDefinitions.Clear ();
 				_grid.Children.Clear ();
-				for (int i = 0; i < value; i++) {
+				_grid.RowDefinitions.Add (new RowDefinition { 
+					Height = new GridLength (1, GridUnitType.Auto)
+				});
+				for (int i = 1; i < value; i++) {
 					_grid.RowDefinitions.Add (new RowDefinition { 
 						Height = new GridLength (1, GridUnitType.Star)
 					});
@@ -82,7 +81,7 @@ namespace RayvMobileApp
 				HeightRequest = imgWidth
 			};
 			_text = new Label {
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 				TextColor = Color.White,
 				Text = text,
 				FontAttributes = FontAttributes.Bold,
@@ -120,7 +119,7 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
 			_left = new Label {
-				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+				FontSize = settings.FontSizeLabelLarge,
 				TextColor = Color.White,
 				Text = left,
 				FontAttributes = FontAttributes.Bold,
@@ -128,7 +127,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Start,
 			};
 			_right = new Label {
-				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = settings.FontSizeLabelMedium,
 				TextColor = highlight ? Color.White : settings.ColorDarkGray,
 				Text = right,
 				FontAttributes = highlight ? FontAttributes.Italic | FontAttributes.Bold : FontAttributes.Bold,
@@ -219,7 +218,6 @@ namespace RayvMobileApp
 			var chooser = new FriendsChooserView ();
 			chooser.Saved += (sender, e) => {
 				Content = _grid;
-				currentlyFilteredByFriends = true;
 				ChooseMainMenu ();
 			};
 			Content = chooser;
@@ -288,7 +286,6 @@ namespace RayvMobileApp
 		{
 			if (Content.GetType () == typeof(FriendsChooserView)) {
 				Content = _grid;
-				currentlyFilteredByFriends = false;
 				return;
 			}
 			if (Title == TitleFindMain) {
@@ -338,7 +335,6 @@ namespace RayvMobileApp
 			Title = TitleFindMain;
 			RowCount = 7;
 
-			_grid.RowDefinitions [0].Height = new GridLength (30, GridUnitType.Absolute);
 			bool isFiltered = false;
 			string currentKindStr;
 			bool kindFiltered = false;
@@ -561,7 +557,6 @@ namespace RayvMobileApp
 
 		public FindChoicePage (Page caller)
 		{
-			callingPage = caller;
 			string savedVoteChoice = Persist.Instance.GetConfig (settings.FILTER_WHO);
 			if (string.IsNullOrEmpty (savedVoteChoice))
 				currentVoteByWho = VoteFilterWho.All;
@@ -574,7 +569,7 @@ namespace RayvMobileApp
 				}
 			}
 			_grid = new Grid {
-				Padding = 20,
+				Padding = Device.OnPlatform (20, 2, 2),
 				BackgroundColor = settings.BaseColor,
 				RowSpacing = 5,
 				ColumnSpacing = 20,
@@ -592,6 +587,8 @@ namespace RayvMobileApp
 			SearchCentre = null;
 			LoadPreviousSearch ();
 			ChooseMainMenu ();
+			Padding = 20;
+			BackgroundColor = settings.BaseColor;
 			Content = _grid;
 			var ClearBtn = new ToolbarItem {
 				Text = " Clear ",

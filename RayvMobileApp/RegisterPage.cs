@@ -2,7 +2,6 @@
 
 using Xamarin.Forms;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using Xamarin;
 using System.Net.Mail;

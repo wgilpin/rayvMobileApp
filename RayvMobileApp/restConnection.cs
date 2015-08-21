@@ -114,6 +114,7 @@ namespace RayvMobileApp
 						continue;
 					}
 					if (response.ResponseStatus == ResponseStatus.Error || response.ResponseStatus == ResponseStatus.TimedOut) {
+						Console.WriteLine ($"restConnection.get Error  {response.ErrorMessage}");
 						Persist.Instance.Online = false;
 						continue;
 					}
