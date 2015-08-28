@@ -72,7 +72,6 @@ namespace RayvMobileApp
 		{
 			Analytics.TrackPage ("ListPage");
 			Console.WriteLine ("ListView()");
-			this.Title = "Find Food";
 			this.Icon = settings.DevicifyFilename ("bars-black.png");
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
@@ -184,18 +183,6 @@ namespace RayvMobileApp
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (ShowMap),
 			});
-
-			FilterTool = new ToolbarItem {
-				Text = "  Filter  ",
-				//				Icon = "filter.png",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (() => {
-					Console.WriteLine ("ListPage Toolbar Filter");
-					this.Navigation.PushModalAsync (
-						new RayvNav (new FindChoicePage (this)));
-				})
-			};
-			ToolbarItems.Add (FilterTool);
 
 			NeedsReload = true;
 			DisplayPosition = Persist.Instance.GpsPosition;

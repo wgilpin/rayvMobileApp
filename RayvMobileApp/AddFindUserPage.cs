@@ -43,7 +43,7 @@ namespace RayvMobileApp
 							if (await DisplayAlert ("Not Found", "That user could not be found. Send them an invite email?", "Send", "Cancel")) {
 								String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
 								if (emailResult == "OK") {
-									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK");
+									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
 									Succeeded?.Invoke (this, null);
 									return;
 								}
@@ -58,7 +58,7 @@ namespace RayvMobileApp
 				}
 				Failed?.Invoke (this, null);
 			};
-			var top = new StackLayout () {
+			Content = new StackLayout () {
 				Spacing = 15,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
@@ -73,13 +73,7 @@ namespace RayvMobileApp
 				}
 			};
 			Padding = 5;
-			Content = new StackLayout { 
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				Children = {
-					top,
-					new BottomToolbar (this, "add")
-				}
-			};
+
 		}
 	}
 }

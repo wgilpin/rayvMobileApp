@@ -820,7 +820,7 @@ namespace RayvMobileApp
 			}
 		}
 
-		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq)
+		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq, int timeout = 0)
 		{
 			IRestResponse resp;
 			Dictionary<String, String> paramList = new Dictionary<String, String> ();
@@ -828,7 +828,7 @@ namespace RayvMobileApp
 				paramList.Add ("since", ((DateTime)since).ToString ("s"));
 			}
 			var timeNow = DateTime.Now;
-			resp = webReq.get ("/getFullUserRecord", paramList);
+			resp = webReq.get ("/getFullUserRecord", paramList, timeout: timeout);
 			if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
 				//unable to contact server
 				Console.WriteLine ($"InnerGetUserData - NO RESPONSE after {DateTime.Now - timeNow}");
@@ -860,7 +860,8 @@ namespace RayvMobileApp
 		                         BasicDelegate onFailLogin = null,
 		                         DateTime? since = null,
 		                         bool incremental = false,
-		                         StatusMessageDelegate setStatusMessage = null)
+		                         StatusMessageDelegate setStatusMessage = null,
+		                         int timeoutMs = 0)
 		{
 			if (incremental) {
 				if (since == null) {
@@ -876,7 +877,7 @@ namespace RayvMobileApp
 				try {
 					Console.WriteLine ("GetUserData: Contacting server");
 					setStatusMessage?.Invoke ("Contacting server", 0.7);
-					resp = InnerGetUserData (since, webReq);
+					resp = InnerGetUserData (since, webReq, timeoutMs);
 					if (resp == null) {
 						Debug.WriteLine ("GetUserData: NO RESPONSE");
 						onFail?.Invoke ();

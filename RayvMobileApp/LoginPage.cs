@@ -76,7 +76,7 @@ namespace RayvMobileApp
 								Device.BeginInvokeOnMainThread (() => {
 									Debug.WriteLine ("LoginPage.DoLogin: Push MainMenu");
 									Spinner.IsRunning = false;
-									this.Navigation.PushModalAsync (new MainMenu ());
+									Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 								});
 							}, 
 							onFailVersion: () => {
@@ -86,7 +86,9 @@ namespace RayvMobileApp
 								});
 							},
 							incremental: false,
-							setStatusMessage: SetProgress);
+							setStatusMessage: SetProgress,
+							timeoutMs: 30000
+						);
 					
 					} else {
 						//login failed

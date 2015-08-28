@@ -91,7 +91,7 @@ namespace RayvMobileApp
 						Insights.Report (ex);
 					}
 					Device.BeginInvokeOnMainThread (() => {
-						this.Navigation.PushModalAsync (new MainMenu ());
+						Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 					});
 				} else {
 					Device.BeginInvokeOnMainThread (() => {

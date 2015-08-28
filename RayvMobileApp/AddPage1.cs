@@ -27,6 +27,8 @@ namespace RayvMobileApp
 
 	public class AddPage1 : ContentPage
 	{
+		public event EventHandler Cancelled;
+
 		LocationListWithHistory LocationsListBox;
 		PlacesListView PlacesLV;
 		Label NothingFound;
@@ -40,7 +42,6 @@ namespace RayvMobileApp
 		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		Place addingPlace;
 		//		bool editAsDraft;
-		Frame SearchHereBtn;
 		StackLayout menu;
 		BottomToolbar tools;
 
@@ -52,7 +53,6 @@ namespace RayvMobileApp
 			LocationSearchedBox.IsVisible = false;
 			ResetLocationBtn.IsVisible = false;
 			PlaceNameBox.ButtonText = " ";
-			SearchHereBtn.IsVisible = false;
 			PlacesLV.IsVisible = false;
 		}
 
@@ -93,7 +93,6 @@ namespace RayvMobileApp
 			LocationsListBox.IsVisible = false;
 			DoSearch ("");
 			PlaceNameBox.ButtonText = " Search ";
-			SearchHereBtn.IsVisible = true;
 		}
 
 		void DoSelectLocation (object s, ItemTappedEventArgs e)
@@ -206,7 +205,12 @@ namespace RayvMobileApp
 
 		#endregion
 
-		public AddPage1 ()
+		void DoCancel ()
+		{
+			Cancelled?.Invoke (null, null);
+		}
+
+		public AddPage1 (bool hasBackButton = false)
 		{
 			Analytics.TrackPage ("AddPage1");
 			Title = "Add a Place";
@@ -238,31 +242,17 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			LocationsListBox.OnItemTapped = DoSelectLocation;
-			var searchBtn = new RayvButton ("Search Here") {
-				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				BorderRadius = 0
-			};
+
 			LocationsListBox.OnCancel = (s, e) => {
 				LocationsListBox.IsVisible = false;
 				LocationSearchedBox.IsVisible = true;
 				DoResetLocation (this, null);
 				ResetLocationBtn.IsVisible = true;
 				PlaceNameBox.ButtonText = " Search ";
-				SearchHereBtn.IsVisible = true;
 				ResetLocationBtn.IsVisible = false;
 			};
-			searchBtn.OnClick += (s, e) => {
-				SearchHereBtn.IsVisible = false;
-				DoSearchForPlace (s, e);
-			};
-			SearchHereBtn = new Frame {
-				BackgroundColor = Color.White,
-				HasShadow = false,
-				OutlineColor = Color.White,
-				Padding = 0,
-				Content = searchBtn,
-			};
+
+
 			PlaceNameBox = new EntryWithChangeButton {
 				PlaceHolder = "Search for a place",
 				OnClick = DoSearchForPlace,
@@ -299,7 +289,6 @@ namespace RayvMobileApp
 					LocationSearchedBox,
 					ResetLocationBtn,
 					Spinner,
-					SearchHereBtn,
 					LocationsListBox,
 					NothingFound,
 				}
@@ -311,9 +300,20 @@ namespace RayvMobileApp
 					menu,
 					PlacesLV,
 					AddManualAddress,
-					tools
+//					tools
 				}
 			};
+			if (hasBackButton) {
+				ToolbarItems.Add (new ToolbarItem {
+					Text = "Cancel",
+					//				Icon = "187-pencil@2x.png",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => { 
+						DoCancel ();
+					})
+				});
+			}
+			this.Appearing += DoSearchForPlace;
 		}
 	}
 }

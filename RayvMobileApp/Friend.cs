@@ -20,6 +20,21 @@ namespace RayvMobileApp
 		}
 
 		[Ignore]
+		public string FirstChar {
+			get { 
+				return Vote.FirstLetter (Name); 
+			}
+		}
+
+		[Ignore]
+		public Color RandomColor {
+			get { 
+				return Vote.RandomColor (Name); 
+			}
+		}
+
+
+		[Ignore]
 		public string InFilterImage {
 			get {
 				const string checkedImg = "checkbox_checked.png";

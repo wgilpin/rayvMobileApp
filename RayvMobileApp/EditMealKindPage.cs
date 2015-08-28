@@ -164,7 +164,7 @@ namespace RayvMobileApp
 			};
 			Label MealType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
-				Text = "Meal Kind", 
+				Text = "Meal Time", 
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};

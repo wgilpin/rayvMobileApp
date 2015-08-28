@@ -65,8 +65,9 @@ namespace RayvMobileApp
 			var clickAdd = new TapGestureRecognizer ();
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
-				this.Navigation.PushModalAsync (
-					new RayvNav (new AddWhatPage ()));
+				this.Navigation.PushAsync (new AddPage1 ());
+//				this.Navigation.PushModalAsync (
+//					new RayvNav (new AddWhatPage ()));
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
 
@@ -112,7 +113,7 @@ namespace RayvMobileApp
 
 			// ADD...
 			var AddText = new Label {
-				Text = "Add",
+				Text = "Add Place",
 				FontSize = 35,
 				TranslationY = -30,
 

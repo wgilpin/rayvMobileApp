@@ -483,7 +483,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
-				HeightRequest = Device.OnPlatform (20, 50, 50)
+				HeightRequest = Device.OnPlatform (30, 50, 50)
 			};
 			ButtonLabel = new Label {
 				Text = "",
@@ -494,7 +494,7 @@ namespace RayvMobileApp
 
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, 
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (30, 
 				                                                                Device.OnPlatform (GridUnitType.Absolute,
 				                                                                                   GridUnitType.Auto,
 				                                                                                   GridUnitType.Auto))

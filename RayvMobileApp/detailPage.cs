@@ -122,7 +122,7 @@ namespace RayvMobileApp
 					throw new KeyNotFoundException ();
 				}
 				FriendLine.Spans.Add (new Span {
-					Text =$"{voter}  {vote.GetVoteAsString}  ",
+					Text = $"{voter}  {vote.GetVoteAsString}  ",
 				});
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
@@ -266,13 +266,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text = $" {DisplayPlace.place_name}",
+						Text =$" {DisplayPlace.place_name}",
 						FontSize = settings.FontSizeLabelLarge,
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text = $"  {DisplayPlace.distance}",
+						Text =$"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});

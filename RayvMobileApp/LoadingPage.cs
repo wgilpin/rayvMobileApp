@@ -67,7 +67,7 @@ namespace RayvMobileApp
 						Navigation.PushModalAsync (new LoginPage ());
 					else {
 						DisplayAlert ("Offline", "Unable to contact server", "OK");
-						Navigation.PushModalAsync (new MainMenu ());
+						Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 					}
 				});
 		}
@@ -79,7 +79,7 @@ namespace RayvMobileApp
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				loadDataFromServer ();
 			})).Start ();
-			Navigation.PushModalAsync (new MainMenu ());
+			Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 //
 //
 //

@@ -34,7 +34,7 @@ namespace RayvMobileApp
 		string TitleWho = "Who?";
 		string TitleVote = "Votes...";
 		string TitleFindMain = "Find...";
-		string TitleMealKind = "Eating Time";
+		string TitleMealKind = "Meal Time";
 		LocationListWithHistory _geoLookupBox;
 		Entry FilterSearchBox;
 
@@ -366,7 +366,7 @@ namespace RayvMobileApp
 				isFiltered = true;
 			}
 			_grid.Children.Add (FilterSearchBox, 0, 3, 0, 1);
-			AddTextCard (1, "When?", currentKindStr, (s, e) => {
+			AddTextCard (1, "Meal Time?", currentKindStr, (s, e) => {
 				ChooseMealTime ();
 			}, highlight: kindFiltered);
 			AddTextCard (2, "Style?", currentStyleStr, (s, e) => {
@@ -574,8 +574,8 @@ namespace RayvMobileApp
 				RowSpacing = 5,
 				ColumnSpacing = 20,
 				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (70) },
-					new ColumnDefinition { Width = new GridLength (70) },
+					new ColumnDefinition { Width = new GridLength (60) },
+					new ColumnDefinition { Width = new GridLength (50) },
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
@@ -587,7 +587,7 @@ namespace RayvMobileApp
 			SearchCentre = null;
 			LoadPreviousSearch ();
 			ChooseMainMenu ();
-			Padding = 20;
+			Padding = Device.OnPlatform (5, 15, 5);
 			BackgroundColor = settings.BaseColor;
 			Content = _grid;
 			var ClearBtn = new ToolbarItem {

@@ -91,8 +91,12 @@ namespace RayvMobileApp
 		{
 			Device.BeginInvokeOnMainThread (() => {
 				Console.WriteLine ("Toolbar: Add button - push AddMenu");
+				var addPage = new AddPage1 (hasBackButton: true);
+				addPage.Cancelled += (sender, ev) => {
+					Navigation.PopModalAsync ();
+				};
 				this.Navigation.PushModalAsync (
-					new RayvNav (new AddWhatPage ()), false);
+					new RayvNav (addPage), false);
 			});
 		}
 

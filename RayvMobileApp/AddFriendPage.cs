@@ -64,7 +64,7 @@ namespace RayvMobileApp
 					}
 				};
 				addPage.Succeeded += (o2, e2) => {
-					this.Navigation.PushModalAsync (new MainMenu ());
+					Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 				};
 				this.Navigation.PushAsync (addPage);
 			};
@@ -80,7 +80,6 @@ namespace RayvMobileApp
 			clickMessage.Tapped += DoSendInvite;
 			messageExternalImg.GestureRecognizers.Add (clickMessage);
 
-			StackLayout tools = new BottomToolbar (this, "add");
 
 			var sendMessageTxt = new StackLayout { 
 				VerticalOptions = LayoutOptions.End, 
@@ -114,7 +113,6 @@ namespace RayvMobileApp
 			grid.Children.Add (addUserTxt, 0, 1);
 			grid.Children.Add (messageExternalImg, 0, 3);
 			grid.Children.Add (sendMessageTxt, 0, 4);
-			grid.Children.Add (tools, 0, 5);
 			Content = grid;
 			BackgroundColor = settings.BaseColor;
 			Appearing += (sender, e) => {

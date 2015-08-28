@@ -565,6 +565,7 @@ namespace RayvMobileApp
 						restConnection.LogToServer (LogLevel.DEBUG, $"Place.Save result {result}");
 						JObject obj = null;
 						try {
+							Insights.Track ("Place.Save", "result", result);
 							obj = JObject.Parse (result);
 						} catch (Exception ex) {
 							Insights.Report (ex, "result", result);

@@ -17,7 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)AddMapPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage5bDeDup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AddWhatPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Analytics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BottomToolbar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CustomControls.cs" />
@@ -64,5 +63,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)AddFindUserPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Invite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FriendsConverters.cs" />
   </ItemGroup>
 </Project>
