@@ -34,8 +34,6 @@ namespace RayvMobileApp
 		private string _img;
 		private Int64 _edited;
 		private string _thumbnail;
-		private int _up;
-		private int _down;
 		private string _owner;
 		private bool _is_map;
 		private bool _adjusted;
@@ -123,10 +121,6 @@ namespace RayvMobileApp
 			}
 		}
 
-		public bool untried { 
-			get { return vote.vote == VoteValue.Untried; } 
-		}
-
 		//		[JsonConverter (typeof(StringEnumConverter))]
 		[Ignore]
 		public Vote vote { 
@@ -162,6 +156,13 @@ namespace RayvMobileApp
 				setComment (value?.comment);
 				NotifyPropertyChanged ();
 			}
+		}
+
+		[Ignore]
+		public Double Rating {
+			get {
+				return Persist.Instance.Votes.Where (v => v.key == key && v.vote > 0).Select (v => v.vote).Average ();
+			}	
 		}
 
 		public string descr { 
@@ -240,24 +241,6 @@ namespace RayvMobileApp
 			get { return _edited; } 
 			set {
 				_edited = value;
-				NotifyPropertyChanged ();
-			}
-		}
-
-
-
-		public int up { 
-			get { return _up; } 
-			set {
-				_up = value;
-				NotifyPropertyChanged ();
-			}
-		}
-
-		public int down { 
-			get { return _down; } 
-			set {
-				_down = value;
 				NotifyPropertyChanged ();
 			}
 		}
@@ -384,7 +367,7 @@ namespace RayvMobileApp
 		// iVoted ; true if I voted - for the template
 		public bool iVoted {
 			get {
-				if (vote.vote == VoteValue.None)
+				if (vote.vote == Vote.VoteNotSetValue)
 					return false;
 				if (vote.voter == Persist.Instance.MyId.ToString ())
 					return true;
@@ -393,21 +376,8 @@ namespace RayvMobileApp
 		}
 
 		public bool noVote {
-			get { return !iVoted; }
-		}
-
-		public string voteAsText {
-			get {
-				String imageUrl = "";
-				if (vote.vote == VoteValue.Liked)
-					imageUrl = "Liked";
-				if (vote.vote == VoteValue.Disliked)
-					imageUrl = "Disliked";
-				if (vote.vote == VoteValue.Untried)
-					imageUrl = "Saved";
-				if (imageUrl == "")
-					imageUrl = "Liked   Disliked";
-				return imageUrl;
+			get { 
+				return !iVoted; 
 			}
 		}
 
@@ -641,6 +611,7 @@ namespace RayvMobileApp
 					parameters ["kind"] = ((int)vote.kind).ToString ();
 					parameters ["style"] = ((int)vote.style).ToString ();
 					parameters ["voteScore"] = vote.vote.ToString ();
+					parameters ["voteUntried"] = vote.untried.ToString ();
 					string result = restConnection.Instance.post ("/api/vote", parameters);
 					//			JObject obj = JObject.Parse (result);
 					if (result == "OK") {

@@ -38,6 +38,7 @@ namespace RayvMobileApp
 		LocationListWithHistory _geoLookupBox;
 		Entry FilterSearchBox;
 
+		public static int FilterMimimunStarValue = 0;
 
 		#endregion
 
@@ -245,8 +246,9 @@ namespace RayvMobileApp
 		{
 			Title = TitleVote;
 			RowCount = 4;
-			AddTextCard (0, "Likes Only", null, (s, e) => {
-				currentVoteKindFilter = VoteFilterWhat.Like;
+			AddTextCard (0, "By Star", null, (s, e) => {
+				currentVoteKindFilter = VoteFilterWhat.Stars;
+				FindChoicePage.FilterMimimunStarValue = 3;
 				ChooseMainMenu ();
 			});
 			AddTextCard (1, "Wishes Only", null, (s, e) => {
@@ -587,7 +589,7 @@ namespace RayvMobileApp
 			SearchCentre = null;
 			LoadPreviousSearch ();
 			ChooseMainMenu ();
-			Padding = Device.OnPlatform (5, 15, 5);
+			Padding = Device.OnPlatform (3, 15, 5);
 			BackgroundColor = settings.BaseColor;
 			Content = _grid;
 			var ClearBtn = new ToolbarItem {

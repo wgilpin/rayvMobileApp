@@ -41,7 +41,6 @@ namespace RayvMobileApp
 		EntryWithButton FilterSearchBox;
 		//		Entry AreaBox;
 		ActivityIndicator Spinner;
-		ToolbarItem FilterTool;
 		//		string ALL_TYPES_OF_FOOD = "All Types of Food";
 
 		Label NothingFound;
@@ -302,6 +301,7 @@ namespace RayvMobileApp
 			try {
 				Persist.Instance.GetUserData (
 					onFail: () => {
+						Spinner.IsVisible = false;
 						DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
 					},
 					onSucceed: () => {
@@ -446,12 +446,12 @@ namespace RayvMobileApp
 
 				// - vote value
 				switch (FilterVotesKind) {
-					case VoteFilterWhat.Like:
+					case VoteFilterWhat.Stars:
 						{
 							filteredList = filteredList.Where (v =>
                                 myVotes.ContainsKey (v.key) ?
-								myVotes [v.key].vote == VoteValue.Liked :
-								v.vote == VoteValue.Liked);
+							                                   myVotes [v.key].vote > FindChoicePage.FilterMimimunStarValue :
+							                                   v.vote > FindChoicePage.FilterMimimunStarValue);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("liked places");
 							DebugList ("Vote Like", filteredList, myVotes);
@@ -462,9 +462,9 @@ namespace RayvMobileApp
 						{
 							filteredList = filteredList.Where (v =>
                                 myVotes.ContainsKey (v.key) ?
-								myVotes [v.key].vote == VoteValue.Untried || myVotes [v.key].vote == VoteValue.Liked :
-								v.vote == VoteValue.Untried || v.vote == VoteValue.Liked);
-							filteredList = filteredList.Where (v => v.vote == VoteValue.Untried || v.vote == VoteValue.Liked);
+								myVotes [v.key].untried || myVotes [v.key].vote > 3 :
+							                                   v.untried || v.vote > 3);
+//							filteredList = filteredList.Where (v => v.untried || v.vote >3);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("places to try");
 							DebugList ("Vote Try", filteredList, myVotes);
@@ -474,8 +474,8 @@ namespace RayvMobileApp
 						{
 							filteredList = filteredList.Where (v =>
                                myVotes.ContainsKey (v.key) ?
-                               myVotes [v.key].vote == VoteValue.Untried :
-                               v.vote == VoteValue.Untried);
+                               myVotes [v.key].untried :
+                               v.untried);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("wishlist places");
 							DebugList ("Vote Wish", filteredList, myVotes);
@@ -557,11 +557,6 @@ namespace RayvMobileApp
 			}
 			SetList (Persist.Instance.DisplayList);
 			FilterSearchBox.Unfocus ();
-			if (IsFiltered) {
-				FilterTool.Text = "Filtered";
-			} else {
-				FilterTool.Text = "Filter";
-			}
 			FilterDescr.Text = string.Join (", ", styleDescriptionItems);
 			filters.IsVisible = IsFiltered;
 		}

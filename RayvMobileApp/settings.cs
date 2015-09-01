@@ -76,6 +76,16 @@ namespace RayvMobileApp
 			}
 		}
 
+		public static double FontSizeLabelSmall {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Small, typeof(Label))
+				);
+			}
+		}
+
 		public static double FontSizeLabelLarge {
 			get {
 				return Device.OnPlatform (

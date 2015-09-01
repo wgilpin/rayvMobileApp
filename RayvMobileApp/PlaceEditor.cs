@@ -68,12 +68,9 @@ namespace RayvMobileApp
 		void DoCommentSaved (object sender, CommentSavedEventArgs ev)
 		{
 			EditPlace.setComment (ev.Comment); 
-			var detailPage = new DetailPage (
-				                 EditPlace, showToolbar: false, showSave: true, isDraft: EditAsDraft);
-			if (Saved != null)
-				detailPage.Closed += Saved;
+			CallingPage.Navigation.PopToRootAsync ();
+			Saved?.Invoke (sender, null);
 			Debug.WriteLine ("PlaceEditor DoCommentSaved");
-			CallingPage.Navigation.PushModalAsync (new RayvNav (detailPage));
 		}
 
 		public void Edit ()
@@ -86,7 +83,7 @@ namespace RayvMobileApp
 		{
 			EditPlace = place;
 			CallingPage = caller;
-			VotePage = new EditVotePage (EditPlace.vote.vote);
+			VotePage = new EditVotePage (EditPlace.vote.vote, EditPlace.vote.untried);
 			VotePage.Saved += DoVoteSaved;
 		}
 	}

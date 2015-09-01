@@ -70,7 +70,7 @@ namespace RayvMobileApp
 			};
 		}
 
-		void AddName (Grid grid, string name, string comment)
+		void AddName (Grid grid, string name, string comment, StarEditor stars = null)
 		{
 			var letterFontSize = Device.OnPlatform (
 				                     settings.FontSizeButtonLarge,
@@ -114,6 +114,9 @@ namespace RayvMobileApp
 					CommentLbl,
 				}
 			};
+			if (stars != null) {
+				inner.Children.Add (stars);
+			}
 			grid.Children.Add (inner, 1, 2, 0, 1);
 		}
 
@@ -172,7 +175,8 @@ namespace RayvMobileApp
 		Frame CreateNewsItem (Vote vote)
 		{
 			Grid grid = CreateGrid ();
-
+			var stars = new StarEditor (false){ Height = 10, Vote = vote.vote, ReadOnly = true };
+			AddName (grid, vote.VoterName, comment: "", stars: stars);
 			Label TimeLbl = new Label {
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 				FontAttributes = FontAttributes.Italic,
@@ -225,7 +229,7 @@ namespace RayvMobileApp
 			grid.Children.Add (PlaceImg, 2, 3, 0, 4);
 			grid.Children.Add (AddressLbl, 1, 2, 2, 3);
 			grid.Children.Add (CommentLbl, 1, 2, 3, 4);
-			AddName (grid, vote.VoterName, vote.GetVoteAsString);
+			//AddName (grid, vote.VoterName, vote.GetVoteAsString);
 
 			return new ListItem {
 				HasShadow = false,
@@ -283,36 +287,7 @@ namespace RayvMobileApp
 			//				Clicked = true;
 			Debug.WriteLine ("NewsPage.ItemTapped: Push DetailPage");
 			Place p = Persist.Instance.GetPlace ((sender as ListItem).Key);
-			string action = await DisplayActionSheet (
-				                p.place_name, 
-				                "Cancel",
-				                null, 
-				                "Show Detail", 
-				                "Like", 
-				                "Dislike",
-				                "Add to Wishlist");
-			string errorMsg = "";
-			switch (action) {
-				case "Show Detail":
-					this.Navigation.PushAsync (new DetailPage (p));
-					break;
-				case "Like":
-					p.vote.vote = VoteValue.Liked;
-					p.SaveVote (out errorMsg);
-					break;
-				case "Dislike":
-					p.vote.vote = VoteValue.Disliked;
-					p.SaveVote (out errorMsg);
-					break;
-				case "Add to Wishlist":
-					p.vote.vote = VoteValue.Untried;
-					p.SaveVote (out errorMsg);
-					break;
-			}
-			if (errorMsg.Length > 0) {
-				await DisplayAlert ("Error Saving", errorMsg, "OK");
-				Console.WriteLine ("NewsPage.DoListItemTap Error: {0}", errorMsg);
-			}
+			this.Navigation.PushAsync (new DetailPage (p));
 		}
 
 		void DoShowMore (object sender, EventArgs e)
@@ -478,7 +453,7 @@ namespace RayvMobileApp
 					case NewsFilterKind.Good:
 						News = (from v in Persist.Instance.Votes
 						        where v.voter != MyStringId
-						            && v.vote == VoteValue.Liked
+						            && v.vote > 3
 						        select v)
 						.OrderByDescending (x => x.when)
 						.ToList ();

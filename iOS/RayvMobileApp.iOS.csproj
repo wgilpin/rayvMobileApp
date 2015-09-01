@@ -9,7 +9,7 @@
     <RootNamespace>RayvMobileApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
-    <ReleaseVersion>0.4</ReleaseVersion>
+    <ReleaseVersion>0.6</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -113,9 +113,6 @@
     <Reference Include="SQLite">
       <HintPath>..\Components\sqlite-net-1.0.8.3\lib\ios-unified\SQLite.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="GoogleMaps">
       <HintPath>..\Components\googlemapsios-1.9.1\lib\ios-unified\GoogleMaps.dll</HintPath>
     </Reference>
@@ -143,16 +140,13 @@
     <Reference Include="PLCrashReporterUnifiedBinding">
       <HintPath>..\packages\Xamarin.Insights.1.10.6\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Icon-60%403x.png" />
-    <BundleResource Include="Resources\Icon-76.png" />
-    <BundleResource Include="Resources\Icon-76%402x.png" />
-    <BundleResource Include="Resources\Icon-Small.png" />
-    <BundleResource Include="Resources\Icon-Small%402x.png" />
     <BundleResource Include="Resources\Icon-Small%403x.png" />
-    <BundleResource Include="Resources\Icon-Small-40.png" />
-    <BundleResource Include="Resources\Icon-Small-40%402x.png" />
     <BundleResource Include="Resources\Icon-Small-40%403x.png" />
     <BundleResource Include="Resources\01-refresh%402x.png" />
     <BundleResource Include="Resources\187-pencil.png" />
@@ -161,12 +155,7 @@
     <BundleResource Include="Resources\left32x32.png" />
     <BundleResource Include="Resources\RayvTopSplash.png" />
     <BundleResource Include="Resources\right32x32.png" />
-    <BundleResource Include="Resources\heart-lg.png" />
-    <BundleResource Include="Resources\no-entry-lg.png" />
     <BundleResource Include="Resources\star-lg.png" />
-    <BundleResource Include="..\..\art\two-smileys-lg.png">
-      <Link>Resources\two-smileys-lg.png</Link>
-    </BundleResource>
     <BundleResource Include="..\..\art\filter.png">
       <Link>Resources\filter.png</Link>
     </BundleResource>
@@ -179,20 +168,8 @@
     <BundleResource Include="..\..\art\Default%402x.png">
       <Link>Resources\Default%402x.png</Link>
     </BundleResource>
-    <BundleResource Include="Resources\Default.png" />
-    <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\rayvcircle.gif" />
-    <BundleResource Include="Resources\icon-news-pressed.png" />
-    <BundleResource Include="Resources\icon-news.png" />
-    <BundleResource Include="Resources\icon-grid-pressed.png" />
-    <BundleResource Include="Resources\icon-grid.png" />
-    <BundleResource Include="Resources\icon-add.png" />
-    <BundleResource Include="Resources\icon-add-pressed.png" />
     <BundleResource Include="Resources\19-gear.png" />
-    <BundleResource Include="Resources\icon-friends-pressed.png" />
-    <BundleResource Include="Resources\icon-friends.png" />
-    <BundleResource Include="Resources\icon-profile-pressed.png" />
-    <BundleResource Include="Resources\icon-profile.png" />
     <BundleResource Include="Resources\111-user%402x.png" />
     <BundleResource Include="Resources\259-list%402x.png" />
     <BundleResource Include="Resources\287-at%402x.png" />
@@ -200,19 +177,7 @@
     <BundleResource Include="Resources\54-lock%402x.png" />
     <BundleResource Include="Resources\298-circlex%402x.png" />
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
-    <BundleResource Include="Resources\big-btn-add-place.png" />
-    <BundleResource Include="Resources\big-btn-add-friend.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
-    <BundleResource Include="Resources\toolbar-right-news.png" />
-    <BundleResource Include="Resources\toolbar-left-list.png" />
-    <BundleResource Include="Resources\toolbar-centre-add.png" />
-    <BundleResource Include="Resources\toolbar-right-news-pressed.png" />
-    <BundleResource Include="Resources\toolbar-centre-add-pressed.png" />
-    <BundleResource Include="Resources\toolbar-left-list-pressed.png" />
-    <BundleResource Include="Resources\toolbar-left-friends-pressed.png" />
-    <BundleResource Include="Resources\toolbar-left-friends.png" />
-    <BundleResource Include="Resources\toolbar-right-profile.png" />
-    <BundleResource Include="Resources\toolbar-right-profile-pressed.png" />
     <BundleResource Include="Resources\centre-button.png" />
     <BundleResource Include="Resources\Add Select right button.png" />
     <BundleResource Include="Resources\TB default news %281%29.png" />
@@ -220,7 +185,6 @@
     <BundleResource Include="Resources\Location.png" />
     <BundleResource Include="Resources\Share.png" />
     <BundleResource Include="Resources\Dislike.png" />
-    <BundleResource Include="Resources\Like.png" />
     <BundleResource Include="Resources\Intro 3 foodie friends.png" />
     <BundleResource Include="Resources\add 2.png" />
     <BundleResource Include="Resources\Intro head 2a.png" />
@@ -266,8 +230,10 @@
     <BundleResource Include="Resources\a_drinks.png" />
     <BundleResource Include="Resources\Find_friend.png" />
     <BundleResource Include="Resources\logo.png" />
-    <BundleResource Include="Resources\icon-60%402x.png" />
-    <BundleResource Include="Resources\Icon-60%402x.png" />
+    <BundleResource Include="Resources\star-empty.png" />
+    <BundleResource Include="Resources\star-selected.png" />
+    <BundleResource Include="Resources\wish_grey.png" />
+    <BundleResource Include="Resources\wish_blue.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -313,11 +279,22 @@
       <Version>1.9.1</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>
+    <XamarinComponentReference Include="json.net">
+      <Version>6.0.8.1</Version>
+      <Visible>False</Visible>
+    </XamarinComponentReference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Default.png" />
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Default%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Default-Portrait.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-76.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-76%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-Small.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-Small%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-Small-40.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-Small-40%402x.png" />
   </ItemGroup>
 </Project>

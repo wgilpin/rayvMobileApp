@@ -89,36 +89,6 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class VoteToVerbConverter: IValueConverter
-	{
-		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			try {
-				VoteValue? vote;
-				try {
-					vote = value as VoteValue?;
-				} catch (Exception) { 
-					return null;
-				}
-				if (vote == VoteValue.Liked)
-					return "Liked";
-				if (vote == VoteValue.Disliked)
-					return "Disliked";
-				return "wants to try";
-			} catch (Exception ex) {
-				Insights.Report (ex);
-				return null;
-			}
-		
-		}
-
-		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
-			throw new NotImplementedException ();
-		}
-	}
-
 	public class KeyToThumbUrlConverter: IValueConverter
 	{
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)

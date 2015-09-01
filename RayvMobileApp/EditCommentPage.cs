@@ -47,10 +47,10 @@ namespace RayvMobileApp
 				Cancelled (sender, e);
 		}
 
-		public EditCommentPage (string initialText, VoteValue vote, bool inFlow = true)
+		public EditCommentPage (string initialText, int vote, bool inFlow = true)
 		{
 			InFlow = inFlow;
-			IsMandatory = (vote == VoteValue.Liked) || (vote == VoteValue.Disliked);
+			IsMandatory = vote > 0;
 			this.Title = "Comment";
 			TextEditor = new Editor { 
 //				HorizontalOptions = LayoutOptions.Fil, 

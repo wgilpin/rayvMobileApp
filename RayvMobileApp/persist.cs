@@ -748,10 +748,6 @@ namespace RayvMobileApp
 									existing_vote.place_name = v.place_name;
 								}
 								if (v.voter == MyId.ToString ()) {
-									if (v.vote == VoteValue.Liked)
-										p.up -= 1;
-									if (v.vote == VoteValue.Disliked)
-										p.down -= 1;
 									p.vote = v;
 									p.setComment (v.comment);
 								}
@@ -920,13 +916,13 @@ namespace RayvMobileApp
 					return;
 				} catch (ProtocolViolationException) {
 					Device.BeginInvokeOnMainThread (() => {
-						onFailVersion.DynamicInvoke ();
+						onFailVersion?.DynamicInvoke ();
 					});
 					return;
 				}
 				if (onSucceed != null)
 					Device.BeginInvokeOnMainThread (() => {
-						onSucceed.DynamicInvoke ();
+						onSucceed?.DynamicInvoke ();
 					});
 			}
 		}
@@ -980,14 +976,14 @@ namespace RayvMobileApp
 				lock (Lock) {
 					Dictionary<string, Place> PlacesByKey = new Dictionary<string, Place> ();
 					try {
+						//add all Places to PlacesByKey, with correct distance
 						foreach (Place p in Places) {
-							p.up = p.down = 0;
 							p.CalculateDistanceFromPlace (searchCentre);
 							p.adjusted = false;
 							if (!PlacesByKey.ContainsKey (p.key))
 								PlacesByKey.Add (p.key, p);
 						}
-						Console.WriteLine ($"updatePlaces 2 {DateTime.Now-now}");
+//						Console.WriteLine ($"updatePlaces 2 {DateTime.Now-now}");
 						foreach (Vote v in Votes) {
 							try {
 								if (PlacesByKey.ContainsKey (v.key)) {
@@ -997,10 +993,7 @@ namespace RayvMobileApp
 										p.vote = v;
 									} else {
 										//friend vote
-										if (v.vote == VoteValue.Liked)
-											p.up++;
-										else if (v.vote == VoteValue.Disliked)
-											p.down++;
+
 										if (p.vote == null)
 											p.vote = v;
 									}
@@ -1017,7 +1010,7 @@ namespace RayvMobileApp
 							db.DeleteAll<Place> ();
 							foreach (var kvp in PlacesByKey) {
 								if (kvp.Value.adjusted) {
-									Places.Add (kvp.Value);
+//									Places.Add (kvp.Value);
 									db.Insert (kvp.Value);
 								}
 							}
@@ -1166,6 +1159,7 @@ namespace RayvMobileApp
 			myVote.cuisine = place.vote.cuisine;
 			myVote.comment = place.descr;
 			saveVotesToDb ();
+			place.vote = myVote;
 			return true;
 		}
 

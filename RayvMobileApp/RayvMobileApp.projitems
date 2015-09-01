@@ -64,5 +64,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Invite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsConverters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StarEditor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextStrings.cs" />
   </ItemGroup>
 </Project>

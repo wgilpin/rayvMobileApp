@@ -15,21 +15,14 @@ namespace RayvMobileApp
 		Chosen
 	}
 
+
 	public enum VoteFilterWhat
 	{
 		All,
-		Like,
+		Stars,
 		Wish,
 		Try
 		// Wish plus Like
-	}
-
-	public enum VoteValue
-	{
-		None = 0,
-		Liked = 1,
-		Disliked = -1,
-		Untried = 2
 	}
 
 
@@ -55,6 +48,7 @@ namespace RayvMobileApp
 
 	public class Vote: IComparable<Vote>
 	{
+		public static int VoteNotSetValue = 0;
 		public const int MAX_MEALKIND = 0 + 1 + 2 + 4 + 8 + 16;
 
 		#region sqlLite columns
@@ -69,14 +63,9 @@ namespace RayvMobileApp
 
 		public string place_name { get; set; }
 
-		public VoteValue vote { get; set; }
+		public bool untried { get; set; }
 
-		[Ignore]
-		public bool untried { 
-			get {
-				return vote == VoteValue.Untried;
-			} 
-		}
+		public int vote { get; set; }
 
 		public string comment { get; set; }
 
@@ -135,30 +124,6 @@ namespace RayvMobileApp
 			}
 		}
 
-		[Ignore]
-		public string GetVoteAsString {
-			get {
-				String imageUrl = "";
-				if (vote == VoteValue.Liked)
-					imageUrl = "Liked";
-				if (vote == VoteValue.Disliked)
-					imageUrl = "Disliked";
-				if (untried)
-					imageUrl = "wants to try";
-				return imageUrl;
-			}
-		}
-
-		[Ignore]
-		public string VoteVerb {
-			get {
-				if (vote == VoteValue.Liked)
-					return "Liked";
-				if (vote == VoteValue.Disliked)
-					return "Disliked";
-				return "Starred";
-			}
-		}
 
 		[Ignore]
 		public string PrettyComment {
@@ -258,7 +223,8 @@ namespace RayvMobileApp
 		public Vote ()
 		{
 			this.comment = "";
-			this.vote = VoteValue.None;
+			this.vote = 0;
+			this.untried = false;
 		}
 
 	}

@@ -53,6 +53,7 @@ namespace RayvMobileApp
 
 		public Place DisplayPlace;
 		Label Place_name;
+		Grid ImgGrid;
 		Image Img;
 		Label CuisineEd;
 
@@ -66,48 +67,53 @@ namespace RayvMobileApp
 		bool IsNew;
 		TopRowBtn WebImgBtn;
 		TopRowBtn TelImgBtn;
-		TopRowBtn VoteImgBtn;
 		Frame SaveFrame;
 		StackLayout tools;
 		EditVotePage VotePage;
+		StarEditor Stars;
+
+		static int letterButtonSize = Device.OnPlatform (30, 50, 30);
 
 		#endregion
 
 		#region Logic
 
-		static Grid AddFriendCommentToGrid (Vote vote, Grid grid, int whichRow)
+
+		Grid GetFriendCommentGrid (Vote vote)
 		{
+			int StarSize = 15;
+			Grid grid = new Grid {
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (letterButtonSize + 1) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
+				},
+				RowDefinitions = {
+					new RowDefinition { Height = GridLength.Auto },
+					new RowDefinition { Height = GridLength.Auto },
+				}
+			};
+			var letterFontSize = Device.OnPlatform (
+				                     settings.FontSizeButtonLarge,
+				                     settings.FontSizeButtonMedium,
+				                     settings.FontSizeButtonLarge);
 			try {
-				grid.RowDefinitions.Add (new RowDefinition () {
-					Height = GridLength.Auto
-				});
-				grid.RowDefinitions.Add (new RowDefinition () {
-					Height = GridLength.Auto
-				});
-				grid.RowDefinitions.Add (new RowDefinition () {
-					Height = GridLength.Auto
-				});
-				var Separator = new BoxView { 
-					BackgroundColor = Color.Gray, 
-					HeightRequest = 1, 
-					WidthRequest = 600, 
-					Opacity = 0.5,
-					VerticalOptions = LayoutOptions.Start,
-				};
-				grid.Children.Add (Separator, 0, 5, whichRow * 3, whichRow * 3 + 1);
+				
 				Button LetterBtn = new Button {
-					WidthRequest = 30,
-					HeightRequest = 30,
-					FontSize = settings.FontSizeButtonLarge,
-					BorderRadius = 15,
-					BackgroundColor = Color.Red,
-					Text = "X",
+					WidthRequest = letterButtonSize,
+					HeightRequest = letterButtonSize,
+					FontSize = letterFontSize,
+					BorderRadius = letterButtonSize / 2,
+					BackgroundColor = Vote.RandomColor (vote.VoterName),
+					Text = Vote.FirstLetter (vote.VoterName),
 					TextColor = Color.White,
 					VerticalOptions = LayoutOptions.Start,
 				};
+
+
 				LetterBtn.Text = Vote.FirstLetter (vote.VoterName);
 				LetterBtn.BackgroundColor = Vote.RandomColor (vote.VoterName);
-				grid.Children.Add (LetterBtn, 0, 1, whichRow * 3 + 1, whichRow * 3 + 2);
+				grid.Children.Add (LetterBtn, 0, 0);
 				var FriendLine = new FormattedString ();
 
 				string voter = "";
@@ -121,23 +127,24 @@ namespace RayvMobileApp
 					Insights.Report (ex, data);
 					throw new KeyNotFoundException ();
 				}
-				FriendLine.Spans.Add (new Span {
-					Text = $"{voter}  {vote.GetVoteAsString}  ",
-				});
+				var friendStars = new StarEditor (false) { ReadOnly = true, Height = StarSize, Vote = vote.vote,  };
+				grid.Children.Add (friendStars, 2, 0);
+				FriendLine.Spans.Add (new Span{ Text = voter, });
+				FriendLine.Spans.Add (new Span{ Text = " " });
 				FriendLine.Spans.Add (new Span {
 					Text = vote.PrettyHowLongAgo,
 					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
 					ForegroundColor = Color.FromHex ("#606060"),
 				});
-				grid.Children.Add (new Label { FormattedText = FriendLine, }, 1, 5, whichRow * 3 + 1, whichRow * 3 + 2);
+				grid.Children.Add (new Label { FormattedText = FriendLine }, 1, 0);
 				String comment_text = vote.PrettyComment;
 				if (!String.IsNullOrEmpty (comment_text)) {
 					grid.Children.Add (new Label {
 						Text = comment_text,
 						TextColor = settings.ColorDarkGray,
 						FontAttributes = FontAttributes.Italic,
-					}, 0, 5, whichRow * 3 + 2, whichRow * 3 + 3);
+					}, 0, 3, 1, 2);
 				}
 			} catch (KeyNotFoundException) {
 				// already handled
@@ -148,51 +155,36 @@ namespace RayvMobileApp
 			return grid;
 		}
 
-		Grid GetFriendsComments ()
+		StackLayout GetFriendsComments ()
 		{
-			GridWithCounter friendCommentsGrid = new GridWithCounter {
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (31) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (70) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-				},
-			};
-			friendCommentsGrid.ShowGrid = true;
+			var stack = new StackLayout { HorizontalOptions = LayoutOptions.FillAndExpand };
 
 			try {
-				int whichRow = 0;
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				Persist.Instance.Votes
 					.Where (v => v.key == DisplayPlace.key && v.voter != MyStringId)
 					.OrderBy (x => x.when)
 					.ToList ().ForEach (vote => {
-					AddFriendCommentToGrid (vote, friendCommentsGrid, whichRow);
-					whichRow += 2;
+					var entry = GetFriendCommentGrid (vote);
+					stack.Children.Add (new StackLayout {
+						BackgroundColor = settings.ColorDarkGray,
+						HeightRequest = 1, 
+						HorizontalOptions = LayoutOptions.FillAndExpand
+					});
+					stack.Children.Add (entry);
 				});
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
-			return friendCommentsGrid;
+			return stack;
 		}
 
 		async void SetVote (object sender, EventArgs e)
 		{
 			SetVoteButton (sender as ButtonWide);
 			// should NOT reference UILabel on background thread!
-			VoteValue previousVote = DisplayPlace.vote.vote;
-			switch ((sender as ButtonWide).Text) {
-				case LIKE_TEXT:
-					DisplayPlace.vote.vote = VoteValue.Liked;
-					break;
-				case DISLIKE_TEXT:
-					DisplayPlace.vote.vote = VoteValue.Disliked;
-					break;
-				case WISH_TEXT:
-					DisplayPlace.vote.vote = VoteValue.Untried;
-					break;
-			}
+			int previousVote = DisplayPlace.vote.vote;
+			DisplayPlace.vote.vote = Stars.Vote;
 			string Message = "";
 			if (previousVote == DisplayPlace.vote.vote) {
 				// have set to curren tsetting = unset
@@ -266,13 +258,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text =$" {DisplayPlace.place_name}",
+						Text = $" {DisplayPlace.place_name}",
 						FontSize = settings.FontSizeLabelLarge,
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text =$"  {DisplayPlace.distance}",
+						Text = $"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});
@@ -292,6 +284,7 @@ namespace RayvMobileApp
 					}
 					Img.WidthRequest = this.Width;
 					Img.HeightRequest = this.Height / 3;
+					ImgGrid.HeightRequest = this.Height / 3;
 					CuisineEd.Text = DisplayPlace.vote.cuisineName;
 					string comment;
 					if (DisplayPlace.IsDraft)
@@ -319,20 +312,8 @@ namespace RayvMobileApp
 						TelImgBtn.Source = settings.DevicifyFilename ("Icon default Phone.png");
 						TelImgBtn.IsEnabled = true;
 					}
-					switch (DisplayPlace.vote.vote) {
-						case VoteValue.Disliked:
-							VoteImgBtn.Source = "Dislike.png";
-							break;
-						case VoteValue.Liked:
-							VoteImgBtn.Source = "Like.png";
-							break;
-						case VoteValue.Untried:
-							VoteImgBtn.Source = "Wish1.png";
-							break;
-						default:
-							VoteImgBtn.Source = "Add_Vote.png";
-							break;
-					}
+					Stars.Untried = DisplayPlace.vote.untried;
+					Stars.Vote = DisplayPlace.vote.vote;
 				} catch (Exception ex) {
 					Console.Write ("Details page ctor {0}", ex);
 					Insights.Report (ex);
@@ -350,42 +331,30 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void VoteSaved (object sender, VoteSavedEventArgs voteArgs)
+		void VoteSaved (object sender, StarEditorEventArgs voteArgs)
 		{
-			if (voteArgs.Vote == DisplayPlace.vote.vote)
+			if (voteArgs.Vote == DisplayPlace.vote.vote && voteArgs.Untried == DisplayPlace.vote.untried)
 				return;
 			DisplayPlace.vote.vote = voteArgs.Vote;
-			switch (voteArgs.Vote) {
-				case VoteValue.None:
-					VoteImgBtn.Source = "Add_Vote.png";
-					break;
-				case VoteValue.Liked:
-					VoteImgBtn.Source = "Like.png";
-					break;
-				case VoteValue.Disliked:
-					VoteImgBtn.Source = "Dislike.png";
-					break;
-				case VoteValue.Untried:
-					VoteImgBtn.Source = "Wish1.png";
-					break;
-			}
+			DisplayPlace.vote.untried = voteArgs.Vote == 0 ? voteArgs.Untried : false;
+//			Stars.Vote = voteArgs.Vote;
 			if (!string.IsNullOrEmpty (DisplayPlace.key)) {
 				string msg = "";
 				DisplayPlace.SaveVote (out msg);
 			}
 			Dirty = true;
-			VotePage.Navigation.PopModalAsync ();
+//			VotePage.Navigation.PopModalAsync ();
 		}
 
-		void DoVote (object o, EventArgs e)
-		{
-			VotePage = new EditVotePage (DisplayPlace.vote.vote, inFlow: false);
-			VotePage.Saved += VoteSaved;
-			VotePage.Cancelled += (sender, ev) => {
-				VotePage.Navigation.PopModalAsync ();
-			};
-			Navigation.PushModalAsync (new RayvNav (VotePage));
-		}
+		//		void DoVote (object o, EventArgs e)
+		//		{
+		//			VotePage = new EditVotePage (DisplayPlace.vote.vote, DisplayPlace.vote.untried, inFlow: false);
+		//			VotePage.Saved += VoteSaved;
+		//			VotePage.Cancelled += (sender, ev) => {
+		//				VotePage.Navigation.PopModalAsync ();
+		//			};
+		//			Navigation.PushModalAsync (new RayvNav (VotePage));
+		//		}
 
 		void EditComment ()
 		{
@@ -441,6 +410,7 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Detail.DoEdit: Push EditPage");
 			Dirty = true;
 			var editor = new PlaceEditor (DisplayPlace, this, false);
+			editor.Saved += DoSave;
 			editor.Edit ();
 		}
 
@@ -521,10 +491,8 @@ namespace RayvMobileApp
 			ShowSpinner (false);
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
-			SaveFrame.IsVisible = false;
+			SaveFrame.IsVisible = true;
 			tools.IsVisible = true;
-			if (Navigation.NavigationStack.Count > 0)
-				await Navigation.PopToRootAsync ();
 		}
 
 		async void SaveWasBad ()
@@ -533,7 +501,7 @@ namespace RayvMobileApp
 			DisplayPlace.IsDraft = true;
 			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (DisplayPlace);
-			SaveFrame.IsVisible = true;
+			SaveFrame.IsVisible = false;
 		}
 
 		void DoSave (object sender = null, EventArgs e = null)
@@ -556,41 +524,11 @@ namespace RayvMobileApp
 
 		#endregion
 
-		Frame GetVoteCountText ()
+		Label GetVoteCountLabel ()
 		{
-			Double MedFont = settings.FontSizeLabelMedium;
-			var VoteCountText = new FormattedString ();
-			VoteCountText.Spans.Add (new Span {
-				Text = "Likes   ",
-				FontSize = MedFont,
-				ForegroundColor = Color.Green,
-				FontAttributes = FontAttributes.Italic
-			});
-			VoteCountText.Spans.Add (new Span {
-				Text = DisplayPlace.up.ToString (),
-				ForegroundColor = Color.Gray,
-				FontSize = MedFont,
-				FontAttributes = FontAttributes.Bold,
-			});
-			VoteCountText.Spans.Add (new Span {
-				Text = "        Dislikes   ",
-				FontSize = MedFont,
-				ForegroundColor = Color.Red,
-				FontAttributes = FontAttributes.Italic
-			});
-			VoteCountText.Spans.Add (new Span {
-				Text = DisplayPlace.down.ToString (),
-				ForegroundColor = Color.Gray,
-				FontSize = MedFont,
-				FontAttributes = FontAttributes.Bold,
-			});
-			return new Frame {
-				OutlineColor = Color.Transparent, 
-				Padding = new Thickness (2, 10, 2, 5), 
-				HasShadow = false,
-				Content = new Label { FormattedText = VoteCountText, }
-				
-			};
+			// get the overall vote score
+			var score = Persist.Instance.Votes.Where (v => v.key == DisplayPlace.key && v.vote > 0).Select (v => v.vote).Average ();
+			return new Label{ Text = $"{score:F1} stars"}; 
 		}
 
 		public DetailPage (
@@ -627,24 +565,17 @@ namespace RayvMobileApp
 			DisplayPlace = place;
 			this.Appearing += DoLoadPage;
 
-			var saveBtn = new RayvButton ("Save"){ HorizontalOptions = LayoutOptions.FillAndExpand, };
-			saveBtn.OnClick += DoSave;
-			var cancelBtn = new RayvButton ("Cancel"){ HorizontalOptions = LayoutOptions.FillAndExpand, };
-			cancelBtn.OnClick += async (s, e) => {
-				if (await DisplayAlert ("Are you sure?", "Your changes will be lost", "Yes", "No"))
-					await Navigation.PushModalAsync (
-						new RayvNav (new MainMenu ()));
-			};
 			SaveFrame = new Frame {
 				OutlineColor = Color.Transparent,
 				Padding = 2,
-				Content = new StackLayout {
-					Children = { saveBtn, cancelBtn },
-					Orientation = StackOrientation.Horizontal,
-					HorizontalOptions = LayoutOptions.FillAndExpand,
+				Content = new Label {
+					Text = "Saved",
+					TextColor = ColorUtil.Lighter (Color.Red),
+					FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
+					HorizontalOptions = LayoutOptions.Center
 				},
 				HasShadow = false,
-				IsVisible = showSave,
+				IsVisible = false,
 			};
 
 			Img = new Image ();
@@ -656,6 +587,18 @@ namespace RayvMobileApp
 			} catch {
 				Img.Source = null;
 			}
+			ImgGrid = new Grid {
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (40) },
+				},
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) }
+				}
+			};
+			ImgGrid.Children.Add (Img, 0, 2, 0, 3);
 			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
 			Place_name = new Label ();
 //			Place_name.FontAttributes = FontAttributes.Bold;
@@ -686,19 +629,15 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("Icon default Phone.png"),
 				OnClick = DoMakeCall,
 			};
-			var voteIconName = "Like.png";
-			if (DisplayPlace.vote.vote == VoteValue.Disliked)
-				voteIconName = "Dislike.png";
-			if (DisplayPlace.vote.vote == VoteValue.Untried)
-				voteIconName = "Wish1.png";
-			VoteImgBtn = new TopRowBtn () {
-				Source = settings.DevicifyFilename (voteIconName),
-				OnClick = DoVote,
-			};
-			TopRow.Children.Add (TelImgBtn);
-			TopRow.Children.Add (VoteImgBtn);
-			TopRow.Children.Add (DirectionsImgBtn);
-			TopRow.Children.Add (WebImgBtn);
+
+			ImgGrid.Children.Add (TelImgBtn, 1, 2, 0, 1);
+			ImgGrid.Children.Add (DirectionsImgBtn, 1, 2, 1, 2);
+			ImgGrid.Children.Add (WebImgBtn, 1, 2, 2, 3);
+
+//			TopRow.Children.Add (TelImgBtn);
+//			TopRow.Children.Add (VoteImgBtn);
+//			TopRow.Children.Add (DirectionsImgBtn);
+//			TopRow.Children.Add (WebImgBtn);
 
 			Comment = new LabelWithImageButton {
 				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
@@ -706,8 +645,9 @@ namespace RayvMobileApp
 				FontAttributes = FontAttributes.Italic,
 			};
 
-			var VoteCountLbl = GetVoteCountText ();
-
+			var VoteCountLbl = GetVoteCountLabel ();
+			Stars = new StarEditor (true) { HorizontalOptions = LayoutOptions.FillAndExpand };
+			Stars.Changed += VoteSaved;
 			Label DraftText = new Label {
 				Text = "DRAFT",
 				TextColor = Color.Red,
@@ -728,12 +668,13 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				},
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 //					new RowDefinition { Height = new GridLength (2) },
 				}
 			};
+
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Cuisine" }, 0, 0); 
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Style" }, 0, 1); 
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Meal" }, 0, 2); 
@@ -751,8 +692,9 @@ namespace RayvMobileApp
 						Spinner,
 						Place_name,
 						Address,
-						Img,
+						ImgGrid,
 						TopRow,
+						Stars,
 						styleGrid,
 						Comment,
 						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 

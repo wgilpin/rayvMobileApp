@@ -20,17 +20,20 @@ namespace RayvMobileApp
 
 	public class VoteSavedEventArgs : EventArgs
 	{
-		public VoteValue Vote;
+		public int Vote;
+		public bool Untried;
 
-		public VoteSavedEventArgs (VoteValue vote)
+		public VoteSavedEventArgs (int vote, bool untried)
 		{
 			Vote = vote;
+			Untried = untried;
 		}
 	}
 
 	public class EditVotePage : ContentPage
 	{
-		VoteValue _vote;
+		int _vote;
+		bool _untried;
 		ActivityIndicator Spinner;
 		bool InFlow;
 
@@ -45,7 +48,7 @@ namespace RayvMobileApp
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 					Device.BeginInvokeOnMainThread (() => {
 						Debug.WriteLine ("EditVotePage OnSaved");
-						Saved (this, new VoteSavedEventArgs (_vote));
+						Saved (this, new VoteSavedEventArgs (_vote, _untried));
 						Spinner.IsRunning = false;
 					});
 				})).Start ();
@@ -58,23 +61,14 @@ namespace RayvMobileApp
 				Cancelled (this.Cancelled, null);
 		}
 
-		public void VoteLiked (object s, EventArgs e)
+		public void SetStar (int value)
 		{
 			if (Spinner.IsRunning) {
 				Debug.WriteLine ("Spinner running - abort");
 				return;
 			}
-			_vote = VoteValue.Liked; 
-			OnSaved ();
-		}
-
-		public void VoteDisliked (object s, EventArgs e)
-		{
-			if (Spinner.IsRunning) {
-				Debug.WriteLine ("Spinner running - abort");
-				return;
-			}
-			_vote = VoteValue.Disliked; 
+			_vote = value; 
+			_untried = false;
 			OnSaved ();
 		}
 
@@ -84,7 +78,8 @@ namespace RayvMobileApp
 				Debug.WriteLine ("Spinner running - abort");
 				return;
 			}
-			_vote = VoteValue.Untried; 
+			_vote = 0;
+			_untried = true;
 			OnSaved ();
 		}
 
@@ -94,84 +89,41 @@ namespace RayvMobileApp
 				Debug.WriteLine ("Spinner running - abort");
 				return;
 			}
-			_vote = VoteValue.None; 
+			_vote = 0; 
+			_untried = true;
 			OnSaved ();
 		}
 
-		public EditVotePage (VoteValue vote, bool inFlow = true)
+		public EditVotePage (int vote, bool untried, bool inFlow = true)
 		{
 			InFlow = inFlow;
 			_vote = vote;
+			_untried = untried;
 			BackgroundColor = Color.White;
-			var grid = new Grid { 
-				RowSpacing = 20,
-				ColumnSpacing = 30,
-				VerticalOptions = LayoutOptions.Start,
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (40) },
-					new RowDefinition (),
-					new RowDefinition (),
-					new RowDefinition (),
-					new RowDefinition (),
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (10) },
-					new ColumnDefinition { Width = new GridLength (30) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (15) },
-					new ColumnDefinition { Width = new GridLength (5) },
-				}
-			};
-			var selectionFrame = new Frame { BackgroundColor = settings.BaseColor, HasShadow = false, };
-			if (vote == VoteValue.Liked) {
-				grid.Children.Add (selectionFrame, 0, 5, 1, 2); 
-			}
-			grid.Children.Add (new ImageButton ("Like.png", VoteLiked), 1, 2, 1, 2);
-			var likeVoteLbl = new VoteLabel (vote == VoteValue.Liked) { 
-				OnClick = VoteLiked, 
-			};
-			likeVoteLbl.Label.Text = "Like";
-			grid.Children.Add (likeVoteLbl, 2, 3, 1, 2);
-			grid.Children.Add (new ImageButton (
-				settings.DevicifyFilename ("arrow.png"), VoteLiked), 3, 4, 1, 2);
-			if (vote == VoteValue.Disliked) {
-				grid.Children.Add (selectionFrame, 0, 5, 2, 3); 
-			}
-			grid.Children.Add (new ImageButton ("Dislike.png", VoteDisliked), 1, 2, 2, 3);
-			var dislikeVoteLbl = new VoteLabel (vote == VoteValue.Disliked) {
-				OnClick = VoteDisliked, 
-			};
-			dislikeVoteLbl.Label.Text = "Dislike";
-			grid.Children.Add (dislikeVoteLbl, 2, 3, 2, 3);
-			grid.Children.Add (new ImageButton (
-				settings.DevicifyFilename ("arrow.png"), VoteDisliked), 3, 4, 2, 3);
-			if (vote == VoteValue.Untried) {
-				grid.Children.Add (selectionFrame, 0, 5, 3, 4); 
-			}
-
-			grid.Children.Add (new ImageButton ("Wish1.png", VoteUntried), 1, 2, 3, 4);
-			var untriedVoteLbl = new VoteLabel (vote == VoteValue.Untried) { 
+			Padding = 5;
+			var stack = new StackLayout { Spacing = 20 };
+			var stars = new StarEditor (false) { Vote = vote, HorizontalOptions = LayoutOptions.CenterAndExpand };
+			stack.Children.Add (stars);
+			var untriedVoteBtn = new RayvButton ("I want to try this place") { 
 				OnClick = VoteUntried,
 			};
-			untriedVoteLbl.Label.Text = "Wish";
-			grid.Children.Add (untriedVoteLbl, 2, 3, 3, 4);
-			grid.Children.Add (new ImageButton (
-				settings.DevicifyFilename ("arrow.png"), VoteUntried), 3, 4, 3, 4);
-
-			if (vote != VoteValue.None) {
-				grid.Children.Add (new ImageButton ("remove_vote.png", VoteNone), 1, 2, 4, 5);
-				var removeVoteLbl = new VoteLabel (selected: false) { 
+			stack.Children.Add (untriedVoteBtn);
+			if (vote != Vote.VoteNotSetValue) {
+				var removeBtn = new ButtonWithImage () {
+					Text = "Remove my vote",
+					ImageSource = "remove_vote.png",
+					FontSize = settings.FontSizeButtonLarge,
 					OnClick = VoteNone,
+					Padding = 10,
 				};
-				removeVoteLbl.Label.Text = "Remove";
-				grid.Children.Add (removeVoteLbl, 2, 3, 4, 5);
-				grid.Children.Add (new ImageButton (
-					settings.DevicifyFilename ("arrow.png"), VoteUntried), 3, 4, 4, 5);
+				// vote is set, add a remove option
+				stack.Children.Add (removeBtn);
 			}
 			Spinner = new ActivityIndicator{ Color = Color.Red, IsRunning = false };
-			grid.Children.Add (Spinner, 0, 5, 0, 1);
-			Content = grid;
-			if (vote != VoteValue.None) {
+			stack.Children.Add (Spinner);
+			Content = stack;
+			if (vote != Vote.VoteNotSetValue) {
+				// vote is set, so can navigate
 				ToolbarItems.Add (new ToolbarItem {
 					Text = inFlow ? " Next" : "  Cancel  ",
 					//				Icon = "187-pencil@2x.png",

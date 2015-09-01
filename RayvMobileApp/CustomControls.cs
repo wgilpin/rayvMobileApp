@@ -710,15 +710,25 @@ namespace RayvMobileApp
 			set { ImageRight.Source = value; }
 		}
 
+		public Double FontSize {
+			set {
+				ButtonLeft.FontSize = value;
+			}
+		}
+
 		public  ButtonWithImage () : base ()
 		{
+			BackgroundColor = ColorUtil.Darker (settings.BaseColor); 
 			ButtonLeft = new Button {
 				Text = " Change ",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
 			};
 			ButtonLeft.HeightRequest = 30;
-
+			ImageRight = new Image {
+				Aspect = Aspect.AspectFit,
+				HeightRequest = 20,
+			};
 
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;

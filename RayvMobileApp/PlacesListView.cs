@@ -75,8 +75,13 @@ namespace RayvMobileApp
 				draftSign.SetBinding (
 					StackLayout.IsVisibleProperty, "IsDraft");
 
+				var distCuisineLine = new StackLayout { Orientation = StackOrientation.Horizontal };
+				distCuisineLine.Children.Add (distLabel);
+				distCuisineLine.Children.Add (new Label{ Text = " " });
+				distCuisineLine.Children.Add (catLabel);
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
+					Padding = 2,
 					RowDefinitions = {
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
@@ -86,104 +91,45 @@ namespace RayvMobileApp
 						//						new RowDefinition { Height = new GridLength (15, GridUnitType.Absolute)  },
 					},
 					ColumnDefinitions = {
-						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
 						new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 						new ColumnDefinition { Width = new GridLength (70, GridUnitType.Absolute) },
+						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
 					}
 				};
-				grid.Children.Add (webImage, 0, 1, 0, 3);
-				grid.Children.Add (draftSign, 0, 1, 0, 3);
-				grid.Children.Add (nameLabel, 1, 2, 0, 1);
-				grid.Children.Add (catLabel, 1, 2, 1, 2);
-				grid.Children.Add (distLabel, 1, 2, 2, 3);
+				grid.Children.Add (webImage, 2, 3, 0, 3);
+				grid.Children.Add (draftSign, 2, 3, 0, 3);
+				grid.Children.Add (nameLabel, 0, 2, 0, 1);
+				grid.Children.Add (distCuisineLine, 0, 2, 1, 2);
 				if (!ShowVotes)
-					grid.Children.Add (addressLabel, 1, 3, 2, 3);
+					grid.Children.Add (addressLabel, 0, 2, 2, 3);
 
 				// votes are shown on the main list, not on the Add lists
 				if (ShowVotes) {
-
-					Label upVotes = new Label {
-						TextColor = ColorUtil.Darker (settings.BaseColor),
-						BackgroundColor = Color.Transparent,
-						XAlign = TextAlignment.End,
+					var Stars = new StarEditor (false) { Height = 15, ReadOnly = true };
+					Stars.SetBinding (StarEditor.VoteProperty, "vote.vote");
+					Stars.SetBinding (StackLayout.IsVisibleProperty, "iVoted");
+					grid.Children.Add (Stars, 0, 2, 2, 3);
+					var ratingLine = new StackLayout { Orientation = StackOrientation.Horizontal };
+					var rating = new Label { TextColor = settings.BaseColor, FontSize = settings.FontSizeLabelSmall };
+					rating.SetBinding (Label.FormattedTextProperty, "Rating", stringFormat: "{0:F1}");
+					ratingLine.SetBinding (Label.IsVisibleProperty, "noVote");
+					ratingLine.Children.Add (rating);
+					ratingLine.Children.Add (new Image { 
+						Source = "star-empty.png", 
+						WidthRequest = 15, 
+						Aspect = Aspect.AspectFit,
+						TranslationY = -5
+					});
+					grid.Children.Add (ratingLine, 0, 2, 2, 3);
+					var untriedImg = new Image { 
+						Source = "wish_blue.png", 
+						Aspect = Aspect.AspectFit, 
+						HeightRequest = 20,
 						HorizontalOptions = LayoutOptions.End,
-						TranslationX = 2,
-						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					};
-					upVotes.SetBinding (Label.IsVisibleProperty, "noVote");
-					upVotes.SetBinding (
-						Label.TextProperty, 
-						new Binding ("key", converter: new KeyToUpVotersConverter ()));
-					Label downVotes = new Label {
-						HorizontalOptions = LayoutOptions.End,
-						TextColor = Color.FromHex ("A22"),
-						BackgroundColor = Color.Transparent,
-						XAlign = TextAlignment.End,
-						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-						TranslationY = 2,
-						TranslationX = 2,
-					};
-
-					downVotes.SetBinding (
-						Label.TextProperty, 
-						new Binding ("key", converter: new KeyToDownVotersConverter ()));
-
-					downVotes.SetBinding (
-						Label.IsVisibleProperty, 
-						new Binding ("key", converter: new KeyToShowDownBoolConverter ()));
-
-
-					Label myVote = new Label {
-						BackgroundColor = Color.Transparent,
-						TextColor = ColorUtil.Darker (settings.BaseColor),
-						TranslationY = -12,
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						XAlign = TextAlignment.End,
-					};
-					myVote.SetBinding (
-						Label.IsVisibleProperty, 
-						new Binding ("key", converter: new KeyToShowMyVoteConverter ()));
-					myVote.SetBinding (
-						Label.TextProperty, 
-						new Binding ("key", converter: new KeyToMyVoteTextConverter ()));
-					myVote.SetBinding (
-						Label.TextColorProperty, 
-						new Binding ("vote", converter: new VoteToColorConverter ()));
-					myVote.SetBinding (
-						Label.FontSizeProperty,
-						new Binding ("key", converter: new KeyToMyVoteSizeConverter ()));
-
-
-					Label noVoteLiked = new Label {
-						Text = "Liked",
-						BackgroundColor = Color.Transparent,
-						TextColor = Color.FromHex ("888"),
-						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
-					};
-					Label noVoteDisliked = new Label {
-						BackgroundColor = Color.Transparent,
-						TextColor = Color.FromHex ("822"),
-						Text = "Disliked",
-						FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
-						TranslationY = -2,
-					};
-					noVoteLiked.SetBinding (Label.IsVisibleProperty, "noVote");
-					noVoteDisliked.SetBinding (
-						Label.IsVisibleProperty, 
-						new Binding ("down", converter: new KeyToShowDownBoolConverter ()));
-					grid.Children.Add (new Frame { 
-						HasShadow = false, 
-						Content = upVotes, 
-						Padding = new Thickness (3, 0), 
-					}, 2, 3, 0, 3);
-					grid.Children.Add (downVotes, 2, 3, 1, 3);
-					grid.Children.Add (myVote, 2, 3, 1, 4);
-					//					grid.Children.Add (noVoteLiked, 3, 4, 1, 2);
-					//					grid.Children.Add (noVoteDisliked, 3, 4, 2, 3);
+					untriedImg.SetBinding (Image.IsVisibleProperty, "vote.untried");
+					grid.Children.Add (untriedImg, 1, 2, 0, 1);
 				}
-
-
-
 				return new ViewCell {
 					View = grid,
 				};
