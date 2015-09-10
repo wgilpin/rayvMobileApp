@@ -141,7 +141,7 @@
       <HintPath>..\packages\Xamarin.Insights.1.10.6\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -234,6 +234,10 @@
     <BundleResource Include="Resources\star-selected.png" />
     <BundleResource Include="Resources\wish_grey.png" />
     <BundleResource Include="Resources\wish_blue.png" />
+    <BundleResource Include="Resources\Wish_dark_grey.png" />
+    <BundleResource Include="Resources\star_border.png" />
+    <BundleResource Include="Resources\star_dark_grey.png" />
+    <BundleResource Include="Resources\star-border.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

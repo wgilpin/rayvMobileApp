@@ -13,11 +13,7 @@ namespace RayvMobileApp
 		[MaxLength (50)]
 		public string Name { get; set; }
 
-		[Ignore]
-		public bool InFilter {
-			get;
-			set;
-		}
+
 
 		[Ignore]
 		public string FirstChar {
@@ -33,17 +29,7 @@ namespace RayvMobileApp
 			}
 		}
 
-
-		[Ignore]
-		public string InFilterImage {
-			get {
-				const string checkedImg = "checkbox_checked.png";
-				const string unCheckedImg = "checkbox_unchecked.png";
-				return InFilter ? checkedImg : unCheckedImg;
-			}
-		}
-
-
+	
 		public Friend ()
 		{
 		}
@@ -52,7 +38,6 @@ namespace RayvMobileApp
 		{
 			Key = key;
 			Name = name;
-			InFilter = true;
 		}
 	}
 }

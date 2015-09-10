@@ -61,7 +61,7 @@ namespace RayvMobileApp
 		Label distance;
 		Label Address;
 		LabelWithImageButton Comment;
-		EditCommentPage CommentEditor;
+		EditCommentView CommentEditor;
 		//		private bool ShowToolbar;
 		public bool Dirty;
 		bool IsNew;
@@ -69,8 +69,9 @@ namespace RayvMobileApp
 		TopRowBtn TelImgBtn;
 		Frame SaveFrame;
 		StackLayout tools;
-		EditVotePage VotePage;
+		EditVoteView VoteView;
 		StarEditor Stars;
+		View MainContent;
 
 		static int letterButtonSize = Device.OnPlatform (30, 50, 30);
 
@@ -358,15 +359,18 @@ namespace RayvMobileApp
 
 		void EditComment ()
 		{
-			CommentEditor = new EditCommentPage (
+			CommentEditor = new EditCommentView (
 				DisplayPlace.Comment (), 
 				inFlow: false,
 				vote: DisplayPlace.vote.vote);
 			CommentEditor.Saved += DoSaveComment;
-			CommentEditor.Cancelled += (s, e) => {
-				CommentEditor?.Navigation.PopModalAsync ();
+			CommentEditor.NoComment += (sender, e) => {
+				DisplayAlert ("No Comment", "You have to comment", "OK");
 			};
-			Navigation.PushModalAsync (new RayvNav (CommentEditor));
+			CommentEditor.Cancelled += (s, e) => {
+				Content = MainContent;
+			};
+			Content = CommentEditor;
 		}
 
 		void DoClickComment (object o, EventArgs e)
@@ -391,27 +395,42 @@ namespace RayvMobileApp
 							Device.BeginInvokeOnMainThread (() => {
 								Comment.Text = '"' + DisplayPlace.Comment () + '"';
 								ShowSpinner (false);
+								Content = MainContent;
 							});
 						} else
 							Device.BeginInvokeOnMainThread (() => {
 								ShowSpinner (false);
 								DisplayAlert ("Error", "Couldn't save comment", "OK");
+								Content = MainContent;
 							});
 					}
 				})).Start ();
 
 			} catch (Exception) {
 			}
-			CommentEditor?.Navigation.PopModalAsync ();
+		}
+
+		void DoRemove (object sender, EventArgs e)
+		{
+			int votesCount = Persist.Instance.Votes.Where (v => v.key == DisplayPlace.key).Count ();
+			if (votesCount == 0) {
+				// the place has gone
+				Navigation.PushModalAsync (new RayvNav (new ListPage ()));
+			} else {
+				// still some votes
+				LoadPage (DisplayPlace);
+			}
 		}
 
 		void DoEdit ()
 		{
 			Debug.WriteLine ("Detail.DoEdit: Push EditPage");
 			Dirty = true;
-			var editor = new PlaceEditor (DisplayPlace, this, false);
+			var editor = new PlaceEditor (DisplayPlace, false);
 			editor.Saved += DoSave;
-			editor.Edit ();
+			editor.Removed += DoRemove;
+			editor.Cancelled += (s, ev) => Navigation.PopAsync ();
+			Navigation.PushAsync (editor);
 		}
 
 		public void DoLoadPage (object sender, EventArgs e)
@@ -527,7 +546,14 @@ namespace RayvMobileApp
 		Label GetVoteCountLabel ()
 		{
 			// get the overall vote score
-			var score = Persist.Instance.Votes.Where (v => v.key == DisplayPlace.key && v.vote > 0).Select (v => v.vote).Average ();
+			Double score;
+			try {
+				score = Persist.Instance.Votes.Where (v => v.key == DisplayPlace.key && v.vote > 0).Select (v => v.vote).Average ();
+			} catch (Exception ex) {
+				Console.WriteLine ($"ERROR {ex}");
+				Insights.Report (ex);
+				score = 0;
+			}
 			return new Label{ Text = $"{score:F1} stars"}; 
 		}
 
@@ -713,6 +739,7 @@ namespace RayvMobileApp
 					tools
 				}
 			};
+			MainContent = Content;
 			if (showMapBtn) {
 				ToolbarItems.Add (new ToolbarItem {
 					Text = "Map ",

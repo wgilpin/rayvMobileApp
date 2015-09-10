@@ -24,10 +24,20 @@ namespace RayvMobileApp
 		int _vote = 0;
 		bool _untried = false;
 		bool _showUntried;
+		bool _friendMode = false;
+		// friend mode means show in b&w
 
 		TapGestureRecognizer tapped;
 
 		Image[] _stars;
+
+		// images
+		string StarSetSource;
+		string StarUnsetSource;
+		string WishSetSource;
+		string WishUnsetSource;
+
+
 
 		public int  Height {
 			get{ return _height; }
@@ -64,6 +74,7 @@ namespace RayvMobileApp
 				thisView.SetUntried (newValue);
 			});
 
+
 		public int Vote {
 			get { return _vote; }
 			set { SetVote (value); }
@@ -72,6 +83,15 @@ namespace RayvMobileApp
 		public bool Untried {
 			get { return _untried; }
 			set { SetUntried (value); }
+		}
+
+		public bool IsInFriendMode {
+			// friends get grey stars
+			get { return _friendMode; }
+			set {
+				_friendMode = value;
+				LoadSources ();
+			}
 		}
 
 		public bool ReadOnly { get; set; }
@@ -99,21 +119,36 @@ namespace RayvMobileApp
 			for (int i = 1; i < 6; i++) {
 				// if vote is 0 
 				if (i <= vote && vote > 0) {
-					_stars [i].Source = "star-selected.png";
+					_stars [i].Source = StarSetSource;
 				} else {
-					_stars [i].Source = "star-empty.png";
+					_stars [i].Source = StarUnsetSource;
 				}
 			}	
 			if (vote > 0 && _showUntried)
-				_stars [UNTRIED_IMG_IDX].Source = "wish_grey.png";
+				_stars [UNTRIED_IMG_IDX].Source = WishUnsetSource;
 		}
 
 		void SetUntried (bool untried)
 		{
 			_untried = untried;
-			_stars [UNTRIED_IMG_IDX].Source = _untried ? "wish_blue.png" : "wish_grey.png";
+			_stars [UNTRIED_IMG_IDX].Source = _untried ? WishSetSource : WishUnsetSource;
 			_vote = 0;
 			SetVote (0);	
+		}
+
+		public void LoadSources ()
+		{
+			if (_friendMode) {
+				StarSetSource = settings.DevicifyFilename ("star_dark_grey.png");
+				StarUnsetSource = settings.DevicifyFilename ("star_border.png");
+				WishSetSource = settings.DevicifyFilename ("Wish_dark_grey.png");
+				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
+			} else {
+				StarSetSource = settings.DevicifyFilename ("star-selected.png");
+				StarUnsetSource = settings.DevicifyFilename ("star_border.png");
+				WishSetSource = settings.DevicifyFilename ("wish_blue.png");
+				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
+			}
 		}
 
 		void AddImage (string imageSource, int columnIdx)
@@ -136,7 +171,7 @@ namespace RayvMobileApp
 		{
 			ReadOnly = false;
 			_showUntried = showUntried;
-			Padding = 2;
+			Padding = 1;
 			_stars = new Image[6];
 			RowDefinitions.Add (new RowDefinition {
 				Height = new GridLength (_height)
@@ -148,7 +183,7 @@ namespace RayvMobileApp
 			for (int i = 1; i < 6; i++) {
 				AddImage ("star-empty.png", i);
 			}
-
+			LoadSources ();
 		}
 	}
 }

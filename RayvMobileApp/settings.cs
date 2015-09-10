@@ -49,10 +49,15 @@ namespace RayvMobileApp
 		public static Color ColorOffWhite = Color.FromHex ("E7E7E7");
 		public static Color BaseTextColor = ColorLightGray;
 		public static Color InvertTextColor = ColorDarkGray;
+		public const  string PROFILE_SCREENNAME = "Pr_screenname";
+		public const  string PROFILE_EMAIL = "Pr_email";
+		public const  string PROFILE_GENDER = "Pr_gender";
 
 
 		public static string DevicifyFilename (string filename)
 		{
+			// this is because iOS resource naming is relaxed, android requires a valid Java identifier, but a lot of 
+			//   my images were already named for ios
 			switch (Device.OS) {
 				case  TargetPlatform.Android:
 					var temp = filename.Replace (" ", "_").Replace ("-", "_").Replace ("@", "_");
@@ -82,6 +87,16 @@ namespace RayvMobileApp
 					Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 					Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 					Device.GetNamedSize (NamedSize.Small, typeof(Label))
+				);
+			}
+		}
+
+		public static double FontSizeLabelMicro {
+			get {
+				return Device.OnPlatform (
+					Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
+					Device.GetNamedSize (NamedSize.Micro, typeof(Label))
 				);
 			}
 		}

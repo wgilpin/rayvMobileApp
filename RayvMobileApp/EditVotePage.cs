@@ -18,27 +18,29 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class VoteSavedEventArgs : EventArgs
+	public class EventArgsVoteValues : EventArgs
 	{
 		public int Vote;
 		public bool Untried;
 
-		public VoteSavedEventArgs (int vote, bool untried)
+		public EventArgsVoteValues (int vote, bool untried)
 		{
 			Vote = vote;
 			Untried = untried;
 		}
 	}
 
-	public class EditVotePage : ContentPage
+	public class EditVoteView : StackLayout
 	{
 		int _vote;
 		bool _untried;
 		ActivityIndicator Spinner;
 		bool InFlow;
 
-		public event EventHandler<VoteSavedEventArgs> Saved;
+		public event EventHandler<EventArgsVoteValues> Saved;
+		public event EventHandler<EventArgsMessage> ShowMessage;
 		public event EventHandler Cancelled;
+		public event EventHandler Removed;
 
 		protected virtual void OnSaved ()
 		{
@@ -47,8 +49,12 @@ namespace RayvMobileApp
 				Spinner.IsRunning = true;
 				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 					Device.BeginInvokeOnMainThread (() => {
-						Debug.WriteLine ("EditVotePage OnSaved");
-						Saved (this, new VoteSavedEventArgs (_vote, _untried));
+						if (_vote == 0 && _untried == false)
+							ShowMessage?.Invoke (this, new EventArgsMessage ("You must vote"));
+						else {
+							Debug.WriteLine ("EditVotePage OnSaved");
+							Saved (this, new EventArgsVoteValues (_vote, _untried));
+						}
 						Spinner.IsRunning = false;
 					});
 				})).Start ();
@@ -91,23 +97,28 @@ namespace RayvMobileApp
 			}
 			_vote = 0; 
 			_untried = true;
-			OnSaved ();
+			Removed?.Invoke (this, null);
 		}
 
-		public EditVotePage (int vote, bool untried, bool inFlow = true)
+		public EditVoteView (int vote, bool untried, bool inFlow = true)
 		{
 			InFlow = inFlow;
 			_vote = vote;
 			_untried = untried;
 			BackgroundColor = Color.White;
 			Padding = 5;
-			var stack = new StackLayout { Spacing = 20 };
+			Spacing = 20;
+			Children.Add (new Label{ Text = "Set vote", XAlign = TextAlignment.Center  });
 			var stars = new StarEditor (false) { Vote = vote, HorizontalOptions = LayoutOptions.CenterAndExpand };
-			stack.Children.Add (stars);
+			stars.Changed += (o, e) => {
+				SetStar ((e as StarEditorEventArgs).Vote);
+			};
+			Children.Add (stars);
+			Children.Add (new Label{ Text = "or", XAlign = TextAlignment.Center });
 			var untriedVoteBtn = new RayvButton ("I want to try this place") { 
 				OnClick = VoteUntried,
 			};
-			stack.Children.Add (untriedVoteBtn);
+			Children.Add (untriedVoteBtn);
 			if (vote != Vote.VoteNotSetValue) {
 				var removeBtn = new ButtonWithImage () {
 					Text = "Remove my vote",
@@ -117,25 +128,34 @@ namespace RayvMobileApp
 					Padding = 10,
 				};
 				// vote is set, add a remove option
-				stack.Children.Add (removeBtn);
+				Children.Add (removeBtn);
 			}
 			Spinner = new ActivityIndicator{ Color = Color.Red, IsRunning = false };
-			stack.Children.Add (Spinner);
-			Content = stack;
-			if (vote != Vote.VoteNotSetValue) {
-				// vote is set, so can navigate
-				ToolbarItems.Add (new ToolbarItem {
-					Text = inFlow ? " Next" : "  Cancel  ",
-					//				Icon = "187-pencil@2x.png",
-					Order = ToolbarItemOrder.Primary,
-					Command = new Command (() => { 
-						if (InFlow)
-							OnSaved ();
-						else
-							OnCancelled ();
-					})
-				});
-			}
+			Children.Add (Spinner);
+
+			var buttons = new DoubleButton { 
+				LeftText = "Cancel", 
+				LeftSource = "298-circlex@2x.png",
+				RightText = "Next",
+				RightSource = "Add Select right button.png"
+			};
+			buttons.LeftClick = (s, e) => OnCancelled ();
+			buttons.RightClick = (s, e) => OnSaved ();
+			Children.Add (buttons);
+//			if (vote != Vote.VoteNotSetValue) {
+//				// vote is set, so can navigate
+//				ToolbarItems.Add (new ToolbarItem {
+//					Text = inFlow ? " Next" : "  Cancel  ",
+//					//				Icon = "187-pencil@2x.png",
+//					Order = ToolbarItemOrder.Primary,
+//					Command = new Command (() => { 
+//						if (InFlow)
+//							OnSaved ();
+//						else
+//							OnCancelled ();
+//					})
+//				});
+//			}
 		}
 	}
 }

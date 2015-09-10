@@ -21,13 +21,13 @@ namespace RayvMobileApp
 		string currentCuisine;
 		public MealKind currentKind;
 		public PlaceStyle currentStyle;
-		VoteFilterWhat currentVoteKindFilter;
+		VoteFilterKind currentVoteKindFilter;
+		string currentVoteByWho;
 
 		const string ALL_CUISINES = "All Cuisines";
 		Grid _grid;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
-		VoteFilterWho currentVoteByWho;
 		RayvButton SearchLocationBtn;
 		ToolbarItem BackBtn;
 		string TitlePlaceStyle = "Style of Place";
@@ -161,7 +161,7 @@ namespace RayvMobileApp
 		void Done (object sender, EventArgs e)
 		{
 			Persist.Instance.SetConfig (settings.FILTER_WHAT, (int)currentVoteKindFilter);
-			Persist.Instance.SetConfig (settings.FILTER_WHO, (int)currentVoteByWho);
+			Persist.Instance.SetConfig (settings.FILTER_WHO, currentVoteByWho);
 			var cuisine = currentCuisine == ALL_CUISINES ? null : currentCuisine;
 			Persist.Instance.SetConfig (settings.FILTER_CUISINE, cuisine);
 			Persist.Instance.SetConfig (settings.FILTER_KIND, (int)currentKind);
@@ -176,20 +176,15 @@ namespace RayvMobileApp
 				Persist.Instance.SetConfig (settings.FILTER_WHERE_NAME, currentLocationName);
 			}
 			//write a comma separated list of keys
-			string chosenStr = "";
-			if (currentVoteByWho == VoteFilterWho.Chosen) {
-				var chosenKeys = Persist.Instance.Friends.Where (f => f.Value.InFilter).Select (fr => fr.Key).ToList ();
-				chosenStr = string.Join (",", chosenKeys);
-			}
-			Persist.Instance.SetConfig (settings.FILTER_WHO_LIST, chosenStr);
-			Navigation.PushModalAsync (new RayvNav (new ListPage (
-				currentKind, 
-				currentStyle, 
-				SearchCentre, 
-				cuisine, 
-				currentVoteByWho, 
-				FilterSearchBox.Text,
-				currentVoteKindFilter)));
+			var listPage = new ListPage { 
+				FilterPlaceKind = currentKind,
+				FilterPlaceStyle = currentStyle,
+				FilterSearchCenter = SearchCentre,
+				FilterCuisine = cuisine,
+				FilterShowWho = currentVoteByWho,
+				FilterVoteKind = currentVoteKindFilter
+			};
+			Navigation.PushModalAsync (new RayvNav (listPage));
 		}
 
 		void ChooseStyle ()
@@ -219,6 +214,7 @@ namespace RayvMobileApp
 			var chooser = new FriendsChooserView ();
 			chooser.Saved += (sender, e) => {
 				Content = _grid;
+				currentVoteByWho = chooser.SelectedKey;
 				ChooseMainMenu ();
 			};
 			Content = chooser;
@@ -229,15 +225,15 @@ namespace RayvMobileApp
 			Title = TitleWho;
 			RowCount = 3;
 			AddImgCard (0, "", "My Places Only", (s, e) => {
-				currentVoteByWho = VoteFilterWho.Mine;
+				currentVoteByWho = Persist.Instance.MyId.ToString ();
 				ChooseMainMenu ();
 			});
 			AddImgCard (1, "", "All Places", (s, e) => {
-				currentVoteByWho = VoteFilterWho.All;
+				currentVoteByWho = "";
 				ChooseMainMenu ();
 			});
-			AddImgCard (2, "", "Some Friends", (s, e) => {
-				currentVoteByWho = VoteFilterWho.Chosen;
+			AddImgCard (2, "", "Friend's Places", (s, e) => {
+				currentVoteByWho = "";
 				ChooseFriends ();
 			});
 		}
@@ -246,21 +242,26 @@ namespace RayvMobileApp
 		{
 			Title = TitleVote;
 			RowCount = 4;
-			AddTextCard (0, "By Star", null, (s, e) => {
-				currentVoteKindFilter = VoteFilterWhat.Stars;
-				FindChoicePage.FilterMimimunStarValue = 3;
+			StarEditor Stars = new StarEditor (false);
+			_grid.Children.Add (Stars, 0, 3, 0, 1);
+			Stars.Changed += (o, e) => {
+				var args = e as StarEditorEventArgs;
+				currentVoteKindFilter = VoteFilterKind.Stars;
+				FilterMimimunStarValue = args.Vote;
 				ChooseMainMenu ();
-			});
+			};
+			if (currentVoteKindFilter == VoteFilterKind.Stars)
+				Stars.Vote = FilterMimimunStarValue;
 			AddTextCard (1, "Wishes Only", null, (s, e) => {
-				currentVoteKindFilter = VoteFilterWhat.Wish;
+				currentVoteKindFilter = VoteFilterKind.Wish;
 				ChooseMainMenu ();
 			});
 			AddTextCard (2, "Wish or Like", null, (s, e) => {
-				currentVoteKindFilter = VoteFilterWhat.Try;
+				currentVoteKindFilter = VoteFilterKind.Try;
 				ChooseMainMenu ();
 			});
 			AddTextCard (3, "All", null, (s, e) => {
-				currentVoteKindFilter = VoteFilterWhat.All;
+				currentVoteKindFilter = VoteFilterKind.All;
 				ChooseMainMenu ();
 			});
 		}
@@ -268,20 +269,19 @@ namespace RayvMobileApp
 
 		void ChooseCuisine ()
 		{
-			var cuisinePage = new EditCuisinePage (null, inFlow: false, showAllButton: true);
+			var cuisinePage = new EditCuisineView (null, inFlow: false, showAllButton: true);
 			cuisinePage.Saved += (sender, e) => {
 				if (e.ShowAll)
 					currentCuisine = null;
 				else
 					currentCuisine = e.Cuisine.Title;
-				Navigation.PopAsync ();
+//				Navigation.PopAsync ();
 				ChooseMainMenu ();
 			};
-			try {
-				Navigation.PushAsync (new RayvNav (cuisinePage));
-			} catch (InvalidOperationException) {
-				Navigation.PushAsync (cuisinePage);
-			}
+			cuisinePage.Cancelled += (sender, e) => {
+				ChooseMainMenu ();
+			};
+			Content = cuisinePage;
 		}
 
 		void DoBackBtn ()
@@ -300,22 +300,8 @@ namespace RayvMobileApp
 
 		void LoadPreviousSearch ()
 		{
-			currentVoteKindFilter = (VoteFilterWhat)Persist.Instance.GetConfigInt (settings.FILTER_WHAT);
-			currentVoteByWho = (VoteFilterWho)Persist.Instance.GetConfigInt (settings.FILTER_WHO);
-			if (currentVoteByWho == VoteFilterWho.Chosen) {
-				// get the comma separated list back
-				string chosenStr = Persist.Instance.GetConfig (settings.FILTER_WHO_LIST);
-				if (string.IsNullOrEmpty (chosenStr)) {
-					currentVoteByWho = VoteFilterWho.All;
-					Console.WriteLine ("LoadPreviousSearch overwriting VoteFilterWho to All");
-				} else {
-					var keys = chosenStr.Split (',').ToList ();
-					foreach (var kvp in Persist.Instance.Friends) {
-						// if it's in keys
-						kvp.Value.InFilter = keys.IndexOf (kvp.Key) > -1;
-					}
-				}
-			}
+			currentVoteKindFilter = (VoteFilterKind)Persist.Instance.GetConfigInt (settings.FILTER_WHAT);
+			currentVoteByWho = Persist.Instance.GetConfig (settings.FILTER_WHO);
 			currentCuisine = Persist.Instance.GetConfig (settings.FILTER_CUISINE);
 			if (string.IsNullOrEmpty (currentCuisine)) {
 				currentCuisine = ALL_CUISINES;
@@ -330,6 +316,20 @@ namespace RayvMobileApp
 					Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LNG));
 				currentLocationName = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
 			} 
+		}
+
+		string GetFriendText ()
+		{
+			if (currentVoteByWho == Persist.Instance.MyId.ToString ())
+				return "Mine";
+			if (currentVoteByWho == "")
+				return "All";
+			try {
+				return Persist.Instance.Friends [currentVoteByWho].Name;
+			} catch (KeyNotFoundException) {
+				currentVoteByWho = "";
+				return "All";
+			}
 		}
 
 		void ChooseMainMenu ()
@@ -380,12 +380,19 @@ namespace RayvMobileApp
 			AddTextCard (4, "Cuisine?", currentCuisine, (s, e) => {
 				ChooseCuisine ();
 			}, highlight: currentCuisine != ALL_CUISINES);
-			AddTextCard (5, "Who?", currentVoteByWho.ToString (), (s, e) => {
+			AddTextCard (5, "Who?", GetFriendText (), (s, e) => {
 				ChooseWho ();
-			}, highlight: currentVoteByWho != VoteFilterWho.All);
-			AddTextCard (6, "Vote?", currentVoteKindFilter.ToString (), (s, e) => {
+			}, highlight: !string.IsNullOrEmpty (currentVoteByWho));
+			string RatingText;
+			if (currentVoteKindFilter == VoteFilterKind.Stars) {
+				RatingText = FilterMimimunStarValue > 1 ? 
+					$"{FilterMimimunStarValue}+ Stars": 
+					"All";
+			} else
+				RatingText = currentVoteKindFilter.ToString ();
+			AddTextCard (6, "Rating?", RatingText, (s, e) => {
 				ChooseVote ();
-			}, highlight: currentVoteKindFilter != VoteFilterWhat.All);
+			}, highlight: currentVoteKindFilter != VoteFilterKind.All);
 			var goBtn = new RayvButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
 				BackgroundColor = settings.BaseColor,
@@ -395,6 +402,7 @@ namespace RayvMobileApp
 			};
 			goBtn.Clicked += Done;
 			_grid.Children.Add (goBtn, 0, 3, 7, 8);
+			Content = _grid;
 		}
 
 		void ChooseMealTime ()
@@ -540,15 +548,14 @@ namespace RayvMobileApp
 
 		void DoClearFilters ()
 		{
-			currentVoteKindFilter = VoteFilterWhat.All;
-			currentVoteByWho = VoteFilterWho.All;
+			currentVoteKindFilter = VoteFilterKind.All;
+			currentVoteByWho = "";
 			currentCuisine = ALL_CUISINES;
 			currentKind = MealKind.Breakfast | MealKind.Coffee | MealKind.Lunch | MealKind.Dinner | MealKind.Bar;
 			currentStyle = PlaceStyle.None;
 			SearchCentre = null;
 			currentLocationName = "";
-			foreach (var kvp in Persist.Instance.Friends)
-				kvp.Value.InFilter = true;
+			currentVoteByWho = "";
 			ChooseMainMenu ();
 		}
 
@@ -559,15 +566,16 @@ namespace RayvMobileApp
 
 		public FindChoicePage (Page caller)
 		{
+			
 			string savedVoteChoice = Persist.Instance.GetConfig (settings.FILTER_WHO);
 			if (string.IsNullOrEmpty (savedVoteChoice))
-				currentVoteByWho = VoteFilterWho.All;
+				currentVoteByWho = "";
 			else {
 				if (savedVoteChoice == "All") {
-					currentVoteByWho = VoteFilterWho.All;
+					currentVoteByWho = "";
 				}
 				if (savedVoteChoice == "Mine") {
-					currentVoteByWho = VoteFilterWho.Mine;
+					currentVoteByWho = Persist.Instance.MyId.ToString ();
 				}
 			}
 			_grid = new Grid {

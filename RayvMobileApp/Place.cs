@@ -161,7 +161,13 @@ namespace RayvMobileApp
 		[Ignore]
 		public Double Rating {
 			get {
-				return Persist.Instance.Votes.Where (v => v.key == key && v.vote > 0).Select (v => v.vote).Average ();
+				try {
+					return Persist.Instance.Votes.Where (v => v.key == key && v.vote > 0).Select (v => v.vote).Average ();
+				} catch (Exception ex) {
+					Console.WriteLine ($"ERROR Rating {ex}");
+					Insights.Report (ex);
+					return 0.0;
+				}
 			}	
 		}
 

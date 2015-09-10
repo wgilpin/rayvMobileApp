@@ -26,7 +26,7 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class EditCuisinePage : ContentPage
+	public class EditCuisineView : StackLayout
 	{
 		bool InFlow;
 
@@ -52,51 +52,39 @@ namespace RayvMobileApp
 			SaveSelected (item, false);
 		}
 
-		public EditCuisinePage (string cuisine, bool inFlow = true, Page caller = null, bool showAllButton = false)
+		public EditCuisineView (string cuisine, bool inFlow = true, bool showAllButton = false)
 		{
 			InFlow = inFlow;
-			Title = "Type of food";
 			ListView list = new ListView ();
 			list.ItemsSource = Persist.Instance.Cuisines;
 			list.ItemTapped += DoListChoice;
 			list.SelectedItem = Persist.Instance.Cuisines.Where (c => c.Title == cuisine).FirstOrDefault ();
 			list.ScrollTo (list.SelectedItem, ScrollToPosition.Center, true);
-			StackLayout tools = new BottomToolbar (this, "add");
 			RayvButton AllBtn = new RayvButton ("All Kinds") {
 				IsVisible = showAllButton
 			};
 			AllBtn.OnClick += (s, e) => {
 				SaveSelected (null, true);
 			};
-			Content = new StackLayout {
-				Children = {
-					list,
-					AllBtn,
-					tools
-				}
-			};
-			if (!string.IsNullOrEmpty (cuisine)) {
-				ToolbarItems.Add (new ToolbarItem {
-					Text = InFlow ? " Next " : "  Cancel  ",
-					Order = ToolbarItemOrder.Primary,
-					Command = new Command (() => { 
-						if (InFlow)
-							SaveSelected ((list.SelectedItem as Cuisine).Title, false);
-						else
-							Cancelled?.Invoke (this, null);
-					})
-				});
-			}
-			if (caller != null) {
-				ToolbarItems.Add (new ToolbarItem {
-					Text = "  Back  ",
-					Order = ToolbarItemOrder.Primary,
-					Command = new Command (() => { 
-						Navigation.PopModalAsync ();
+			Children.Add (list);
+			Children.Add (AllBtn);
+			if (inFlow) {
+				var buttons = new DoubleButton { 
+					LeftText = "Cancel", 
+					LeftSource = "298-circlex@2x.png",
+					RightText = "Next",
+					RightSource = "Add Select right button.png"
+				};
+				buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
+				buttons.RightClick = (s, e) => {
+					if (InFlow)
+						SaveSelected ((list.SelectedItem as Cuisine).Title, false);
+					else
 						Cancelled?.Invoke (this, null);
-					})
-				});
+				};
+				Children.Add (buttons);
 			}
+
 		}
 	}
 }

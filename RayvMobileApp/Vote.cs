@@ -16,7 +16,7 @@ namespace RayvMobileApp
 	}
 
 
-	public enum VoteFilterWhat
+	public enum VoteFilterKind
 	{
 		All,
 		Stars,

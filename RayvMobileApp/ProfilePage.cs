@@ -25,6 +25,9 @@ namespace RayvMobileApp
 					ScreenName = obj ["profile"] ["screen_name"].ToString ();
 					Email = obj ["profile"] ["email"].ToString ();
 					Gender = obj ["profile"] ["sex"].ToString ();
+					Persist.Instance.SetConfig (settings.PROFILE_SCREENNAME, ScreenName);
+					Persist.Instance.SetConfig (settings.PROFILE_EMAIL, Email);
+					Persist.Instance.SetConfig (settings.PROFILE_GENDER, Gender);
 				} else {
 					// no response
 					throw new ApplicationException ("No server response");
@@ -32,7 +35,14 @@ namespace RayvMobileApp
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				restConnection.LogErrorToServer ("DoGetProfile {0}", ex);
-				throw;
+				try {
+					ScreenName = Persist.Instance.GetConfig (settings.PROFILE_SCREENNAME);
+					Email = Persist.Instance.GetConfig (settings.PROFILE_EMAIL);
+					Gender = Persist.Instance.GetConfig (settings.PROFILE_GENDER);
+				} catch (Exception innerEx) {
+					Insights.Report (innerEx);
+					throw new ApplicationException ("Bad Server Response");
+				}
 			}
 		}
 	}
@@ -92,6 +102,9 @@ namespace RayvMobileApp
 					GenderEd.SelectedIndex = 0;
 				}
 				SaveBtn.IsVisible = false;
+				Persist.Instance.SetConfig (settings.PROFILE_SCREENNAME, profile.ScreenName);
+				Persist.Instance.SetConfig (settings.PROFILE_EMAIL, profile.Email);
+				Persist.Instance.SetConfig (settings.PROFILE_GENDER, profile.Gender);
 			} catch (ApplicationException) {
 				Content = new Label{ Text = "Could not load profile" };
 			}

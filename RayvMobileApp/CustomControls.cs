@@ -707,6 +707,7 @@ namespace RayvMobileApp
 		}
 
 		public ImageSource ImageSource {
+			get { return ImageRight.Source; }
 			set { ImageRight.Source = value; }
 		}
 

@@ -28,7 +28,7 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class EditPlaceKindPage : ContentPage
+	public class EditPlaceKindView : Grid
 	{
 		MealKind _kind;
 		PlaceStyle _style;
@@ -49,9 +49,11 @@ namespace RayvMobileApp
 
 		public event EventHandler<KindSavedEventArgs> Saved;
 		public event EventHandler Cancelled;
+		public event EventHandler<EventArgsMessage> ShowMessage;
 
 		protected virtual void OnSaved ()
 		{
+			_kind = MealKind.None;
 			if (breakfast.Checked)
 				_kind = MealKind.Breakfast;
 			if (lunch.Checked)
@@ -62,8 +64,12 @@ namespace RayvMobileApp
 				_kind = _kind | MealKind.Coffee;
 			if (bar.Checked)
 				_kind = _kind | MealKind.Bar;
-			if (Saved != null)
-				Saved (this, new KindSavedEventArgs (_kind, _style));
+			if (_kind == MealKind.None || _style == PlaceStyle.None) {
+				ShowMessage?.Invoke (this, new EventArgsMessage ("You must select a style and a meal time"));
+			} else {
+				if (Saved != null)
+					Saved (this, new KindSavedEventArgs (_kind, _style));
+			}
 		}
 
 		public void DoClickKind (object sender, EventArgs e)
@@ -99,7 +105,7 @@ namespace RayvMobileApp
 				_style = PlaceStyle.Fancy;
 				OnSaved ();
 			} else
-				DisplayAlert ("Kind?", "You must check at least one meal kind", "OK");
+				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
 		}
 
 		public void DoClickStyleRelaxed (object sender, EventArgs e)
@@ -109,7 +115,7 @@ namespace RayvMobileApp
 				_style = PlaceStyle.Relaxed;
 				OnSaved ();
 			} else
-				DisplayAlert ("Kind?", "You must check at least one meal kind", "OK");
+				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
 		}
 
 		public void DoClickStyleQuick (object sender, EventArgs e)
@@ -119,7 +125,7 @@ namespace RayvMobileApp
 				_style = PlaceStyle.QuickBite;
 				OnSaved ();
 			} else
-				DisplayAlert ("Kind?", "You must check at least one meal kind", "OK");
+				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
 		}
 
 		void SetupStyles ()
@@ -132,36 +138,33 @@ namespace RayvMobileApp
 			StylefancyLbl.SetBackgroundColor ((_style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent);
 		}
 
-		public EditPlaceKindPage (MealKind kind, PlaceStyle style, bool inFlow = true)
+		public EditPlaceKindView (MealKind kind, PlaceStyle style, bool inFlow = true)
 		{
 			_kind = kind;
 			_style = style;
 			InFlow = inFlow;
 
 			BackgroundColor = Color.White;
-			Grid grid = new Grid {
-				RowSpacing = 10,
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+			RowSpacing = 10;
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (20) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (30) },
-				} 
-			};
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+
+			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
+
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (30) });
 			Label MealType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Meal Time", 
@@ -184,24 +187,24 @@ namespace RayvMobileApp
 			bar = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Bar & kind) > 0)  };
 			var barVoteLbl = new LabelClickable{ OnClick = DoClickKind };
 			barVoteLbl.Label.Text = "bar";
-			grid.Children.Add (MealType, 0, 3, 0, 1);
-			grid.Children.Add (breakfastVoteLbl, 1, 2, 1, 2);
-			grid.Children.Add (breakfast, 2, 3, 1, 2);
-			grid.Children.Add (lunchVoteLbl, 1, 2, 2, 3);
-			grid.Children.Add (lunch, 2, 3, 2, 3);
-			grid.Children.Add (dinnerVoteLbl, 1, 2, 3, 4);
-			grid.Children.Add (dinner, 2, 3, 3, 4);
-			grid.Children.Add (coffeeVoteLbl, 1, 2, 4, 5);
-			grid.Children.Add (coffee, 2, 3, 4, 5);
-			grid.Children.Add (barVoteLbl, 1, 2, 5, 6);
-			grid.Children.Add (bar, 2, 3, 5, 6);
+			Children.Add (MealType, 0, 3, 0, 1);
+			Children.Add (breakfastVoteLbl, 1, 2, 1, 2);
+			Children.Add (breakfast, 2, 3, 1, 2);
+			Children.Add (lunchVoteLbl, 1, 2, 2, 3);
+			Children.Add (lunch, 2, 3, 2, 3);
+			Children.Add (dinnerVoteLbl, 1, 2, 3, 4);
+			Children.Add (dinner, 2, 3, 3, 4);
+			Children.Add (coffeeVoteLbl, 1, 2, 4, 5);
+			Children.Add (coffee, 2, 3, 4, 5);
+			Children.Add (barVoteLbl, 1, 2, 5, 6);
+			Children.Add (bar, 2, 3, 5, 6);
 			Label PlaceType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Style", 
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};
-			grid.Children.Add (PlaceType, 0, 3, 6, 7);
+			Children.Add (PlaceType, 0, 3, 6, 7);
 			StyleQuickLbl = new LabelClickable { 
 				OnClick = DoClickStyleQuick, 
 			};
@@ -232,31 +235,29 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = DoClickStyleFancy 
 			};
-			grid.Children.Add (
+			Children.Add (
 				StyleQuickLbl, 1, 2, 7, 8);
-			grid.Children.Add (StyleQuickImgBtn, 2, 3, 7, 8);
-			grid.Children.Add (StyleRelaxedLbl, 1, 2, 8, 9);
-			grid.Children.Add (StyleRelaxedImgBtn, 2, 3, 8, 9);
-			grid.Children.Add (StylefancyLbl, 1, 2, 9, 10);
-			grid.Children.Add (StylefancyImgBtn, 2, 3, 9, 10);
-			Content = grid;
+			Children.Add (StyleQuickImgBtn, 2, 3, 7, 8);
+			Children.Add (StyleRelaxedLbl, 1, 2, 8, 9);
+			Children.Add (StyleRelaxedImgBtn, 2, 3, 8, 9);
+			Children.Add (StylefancyLbl, 1, 2, 9, 10);
+			Children.Add (StylefancyImgBtn, 2, 3, 9, 10);
 
-			if (!(kind == MealKind.None || style == PlaceStyle.None)) {
-				ToolbarItems.Add (new ToolbarItem {
-					Text = InFlow ? " Next " : " Cancel ",
-					//				Icon = "187-pencil@2x.png",
-					Order = ToolbarItemOrder.Primary,
-					Command = new Command (() => { 
-						if (InFlow)
-							OnSaved ();
-						else
-							Cancelled?.Invoke (this, null);
-					})
-				});
-			}
-			Appearing += (sender, e) => {
-				SetupStyles ();
+			var buttons = new DoubleButton { 
+				LeftText = "Cancel", 
+				LeftSource = "298-circlex@2x.png",
+				RightText = "Next",
+				RightSource = "Add Select right button.png"
 			};
+			buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
+			buttons.RightClick = (s, e) => {
+				if (InFlow)
+					OnSaved ();
+				else
+					Cancelled?.Invoke (this, null);
+			};
+			Children.Add (buttons, 0, 3, 10, 11);
+			SetupStyles ();
 		}
 	}
 }

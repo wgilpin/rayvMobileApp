@@ -10,6 +10,8 @@ namespace RayvMobileApp
 	{
 		public event EventHandler Saved;
 
+		public string SelectedKey = "";
+
 		ListView lv;
 		const int IMAGE_SIZE = 25;
 
@@ -19,26 +21,19 @@ namespace RayvMobileApp
 			KeyValuePair<string, Friend> kvp = (KeyValuePair<string, Friend>)ev.Item;
 			var tappedName = kvp.Value.Name;
 			Friend fr = Persist.Instance.Friends.Where (kv => kv.Value.Name == tappedName).First ().Value;
-			fr.InFilter = !fr.InFilter;
+			SelectedKey = fr.Key;
 			lv.ItemsSource = null;
 			lv.ItemsSource = Persist.Instance.Friends;
+			Saved?.Invoke (this, null);
 		}
 
-		void DoToggleSelection (object sender, EventArgs e)
-		{
-			RayvButton btn = (RayvButton)sender;
-			bool on = (btn.Text == "Select All");
-			foreach (var kvp in Persist.Instance.Friends)
-				kvp.Value.InFilter = on;
-			btn.Text = on ? "Clear All" : "Select All";
-			lv.ItemsSource = null;
-			lv.ItemsSource = Persist.Instance.Friends;
-		}
+
 
 		public FriendsChooserView ()
 		{
 			lv = new ListView ();
 			lv.ItemTemplate = new DataTemplate (() => {
+				Padding = 5;
 				BackgroundColor = Color.White;
 
 				Label nameLabel = new Label {
@@ -50,49 +45,17 @@ namespace RayvMobileApp
 				};
 				nameLabel.SetBinding (Label.TextProperty, "Value.Name");
 
-				Image checkBox = new Image { 
-					Aspect = Aspect.AspectFill,
-					WidthRequest = IMAGE_SIZE, 
-					HeightRequest = IMAGE_SIZE
-				};
-				checkBox.SetBinding (Image.SourceProperty, "Value.InFilterImage");
-
-				Grid grid = new Grid {
-					Padding = 5,
-					VerticalOptions = LayoutOptions.FillAndExpand,
-					RowDefinitions = {
-						new RowDefinition { Height = new GridLength (22)  },
-					},
-					ColumnDefinitions = {
-						new ColumnDefinition { Width = new GridLength (IMAGE_SIZE, GridUnitType.Absolute) },
-						new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					}
-				};
-				grid.Children.Add (checkBox, 0, 0);
-				grid.Children.Add (nameLabel, 1, 0);
 
 				return new ViewCell {
-					View = grid,
+					View = nameLabel,
 				};
 				// Return an assembled ViewCell.
 
 			});
 			lv.ItemsSource = Persist.Instance.Friends;
 			lv.ItemTapped += DoSelectItem;
-			var DoneBtn = new RayvButton ("Done");
-			DoneBtn.Clicked += (sender, e) => Saved?.Invoke (this, null);
-			var toggleBtn = new RayvButton ("Clear All");
-			toggleBtn.Clicked += DoToggleSelection;
-			var stack = new StackLayout {
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				Children = {
-					toggleBtn,
-					lv,
-					DoneBtn
-				}
-			};
-			Content = stack;
+
+			Content = lv;
 		}
 	}
 }

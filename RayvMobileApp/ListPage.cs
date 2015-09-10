@@ -29,9 +29,6 @@ namespace RayvMobileApp
 		#region Fields
 
 		static PlacesListView listView;
-		static String FilterCuisine;
-		VoteFilterWho FilterVotesBy;
-		VoteFilterWhat FilterVotesKind;
 		//		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
@@ -48,10 +45,6 @@ namespace RayvMobileApp
 		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		public bool NeedsReload = true;
 
-		Position DisplayPosition;
-		MealKind FilterPlaceKind;
-		PlaceStyle FilterPlaceStyle;
-		Position? FilterSearchCenter;
 
 		public static IEnumerable ItemsSource {
 			set {
@@ -63,9 +56,42 @@ namespace RayvMobileApp
 
 		#endregion
 
+		#region Properties
+
+		public MealKind FilterPlaceKind { get; set; }
+
+		public PlaceStyle FilterPlaceStyle { get; set; }
+
+		public Position? FilterSearchCenter { get; set; }
+
+		public Position DisplayPosition { get; set; }
+
+		public string FilterCuisine { get; set; }
+
+		public string FilterShowWho { get; set; }
+
+		public string FilterByPlaceName { get; set; }
+
+		public VoteFilterKind FilterVoteKind { get; set; }
+
+		#endregion
+
+
+		void LoadFilterValues ()
+		{
+			if (!FilterSearchCenter.Equals (null))
+				listView.IsShowingDistance = false;
+			if (!string.IsNullOrEmpty (FilterByPlaceName)) {
+				FilterSearchBox.Text = FilterByPlaceName;
+			}
+			Friend voter;
+			if (FilterShowWho != Persist.Instance.MyId.ToString ())
+			if (Persist.Instance.Friends.TryGetValue (FilterShowWho, out voter))
+				listView.ShowFriend = voter.Key;
+		}
+
+
 		#region Constructors
-
-
 
 		public ListPage ()
 		{
@@ -74,6 +100,9 @@ namespace RayvMobileApp
 			this.Icon = settings.DevicifyFilename ("bars-black.png");
 			FilterPlaceKind = MealKind.None;
 			FilterPlaceStyle = PlaceStyle.None;
+			FilterVoteKind = VoteFilterKind.All;
+			FilterCuisine = "";
+			FilterShowWho = "";
 			SplashImage = new Label { 
 				Text = "Checking Location",
 				BackgroundColor = settings.BaseColor,
@@ -86,6 +115,7 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			IsFiltered = false;
+			LoadFilterValues ();
 			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
 			listView.ItemTapped += DoSelectListItem;
 			listView.Refreshing += DoServerRefresh;
@@ -237,29 +267,19 @@ namespace RayvMobileApp
 		 * Constructor when a kind & style is supplied
 		 */
 		// Todo: this should be setting a property, not a ctor
-		public ListPage (
-			MealKind kind, 
-			PlaceStyle style, 
-			Position? location = null, 
-			string cuisine = null, 
-			VoteFilterWho byWho = VoteFilterWho.All,
-			string filterByPlaceName = "",
-			VoteFilterWhat voteKind = VoteFilterWhat.All
-		) : this ()
-		{
-			FilterPlaceKind = kind;
-			FilterPlaceStyle = style;
-			FilterSearchCenter = location;
-			if (!location.Equals (null))
-				listView.IsShowingDistance = false;
-			FilterCuisine = cuisine;
-			FilterVotesKind = voteKind;
-			FilterVotesBy = byWho;
-			if (!string.IsNullOrEmpty (filterByPlaceName)) {
-				FilterSearchBox.Text = filterByPlaceName;
-			}
-//			FilterList ();
-		}
+		//		public ListPage (
+		//			MealKind kind, 
+		//			PlaceStyle style, 
+		//			Position? location = null, 
+		//			string cuisine = null, 
+		//			string showWho = "",
+		//			string filterByPlaceName = "",
+		//			VoteFilterWhat voteKind = VoteFilterWhat.All
+		//		) : this ()
+		//		{
+			
+		//			FilterList ();
+		//		}
 
 		#endregion
 
@@ -272,8 +292,13 @@ namespace RayvMobileApp
 				var place = e.Item as Place;
 				if (place.IsDraft) {
 					NeedsReload = true;
-					var editPage = new PlaceEditor (place, this);
-					editPage.Edit ();
+					var editPage = new PlaceEditor (place);
+					editPage.Cancelled += (s, ev) => Navigation.PopAsync ();
+					editPage.Saved += (s, ev) => {
+						Navigation.PopAsync ();
+						Refresh ();
+					};
+					Navigation.PushAsync (editPage);
 				} else {
 					var detailPage = new DetailPage (place);
 					detailPage.Closed += (s, ev) => {
@@ -395,6 +420,7 @@ namespace RayvMobileApp
 				}
 		}
 
+
 		void FilterList ()
 		{
 			Console.WriteLine ("Listpage.FilterList");
@@ -411,27 +437,32 @@ namespace RayvMobileApp
 				// VOTE FILTERS
 				// - Cuisine
 				// - Mine
-				if (FilterVotesBy == VoteFilterWho.Mine) {
-					filteredList = filteredList.Where (v => v.voter == Persist.Instance.MyId.ToString ());
+				var myKey = Persist.Instance.MyId.ToString ();
+				Persist.Instance.FilterWhoKey = "";
+				if (FilterShowWho == myKey) {
+					filteredList = filteredList.Where (v => v.voter == myKey);
 					IsFiltered = true;
 					styleDescriptionItems.Add ("My votes only");
 					Console.WriteLine ("ListPage filter text");
 					DebugList ("Mine", filteredList, myVotes);
 
-				} 
-				// - chosen friends
-				if (FilterVotesBy == VoteFilterWho.Chosen) {
-					var chosenFriends = (from kvp in Persist.Instance.Friends
-					                     where ((Friend)kvp.Value).InFilter
-					                     select kvp.Key).ToList ();
-					filteredList = filteredList.Where (v => chosenFriends.IndexOf (v.voter) > -1);
-					// as I am not one of the chosen friends, clear my vote dict so my votes don't override theirs
-					myVotes.Clear ();
-					IsFiltered = true;
-					styleDescriptionItems.Add ("From chosen friends");
-					Console.WriteLine ("ListPage filter chosen friends (no override for my votes)");
-					DebugList ("Friends", filteredList, myVotes);
+				} else {
+					// - chosen friends
+					if (!string.IsNullOrEmpty (FilterShowWho)) {
+						filteredList = filteredList.Where (v => v.voter == FilterShowWho && v.vote > 0);
+						// as I am not the chosen friend, clear my vote dict so my votes don't override theirs
+						myVotes.Clear ();
+						IsFiltered = true;
+						Friend voter;
+						if (Persist.Instance.Friends.TryGetValue (FilterShowWho, out voter)) {
+							styleDescriptionItems.Add ($"{voter.Name}'s Places");
+							Persist.Instance.FilterWhoKey = FilterShowWho;
+							Console.WriteLine ("ListPage filter chosen friends (no override for my votes)");
+							DebugList ("Friends", filteredList, myVotes);
+						} else
+							Console.WriteLine ("List Page - Friend not found (Bad Key)");
 
+					}
 				}
 				if (!string.IsNullOrEmpty (FilterCuisine)) {
 					filteredList = filteredList.Where (v => 
@@ -445,20 +476,20 @@ namespace RayvMobileApp
 				}
 
 				// - vote value
-				switch (FilterVotesKind) {
-					case VoteFilterWhat.Stars:
+				switch (FilterVoteKind) {
+					case VoteFilterKind.Stars:
 						{
 							filteredList = filteredList.Where (v =>
                                 myVotes.ContainsKey (v.key) ?
-							                                   myVotes [v.key].vote > FindChoicePage.FilterMimimunStarValue :
-							                                   v.vote > FindChoicePage.FilterMimimunStarValue);
+							                                   myVotes [v.key].vote >= FindChoicePage.FilterMimimunStarValue :
+							                                   v.vote >= FindChoicePage.FilterMimimunStarValue);
 							IsFiltered = true;
 							styleDescriptionItems.Add ("liked places");
 							DebugList ("Vote Like", filteredList, myVotes);
 
 							break;
 						}
-					case VoteFilterWhat.Try:
+					case VoteFilterKind.Try:
 						{
 							filteredList = filteredList.Where (v =>
                                 myVotes.ContainsKey (v.key) ?
@@ -470,7 +501,7 @@ namespace RayvMobileApp
 							DebugList ("Vote Try", filteredList, myVotes);
 							break;
 						}
-					case VoteFilterWhat.Wish:
+					case VoteFilterKind.Wish:
 						{
 							filteredList = filteredList.Where (v =>
                                myVotes.ContainsKey (v.key) ?

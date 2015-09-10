@@ -60,6 +60,7 @@ namespace RayvMobileApp
 
 		void DoSelectPlace (object s, ItemTappedEventArgs e)
 		{
+			// a place has been selected from the results. Make a skeleton Place and edit it
 			if (e == null || e.Item == null) {
 				Insights.Track ("AddPage1.DoSelectPlace No Item");
 				return;
@@ -69,16 +70,38 @@ namespace RayvMobileApp
 			Parameters parameters = new Parameters ();
 			parameters ["place_id"] = addingPlace.place_id;
 			try {
-				string result = restConnection.Instance.get ("/api/place_details", parameters).Content;
-
-				JObject obj = JObject.Parse (result);
-				if (obj ["website"] != null)
-					addingPlace.website = obj ["website"].ToString ();
-				if (obj ["telephone"] != null)
-					addingPlace.telephone = obj ["telephone"].ToString ();
+				var restResult = restConnection.Instance.get ("/api/place_details", parameters);
+				if (restResult == null) {
+					if (DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ()) {
+						// make a simulated result
+						addingPlace.website = "www.madeup_place.com";
+						addingPlace.telephone = "";
+					} else
+						throw new ApplicationException ("DoSelectPlace: Null result from /api/place_details");
+				} else {
+					// we have a result from the server
+					string result = restResult.Content;
+					JObject obj = JObject.Parse (result);
+					addingPlace.website = (obj ["website"] ?? "").ToString ();
+					addingPlace.telephone = (obj ["telephone"] ?? "").ToString ();
+				}
 				Debug.WriteLine ("AddPage1.DoSelectPlace Push EditPage");
-				var editor = new PlaceEditor (addingPlace, this, false);
-				editor.Edit ();
+				var editor = new PlaceEditor (addingPlace, false);
+				editor.Saved += (sender, ev) => {
+					Console.WriteLine ("Editor Returned - Saving");
+					string errorMessage = "";
+					addingPlace.Save (out errorMessage);
+					Device.BeginInvokeOnMainThread (() => {
+						if (string.IsNullOrEmpty (errorMessage)) {
+							Console.WriteLine ($"Editor Returned - Loading DetailPage for {addingPlace.place_name}");
+							Navigation.PushModalAsync (new RayvNav (new DetailPage (addingPlace, showToolbar: true)));
+						} else {
+							DisplayAlert ("Error",$"Couldn't save {addingPlace.place_name}","OK"); 
+						}
+					});
+				};
+				editor.Cancelled += (sender, ev) => Navigation.PopModalAsync ();
+				Navigation.PushModalAsync (editor);
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}

@@ -51,10 +51,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ColorUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage4_Map.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditVotePage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EditCuisinePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cuisine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditMealKindPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EditCommentPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlaceEditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FindChoicePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FriendsChooserView.cs" />
@@ -66,5 +64,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)FriendsConverters.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StarEditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextStrings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlaceSavedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditCommentView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DoubleButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditCuisineView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgsMessage.cs" />
   </ItemGroup>
 </Project>

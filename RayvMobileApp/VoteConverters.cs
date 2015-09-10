@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Xamarin;
 using System.Text;
+using System.Linq;
 
 namespace RayvMobileApp
 {
@@ -219,6 +220,60 @@ namespace RayvMobileApp
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			Debug.WriteLine (value.ToString (), new []{ "AddressToShortAddressConverter.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class PlaceKeyToCorrectUntriedForList: IValueConverter
+	{
+		// for a given place key, return the roght vote - mine normally,
+		//   but if FilterWhoKey is a friend's key, theirs
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var key = value as string;
+			if (String.IsNullOrEmpty (key))
+				return null;
+			if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
+				Place p = Persist.Instance.GetPlace (key);
+				return p?.vote.untried;
+			} else {
+				Vote vote = Persist.Instance.Votes.
+				Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).
+				First ();
+				return vote?.untried;
+			}
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "PlaceKeyToCorrectVoteScoreForList.ConvertBack" });
+			throw new NotImplementedException ();
+		}
+	}
+
+	public class PlaceKeyToCorrectVoteScoreForList: IValueConverter
+	{
+		// for a given place key, return the roght vote - mine normally,
+		//   but if FilterWhoKey is a friend's key, theirs
+		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			var key = value as string;
+			if (String.IsNullOrEmpty (key))
+				return null;
+			if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
+				Place p = Persist.Instance.GetPlace (key);
+				return p?.vote.vote;
+			} else {
+				Vote vote = Persist.Instance.Votes.
+				Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).
+				First ();
+				return vote?.vote;
+			}
+		}
+
+		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Debug.WriteLine (value.ToString (), new []{ "PlaceKeyToCorrectVoteScoreForList.ConvertBack" });
 			throw new NotImplementedException ();
 		}
 	}

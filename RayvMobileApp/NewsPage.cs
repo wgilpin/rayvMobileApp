@@ -57,7 +57,7 @@ namespace RayvMobileApp
 			return new Grid {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (ROW1, GridUnitType.Absolute)  },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
 					new RowDefinition { Height = new GridLength (ROW2, GridUnitType.Absolute)  },
 					new RowDefinition { Height = new GridLength (ROW3, GridUnitType.Absolute)  },
 					new RowDefinition { Height = new GridLength (ROW4, GridUnitType.Absolute)  },
@@ -85,13 +85,15 @@ namespace RayvMobileApp
 				Text = Vote.FirstLetter (name),
 				TextColor = Color.White,
 				VerticalOptions = LayoutOptions.Start,
+				TranslationX = 5
 			};
 
 			Label nameLbl = new Label {
 				FontAttributes = FontAttributes.Bold,
-				TranslationY = 2,
+				TranslationY = 4,
 				TextColor = Color.FromHex ("#444444"),
-				Text = name,
+				Text = name.Substring (1, name.Length - 1),
+				LineBreakMode = LineBreakMode.TailTruncation
 			};
 			Label CommentLbl = new Label {
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -175,7 +177,12 @@ namespace RayvMobileApp
 		Frame CreateNewsItem (Vote vote)
 		{
 			Grid grid = CreateGrid ();
-			var stars = new StarEditor (false){ Height = 10, Vote = vote.vote, ReadOnly = true };
+			var stars = new StarEditor (false) { 
+				Height = 10, 
+				Vote = vote.vote, 
+				ReadOnly = true, 
+				TranslationY = 4 
+			};
 			AddName (grid, vote.VoterName, comment: "", stars: stars);
 			Label TimeLbl = new Label {
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -198,6 +205,7 @@ namespace RayvMobileApp
 				FontAttributes = FontAttributes.Bold,
 				HorizontalOptions = LayoutOptions.Center,
 				LineBreakMode = LineBreakMode.TailTruncation,
+
 				Text = vote.place_name
 			};
 
@@ -355,16 +363,10 @@ namespace RayvMobileApp
 						Select (f2 => f2.Key).
 						FirstOrDefault ().
 						ToString ();
-					foreach (var fr in Persist.Instance.Friends)
-						fr.Value.InFilter = fr.Key == friendId;
-					Navigation.PushModalAsync (new RayvNav (new ListPage (
-						MealKind.None, 
-						PlaceStyle.None, 
-						null, 
-						null, 
-						VoteFilterWho.Chosen, 
-						null,
-						VoteFilterWhat.All)));
+					var listPage = new ListPage {
+						FilterShowWho = friendId
+					};
+					Navigation.PushModalAsync (new RayvNav (listPage));
 				},
 				since: LastUpdate, 
 				incremental: true);

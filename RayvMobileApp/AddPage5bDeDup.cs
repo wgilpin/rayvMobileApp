@@ -10,19 +10,7 @@ using Xamarin;
 
 namespace RayvMobileApp
 {
-	public class PlaceSavedEventArgs : EventArgs
-	{
-		private readonly Place _place;
-
-		public PlaceSavedEventArgs (Place place)
-		{
-			_place = place;
-		}
-
-		public Place EditedPlace {
-			get { return _place; }
-		}
-	}
+	
 
 	public class AddPage5bDeDup : ContentPage
 	{
@@ -58,7 +46,7 @@ namespace RayvMobileApp
 		#region Events
 
 		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e) =>
-		this.Navigation.PushModalAsync (new RayvNav (new DetailPage (e.EditedPlace, true)));
+		    this.Navigation.PushModalAsync (new RayvNav (new DetailPage (e.EditedPlace, true)));
 
 		void BackToRoot (object sender, EventArgs e) => this.Navigation.PopToRootAsync ();
 
@@ -67,7 +55,10 @@ namespace RayvMobileApp
 		{
 			addingPlace = (Place)e.SelectedItem;
 			Debug.WriteLine ("AddPage5bDeDup.DoEdit Push EditPage");
-			var editor = new PlaceEditor (addingPlace, this);
+			var editor = new PlaceEditor (addingPlace);
+			editor.Cancelled += (s, ev) => Navigation.PopModalAsync ();
+			editor.Saved += (s, ev) => Navigation.PopModalAsync ();
+			Navigation.PushModalAsync (editor);
 		}
 
 		void DoConfirmedManualDetails (object sender, EventArgs e)
@@ -78,8 +69,12 @@ namespace RayvMobileApp
 				lng = LatLng.Longitude,
 				place_name = PlaceName,
 			};
-			var editor = new PlaceEditor (addingPlace, this, false);
-			editor.Edit ();
+			var editor = new PlaceEditor (addingPlace, false);
+			editor.Saved += (s, ev) => {
+				Navigation.PopModalAsync ();
+			};
+			editor.Cancelled += (s, ev) => Navigation.PopModalAsync ();
+			Navigation.PushModalAsync (editor);
 		}
 
 		#endregion

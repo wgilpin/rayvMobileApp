@@ -52,6 +52,7 @@ namespace RayvMobileApp
 		public Dictionary<string, Friend> Friends;
 		public Position GpsPosition;
 		private static Persist _instance;
+		public string FilterWhoKey = "";
 
 		public Object Lock = new Object ();
 		public List<Place> DisplayList;
@@ -603,9 +604,7 @@ namespace RayvMobileApp
 						NewFriend = true;
 				}
 			}
-			foreach (var oldF in oldFriends)
-				if (Friends.ContainsKey (oldF.Key))
-					Friends [oldF.Key].InFilter = oldF.Value.InFilter;
+
 			SaveFriendsToDb ();
 			if (NewFriend)
 				Console.WriteLine ("New Friend found");

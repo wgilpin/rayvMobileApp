@@ -18,6 +18,8 @@ namespace RayvMobileApp
 			}
 		}
 
+		public string ShowFriend = "";
+
 		DataTemplate GetTemplate ()
 		{
 			return new DataTemplate (() => {
@@ -61,7 +63,9 @@ namespace RayvMobileApp
 				Image webImage = new Image { 
 					Aspect = Aspect.AspectFill,
 					WidthRequest = IMAGE_SIZE, 
-					HeightRequest = IMAGE_SIZE
+					HeightRequest = IMAGE_SIZE,
+					TranslationY = 5,
+					TranslationX = -3
 				};
 				webImage.SetBinding (Image.SourceProperty, "thumb_url");
 
@@ -81,7 +85,7 @@ namespace RayvMobileApp
 				distCuisineLine.Children.Add (catLabel);
 				Grid grid = new Grid {
 					VerticalOptions = LayoutOptions.FillAndExpand,
-					Padding = 2,
+					Padding = 5,
 					RowDefinitions = {
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
 						new RowDefinition { Height = new GridLength (1, GridUnitType.Auto)  },
@@ -105,30 +109,27 @@ namespace RayvMobileApp
 
 				// votes are shown on the main list, not on the Add lists
 				if (ShowVotes) {
-					var Stars = new StarEditor (false) { Height = 15, ReadOnly = true };
+					var Stars = new StarEditor (showUntried: true) { Height = 12, ReadOnly = true, IsInFriendMode = ShowFriend != "" };
 					Stars.SetBinding (StarEditor.VoteProperty, "vote.vote");
-					Stars.SetBinding (StackLayout.IsVisibleProperty, "iVoted");
-					grid.Children.Add (Stars, 0, 2, 2, 3);
+					Stars.SetBinding (
+						StarEditor.VoteProperty,
+						new Binding ("key", converter: new PlaceKeyToCorrectVoteScoreForList (), mode: BindingMode.OneWay)
+					);
+					Stars.SetBinding (
+						StarEditor.UntriedProperty,
+						new Binding ("key", converter: new PlaceKeyToCorrectUntriedForList (), mode: BindingMode.OneWay)
+					);
+//					Stars.SetBinding (StarEditor.UntriedProperty, "vote.untried");
+//					Stars.SetBinding (StackLayout.IsVisibleProperty, "iVoted");
+//					grid.Children.Add (Stars, 0, 2, 2, 3);
 					var ratingLine = new StackLayout { Orientation = StackOrientation.Horizontal };
-					var rating = new Label { TextColor = settings.BaseColor, FontSize = settings.FontSizeLabelSmall };
-					rating.SetBinding (Label.FormattedTextProperty, "Rating", stringFormat: "{0:F1}");
-					ratingLine.SetBinding (Label.IsVisibleProperty, "noVote");
+					var rating = new Label { TextColor = settings.ColorDarkGray, FontSize = settings.FontSizeLabelMicro };
+					rating.SetBinding (Label.FormattedTextProperty, "Rating", stringFormat: "({0:F1})");
+//					ratingLine.SetBinding (Label.IsVisibleProperty, "noVote");
+					ratingLine.Children.Add (Stars);
 					ratingLine.Children.Add (rating);
-					ratingLine.Children.Add (new Image { 
-						Source = "star-empty.png", 
-						WidthRequest = 15, 
-						Aspect = Aspect.AspectFit,
-						TranslationY = -5
-					});
 					grid.Children.Add (ratingLine, 0, 2, 2, 3);
-					var untriedImg = new Image { 
-						Source = "wish_blue.png", 
-						Aspect = Aspect.AspectFit, 
-						HeightRequest = 20,
-						HorizontalOptions = LayoutOptions.End,
-					};
-					untriedImg.SetBinding (Image.IsVisibleProperty, "vote.untried");
-					grid.Children.Add (untriedImg, 1, 2, 0, 1);
+
 				}
 				return new ViewCell {
 					View = grid,
@@ -141,8 +142,8 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("PlacesListView()");
 			ShowVotes = showVotes;
-			RowHeight = 80;
-
+			RowHeight = 100;
+			SeparatorColor = Color.FromHex ("CCC");
 			//isShowingDistance setter also sets the data template
 			IsShowingDistance = showDistance;
 			VerticalOptions = LayoutOptions.FillAndExpand;
