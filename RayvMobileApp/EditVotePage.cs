@@ -96,7 +96,7 @@ namespace RayvMobileApp
 				return;
 			}
 			_vote = 0; 
-			_untried = true;
+			_untried = false;
 			Removed?.Invoke (this, null);
 		}
 
@@ -110,8 +110,10 @@ namespace RayvMobileApp
 			Spacing = 20;
 			Children.Add (new Label{ Text = "Set vote", XAlign = TextAlignment.Center  });
 			var stars = new StarEditor (false) { Vote = vote, HorizontalOptions = LayoutOptions.CenterAndExpand };
-			stars.Changed += (o, e) => {
-				SetStar ((e as StarEditorEventArgs).Vote);
+			stars.ChangedNotUI += (o, e) => {
+				Device.BeginInvokeOnMainThread (() => {
+					SetStar ((e as StarEditorEventArgs).Vote);
+				});
 			};
 			Children.Add (stars);
 			Children.Add (new Label{ Text = "or", XAlign = TextAlignment.Center });
@@ -119,7 +121,8 @@ namespace RayvMobileApp
 				OnClick = VoteUntried,
 			};
 			Children.Add (untriedVoteBtn);
-			if (vote != Vote.VoteNotSetValue) {
+			if (vote != Vote.VoteNotSetValue || untried) {
+				// if there's a vote or untried is set, show the remove vote button
 				var removeBtn = new ButtonWithImage () {
 					Text = "Remove my vote",
 					ImageSource = "remove_vote.png",

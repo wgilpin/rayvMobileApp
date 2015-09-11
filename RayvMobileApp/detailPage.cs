@@ -508,6 +508,7 @@ namespace RayvMobileApp
 				{ "Vote", DisplayPlace.vote.ToString () },
 			});
 			ShowSpinner (false);
+			Navigation.PopAsync ();
 			await DisplayAlert ("Saved", "Details Saved", "OK");
 			Persist.Instance.HaveAdded = this.IsNew;
 			SaveFrame.IsVisible = true;
@@ -518,6 +519,7 @@ namespace RayvMobileApp
 		{
 			ShowSpinner (false);
 			DisplayPlace.IsDraft = true;
+			Navigation.PopAsync ();
 			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (DisplayPlace);
 			SaveFrame.IsVisible = false;
@@ -673,7 +675,7 @@ namespace RayvMobileApp
 
 			var VoteCountLbl = GetVoteCountLabel ();
 			Stars = new StarEditor (true) { HorizontalOptions = LayoutOptions.FillAndExpand };
-			Stars.Changed += VoteSaved;
+			Stars.ChangedNotUI += VoteSaved;
 			Label DraftText = new Label {
 				Text = "DRAFT",
 				TextColor = Color.Red,

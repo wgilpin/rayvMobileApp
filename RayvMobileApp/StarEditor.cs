@@ -30,6 +30,8 @@ namespace RayvMobileApp
 		TapGestureRecognizer tapped;
 
 		Image[] _stars;
+		ActivityIndicator[] _spinners;
+		bool IsSpinnerRunning = false;
 
 		// images
 		string StarSetSource;
@@ -96,21 +98,35 @@ namespace RayvMobileApp
 
 		public bool ReadOnly { get; set; }
 
-		public EventHandler<StarEditorEventArgs> Changed;
+		public EventHandler<StarEditorEventArgs> ChangedNotUI;
 
 		void DoStarTapped (Object sender, EventArgs e)
 		{
-			if (ReadOnly)
+			if (ReadOnly || IsSpinnerRunning)
 				return;
 			Console.WriteLine ("Star tapped");
 			_vote = Convert.ToInt32 ((sender as Image).StyleId);
 			_untried = _vote == 0;
 			Console.WriteLine ($"Star {_vote} tapped");
-			if (_untried)
-				SetUntried (_untried);
-			else
-				SetVote (_vote);
-			Changed?.Invoke (sender, new StarEditorEventArgs (_vote, _untried));
+			IsSpinnerRunning = true;
+			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				Device.BeginInvokeOnMainThread (() => {
+					_spinners [_vote].IsRunning = true;
+					_spinners [_vote].IsVisible = true;
+					if (_untried)
+						SetUntried (_untried);
+					else
+						SetVote (_vote);
+				});
+				ChangedNotUI?.Invoke (sender, new StarEditorEventArgs (_vote, _untried));
+				Device.BeginInvokeOnMainThread (() => {
+					foreach (var spin in _spinners) {
+						spin.IsRunning = false;
+						spin.IsVisible = false;
+					}
+					IsSpinnerRunning = false;
+				});
+			})).Start ();
 		}
 
 		void SetVote (int vote)
@@ -161,10 +177,13 @@ namespace RayvMobileApp
 				WidthRequest = _height,
 				Aspect = Aspect.AspectFit
 			};
+			ActivityIndicator _spinner = new ActivityIndicator{ Color = Color.Red, IsVisible = false };
 			_star.StyleId = (columnIdx).ToString ();
 			_star.GestureRecognizers.Add (tapped);
 			_stars [columnIdx] = _star;
+			_spinners [columnIdx] = _spinner;
 			Children.Add (_star, columnIdx, 0);
+			Children.Add (_spinner, columnIdx, 0);
 		}
 
 		public StarEditor (bool showUntried) : base ()
@@ -173,6 +192,7 @@ namespace RayvMobileApp
 			_showUntried = showUntried;
 			Padding = 1;
 			_stars = new Image[6];
+			_spinners = new ActivityIndicator[6];
 			RowDefinitions.Add (new RowDefinition {
 				Height = new GridLength (_height)
 			});

@@ -244,11 +244,13 @@ namespace RayvMobileApp
 			RowCount = 4;
 			StarEditor Stars = new StarEditor (false);
 			_grid.Children.Add (Stars, 0, 3, 0, 1);
-			Stars.Changed += (o, e) => {
+			Stars.ChangedNotUI += (o, e) => {
 				var args = e as StarEditorEventArgs;
 				currentVoteKindFilter = VoteFilterKind.Stars;
 				FilterMimimunStarValue = args.Vote;
-				ChooseMainMenu ();
+				Device.BeginInvokeOnMainThread (() => {
+					ChooseMainMenu ();
+				});
 			};
 			if (currentVoteKindFilter == VoteFilterKind.Stars)
 				Stars.Vote = FilterMimimunStarValue;

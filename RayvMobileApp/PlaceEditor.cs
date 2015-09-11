@@ -81,6 +81,7 @@ namespace RayvMobileApp
 		void DoVoteSaved (object sender, EventArgsVoteValues ev)
 		{
 			EditPlace.vote.vote = ev.Vote;
+			EditPlace.vote.untried = ev.Untried;
 			ShowKindView ();
 			Debug.WriteLine ("PlaceEditor DoVoteSaved");
 		}
@@ -119,10 +120,9 @@ namespace RayvMobileApp
 		void DoCommentSaved (object sender, CommentSavedEventArgs ev)
 		{
 			EditPlace.setComment (ev.Comment); 
-			Navigation.PopToRootAsync ();
 			EditPlace.IsDraft = false;
 			Saved?.Invoke (sender, null);
-			Debug.WriteLine ("PlaceEditor DoCommentSaved");
+			Debug.WriteLine ("PlaceEditor DoCommappentSaved");
 		}
 
 		void DoVoteRemoved (object sender, EventArgs e)
