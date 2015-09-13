@@ -175,7 +175,7 @@ namespace RayvMobileApp
 							SetConfig (settings.DB_VERSION, db_version);
 							var server_url = "https://" +
 							                 ServerPicker.GetServerVersionForAppVersion () +
-							                 settings.DEFAULT_SERVER;
+							                 settings.SERVER_DEFAULT;
 							Persist.Instance.SetConfig (settings.SERVER, server_url);
 							return;
 						} catch (Exception ex) {
@@ -641,6 +641,8 @@ namespace RayvMobileApp
 						for (int i = 0; i < count; i++) {
 							try {
 								Vote v = obj ["votes"] [i].ToObject<Vote> ();
+								if (v.place_name == "Meatliquor")
+									Console.WriteLine ("Meatliquor");
 								var matchedVotes = Votes.Where (v2 => v2.key == v.key && v2.voter == v.voter);
 								if (matchedVotes.Count () > 0)
 									Insights.Track ("Duplicate vote", "key", v.key);
@@ -837,7 +839,7 @@ namespace RayvMobileApp
 			restConnection conn = restConnection.Instance;
 			string server = GetConfig (settings.SERVER);
 			if (string.IsNullOrEmpty (server)) {
-				server = settings.DEFAULT_SERVER;
+				server = settings.SERVER_DEFAULT;
 			} 
 			conn.setBaseUrl (server);
 			conn.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
@@ -899,7 +901,7 @@ namespace RayvMobileApp
 							StoreFullUserRecord (resp);
 						}
 					} else {
-						Console.WriteLine ("GetUserData Storing increment");
+						Console.WriteLine ("GetUserData Storing full");
 						setStatusMessage?.Invoke ("Storing data", 0.9);
 						StoreFullUserRecord (resp);
 					}
@@ -982,7 +984,7 @@ namespace RayvMobileApp
 							if (!PlacesByKey.ContainsKey (p.key))
 								PlacesByKey.Add (p.key, p);
 						}
-//						Console.WriteLine ($"updatePlaces 2 {DateTime.Now-now}");
+						Console.WriteLine ($"updatePlaces 2 {DateTime.Now-now}");
 						foreach (Vote v in Votes) {
 							try {
 								if (PlacesByKey.ContainsKey (v.key)) {
@@ -1003,6 +1005,8 @@ namespace RayvMobileApp
 							}
 						
 						}
+						Console.WriteLine ($"updatePlaces 2a {DateTime.Now-now}");
+
 						Places.Clear ();
 						try {
 							db.BeginTransaction ();
@@ -1135,7 +1139,7 @@ namespace RayvMobileApp
 				}
 			}
 			StorePlace (place);
-			return true;
+			return UpdateVote (place);
 		}
 
 		public bool UpdateVote (Place place)
@@ -1153,10 +1157,11 @@ namespace RayvMobileApp
 				Votes.Add (myVote);
 			}
 			myVote.vote = place.vote.vote;
+			myVote.untried = place.vote.untried;
 			myVote.kind = place.vote.kind;
 			myVote.style = place.vote.style;
 			myVote.cuisine = place.vote.cuisine;
-			myVote.comment = place.descr;
+			myVote.comment = place.Comment ();
 			saveVotesToDb ();
 			place.vote = myVote;
 			return true;

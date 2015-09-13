@@ -6,6 +6,8 @@ namespace RayvMobileApp
 {
 	public class DoubleButton : ContentView
 	{
+		bool _isEnabledRight;
+
 		public string LeftText { 
 			get { return LeftBtn.Text; }
 			set { LeftBtn.Text = value; }
@@ -32,6 +34,15 @@ namespace RayvMobileApp
 
 		public EventHandler RightClick {
 			set { RightBtn.OnClick = value; }
+		}
+
+		public bool IsEnabledRight {
+			set {
+				_isEnabledRight = !_isEnabledRight;
+				RightBtn.IsEnabled = _isEnabledRight;
+				RightBtn.BackgroundColor = Color.FromRgba (255, 255, 255, 0);
+				RightSource = "";
+			}
 		}
 
 		ButtonWithImage LeftBtn;

@@ -44,6 +44,7 @@ namespace RayvMobileApp
 		bool IsFiltered;
 		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		public bool NeedsReload = true;
+		string _FilterSearchText;
 
 
 		public static IEnumerable ItemsSource {
@@ -70,7 +71,14 @@ namespace RayvMobileApp
 
 		public string FilterShowWho { get; set; }
 
-		public string FilterByPlaceName { get; set; }
+		public string FilterByPlaceName { 
+			get {
+				return _FilterSearchText;
+			} 
+			set {
+				_FilterSearchText = value;
+			} 
+		}
 
 		public VoteFilterKind FilterVoteKind { get; set; }
 
@@ -115,7 +123,7 @@ namespace RayvMobileApp
 				IsVisible = false,
 			};
 			IsFiltered = false;
-			LoadFilterValues ();
+
 			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
 			listView.ItemTapped += DoSelectListItem;
 			listView.Refreshing += DoServerRefresh;
@@ -183,6 +191,7 @@ namespace RayvMobileApp
 			};
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
 			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
+				_FilterSearchText = FilterSearchBox.Text;
 				DoTextSearch (sender, e);
 				FilterSearchBox.TextEntry.Focus ();
 			};
@@ -424,6 +433,7 @@ namespace RayvMobileApp
 		void FilterList ()
 		{
 			Console.WriteLine ("Listpage.FilterList");
+			LoadFilterValues ();
 			List<string> styleDescriptionItems = new List<string> ();
 			try {
 				Persist.Instance.DisplayList = Persist.Instance.GetData ();
@@ -432,7 +442,7 @@ namespace RayvMobileApp
 				Dictionary<string,Vote> myVotes = Persist.Instance.Votes
 					.Where (v => v.voter == Persist.Instance.MyId.ToString ())
 					.ToDictionary (v => v.key, v => v);
-				String text = FilterSearchBox.Text.ToLower ();
+				String text = _FilterSearchText.ToLower ();
 
 				// VOTE FILTERS
 				// - Cuisine

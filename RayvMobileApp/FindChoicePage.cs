@@ -182,7 +182,8 @@ namespace RayvMobileApp
 				FilterSearchCenter = SearchCentre,
 				FilterCuisine = cuisine,
 				FilterShowWho = currentVoteByWho,
-				FilterVoteKind = currentVoteKindFilter
+				FilterVoteKind = currentVoteKindFilter,
+				FilterByPlaceName = FilterSearchBox.Text,
 			};
 			Navigation.PushModalAsync (new RayvNav (listPage));
 		}

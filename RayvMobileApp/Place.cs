@@ -373,7 +373,7 @@ namespace RayvMobileApp
 		// iVoted ; true if I voted - for the template
 		public bool iVoted {
 			get {
-				if (vote.vote == Vote.VoteNotSetValue)
+				if (vote.vote == Vote.VoteNotSetValue && vote.untried == false)
 					return false;
 				if (vote.voter == Persist.Instance.MyId.ToString ())
 					return true;
@@ -524,6 +524,7 @@ namespace RayvMobileApp
 					parameters ["website"] = website;
 					parameters ["telephone"] = telephone;
 					parameters ["voteScore"] = vote.vote.ToString ();
+					parameters ["voteUntried"] = vote.untried.ToString ();
 					parameters ["kind"] = $"{(int)vote.kind}";
 					parameters ["style"] = $"{(int)vote.style}";
 					if (vote.style == PlaceStyle.None || vote.kind == MealKind.None) {
@@ -537,51 +538,55 @@ namespace RayvMobileApp
 					string wasDraftKey = _key;
 					string result = restConnection.Instance.post ("/item", parameters);
 					//			JObject obj = JObject.Parse (result);
-					try {
-						restConnection.LogToServer (LogLevel.DEBUG, $"Place.Save result {result}");
-						JObject obj = null;
+					if (!string.IsNullOrEmpty (result))
 						try {
-							Insights.Track ("Place.Save", "result", result);
-							obj = JObject.Parse (result);
-						} catch (Exception ex) {
-							Insights.Report (ex, "result", result);
+							restConnection.LogToServer (LogLevel.DEBUG, $"Place.Save result {result}");
+							JObject obj = null;
+							try {
+								Insights.Track ("Place.Save", "result", result);
+								obj = JObject.Parse (result);
+							} catch (Exception ex) {
+								Insights.Report (ex, "result", result);
+								throw;
+							}
+							string placeStr = obj ["place"].ToString ();
+							Place place = null;
+							try {
+								place = JsonConvert.DeserializeObject<Place> (placeStr);
+							} catch (Exception ex) {
+								Insights.Report (ex, "result", result);
+								throw;
+							}
+							string voteStr = obj ["vote"].ToString ();
+							try {
+								place.vote = JsonConvert.DeserializeObject<Vote> (voteStr);
+							} catch (Exception ex) {
+								Insights.Report (ex, "result", result);
+								throw;
+							}
+							place.IsDraft = false;
+							this.key = place.key;
+							lock (Persist.Instance.Lock) {
+								// no try..catch as it's inside one
+								if (!Persist.Instance.UpdatePlace (place)) {
+									errorMessage = "Failed to update";
+									return false;
+								}
+								if (wasDraft) {
+									// delete the old one
+									Persist.RemovePlaceKeyFromDb (wasDraftKey);
+								}
+								if (!Persist.Instance.UpdateVote (place)) {
+									errorMessage = "Failed to update vote";
+									return false;
+								}
+							}
+						} catch (Exception e) {
+							Insights.Report (e, "Result", result);
 							throw;
 						}
-						string placeStr = obj ["place"].ToString ();
-						Place place = null;
-						try {
-							place = JsonConvert.DeserializeObject<Place> (placeStr);
-						} catch (Exception ex) {
-							Insights.Report (ex, "result", result);
-							throw;
-						}
-						string voteStr = obj ["vote"].ToString ();
-						try {
-							place.vote = JsonConvert.DeserializeObject<Vote> (voteStr);
-						} catch (Exception ex) {
-							Insights.Report (ex, "result", result);
-							throw;
-						}
-						place.IsDraft = false;
-						this.key = place.key;
-						lock (Persist.Instance.Lock) {
-							// no try..catch as it's inside one
-							if (!Persist.Instance.UpdatePlace (place)) {
-								errorMessage = "Failed to update";
-								return false;
-							}
-							if (wasDraft) {
-								// delete the old one
-								Persist.RemovePlaceKeyFromDb (wasDraftKey);
-							}
-							if (!Persist.Instance.UpdateVote (place)) {
-								errorMessage = "Failed to update vote";
-								return false;
-							}
-						}
-					} catch (Exception e) {
-						Insights.Report (e, "Result", result);
-						throw;
+					else {
+						Insights.Track ("Place.Save Error", "Result", "None");
 					}
 				} else {
 					lock (Persist.Instance.Lock) {

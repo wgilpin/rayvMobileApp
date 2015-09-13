@@ -117,7 +117,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Center,
 			};
 			string server = Persist.Instance.GetConfig (settings.SERVER);
-			if (!server.Contains (settings.DEFAULT_SERVER)) {
+			if (!server.Contains (settings.SERVER_DEFAULT)) {
 				// we are not on prod
 				ServerMessage.Text = server;
 			}

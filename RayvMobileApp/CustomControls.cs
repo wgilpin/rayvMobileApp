@@ -432,7 +432,11 @@ namespace RayvMobileApp
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20.0) });
 			HorizontalOptions = LayoutOptions.FillAndExpand;
-			_label = new Label { TextColor = Color.Black, FontAttributes = FontAttributes.Bold };
+			_label = new Label { 
+				TextColor = Color.Black, 
+				FontAttributes = FontAttributes.Bold, 
+				HorizontalOptions = LayoutOptions.CenterAndExpand
+			};
 			_img = new Image { Aspect = Aspect.AspectFit, HeightRequest = 20, };
 			_clickImage = new TapGestureRecognizer ();
 			_img.GestureRecognizers.Add (_clickImage);

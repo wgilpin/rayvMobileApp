@@ -64,7 +64,11 @@ namespace RayvMobileApp
 			}
 			Console.WriteLine (String.Format ("innerGet: {0}{1}", client.BaseUrl, request.Resource));
 
-			client.Timeout = timeout == 0 ? settings.WEB_TIMEOUT : timeout;
+			int timeoutToApply = 
+				DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator () ?
+				0 :
+				timeout == 0 ? settings.WEB_TIMEOUT : timeout;
+			client.Timeout = timeoutToApply;
 			IRestResponse response = client.Execute (request);
 			Console.WriteLine (String.Format ("innerGet: response: {0}", response.Content.Substring (0, Math.Min (100, response.Content.Length))));
 			if (response.StatusCode == HttpStatusCode.Unauthorized)

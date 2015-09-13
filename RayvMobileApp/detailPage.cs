@@ -165,7 +165,8 @@ namespace RayvMobileApp
 				Persist.Instance.Votes
 					.Where (v => v.key == DisplayPlace.key && v.voter != MyStringId)
 					.OrderBy (x => x.when)
-					.ToList ().ForEach (vote => {
+					.ToList ()
+					.ForEach (vote => {
 					var entry = GetFriendCommentGrid (vote);
 					stack.Children.Add (new StackLayout {
 						BackgroundColor = settings.ColorDarkGray,
@@ -259,13 +260,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text = $" {DisplayPlace.place_name}",
+						Text =$" {DisplayPlace.place_name}",
 						FontSize = settings.FontSizeLabelLarge,
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text = $"  {DisplayPlace.distance}",
+						Text =$"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});
@@ -297,7 +298,6 @@ namespace RayvMobileApp
 					else
 						Comment.Text = $"\"{DisplayPlace.Comment ()}\"";
 
-					Comment.IsVisible = true;
 
 					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
 						WebImgBtn.IsEnabled = false;
@@ -332,7 +332,7 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void VoteSaved (object sender, StarEditorEventArgs voteArgs)
+		void DoSaveVote (object sender, StarEditorEventArgs voteArgs)
 		{
 			if (voteArgs.Vote == DisplayPlace.vote.vote && voteArgs.Untried == DisplayPlace.vote.untried)
 				return;
@@ -379,7 +379,6 @@ namespace RayvMobileApp
 				DisplayAlert ("Comment", "You need to vote if you want to comment", "OK");
 				return;
 			}
-			Comment.IsVisible = false;
 			EditComment ();
 		}
 
@@ -406,7 +405,8 @@ namespace RayvMobileApp
 					}
 				})).Start ();
 
-			} catch (Exception) {
+			} catch (Exception ex) {
+				Insights.Report (ex);
 			}
 		}
 
@@ -418,6 +418,7 @@ namespace RayvMobileApp
 				Navigation.PushModalAsync (new RayvNav (new ListPage ()));
 			} else {
 				// still some votes
+				Navigation.PopAsync ();
 				LoadPage (DisplayPlace);
 			}
 		}
@@ -556,7 +557,7 @@ namespace RayvMobileApp
 				Insights.Report (ex);
 				score = 0;
 			}
-			return new Label{ Text = $"{score:F1} stars"}; 
+			return new Label{ Text = $"Rating: {score:F1} stars"};
 		}
 
 		public DetailPage (
@@ -675,7 +676,7 @@ namespace RayvMobileApp
 
 			var VoteCountLbl = GetVoteCountLabel ();
 			Stars = new StarEditor (true) { HorizontalOptions = LayoutOptions.FillAndExpand };
-			Stars.ChangedNotUI += VoteSaved;
+			Stars.ChangedNotUI += DoSaveVote;
 			Label DraftText = new Label {
 				Text = "DRAFT",
 				TextColor = Color.Red,
@@ -726,7 +727,6 @@ namespace RayvMobileApp
 						styleGrid,
 						Comment,
 						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
-						new Label { Text = "Friend Votes", FontAttributes = FontAttributes.Bold }, 
 						VoteCountLbl,
 						new Label { Text = "Comments", FontAttributes = FontAttributes.Bold }, 
 						GetFriendsComments (),

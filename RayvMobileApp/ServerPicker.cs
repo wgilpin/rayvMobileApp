@@ -24,10 +24,10 @@ namespace RayvMobileApp
 		{
 			Title = "Server";
 			VerticalOptions = LayoutOptions.Start;
-			ServerChoices.Add ("Local", "http://localhost:8080/");
+			ServerChoices.Add ("Local", settings.SERVER_LOCAL);
 			ServerChoices.Add ("Dev", "http://192.168.1.2:8080/");
 			ServerChoices.Add ("Pre-Prod", "https://" + GetServerVersionForAppVersion () + "shout-about.appspot.com/");
-			ServerChoices.Add ("Production", "https://" + GetServerVersionForAppVersion () + settings.DEFAULT_SERVER);
+			ServerChoices.Add ("Production", "https://" + GetServerVersionForAppVersion () + settings.SERVER_DEFAULT);
 			foreach (var kvp in ServerChoices)
 				Items.Add (kvp.Key);
 			try {

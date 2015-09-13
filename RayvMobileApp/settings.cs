@@ -33,7 +33,8 @@ namespace RayvMobileApp
 		public const  string LAST_LNG = "LastLng";
 		public const  string SKIP_INTRO = "SkipIntro";
 		public const  string SERVER = "server";
-		public const  string DEFAULT_SERVER = "rayv-app.appspot.com/";
+		public const  string SERVER_DEFAULT = "rayv-app.appspot.com/";
+		public const  string SERVER_LOCAL = "http://localhost:8080/";
 		public const  string LAST_SYNC = "last_sync";
 		public const  string MY_ID = "myId";
 		// 30 mins timeout

@@ -32,15 +32,9 @@ namespace RayvMobileApp
 	{
 		MealKind _kind;
 		PlaceStyle _style;
-		CheckBox breakfast;
-		CheckBox lunch;
-		CheckBox dinner;
-		CheckBox coffee;
-		CheckBox bar;
 		bool InFlow;
-		LabelClickable StyleQuickLbl;
-		LabelClickable StyleRelaxedLbl;
-		LabelClickable StylefancyLbl;
+
+		CheckBox[] checks;
 
 		const string STYLE_FANCY = "fancy",
 			STYLE_QUICK = "quick bite",
@@ -53,17 +47,6 @@ namespace RayvMobileApp
 
 		protected virtual void OnSaved ()
 		{
-			_kind = MealKind.None;
-			if (breakfast.Checked)
-				_kind = MealKind.Breakfast;
-			if (lunch.Checked)
-				_kind = _kind | MealKind.Lunch;
-			if (dinner.Checked)
-				_kind = _kind | MealKind.Dinner;
-			if (coffee.Checked)
-				_kind = _kind | MealKind.Coffee;
-			if (bar.Checked)
-				_kind = _kind | MealKind.Bar;
 			if (_kind == MealKind.None || _style == PlaceStyle.None) {
 				ShowMessage?.Invoke (this, new EventArgsMessage ("You must select a style and a meal time"));
 			} else {
@@ -72,36 +55,10 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void DoClickKind (object sender, EventArgs e)
-		{
-			_kind = MealKind.None;
-			if (sender is LabelClickable) {
-				var lbl = (sender as LabelClickable);
-				switch (lbl.Label.Text) {
-					case "breakfast":
-						breakfast.Checked = true;
-						break;
-					case "lunch":
-						lunch.Checked = true;
-						break;
-					case "dinner":
-						dinner.Checked = true;
-						break;
-					case "coffee":
-						coffee.Checked = true;
-						break;
-					case "bar":
-						bar.Checked = true;
-						break;
-				}
-			}
-
-		}
-
 		public void DoClickStyleFancy (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
+			if (_kind != MealKind.None) {
 				_style = PlaceStyle.Fancy;
 				OnSaved ();
 			} else
@@ -111,7 +68,7 @@ namespace RayvMobileApp
 		public void DoClickStyleRelaxed (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
+			if (_kind != MealKind.None) {
 				_style = PlaceStyle.Relaxed;
 				OnSaved ();
 			} else
@@ -121,21 +78,99 @@ namespace RayvMobileApp
 		public void DoClickStyleQuick (object sender, EventArgs e)
 		{
 			// at least one kind?
-			if (breakfast.Checked || lunch.Checked || dinner.Checked || coffee.Checked || bar.Checked) {
+			if (_kind != MealKind.None) {
 				_style = PlaceStyle.QuickBite;
 				OnSaved ();
 			} else
 				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
 		}
 
-		void SetupStyles ()
+		void SetUpGrid ()
 		{
-			StyleQuickLbl.Label.TextColor = (_style == PlaceStyle.QuickBite) ? Color.White : Color.Black;
-			StyleQuickLbl.SetBackgroundColor ((_style == PlaceStyle.QuickBite) ? settings.BaseColor : Color.Transparent);
-			StyleRelaxedLbl.Label.TextColor = (_style == PlaceStyle.Relaxed) ? Color.White : Color.Black;
-			StyleRelaxedLbl.SetBackgroundColor ((_style == PlaceStyle.Relaxed) ? settings.BaseColor : Color.Transparent);
-			StylefancyLbl.Label.TextColor = (_style == PlaceStyle.Fancy) ? Color.White : Color.Black;
-			StylefancyLbl.SetBackgroundColor ((_style == PlaceStyle.Fancy) ? settings.BaseColor : Color.Transparent);
+			RowSpacing = 10;
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			RowDefinitions.Add (new RowDefinition {
+				Height = new GridLength (1, GridUnitType.Auto)
+			});
+			ColumnDefinitions.Add (new ColumnDefinition {
+				Width = new GridLength (20)
+			});
+			ColumnDefinitions.Add (new ColumnDefinition {
+				Width = new GridLength (1, GridUnitType.Star)
+			});
+			ColumnDefinitions.Add (new ColumnDefinition {
+				Width = new GridLength (30)
+			});
+		}
+
+		void AddMealTimeButton (EventHandler onClick, MealKind value, string text, int row)
+		{
+			var chkBox = new CheckBox{ OnClick = onClick, Checked = ((value & _kind) > 0) };
+			checks [row - 1] = chkBox;
+			var voteLbl = new LabelClickable{ OnClick = onClick };
+			voteLbl.Label.Text = text;
+			Children.Add (voteLbl, 1, row);
+			Children.Add (chkBox, 2, row);
+		}
+
+		void AddPlaceStyleButton (EventHandler onClick, PlaceStyle value, string text, int row)
+		{
+			var lbl = new LabelClickable { 
+				OnClick = onClick, 
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+			};
+			lbl.Label.Text = text;
+			lbl.Label.TextColor = (_style == value) ? Color.White : Color.Black;
+			lbl.SetBackgroundColor ((_style == value) ? settings.BaseColor : Color.Transparent);
+			lbl.Label.YAlign = TextAlignment.Center;
+			var imgBtn = new ImageButton {
+				Height = 20,
+				Source = settings.DevicifyFilename ("arrow.png"), 
+				OnClick = onClick
+			};
+			Children.Add (lbl, 1, row);
+			Children.Add (imgBtn, 2, row);
+		}
+
+		void DoCheck (object sender, MealKind kind, int row)
+		{
+			var check = checks [row - 1];
+			if (!(sender.GetType ().Equals (typeof(CheckBox))))
+				// if the checkbox was clicked, it toggles. If label was clicked, we have to toggle
+				check.Checked = !check.Checked;
+			if (check.Checked)
+				_kind = _kind | kind;
+			else
+				_kind = (MealKind)((int)_kind & ~(int)kind);
 		}
 
 		public EditPlaceKindView (MealKind kind, PlaceStyle style, bool inFlow = true)
@@ -144,60 +179,32 @@ namespace RayvMobileApp
 			_style = style;
 			InFlow = inFlow;
 
+			checks = new CheckBox[5];
 			BackgroundColor = Color.White;
-			RowSpacing = 10;
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-
-			RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
-
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (20) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (30) });
-			Label MealType = new Label { 
+			SetUpGrid ();
+			Label MealType = new  Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Meal Time", 
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};
-			breakfast = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Breakfast & kind) > 0) };
-			var breakfastVoteLbl = new LabelClickable{ OnClick = DoClickKind };
-			breakfastVoteLbl.Label.Text = "breakfast";
-			lunch = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Lunch & kind) > 0)  };
-			var lunchVoteLbl = new LabelClickable{ OnClick = DoClickKind };
-			lunchVoteLbl.Label.Text = "lunch";
-			dinner = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Dinner & kind) > 0)  };
-			var dinnerVoteLbl = new LabelClickable{ OnClick = DoClickKind };
-			dinnerVoteLbl.Label.Text = "dinner";
-			coffee = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Coffee & kind) > 0)  };
-			var coffeeVoteLbl = new LabelClickable{ OnClick = DoClickKind };
-			coffeeVoteLbl.Label.Text = "coffee";
+			// meal time buttons
+			AddMealTimeButton ((s, e) => {
+				DoCheck (s, MealKind.Breakfast, 1);
+			}, MealKind.Breakfast, "breakfast", 1);
+			AddMealTimeButton ((s, e) => {
+				DoCheck (s, MealKind.Lunch, 2);
+			}, MealKind.Lunch, "lunch", 2);
+			AddMealTimeButton ((s, e) => {
+				DoCheck (s, MealKind.Coffee, 3);
+			}, MealKind.Coffee, "coffee", 3);
+			AddMealTimeButton ((s, e) => {
+				DoCheck (s, MealKind.Dinner, 4);
+			}, MealKind.Dinner, "dinner", 4);
+			AddMealTimeButton ((s, e) => {
+				DoCheck (s, MealKind.Bar, 5);
+			}, MealKind.Bar, "bar", 5);
 
-			bar = new CheckBox{ OnClick = DoClickKind, Checked = ((MealKind.Bar & kind) > 0)  };
-			var barVoteLbl = new LabelClickable{ OnClick = DoClickKind };
-			barVoteLbl.Label.Text = "bar";
-			Children.Add (MealType, 0, 3, 0, 1);
-			Children.Add (breakfastVoteLbl, 1, 2, 1, 2);
-			Children.Add (breakfast, 2, 3, 1, 2);
-			Children.Add (lunchVoteLbl, 1, 2, 2, 3);
-			Children.Add (lunch, 2, 3, 2, 3);
-			Children.Add (dinnerVoteLbl, 1, 2, 3, 4);
-			Children.Add (dinner, 2, 3, 3, 4);
-			Children.Add (coffeeVoteLbl, 1, 2, 4, 5);
-			Children.Add (coffee, 2, 3, 4, 5);
-			Children.Add (barVoteLbl, 1, 2, 5, 6);
-			Children.Add (bar, 2, 3, 5, 6);
 			Label PlaceType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
 				Text = "Style", 
@@ -205,50 +212,19 @@ namespace RayvMobileApp
 				FontSize = settings.FontSizeLabelLarge
 			};
 			Children.Add (PlaceType, 0, 3, 6, 7);
-			StyleQuickLbl = new LabelClickable { 
-				OnClick = DoClickStyleQuick, 
-			};
-			StyleQuickLbl.Label.Text = STYLE_QUICK;
-			StyleQuickLbl.Label.YAlign = TextAlignment.Center;
-			var StyleQuickImgBtn = new ImageButton {
-				Height = 20,
-				Source = settings.DevicifyFilename ("arrow.png"), 
-				OnClick = DoClickStyleQuick
-			};
-			StyleRelaxedLbl = new LabelClickable { 
-				OnClick = DoClickStyleRelaxed, 
-			};
-			StyleRelaxedLbl.Label.YAlign = TextAlignment.Center;
-			StyleRelaxedLbl.Label.Text = STYLE_RELAXED;
-			var StyleRelaxedImgBtn = new ImageButton {
-				Height = 20,
-				Source = settings.DevicifyFilename ("arrow.png"), 
-				OnClick = DoClickStyleRelaxed 
-			};
-			StylefancyLbl = new LabelClickable { 
-				OnClick = DoClickStyleFancy, 
-			};
-			StylefancyLbl.Label.Text = STYLE_FANCY;
-			StylefancyLbl.Label.YAlign = TextAlignment.Center;
-			var StylefancyImgBtn = new ImageButton {
-				Height = 20,
-				Source = settings.DevicifyFilename ("arrow.png"), 
-				OnClick = DoClickStyleFancy 
-			};
-			Children.Add (
-				StyleQuickLbl, 1, 2, 7, 8);
-			Children.Add (StyleQuickImgBtn, 2, 3, 7, 8);
-			Children.Add (StyleRelaxedLbl, 1, 2, 8, 9);
-			Children.Add (StyleRelaxedImgBtn, 2, 3, 8, 9);
-			Children.Add (StylefancyLbl, 1, 2, 9, 10);
-			Children.Add (StylefancyImgBtn, 2, 3, 9, 10);
+			AddPlaceStyleButton (DoClickStyleQuick, PlaceStyle.QuickBite, STYLE_QUICK, 7);
+			AddPlaceStyleButton (DoClickStyleRelaxed, PlaceStyle.Relaxed, STYLE_RELAXED, 8);
+			AddPlaceStyleButton (DoClickStyleFancy, PlaceStyle.Fancy, STYLE_FANCY, 9);
 
 			var buttons = new DoubleButton { 
-				LeftText = "Cancel", 
+				LeftText = "Back", 
 				LeftSource = "298-circlex@2x.png",
 				RightText = "Next",
 				RightSource = "Add Select right button.png"
 			};
+			if (style == PlaceStyle.None) {
+				buttons.IsEnabledRight = false;
+			}
 			buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
 			buttons.RightClick = (s, e) => {
 				if (InFlow)
@@ -257,7 +233,6 @@ namespace RayvMobileApp
 					Cancelled?.Invoke (this, null);
 			};
 			Children.Add (buttons, 0, 3, 10, 11);
-			SetupStyles ();
 		}
 	}
 }

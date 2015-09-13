@@ -156,6 +156,16 @@ namespace RayvMobileApp
 				NewsText.TranslationY = -y;
 				Console.WriteLine ($"MainMenu Appearing {y}");
 			};
+
+			if (Persist.Instance.GetConfig (settings.SERVER) != settings.SERVER_DEFAULT) {
+				ToolbarItems.Add (new ToolbarItem {
+					Icon = settings.DevicifyFilename ("19-gear.png"),
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => {
+						Navigation.PushAsync (new SettingsPage ());
+					}),
+				});
+			}
 		}
 
 

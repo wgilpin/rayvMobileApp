@@ -50,7 +50,7 @@ namespace RayvMobileApp
 			progBar.IsVisible = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
-					Persist.Instance.SetConfig (settings.SERVER, settings.DEFAULT_SERVER);
+					Persist.Instance.SetConfig (settings.SERVER, settings.SERVER_DEFAULT);
 				
 				try {
 					Persist.Instance.Online = false;

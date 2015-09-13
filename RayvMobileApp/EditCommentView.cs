@@ -66,9 +66,9 @@ namespace RayvMobileApp
 
 			if (inFlow) {
 				var buttons = new DoubleButton { 
-					LeftText = "Cancel", 
+					LeftText = "Back", 
 					LeftSource = "298-circlex@2x.png",
-					RightText = "Next",
+					RightText = "Save",
 					RightSource = "Add Select right button.png"
 				};
 				buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);

@@ -137,7 +137,7 @@ namespace RayvMobileApp
 			Children.Add (Spinner);
 
 			var buttons = new DoubleButton { 
-				LeftText = "Cancel", 
+				LeftText = "Back", 
 				LeftSource = "298-circlex@2x.png",
 				RightText = "Next",
 				RightSource = "Add Select right button.png"
