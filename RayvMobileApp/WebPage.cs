@@ -6,6 +6,8 @@ namespace RayvMobileApp
 {
 	public class WebPage : ContentPage
 	{
+		string URL;
+
 		public WebPage ()
 		{
 
@@ -13,6 +15,8 @@ namespace RayvMobileApp
 
 		public WebPage (String placeName, String url) : this ()
 		{
+			URL = url;
+
 			Analytics.TrackPage ("WebPage");
 			ActivityIndicator WebSpinner = new ActivityIndicator { Color = Color.Red, };
 
@@ -55,7 +59,7 @@ namespace RayvMobileApp
 				Text = " Browser  ",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => { 
-					Device.OpenUri (new Uri (url));
+					Device.OpenUri (new Uri (URL));
 				})
 			});
 			ToolbarItems.Add (new ToolbarItem {

@@ -32,6 +32,7 @@ namespace RayvMobileApp
 
 		public AddPage4_Map (Position searchPosition)
 		{
+			Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0);
 			BackgroundColor = settings.BaseColor;
 			map = new Map (
 				MapSpan.FromCenterAndRadius (
@@ -61,7 +62,7 @@ namespace RayvMobileApp
 			};
 			AddressEd = new EntryWithChangeButton { 
 				PlaceHolder = "Find address on map", 
-				ButtonText = "Find",
+				ButtonText = " Find ",
 				OnClick = SetMapFromAddress,
 			};
 			Button HereBtn = new RayvButton { 
@@ -135,6 +136,7 @@ namespace RayvMobileApp
 			grid.Children.Add (HereBtn, 0, 3);
 			grid.Children.Add (SaveBtn, 0, 4);
 			this.Content = grid;
+
 		}
 
 		#region Events

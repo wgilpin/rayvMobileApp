@@ -21,7 +21,7 @@ namespace RayvMobileApp
 			var param = new Dictionary<string, string> {
 				{ "from_id",from }
 			};
-			bool success = restConnection.Instance.post ("/api/friends/accept", param) == "OK";
+			bool success = Persist.Instance.GetWebConnection ().post ("/api/friends/accept", param) == "OK";
 			if (success) {
 				var invite = Persist.Instance.InvitationsIn.Where (i => i.inviter == from).FirstOrDefault ();
 				Persist.Instance.Acceptances.Add (invite);
@@ -35,7 +35,7 @@ namespace RayvMobileApp
 			var param = new Dictionary<string, string> {
 				{ "from_id",from }
 			};
-			bool success = restConnection.Instance.post ("/api/friends/reject", param) == "OK";
+			bool success = Persist.Instance.GetWebConnection ().post ("/api/friends/reject", param) == "OK";
 			if (success) {
 				var invite = Persist.Instance.InvitationsIn.Where (i => i.inviter == from).FirstOrDefault ();
 				Persist.Instance.InvitationsIn.Remove (invite);
@@ -48,7 +48,7 @@ namespace RayvMobileApp
 			var param = new Dictionary<string, string> {
 				{ "from_id",from }
 			};
-			bool success = restConnection.Instance.post ("/api/friends/reject", param) == "OK";
+			bool success = Persist.Instance.GetWebConnection ().post ("/api/friends/reject", param) == "OK";
 			if (success) {
 				var invite = Persist.Instance.Acceptances.Where (i => i.invitee == from).FirstOrDefault ();
 				Persist.Instance.Acceptances.Remove (invite);

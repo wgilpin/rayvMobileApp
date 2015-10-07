@@ -23,7 +23,7 @@ namespace RayvMobileApp
 					{ "email",emailEd.Text }
 				};
 				try {
-					result = restConnection.Instance.get ("api/friend/invite", param).Content;
+					result = Persist.Instance.GetWebConnection ().get ("api/friend/invite", param).Content;
 				} catch (Exception ex) {
 					Insights.Report (ex, "Email", emailEd.Text);
 					Failed?.Invoke (this, null);
@@ -41,9 +41,9 @@ namespace RayvMobileApp
 							break;
 						case "NOT FOUND":
 							if (await DisplayAlert ("Not Found", "That user could not be found. Send them an invite email?", "Send", "Cancel")) {
-								String emailResult = restConnection.Instance.post ("api/email_friend", "email", emailEd.Text);
+								String emailResult = Persist.Instance.GetWebConnection ().post ("api/email_friend", "email", emailEd.Text);
 								if (emailResult == "OK") {
-									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
+									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK");
 									Succeeded?.Invoke (this, null);
 									return;
 								}

@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIdentifier</key>
-	<string>com.blueorbit.RayvMobileApp.iOS</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -54,10 +52,14 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.6-d5</string>
+	<string>0.6-de</string>
 	<key>CFBundleDisplayName</key>
 	<string>Taste 5</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.blueorbit.rayvios</string>
+	<key>NSAllowsArbitraryLoads</key>
+	<true/>
 	<key>CFBundleVersion</key>
-	<string>d5</string>
+	<string>de</string>
 </dict>
 </plist>

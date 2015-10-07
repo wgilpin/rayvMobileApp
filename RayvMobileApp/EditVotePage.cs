@@ -106,21 +106,29 @@ namespace RayvMobileApp
 			_vote = vote;
 			_untried = untried;
 			BackgroundColor = Color.White;
-			Padding = 5;
-			Spacing = 20;
-			Children.Add (new Label{ Text = "Set vote", XAlign = TextAlignment.Center  });
+			var innerStack = new StackLayout {
+				Padding = 5,
+				Spacing = 20,
+				VerticalOptions = LayoutOptions.FillAndExpand
+			};
+			innerStack.Children.Add (new Label {
+				HorizontalOptions = LayoutOptions.Center,
+				FontSize = settings.FontSizeLabelLarge,
+				Text = "Set Vote",
+				FontAttributes = FontAttributes.Bold,
+			});
 			var stars = new StarEditor (false) { Vote = vote, HorizontalOptions = LayoutOptions.CenterAndExpand };
 			stars.ChangedNotUI += (o, e) => {
 				Device.BeginInvokeOnMainThread (() => {
 					SetStar ((e as StarEditorEventArgs).Vote);
 				});
 			};
-			Children.Add (stars);
-			Children.Add (new Label{ Text = "or", XAlign = TextAlignment.Center });
+			innerStack.Children.Add (stars);
+			innerStack.Children.Add (new Label{ Text = "or", XAlign = TextAlignment.Center });
 			var untriedVoteBtn = new RayvButton ("I want to try this place") { 
 				OnClick = VoteUntried,
 			};
-			Children.Add (untriedVoteBtn);
+			innerStack.Children.Add (untriedVoteBtn);
 			if (vote != Vote.VoteNotSetValue || untried) {
 				// if there's a vote or untried is set, show the remove vote button
 				var removeBtn = new ButtonWithImage () {
@@ -131,19 +139,20 @@ namespace RayvMobileApp
 					Padding = 10,
 				};
 				// vote is set, add a remove option
-				Children.Add (removeBtn);
+				innerStack.Children.Add (removeBtn);
 			}
 			Spinner = new ActivityIndicator{ Color = Color.Red, IsRunning = false };
-			Children.Add (Spinner);
+			innerStack.Children.Add (Spinner);
 
 			var buttons = new DoubleButton { 
 				LeftText = "Back", 
-				LeftSource = "298-circlex@2x.png",
 				RightText = "Next",
-				RightSource = "Add Select right button.png"
+				LeftSource = "back_1.png",
+				RightSource = "forward_1.png"
 			};
 			buttons.LeftClick = (s, e) => OnCancelled ();
 			buttons.RightClick = (s, e) => OnSaved ();
+			Children.Add (innerStack);
 			Children.Add (buttons);
 //			if (vote != Vote.VoteNotSetValue) {
 //				// vote is set, so can navigate

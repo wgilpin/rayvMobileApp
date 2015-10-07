@@ -12,7 +12,7 @@ namespace RayvMobileApp
 	{
 		Entry FirstNameEd;
 		Entry LastNameEd;
-		Entry UserNameEd;
+		//		Entry UserNameEd;
 		Entry Pwd1Ed;
 		Entry Pwd2Ed;
 		Entry EmailEd;
@@ -31,10 +31,10 @@ namespace RayvMobileApp
 				await DisplayAlert ("Passwords don't match", "Enter the same password in both boxes", "OK");
 				return;
 			}
-			if (UserNameEd.Text.Length == 0) {
-				await DisplayAlert ("User Name Missing ", "Please supply a User Name", "OK");
-				return;
-			}
+//			if (UserNameEd.Text.Length == 0) {
+//				await DisplayAlert ("User Name Missing ", "Please supply a User Name", "OK");
+//				return;
+//			}
 			if (FirstNameEd.Text.Length == 0 || LastNameEd.Text.Length == 0) {
 				await DisplayAlert ("Full Name Needed", "Please supply a first & a last name", "OK");
 				return;
@@ -46,18 +46,25 @@ namespace RayvMobileApp
 				await DisplayAlert ("Invalid Email", "Please supply a valid email address", "OK");
 				return;
 			}
-			Dictionary<String,String> parameters = new Dictionary<String,String> ();
-			parameters ["username"] = UserNameEd.Text;
-			parameters ["password"] = Pwd1Ed.Text;
-			parameters ["email"] = EmailEd.Text;
-			parameters ["fn"] = FirstNameEd.Text;
-			parameters ["ln"] = LastNameEd.Text;
-			parameters ["screenname"] = ScreenNameEd.Text;
+			string[] keys = new string[6];
+			string[] values = new string[6];
+			keys [0] = "username";
+			keys [1] = "password";
+			keys [2] = "email";
+			keys [3] = "fn";
+			keys [4] = "ln";
+			keys [5] = "screenname";
+			values [0] = EmailEd.Text;
+			values [1] = Pwd1Ed.Text;
+			values [2] = EmailEd.Text;
+			values [3] = FirstNameEd.Text;
+			values [4] = LastNameEd.Text;
+			values [5] = ScreenNameEd.Text;
 			try {
 				if (ScreenNameEd.Text == "") {
 					string fn = FirstNameEd.Text;
 					fn = fn [0].ToString ().ToUpper () [0] + fn.Substring (1);
-					parameters ["screenname"] = String.Format (
+					values [5] = String.Format (
 						"{0} {1}.", fn, LastNameEd.Text.Remove (1).ToUpper ());
 				}
 			} catch (Exception ex) {
@@ -67,13 +74,13 @@ namespace RayvMobileApp
 			}
 			Spinner.IsRunning = true;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-				String result = restConnection.Instance.post ("/api/register", parameters);
+				String result = Persist.Instance.GetWebConnection ().post ("/api/register", keys, values);
 				if (result == "BAD_USERNAME") {
 					Device.BeginInvokeOnMainThread (() => {
 						Console.WriteLine ("New user Registration failed - Username in use");
 						DisplayAlert (
 							"Try Again",
-							String.Format ("The user name {0} is already taken", UserNameEd.Text),
+							String.Format ("The user name {0} is already taken", EmailEd.Text),
 							"OK");
 						return;
 					});
@@ -81,12 +88,12 @@ namespace RayvMobileApp
 				if (result == "OK") {
 					Console.WriteLine ("New user Registered");
 					Persist.Instance.SetConfig (settings.PASSWORD, Pwd1Ed.Text);
-					Persist.Instance.SetConfig (settings.USERNAME, UserNameEd.Text);
-					restConnection.Instance.setCredentials (UserNameEd.Text, Pwd1Ed.Text, "");
+					Persist.Instance.SetConfig (settings.USERNAME, EmailEd.Text);
+					restConnection.Instance.setCredentials (EmailEd.Text, Pwd1Ed.Text, "");
 					Persist.Instance.Wipe ();
 					try {
-						Insights.Identify (UserNameEd.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
-						Console.WriteLine ("AppDelegate Analytics ID: {0}", UserNameEd.Text);
+						Insights.Identify (EmailEd.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
+						Console.WriteLine ("AppDelegate Analytics ID: {0}", EmailEd.Text);
 					} catch (Exception ex) {
 						Insights.Report (ex);
 					}
@@ -124,10 +131,10 @@ namespace RayvMobileApp
 				Placeholder = "Last Name",
 				Text = "",
 			};
-			UserNameEd = new Entry {
-				Placeholder = "User Name (for logon)",
-				Text = "",
-			};
+//			UserNameEd = new Entry {
+//				Placeholder = "User Name (for logon)",
+//				Text = "",
+//			};
 			ScreenNameEd = new Entry {
 				Placeholder = "Screen Name (what other users see)",
 				Text = "",
@@ -155,7 +162,7 @@ namespace RayvMobileApp
 					LastNameEd,
 					EmailEd,
 					new LabelWide ("Login Details"),
-					UserNameEd,
+//					UserNameEd,
 					Pwd1Ed,
 					Pwd2Ed,
 					new ServerPicker (),

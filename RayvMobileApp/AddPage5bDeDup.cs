@@ -31,7 +31,7 @@ namespace RayvMobileApp
 
 		#region Fields
 
-		static ListView listView;
+		static PlacesListView listView;
 		//		bool FirstTime;
 		Label NothingFound;
 		StackLayout ProposedDetails;
@@ -51,9 +51,9 @@ namespace RayvMobileApp
 		void BackToRoot (object sender, EventArgs e) => this.Navigation.PopToRootAsync ();
 
 
-		void DoEditFromList (object sender, SelectedItemChangedEventArgs e)
+		void DoEditFromList (object sender, ItemTappedEventArgs e)
 		{
-			addingPlace = (Place)e.SelectedItem;
+			addingPlace = (Place)e.Item;
 			Debug.WriteLine ("AddPage5bDeDup.DoEdit Push EditPage");
 			var editor = new PlaceEditor (addingPlace);
 			editor.Cancelled += (s, ev) => Navigation.PopModalAsync ();
@@ -98,7 +98,7 @@ namespace RayvMobileApp
 				}
 				parameters ["near_me"] = "1";
 				try {
-					string result = restConnection.Instance.get ("/getAddresses_ajax", parameters).Content;
+					string result = Persist.Instance.GetWebConnection ().get ("/getAddresses_ajax", parameters).Content;
 					JObject obj = JObject.Parse (result);
 					List<Place> points = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
 					foreach (Place point in points) {
@@ -111,7 +111,7 @@ namespace RayvMobileApp
 						Console.WriteLine ("AddPage5bDeDup.DoSearch: MainThread"); 
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddPage5bDeDup.DoSearch: Activity Over.");
-						listView.ItemsSource = points;
+						listView.DisplayedList.ItemsSource = points;
 						listView.IsVisible = points.Count > 0;
 						NothingFound.IsVisible = points.Count == 0;
 					});
@@ -163,7 +163,7 @@ namespace RayvMobileApp
 			};
 					
 			listView = new PlacesListView (false);
-			listView.ItemSelected += DoEditFromList;
+			listView.OnItemTapped = DoEditFromList;
 
 
 			Grid grid = new Grid {

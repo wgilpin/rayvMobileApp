@@ -266,7 +266,7 @@ namespace RayvMobileApp
 			} else {
 				Vote vote = Persist.Instance.Votes.
 				Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).
-				First ();
+				FirstOrDefault ();
 				return vote?.vote;
 			}
 		}

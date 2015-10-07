@@ -260,13 +260,13 @@ namespace RayvMobileApp
 					
 					var pn = new FormattedString ();
 					pn.Spans.Add (new Span { 
-						Text =$" {DisplayPlace.place_name}",
+						Text = $" {DisplayPlace.place_name}",
 						FontSize = settings.FontSizeLabelLarge,
 						ForegroundColor = Color.Black,
 						FontAttributes = FontAttributes.Bold,
 					});
 					pn.Spans.Add (new Span { 
-						Text =$"  {DisplayPlace.distance}",
+						Text = $"  {DisplayPlace.distance}",
 						FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 						ForegroundColor = Color.Gray
 					});
@@ -299,20 +299,8 @@ namespace RayvMobileApp
 						Comment.Text = $"\"{DisplayPlace.Comment ()}\"";
 
 
-					if (string.IsNullOrWhiteSpace (DisplayPlace.website)) {
-						WebImgBtn.IsEnabled = false;
-						WebImgBtn.Source = settings.DevicifyFilename ("Icon_active_Website.png");
-					} else {
-						WebImgBtn.Source = settings.DevicifyFilename ("Icon default Website.png");
-						WebImgBtn.IsEnabled = true;
-					}
-					if (string.IsNullOrWhiteSpace (DisplayPlace.telephone)) {
-						TelImgBtn.IsEnabled = false;
-						TelImgBtn.Source = settings.DevicifyFilename ("Icon_active_Phone.png");
-					} else {
-						TelImgBtn.Source = settings.DevicifyFilename ("Icon default Phone.png");
-						TelImgBtn.IsEnabled = true;
-					}
+					WebImgBtn.IsVisible = true;//!string.IsNullOrWhiteSpace (DisplayPlace.website);
+					TelImgBtn.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.telephone);
 					Stars.Untried = DisplayPlace.vote.untried;
 					Stars.Vote = DisplayPlace.vote.vote;
 				} catch (Exception ex) {
@@ -320,12 +308,6 @@ namespace RayvMobileApp
 					Insights.Report (ex);
 				}
 			}
-		}
-
-		void SetDirty ()
-		{
-			SaveFrame.IsVisible = true;
-			Dirty = true;
 		}
 
 		#endregion
@@ -557,7 +539,7 @@ namespace RayvMobileApp
 				Insights.Report (ex);
 				score = 0;
 			}
-			return new Label{ Text = $"Rating: {score:F1} stars"};
+			return new Label{ Text = $"Rating: {score:F1} stars"}; 
 		}
 
 		public DetailPage (
@@ -580,17 +562,7 @@ namespace RayvMobileApp
 				Orientation = StackOrientation.Horizontal,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 			};
-			var CuisineAndDistanceGrid = new Grid {
-				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-				}
-			};
-		
+
 			DisplayPlace = place;
 			this.Appearing += DoLoadPage;
 
@@ -604,7 +576,7 @@ namespace RayvMobileApp
 					HorizontalOptions = LayoutOptions.Center
 				},
 				HasShadow = false,
-				IsVisible = false,
+				IsVisible = showSave,
 			};
 
 			Img = new Image ();
@@ -629,6 +601,7 @@ namespace RayvMobileApp
 			};
 			ImgGrid.Children.Add (Img, 0, 2, 0, 3);
 			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
+
 			Place_name = new Label ();
 //			Place_name.FontAttributes = FontAttributes.Bold;
 //			Place_name.FontSize = settings.FontSizeLabelLarge;
@@ -638,30 +611,36 @@ namespace RayvMobileApp
 				FontAttributes = FontAttributes.Italic,
 				HorizontalOptions = LayoutOptions.End,
 			};
-			var DirectionsImgBtn = new TopRowBtn () { 
-				Source = settings.DevicifyFilename ("Icon default directions1.png"),
-				OnClick = DoDirections
-			};
-			CuisineAndDistanceGrid.Children.Add (CuisineEd, 0, 0);
-			CuisineAndDistanceGrid.Children.Add (DirectionsImgBtn, 1, 0);
-			CuisineAndDistanceGrid.Children.Add (distance, 2, 0);
-
 			Address = new Label {
 				TextColor = Color.FromHex ("707070"),
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 			};
+			var DirectionsImgBtn = new TopRowBtn () { 
+				Source = settings.DevicifyFilename ("directions_white.png"),
+				OnClick = DoDirections
+			};
 			WebImgBtn = new TopRowBtn { 
-				Source = settings.DevicifyFilename ("Icon default Website.png"),
+				Source = settings.DevicifyFilename ("Web_white2.png"),
+				//"Web_white.png"),
 				OnClick = GotoWebPage
 			};
 			TelImgBtn = new TopRowBtn {
-				Source = settings.DevicifyFilename ("Icon default Phone.png"),
+				Source = settings.DevicifyFilename ("phone_white.png"),
 				OnClick = DoMakeCall,
 			};
-
-			ImgGrid.Children.Add (TelImgBtn, 1, 2, 0, 1);
-			ImgGrid.Children.Add (DirectionsImgBtn, 1, 2, 1, 2);
-			ImgGrid.Children.Add (WebImgBtn, 1, 2, 2, 3);
+			var GreyBar = new Frame {
+				BackgroundColor = Color.FromRgba (100, 100, 100, 100),
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				HasShadow = false,
+				Padding = 0,
+			};
+			GreyBar.OutlineColor = Color.Transparent;
+			GreyBar.Content = null;
+			ImgGrid.Children.Add (GreyBar, 1, 2, 0, 3);
+			ImgGrid.Children.Add (TelImgBtn, 1, 0);
+			ImgGrid.Children.Add (DirectionsImgBtn, 1, 1);
+			ImgGrid.Children.Add (WebImgBtn, 1, 2);
 
 //			TopRow.Children.Add (TelImgBtn);
 //			TopRow.Children.Add (VoteImgBtn);

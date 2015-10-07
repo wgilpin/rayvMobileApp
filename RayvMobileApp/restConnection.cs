@@ -134,6 +134,18 @@ namespace RayvMobileApp
 			return null;
 		}
 
+		public string post (string url, string[] names, string[] values)
+		{
+			var parms = new Dictionary<string,string> ();
+			for (int i = 0; i < names.Length; i++) {
+				if (string.IsNullOrEmpty (names [i]) || values [i] == null)
+					continue;
+				parms.Add (names [i], values [i]);
+			}
+			var res = this.get (url, parms, Method.POST);
+			return res?.Content;
+		}
+
 		public string post (string url, string param_name, string param_value)
 		{
 			var parms = new Dictionary<string,string> {
@@ -173,7 +185,7 @@ namespace RayvMobileApp
 				parameters ["level"] = Convert.ToString ((int)level);
 				parameters ["message"] = message;
 				try {
-					restConnection.Instance.post ("/api/log", parameters);
+					Persist.Instance.GetWebConnection ().post ("/api/log", parameters);
 				} catch (Exception ex) {
 					Console.Error.WriteLine ("LogToServer Exception {0}", ex);
 				}

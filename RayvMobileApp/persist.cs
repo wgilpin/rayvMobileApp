@@ -506,7 +506,7 @@ namespace RayvMobileApp
 		public bool Unfriend (string friendKey)
 		{
 			Console.WriteLine ($"Unfriend {friendKey}");
-			string serverResult = restConnection.Instance.post ("/api/friends/remove", "unfriend_id", friendKey);
+			string serverResult = Persist.Instance.GetWebConnection ().post ("/api/friends/remove", "unfriend_id", friendKey);
 			if (serverResult == "OK") {
 				Persist.Instance.Friends.Remove (friendKey);
 				var tempVotes = Persist.Instance.Votes.Where (v => v.voter != friendKey).ToList ();
@@ -781,7 +781,7 @@ namespace RayvMobileApp
 					var updated_dict = new Dictionary<string,string> ();
 					updated_dict.Add ("userId", MyId.ToString ());
 					Console.WriteLine ($"StoreUpdatedUserRecord 6 {DateTime.Now - now} ");
-					restConnection.Instance.post ("clear_user_updates", updated_dict);
+					Persist.Instance.GetWebConnection ().post ("clear_user_updates", updated_dict);
 					Console.WriteLine ($"StoreUpdatedUserRecord 7 {DateTime.Now - now} ");
 				}
 				Online = true;
@@ -1256,10 +1256,12 @@ namespace RayvMobileApp
 		/// <summary>
 		/// returns 0/0 by default
 		/// </summary>
-		public Double GetConfigInt (string key)
+		public int GetConfigInt (string key)
 		{
 			try {
-				return Convert.ToInt64 (GetConfig (key));
+				int r = 0;
+				int.TryParse (GetConfig (key), out r);
+				return r;
 			} catch {
 				return 0;
 			}

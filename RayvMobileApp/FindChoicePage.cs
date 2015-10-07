@@ -166,6 +166,7 @@ namespace RayvMobileApp
 			Persist.Instance.SetConfig (settings.FILTER_CUISINE, cuisine);
 			Persist.Instance.SetConfig (settings.FILTER_KIND, (int)currentKind);
 			Persist.Instance.SetConfig (settings.FILTER_STYLE, (int)currentStyle);
+			Persist.Instance.SetConfig (settings.FILTER_MIN_VOTE, FilterMimimunStarValue);
 			if (SearchCentre.Equals (null)) {
 				Persist.Instance.SetConfig (settings.FILTER_WHERE_LAT, null);
 				Persist.Instance.SetConfig (settings.FILTER_WHERE_LNG, null);
@@ -243,8 +244,13 @@ namespace RayvMobileApp
 		{
 			Title = TitleVote;
 			RowCount = 4;
-			StarEditor Stars = new StarEditor (false);
-			_grid.Children.Add (Stars, 0, 3, 0, 1);
+			StarEditor Stars = new StarEditor (false){ IsWhiteMode = true, Vote = FilterMimimunStarValue };
+			var StarStack = new StackLayout {Children = {
+					new Label{ Text = "Rating At Least:", TextColor = Color.White },
+					Stars,
+				}
+			};
+			_grid.Children.Add (StarStack, 0, 3, 0, 1);
 			Stars.ChangedNotUI += (o, e) => {
 				var args = e as StarEditorEventArgs;
 				currentVoteKindFilter = VoteFilterKind.Stars;
@@ -319,6 +325,7 @@ namespace RayvMobileApp
 					Persist.Instance.GetConfigDouble (settings.FILTER_WHERE_LNG));
 				currentLocationName = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
 			} 
+			FilterMimimunStarValue = Persist.Instance.GetConfigInt (settings.FILTER_MIN_VOTE);
 		}
 
 		string GetFriendText ()

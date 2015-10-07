@@ -10,6 +10,7 @@ namespace RayvMobileApp
 		ListView listView;
 		const int BUTTON_SIZE = 80;
 		int roundButtonSize = Device.OnPlatform (30, 50, 30);
+		StackLayout innerContent;
 
 		DataTemplate GetDataTemplate ()
 		{
@@ -53,9 +54,10 @@ namespace RayvMobileApp
 					                                    $"Unfriend {friend.Name}",
 						                        "Yes",
 						                        "Cancel")) { 
-							if (Persist.Instance.Unfriend (friend.Key))
-								GetContent ();
-							else
+							if (Persist.Instance.Unfriend (friendKey)) {
+								Persist.Instance.Friends.Remove (friendKey);
+								SetInnerContent ();
+							} else
 								DisplayAlert ("Fail", $"Couldn't unfriend {friend.Name} - Try Later", "OK"); 
 						} else {
 							delBtn.IsVisible = false;
@@ -88,23 +90,37 @@ namespace RayvMobileApp
 			});
 		}
 
-		View GetContent ()
+		void SetInnerContent ()
 		{
+			innerContent.Children.Clear ();
 			if (Persist.Instance.Friends.Count == 0) {
-				return new Label { Text = "No Friends (Yet)" };
+				innerContent.Children.Add (
+					new Label { 
+						Text = "No Friends (Yet)", 
+						VerticalOptions = LayoutOptions.CenterAndExpand,
+						HorizontalOptions = LayoutOptions.Center,
+					}
+				);
 			} else {
-				listView = new ListView {
-					// Source of data items.
-					ItemsSource = Persist.Instance.Friends,
-					SeparatorColor = settings.ColorDarkGray,
-					SeparatorVisibility = SeparatorVisibility.Default,
-					RowHeight = Device.OnPlatform (100, 120, 120),
-					// Define template for displaying each item.
-					ItemTemplate = GetDataTemplate (),
-				};
-				listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
-				};
-				return listView;
+				if (listView == null) {
+					listView = new ListView {
+						// Source of data items.
+						ItemsSource = Persist.Instance.Friends,
+						SeparatorColor = settings.ColorDarkGray,
+						SeparatorVisibility = SeparatorVisibility.Default,
+						RowHeight = Device.OnPlatform (100, 120, 120),
+						// Define template for displaying each item.
+						ItemTemplate = GetDataTemplate (),
+						VerticalOptions = LayoutOptions.FillAndExpand,
+					};
+					listView.ItemTapped += (object sender, ItemTappedEventArgs e) => {
+					};	
+				} else {
+					// already exists, reload source
+					listView.ItemsSource = null;
+					listView.ItemsSource = Persist.Instance.Friends;
+				}
+				innerContent.Children.Add (listView);
 			}
 		}
 
@@ -118,10 +134,12 @@ namespace RayvMobileApp
 				Navigation.PushAsync (new AddFriendPage ());
 			};
 			StackLayout tools = new BottomToolbar (this, "add");
+			innerContent = new StackLayout { VerticalOptions = LayoutOptions.FillAndExpand };
+			SetInnerContent ();
 			Content = new StackLayout {
 				Children = {
 					addFriendBtn,
-					GetContent (),
+					innerContent,
 					tools
 				}
 			};

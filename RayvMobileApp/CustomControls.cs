@@ -101,7 +101,7 @@ namespace RayvMobileApp
 			Parameters parameters = new Parameters ();
 			parameters ["address"] = _placeName.Text;
 			try {
-				string result = restConnection.Instance.get ("/api/geocode", parameters).Content;
+				string result = Persist.Instance.GetWebConnection ().get ("/api/geocode", parameters).Content;
 				JObject obj = JObject.Parse (result);
 				//obj["results"][1]["formatted_address"].ToString()
 				LocationList = new List<GeoLocation> ();

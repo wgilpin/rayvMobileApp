@@ -25,6 +25,7 @@ namespace RayvMobileApp
 		bool _untried = false;
 		bool _showUntried;
 		bool _friendMode = false;
+		bool _whiteMode = false;
 		// friend mode means show in b&w
 
 		TapGestureRecognizer tapped;
@@ -96,6 +97,17 @@ namespace RayvMobileApp
 			}
 		}
 
+		public bool IsWhiteMode {
+			// friends get grey stars
+			get { return _whiteMode; }
+			set {
+				Console.WriteLine ($"StarEditor: WhiteMode {value}");
+				_whiteMode = value;
+				LoadSources ();
+				SetVote (_vote);
+			}
+		}
+
 		public bool ReadOnly { get; set; }
 
 		public EventHandler<StarEditorEventArgs> ChangedNotUI;
@@ -159,6 +171,11 @@ namespace RayvMobileApp
 				StarUnsetSource = settings.DevicifyFilename ("star_border.png");
 				WishSetSource = settings.DevicifyFilename ("Wish_dark_grey.png");
 				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
+			} else if (_whiteMode) {
+				StarSetSource = settings.DevicifyFilename ("star-selected.png");
+				StarUnsetSource = settings.DevicifyFilename ("star_white.png");
+				WishSetSource = settings.DevicifyFilename ("wish_blue.png");
+				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
 			} else {
 				StarSetSource = settings.DevicifyFilename ("star-selected.png");
 				StarUnsetSource = settings.DevicifyFilename ("star_border.png");
@@ -200,6 +217,7 @@ namespace RayvMobileApp
 			tapped.Tapped += DoStarTapped;
 			AddImage (showUntried ? "wish_grey.png" : "", 0);
 			//five star columns
+			Console.WriteLine ($"StarEditor: set Grey");
 			for (int i = 1; i < 6; i++) {
 				AddImage ("star-empty.png", i);
 			}

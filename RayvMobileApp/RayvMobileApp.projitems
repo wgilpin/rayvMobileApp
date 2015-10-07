@@ -69,5 +69,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DoubleButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditCuisineView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgsMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestFormsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PushNotificationsListener.cs" />
   </ItemGroup>
 </Project>

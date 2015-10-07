@@ -18,9 +18,9 @@ namespace RayvMobileApp
 		public UserProfile ()
 		{
 			try {
-				var restResult = restConnection.Instance.get ("api/profile");
+				var restResult = Persist.Instance.GetWebConnection ().get ("api/profile");
 				if (restResult != null) {
-					String result = restConnection.Instance.get ("api/profile").Content;
+					String result = Persist.Instance.GetWebConnection ().get ("api/profile").Content;
 					JObject obj = JObject.Parse (result);
 					ScreenName = obj ["profile"] ["screen_name"].ToString ();
 					Email = obj ["profile"] ["email"].ToString ();
@@ -118,7 +118,7 @@ namespace RayvMobileApp
 			ps ["screen_name"] = ScreenNameEd.Text;
 			if (GenderEd.SelectedIndex > -1)
 				ps ["gender"] = GenderEd.Items [GenderEd.SelectedIndex];
-			String result = restConnection.Instance.post ("api/profile", ps);
+			String result = Persist.Instance.GetWebConnection ().post ("api/profile", ps);
 			if (result != "OK") {
 				DisplayAlert ("Error", "Couldn't Save: " + result, "OK");
 				SaveBtn.IsEnabled = true;

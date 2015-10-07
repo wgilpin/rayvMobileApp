@@ -32,6 +32,7 @@ namespace RayvMobileApp
 
 		public event EventHandler<CuisineSavedEventArgs> Saved;
 		public event EventHandler Cancelled;
+		public event EventHandler NoCuisine;
 
 		protected virtual void OnSaved (Cuisine cuisine, bool showAll)
 		{
@@ -71,15 +72,19 @@ namespace RayvMobileApp
 			if (inFlow) {
 				var buttons = new DoubleButton { 
 					LeftText = "Back", 
-					LeftSource = "298-circlex@2x.png",
 					RightText = "Next",
-					RightSource = "Add Select right button.png"
+					LeftSource = "back_1.png",
+					RightSource = "forward_1.png"
 				};
 				buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
 				buttons.RightClick = (s, e) => {
-					if (InFlow)
-						SaveSelected ((list.SelectedItem as Cuisine).Title, false);
-					else
+					if (InFlow) {
+						if (list.SelectedItem != null)
+							SaveSelected ((list.SelectedItem as Cuisine).Title, false);
+						else {
+							NoCuisine?.Invoke (this, null);
+						}
+					} else
 						Cancelled?.Invoke (this, null);
 				};
 				Children.Add (buttons);

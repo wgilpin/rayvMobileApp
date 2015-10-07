@@ -18,6 +18,7 @@ namespace RayvMobileApp
 		public const string FILTER_WHERE_NAME = "FILTER_WHERE_NAME";
 		public const string FILTER_WHERE_LAT = "FILTER_WHERE_LAT";
 		public const string FILTER_WHERE_LNG = "FILTER_WHERE_LNG";
+		public const string FILTER_MIN_VOTE = "FILTER_MIN_VOTE";
 		public const string PLACE_TYPES = "food|restaurant|bar|cafe|meal_delivery|meal_takeaway";
 		public const string SECRET_KEY = "=r-$b*8hglm+858&9t043hlm6-&6-3d3vfc4((7yd0dbrakhvi";
 		public const string GOOGLE_API_KEY = "AIzaSyDiTThta8R7EFuFo8cGfPHxIGYoFkc77Bw";
@@ -40,6 +41,10 @@ namespace RayvMobileApp
 		// 30 mins timeout
 		public static  TimeSpan LIST_PAGE_TIMEOUT = new TimeSpan (0, 30, 0);
 		public const int MAX_SERVER_TRIES = 1;
+		public const int MAX_INITIAL_LIST_LENGTH = 20;
+		public const Double MAX_LIST_DISTANCE = 5.0;
+
+
 		public static Color BaseColor = Color.FromHex ("4A90E2");
 		//		public static Color ColorLight = Color.FromHex ("718CBE");
 		//		public static Color ColorDark = Color.FromHex ("6883B5");

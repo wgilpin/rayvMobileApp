@@ -164,7 +164,7 @@ namespace RayvMobileApp
 				try {
 					return Persist.Instance.Votes.Where (v => v.key == key && v.vote > 0).Select (v => v.vote).Average ();
 				} catch (Exception ex) {
-					Console.WriteLine ($"ERROR Rating {ex}");
+					Console.WriteLine ($"CAUGHT Rating {ex}");
 					Insights.Report (ex);
 					return 0.0;
 				}
@@ -447,7 +447,7 @@ namespace RayvMobileApp
 			             where v.key == _key
 			             select v).FirstOrDefault ();
 			if (vote != null) {
-				string res = restConnection.Instance.post (
+				string res = Persist.Instance.GetWebConnection ().post (
 					             "api/delete",
 					             new Dictionary<string, string> () {
 						{ "key", _key }
@@ -536,7 +536,7 @@ namespace RayvMobileApp
 
 					bool wasDraft = IsDraft;
 					string wasDraftKey = _key;
-					string result = restConnection.Instance.post ("/item", parameters);
+					string result = Persist.Instance.GetWebConnection ().post ("/item", parameters);
 					//			JObject obj = JObject.Parse (result);
 					if (!string.IsNullOrEmpty (result))
 						try {
@@ -587,6 +587,8 @@ namespace RayvMobileApp
 						}
 					else {
 						Insights.Track ("Place.Save Error", "Result", "None");
+						errorMessage = "Unable to save";
+						return false;
 					}
 				} else {
 					lock (Persist.Instance.Lock) {
@@ -623,7 +625,7 @@ namespace RayvMobileApp
 					parameters ["style"] = ((int)vote.style).ToString ();
 					parameters ["voteScore"] = vote.vote.ToString ();
 					parameters ["voteUntried"] = vote.untried.ToString ();
-					string result = restConnection.Instance.post ("/api/vote", parameters);
+					string result = Persist.Instance.GetWebConnection ().post ("/api/vote", parameters);
 					//			JObject obj = JObject.Parse (result);
 					if (result == "OK") {
 						lock (Persist.Instance.Lock) {

@@ -57,19 +57,28 @@ namespace RayvMobileApp
 			};
 			TextEditor.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
 			Spinner = new ActivityIndicator{ Color = Color.Red, };
-			Padding = 2;
-			Children.Add (new Frame { OutlineColor = Color.Gray,
+			var innerStack = new StackLayout {
+				Padding = 2,
+				VerticalOptions = LayoutOptions.FillAndExpand
+			};
+			innerStack.Children.Add (new Label {
+				HorizontalOptions = LayoutOptions.Center,
+				FontSize = settings.FontSizeLabelLarge,
+				Text = "Comment",
+				FontAttributes = FontAttributes.Bold,
+			});
+			innerStack.Children.Add (new Frame { OutlineColor = Color.Gray,
 				HasShadow = false,
 				Content = TextEditor,
 			});
-			Children.Add (Spinner);					
-
+			innerStack.Children.Add (Spinner);					
+			Children.Add (innerStack);
 			if (inFlow) {
 				var buttons = new DoubleButton { 
 					LeftText = "Back", 
-					LeftSource = "298-circlex@2x.png",
 					RightText = "Save",
-					RightSource = "Add Select right button.png"
+					LeftSource = "back_1.png",
+					RightSource = "forward_1.png"
 				};
 				buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
 				buttons.RightClick = (s, e) => {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xamarin.Forms;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RayvMobileApp
 {
@@ -28,13 +29,17 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class EditPlaceKindView : Grid
+	public class EditPlaceKindView : StackLayout
 	{
 		MealKind _kind;
 		PlaceStyle _style;
 		bool InFlow;
+		Grid grid;
 
 		CheckBox[] checks;
+		Dictionary<string, PlaceStyle> Styles;
+		Picker StylePicker;
+		DoubleButton buttons;
 
 		const string STYLE_FANCY = "fancy",
 			STYLE_QUICK = "quick bite",
@@ -55,81 +60,45 @@ namespace RayvMobileApp
 			}
 		}
 
-		public void DoClickStyleFancy (object sender, EventArgs e)
+		public bool BothValuesSet ()
 		{
 			// at least one kind?
-			if (_kind != MealKind.None) {
-				_style = PlaceStyle.Fancy;
-				OnSaved ();
-			} else
-				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
-		}
-
-		public void DoClickStyleRelaxed (object sender, EventArgs e)
-		{
-			// at least one kind?
-			if (_kind != MealKind.None) {
-				_style = PlaceStyle.Relaxed;
-				OnSaved ();
-			} else
-				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
-		}
-
-		public void DoClickStyleQuick (object sender, EventArgs e)
-		{
-			// at least one kind?
-			if (_kind != MealKind.None) {
-				_style = PlaceStyle.QuickBite;
-				OnSaved ();
-			} else
-				ShowMessage?.Invoke (this, new EventArgsMessage ("You must check at least one meal kind"));
+			if (StylePicker.SelectedIndex > 0) {
+				// 0 = None
+				if (_kind != MealKind.None) {
+					_style = Styles [StylePicker.Items [StylePicker.SelectedIndex]];
+					return true;
+				}
+			}
+			return false;
 		}
 
 		void SetUpGrid ()
 		{
-			RowSpacing = 10;
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			RowDefinitions.Add (new RowDefinition {
-				Height = new GridLength (1, GridUnitType.Auto)
-			});
-			ColumnDefinitions.Add (new ColumnDefinition {
-				Width = new GridLength (20)
-			});
-			ColumnDefinitions.Add (new ColumnDefinition {
-				Width = new GridLength (1, GridUnitType.Star)
-			});
-			ColumnDefinitions.Add (new ColumnDefinition {
-				Width = new GridLength (30)
-			});
+			grid = new Grid { 
+				VerticalOptions = LayoutOptions.StartAndExpand,
+				RowSpacing = 10,
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) }
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (20) },
+					new ColumnDefinition {
+						Width = new GridLength (1, GridUnitType.Star)
+					},
+					new ColumnDefinition {
+						Width = new GridLength (30)
+					}
+				}
+			};
 		}
 
 		void AddMealTimeButton (EventHandler onClick, MealKind value, string text, int row)
@@ -138,8 +107,8 @@ namespace RayvMobileApp
 			checks [row - 1] = chkBox;
 			var voteLbl = new LabelClickable{ OnClick = onClick };
 			voteLbl.Label.Text = text;
-			Children.Add (voteLbl, 1, row);
-			Children.Add (chkBox, 2, row);
+			grid.Children.Add (voteLbl, 1, row);
+			grid.Children.Add (chkBox, 2, row);
 		}
 
 		void AddPlaceStyleButton (EventHandler onClick, PlaceStyle value, string text, int row)
@@ -157,8 +126,8 @@ namespace RayvMobileApp
 				Source = settings.DevicifyFilename ("arrow.png"), 
 				OnClick = onClick
 			};
-			Children.Add (lbl, 1, row);
-			Children.Add (imgBtn, 2, row);
+			grid.Children.Add (lbl, 1, row);
+			grid.Children.Add (imgBtn, 2, row);
 		}
 
 		void DoCheck (object sender, MealKind kind, int row)
@@ -171,6 +140,11 @@ namespace RayvMobileApp
 				_kind = _kind | kind;
 			else
 				_kind = (MealKind)((int)_kind & ~(int)kind);
+		}
+
+		void DoStyleChanged (object sender, EventArgs e)
+		{
+			_style = Styles [StylePicker.Items [StylePicker.SelectedIndex]];
 		}
 
 		public EditPlaceKindView (MealKind kind, PlaceStyle style, bool inFlow = true)
@@ -188,6 +162,7 @@ namespace RayvMobileApp
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};
+			grid.Children.Add (MealType, 0, 3, 0, 1);
 			// meal time buttons
 			AddMealTimeButton ((s, e) => {
 				DoCheck (s, MealKind.Breakfast, 1);
@@ -211,28 +186,42 @@ namespace RayvMobileApp
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};
-			Children.Add (PlaceType, 0, 3, 6, 7);
-			AddPlaceStyleButton (DoClickStyleQuick, PlaceStyle.QuickBite, STYLE_QUICK, 7);
-			AddPlaceStyleButton (DoClickStyleRelaxed, PlaceStyle.Relaxed, STYLE_RELAXED, 8);
-			AddPlaceStyleButton (DoClickStyleFancy, PlaceStyle.Fancy, STYLE_FANCY, 9);
+			grid.Children.Add (PlaceType, 0, 3, 6, 7);
 
-			var buttons = new DoubleButton { 
-				LeftText = "Back", 
-				LeftSource = "298-circlex@2x.png",
-				RightText = "Next",
-				RightSource = "Add Select right button.png"
+			Styles = new Dictionary<string, PlaceStyle> () {
+				{ "select",PlaceStyle.None },
+				{ "quick bite",PlaceStyle.QuickBite },
+				{ "relaxed",PlaceStyle.Relaxed },
+				{ "fancy",PlaceStyle.Fancy },
 			};
-			if (style == PlaceStyle.None) {
-				buttons.IsEnabledRight = false;
+			StylePicker = new Picker ();
+			foreach (var kvp in Styles) {
+				StylePicker.Items.Add (kvp.Key);
 			}
+
+			grid.Children.Add (StylePicker, 1, 2, 7, 8);
+			StylePicker.SelectedIndex = Styles.Values.ToList ().IndexOf (_style);
+			StylePicker.SelectedIndexChanged += DoStyleChanged;
+
+			buttons = new DoubleButton { 
+				LeftText = "Back", 
+				RightText = "Next",
+				LeftSource = "back_1.png",
+				RightSource = "forward_1.png"
+			};
 			buttons.LeftClick = (s, e) => Cancelled?.Invoke (this, null);
 			buttons.RightClick = (s, e) => {
-				if (InFlow)
-					OnSaved ();
-				else
+				if (inFlow) {
+					if (BothValuesSet ())
+						OnSaved ();
+					else
+						ShowMessage?.Invoke (this, new EventArgsMessage ("Needs both a meal time & a style"));
+				} else
 					Cancelled?.Invoke (this, null);
 			};
-			Children.Add (buttons, 0, 3, 10, 11);
+
+			Children.Add (grid);
+			Children.Add (buttons);
 		}
 	}
 }

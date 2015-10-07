@@ -18,16 +18,17 @@ namespace RayvMobileApp
 	{
 		#region Fields
 
-		static ListView listView;
+		static PlacesListView listView;
 
 		ActivityIndicator Spinner;
 
 		Label NothingFound;
 
-		public static IEnumerable ItemsSource {
+		public static List<Place> ItemsSource {
 			set {
 				lock (listView) {
-					listView.ItemsSource = value;
+					var nearby = value.Where (p => p.distance_for_search < settings.MAX_LIST_DISTANCE).ToList ();
+					listView.SetMainItemSource (nearby);
 				}
 			}
 		}
@@ -47,7 +48,7 @@ namespace RayvMobileApp
 			listView = new PlacesListView {
 				//ItemsSource = Persist.Instance.Places,
 			};
-			listView.ItemTapped += DoSelectListItem;
+			listView.OnItemTapped = DoSelectListItem;
 			StackLayout tools = new BottomToolbar (this, "list");
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,

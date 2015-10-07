@@ -9,6 +9,7 @@ using Xamarin.Forms;
 
 //using HockeyApp;
 using System.Threading.Tasks;
+using PushNotification.Plugin;
 
 
 namespace RayvMobileApp.iOS
@@ -61,6 +62,10 @@ namespace RayvMobileApp.iOS
 			bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 			Insights.DisableCollection = DEBUG_ON_SIMULATOR;
 
+			//Consider inizializing before application initialization, if using any CrossPushNotification method during application initialization.
+			CrossPushNotification.Initialize<PushNotificationsListener> ();
+			CrossPushNotification.Current.Register ();
+			//...
 			LoadApplication (new App ());
 
 			return base.FinishedLaunching (app, options);
@@ -74,6 +79,42 @@ namespace RayvMobileApp.iOS
 		public override void WillEnterForeground (UIApplication application)
 		{
 			
+		}
+
+		public override void FailedToRegisterForRemoteNotifications (UIApplication application, NSError error)
+		{
+			if (CrossPushNotification.Current is IPushNotificationHandler) {
+				((IPushNotificationHandler)CrossPushNotification.Current).OnErrorReceived (error);
+			}
+		}
+
+		public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
+		{
+			if (CrossPushNotification.Current is IPushNotificationHandler) {
+				((IPushNotificationHandler)CrossPushNotification.Current).OnRegisteredSuccess (deviceToken);
+			}
+		}
+
+		public override void DidRegisterUserNotificationSettings (UIApplication application,
+		                                                          UIUserNotificationSettings notificationSettings)
+		{
+			application.RegisterForRemoteNotifications ();
+		}
+
+		public  void DidReceiveRemoteNotification (UIApplication application,
+		                                           NSDictionary userInfo,
+		                                           Action completionHandler)
+		{
+			if (CrossPushNotification.Current is IPushNotificationHandler) {
+				((IPushNotificationHandler)CrossPushNotification.Current).OnMessageReceived (userInfo);
+			}
+		}
+
+		public override void ReceivedRemoteNotification (UIApplication application, NSDictionary userInfo)
+		{ 
+			if (CrossPushNotification.Current is IPushNotificationHandler) {
+				((IPushNotificationHandler)CrossPushNotification.Current).OnMessageReceived (userInfo);
+			}
 		}
 	}
 }

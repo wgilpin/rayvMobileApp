@@ -50,8 +50,8 @@ namespace RayvMobileApp
 
 		public DoubleButton ()
 		{
-			LeftBtn = new ButtonWithImage { Padding = 10 };
-			RightBtn = new ButtonWithImage { Padding = 10  };
+			LeftBtn = new ButtonWithImage { Padding = 10, FontSize = settings.FontSizeButtonLarge };
+			RightBtn = new ButtonWithImage { Padding = 10, FontSize = settings.FontSizeButtonLarge };
 			Content = new StackLayout {
 				Children = { LeftBtn, RightBtn },
 				HorizontalOptions = LayoutOptions.FillAndExpand,

@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Xamarin.Forms;
 using Xamarin;
 
@@ -37,6 +36,7 @@ namespace RayvMobileApp
 			
 			locationMgr = DependencyService.Get<ILocationManager> ();
 			Persist.Instance.UpdateSchema ();
+//			MainPage = new TestFormsPage ();
 			MainPage = GetFirstPage ();
 		}
 

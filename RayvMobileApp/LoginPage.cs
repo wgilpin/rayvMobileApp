@@ -125,7 +125,7 @@ namespace RayvMobileApp
 			cparams ["username"] = email;
 
 			try {
-				restConnection.Instance.post ("/forgot", cparams);
+				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
 				DisplayAlert ("Password", "An email has been sent to your registered account", "OK");
 			} catch (Exception ex) {
 				Insights.Report (ex);

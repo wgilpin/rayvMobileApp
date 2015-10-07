@@ -260,6 +260,7 @@ namespace RayvMobileApp
 				Padding = 5,
 				Spacing = 10,
 				BackgroundColor = Color.FromHex ("EEE"),
+
 			};
 			Spinner = new ActivityIndicator { Color = Color.Red, };
 			Toolbar = new BottomToolbar (this, "news");
@@ -270,6 +271,7 @@ namespace RayvMobileApp
 				Children = {
 					Spinner,
 					new ScrollView {
+						VerticalOptions = LayoutOptions.FillAndExpand,
 						Content = new StackLayout {
 							Children = {
 								list,

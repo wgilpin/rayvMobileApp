@@ -71,6 +71,9 @@ namespace RayvMobileApp
 			CuisineView.Cancelled += (sender, e) => {
 				ShowKindView ();
 			};
+			CuisineView.NoCuisine += (s, e) => {
+				DisplayAlert ("No Cuisine", "You have to choose a cusine", "OK");
+			};
 			Content = CuisineView;
 		}
 
@@ -127,7 +130,7 @@ namespace RayvMobileApp
 
 		void DoVoteRemoved (object sender, EventArgs e)
 		{
-			restConnection.Instance.post ($"/item/del/{EditPlace.key}");
+			Persist.Instance.GetWebConnection ().post ($"/item/del/{EditPlace.key}");
 			// remove the vote from the votes list
 			Persist.Instance.Votes.Remove (EditPlace.vote);
 			//TODO: delete & free an object?

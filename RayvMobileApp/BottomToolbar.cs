@@ -95,8 +95,7 @@ namespace RayvMobileApp
 				addPage.Cancelled += (sender, ev) => {
 					Navigation.PopModalAsync ();
 				};
-				this.Navigation.PushModalAsync (
-					new RayvNav (addPage), false);
+				this.Navigation.PushModalAsync (new RayvNav (addPage), false);
 			});
 		}
 
@@ -115,7 +114,7 @@ namespace RayvMobileApp
 			CurrentPage = page;
 			VerticalOptions = LayoutOptions.End;
 			Console.WriteLine ("toolbar()");
-			HeightRequest = 70;
+			HeightRequest = 60;
 			Padding = 7;
 			HorizontalOptions = LayoutOptions.FillAndExpand;
 			BackgroundColor = settings.BaseColor;

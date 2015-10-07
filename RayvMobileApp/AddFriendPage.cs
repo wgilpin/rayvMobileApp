@@ -10,7 +10,7 @@ namespace RayvMobileApp
 		void DoSendInvite (object s, EventArgs e)
 		{
 			try {
-				var resp = restConnection.Instance.get ("/api/invite");
+				var resp = Persist.Instance.GetWebConnection ().get ("/api/invite");
 				if (resp.ResponseStatus == RestSharp.ResponseStatus.Error) {
 					DisplayAlert ("Error", "Unable to create invite", "OK");
 					return;

@@ -36,6 +36,7 @@ namespace RayvMobileApp
 			Console.WriteLine ("MainMenu()");
 
 			BackgroundColor = settings.ColorOffWhite;
+
 			Grid grid = new GridWithCounter {
 				Padding = new Thickness (20),
 				VerticalOptions = LayoutOptions.Center,
@@ -63,11 +64,13 @@ namespace RayvMobileApp
 				Aspect = Aspect.AspectFit,
 			};
 			var clickAdd = new TapGestureRecognizer ();
+			var addPage = new AddPage1 (hasBackButton: true);
+			addPage.Cancelled += (s, e) => {
+				Navigation.PopModalAsync ();
+			};
 			clickAdd.Tapped += (s, e) => {
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
-				this.Navigation.PushAsync (new AddPage1 ());
-//				this.Navigation.PushModalAsync (
-//					new RayvNav (new AddWhatPage ()));
+				this.Navigation.PushModalAsync (new RayvNav (addPage));
 			};
 			addImg.GestureRecognizers.Add (clickAdd);
 
