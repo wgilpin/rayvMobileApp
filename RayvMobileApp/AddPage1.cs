@@ -133,7 +133,7 @@ namespace RayvMobileApp
 									showSave: true, 
 									showToolbar: true)));
 						} else {
-							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK"); 
+							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK");
 						}
 					});
 				};
@@ -225,7 +225,7 @@ namespace RayvMobileApp
 						parameters ["addr"] = searchLocation;
 					}
 					if (!string.IsNullOrEmpty (PlaceNameBox.Text)) {
-						parameters ["place_name"] = PlaceNameBox.Text;
+						parameters ["place_name"] = PlaceNameBox.Text ?? "";
 					}
 					parameters ["near_me"] = "1";
 					var restResult = Persist.Instance.GetWebConnection ().get ("/getAddresses_ajax", parameters, timeout: 30000);
@@ -236,8 +236,13 @@ namespace RayvMobileApp
 						JObject obj = JObject.Parse (result);
 						points = new List<Place> ();
 						List<Place> pointsIn = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
+						string search_text = parameters.ContainsKey ("place_name") ? parameters ["place_name"].ToLower () : "";
 						foreach (Place point in pointsIn) {
 							if (point == null)
+								continue;
+							if (search_text.Length > 0)
+							if (!point.place_name.ToLower ().Contains (search_text))
+								// place name was asked for, not found
 								continue;
 							point.CalculateDistanceFromPlace (SearchPosition);
 							points.Add (point);
@@ -255,7 +260,7 @@ namespace RayvMobileApp
 							Spinner.IsRunning = false;
 							Console.WriteLine ("AddPage1.DoSearch: Activity Over. source set");
 							PlacesLV.DisplayedList.ItemsSource = null;
-							PlacesLV.DisplayedList.ItemsSource = points.Take (30).ToList ();
+							PlacesLV.DisplayedList.ItemsSource = points;
 
 							NothingFound.IsVisible = points.Count == 0;
 							PlacesLV.IsVisible = !NothingFound.IsVisible;

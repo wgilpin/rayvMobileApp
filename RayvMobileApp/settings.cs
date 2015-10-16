@@ -43,6 +43,7 @@ namespace RayvMobileApp
 		public const int MAX_SERVER_TRIES = 1;
 		public const int MAX_INITIAL_LIST_LENGTH = 20;
 		public const Double MAX_LIST_DISTANCE = 5.0;
+		public const int MIN_PWD_LENGTH = 7;
 
 
 		public static Color BaseColor = Color.FromHex ("4A90E2");

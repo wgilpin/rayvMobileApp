@@ -46,7 +46,7 @@ namespace RayvMobileApp
 						Text = $"Server: {Persist.Instance.GetConfig (settings.SERVER)}"
 					},
 					new Label {
-						Text =$"UID: {Persist.Instance.MyId}",
+						Text = $"UID: {Persist.Instance.MyId}",
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,
@@ -68,6 +68,7 @@ namespace RayvMobileApp
 				}
 			};
 			Content = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					Inner,
 					new BottomToolbar (this, "settings"),

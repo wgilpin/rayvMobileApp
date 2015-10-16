@@ -820,7 +820,9 @@ namespace RayvMobileApp
 		static IRestResponse InnerGetUserData (DateTime? since, restConnection webReq, int timeout = 0)
 		{
 			IRestResponse resp;
-			Dictionary<String, String> paramList = new Dictionary<String, String> ();
+			Dictionary<String, String> paramList = new Dictionary<String, String> {
+				{ "version", ServerPicker.GetServerVersion () }
+			};
 			if (since != null) {
 				paramList.Add ("since", ((DateTime)since).ToString ("s"));
 			}
@@ -839,11 +841,15 @@ namespace RayvMobileApp
 			restConnection conn = restConnection.Instance;
 			string server = GetConfig (settings.SERVER);
 			if (string.IsNullOrEmpty (server)) {
-				server = settings.SERVER_DEFAULT;
+				server = $"https://{settings.SERVER_DEFAULT}";
 			} 
-			conn.setBaseUrl (server);
-			conn.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
-			return conn;
+			try {
+				conn.setBaseUrl (server);
+				conn.setCredentials (GetConfig (settings.USERNAME), GetConfig (settings.PASSWORD), "");
+				return conn;
+			} catch {
+				return null;
+			}
 		}
 
 		public delegate void StatusMessageDelegate (string message, double progress);
@@ -878,6 +884,11 @@ namespace RayvMobileApp
 					if (resp == null) {
 						Debug.WriteLine ("GetUserData: NO RESPONSE");
 						onFail?.Invoke ();
+						return;
+					}
+					if (resp.Content == "BAD_VERSION") {
+						Debug.WriteLine ("GetUserData: BAD_VERSION");
+						onFailVersion?.Invoke ();
 						return;
 					}
 					if (since != null) {

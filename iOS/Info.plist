@@ -42,6 +42,8 @@
 		<string>Icon-Small</string>
 		<string>Icon-Small@2x</string>
 		<string>Icon-Small@3x</string>
+		<string>Icon</string>
+		<string>Icon@2x</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -52,7 +54,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.6-de</string>
+	<string>0.6-e1</string>
 	<key>CFBundleDisplayName</key>
 	<string>Taste 5</string>
 	<key>CFBundleIdentifier</key>
@@ -60,6 +62,6 @@
 	<key>NSAllowsArbitraryLoads</key>
 	<true/>
 	<key>CFBundleVersion</key>
-	<string>de</string>
+	<string>e1</string>
 </dict>
 </plist>

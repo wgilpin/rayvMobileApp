@@ -71,5 +71,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventArgsMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestFormsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PushNotificationsListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ChangePwdPage.cs" />
   </ItemGroup>
 </Project>

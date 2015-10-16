@@ -750,7 +750,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
 				lock (Persist.Instance.Lock) {
 					try {
-						SetList (Persist.Instance.Places);
+						Device.BeginInvokeOnMainThread (() => SetList (Persist.Instance.Places));
 					} catch (Exception ex) {
 						Insights.Report (ex);
 						restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);

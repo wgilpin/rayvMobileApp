@@ -158,7 +158,12 @@ namespace RayvMobileApp
 
 			PwdBtn = new RayvButton ("Change Password");
 			PwdBtn.Clicked += (sender, e) => {
-				
+				var changePage = new ChangePwdPage ();
+				changePage.Done += (s, ev) => {
+					Navigation.PopAsync ();
+				};
+				NavigationPage.SetBackButtonTitle (this, "");
+				Navigation.PushAsync (changePage);
 			};
 
 			PushSw = new Xamarin.Forms.Switch{ IsToggled = true, };
