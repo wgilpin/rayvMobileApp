@@ -86,6 +86,7 @@ namespace RayvMobileApp
 		Xamarin.Forms.Switch PushSw;
 		Xamarin.Forms.Switch EmailsSw;
 		StackLayout stack;
+		LineGrid3 SaveBtnGrid;
 
 		#endregion
 
@@ -101,7 +102,7 @@ namespace RayvMobileApp
 				} catch {
 					GenderEd.SelectedIndex = 0;
 				}
-				SaveBtn.IsVisible = false;
+				SaveBtnGrid.IsVisible = false;
 				Persist.Instance.SetConfig (settings.PROFILE_SCREENNAME, profile.ScreenName);
 				Persist.Instance.SetConfig (settings.PROFILE_EMAIL, profile.Email);
 				Persist.Instance.SetConfig (settings.PROFILE_GENDER, profile.Gender);
@@ -137,7 +138,7 @@ namespace RayvMobileApp
 				Placeholder = "Screen Name (what other users see)",
 			};
 			ScreenNameEd.TextChanged += (sender, e) => {
-				SaveBtn.IsVisible = true;
+				SaveBtnGrid.IsVisible = true;
 			};
 			EmailEd = new Label {
 				TranslationX = 3,
@@ -153,7 +154,7 @@ namespace RayvMobileApp
 			GenderEd.Items.Add ("Other");
 			GenderEd.SelectedIndex = 0;
 			GenderEd.SelectedIndexChanged += (sender, e) => {
-				SaveBtn.IsVisible = true;
+				SaveBtnGrid.IsVisible = true;
 			};
 
 			PwdBtn = new RayvButton ("Change Password");
@@ -171,7 +172,8 @@ namespace RayvMobileApp
 
 			stack = new StackLayout {
 				Orientation = StackOrientation.Vertical,
-				VerticalOptions = LayoutOptions.FillAndExpand
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Padding = 2,
 			};
 			stack.Children.Add (new LineGrid3 (
 				new Image{ Source = settings.DevicifyFilename ("18-envelope@2x.png") }, 
@@ -183,11 +185,10 @@ namespace RayvMobileApp
 				null, 
 				GenderEd));
 
-			SaveBtn = new RayvButton ("Save"){ IsVisible = false, };
+			SaveBtn = new RayvButton ("Save");
 			SaveBtn.Clicked += DoSaveProfile;
-			stack.Children.Add (new LineGrid3 (
-				null, 
-				SaveBtn));
+			SaveBtnGrid = new LineGrid3 (null, SaveBtn){ IsVisible = false };
+			stack.Children.Add (SaveBtnGrid);
 			stack.Children.Add (new LineGrid3 (
 				new Image{ Source = settings.DevicifyFilename ("54-lock@2x.png") }, 
 				PwdBtn));

@@ -45,9 +45,6 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void ShowPlaceOnDetailPage (object sender, PlaceSavedEventArgs e) =>
-		    this.Navigation.PushModalAsync (new RayvNav (new DetailPage (e.EditedPlace, true)));
-
 		void BackToRoot (object sender, EventArgs e) => this.Navigation.PopToRootAsync ();
 
 
@@ -72,6 +69,14 @@ namespace RayvMobileApp
 			var editor = new PlaceEditor (addingPlace, false);
 			editor.Saved += (s, ev) => {
 				Navigation.PopModalAsync ();
+				string msg = "";
+				if (addingPlace.Save (out msg))
+					Navigation.PushModalAsync (
+						new RayvNav (
+							new DetailPage (addingPlace, showToolbar: true, showSave: true)));
+				else {
+					DisplayAlert ("Save Failed", msg, "OK");
+				}
 			};
 			editor.Cancelled += (s, ev) => Navigation.PopModalAsync ();
 			Navigation.PushModalAsync (editor);

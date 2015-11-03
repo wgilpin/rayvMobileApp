@@ -46,7 +46,6 @@ namespace RayvMobileApp
 		Button AddManualAddress;
 		StackLayout menu;
 		List<Place> points;
-		Button CancelBtn;
 
 		//MapContent
 		PlacesListView MapLV;
@@ -299,19 +298,19 @@ namespace RayvMobileApp
 		StackLayout GetSearchContent ()
 		{
 			BackgroundColor = settings.BaseColor;
-			CancelBtn = new Button { 
-				Text = "< Back", 
-				TextColor = Color.White, 
-				HorizontalOptions = LayoutOptions.Start,
-				HeightRequest = 22,
-			};
-			CancelBtn.Clicked += DoCancel;
 			var AddBtn = new Label {
 				Text = "Add", 
 				TextColor = Color.White, 
 				FontSize = settings.FontSizeLabelLarge,
 				HorizontalOptions = LayoutOptions.Center, 
 			};
+			var CancelBtn = new Button {
+				Text = "Cancel", 
+				TextColor = Color.White, 
+				FontSize = settings.FontSizeLabelMedium,
+				HorizontalOptions = LayoutOptions.Start, 
+			};
+			CancelBtn.Clicked += DoCancel;
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				IsVisible = false,
@@ -407,8 +406,8 @@ namespace RayvMobileApp
 		{
 			if (MapContent != null)
 				return MapContent;
-			placeLabel = new LabelWide (){ FontSize = settings.FontSizeLabelMedium };
-			addressLabel = new LabelWide (){ FontSize = settings.FontSizeLabelSmall };
+			placeLabel = new LabelWide { FontSize = settings.FontSizeLabelMedium, FontAttributes = FontAttributes.Bold };
+			addressLabel = new LabelWide (){ FontSize = settings.FontSizeLabelSmall, FontAttributes = FontAttributes.Bold };
 			StackLayout detailView = new StackLayout {
 				Padding = 5,
 				BackgroundColor = Color.White, 
@@ -436,14 +435,30 @@ namespace RayvMobileApp
 				BackgroundColor = Color.White
 			};
 			MapLV.OnItemTapped = DoTapItem;
+			var buttons = new DoubleButton { 
+				LeftText = "Back", 
+				RightText = "Next",
+				LeftSource = "back_1.png",
+				RightSource = "forward_1.png"
+			};
+			buttons.LeftClick = DoCancel;
+			buttons.RightClick = DoSelectPlace;
+			buttons.BackgroundColor = Color.White;
 			MapContent = new StackLayout {
-				Spacing = 1,
+				Spacing = 2,
+				BackgroundColor = Color.White,
 				Children = {
-					CancelBtn,
-					detailView,
 					map,
-					new Label { Text = "Nearby Results", FontSize = settings.FontSizeLabelMedium },
-					saveButton,
+					detailView,
+					buttons,
+					new BoxView { HeightRequest = 35, BackgroundColor = Color.White },
+					new Label {
+						Text = "Other Places Nearby",
+						TextColor = ColorUtil.Darker (settings.BaseColor),
+						FontAttributes = FontAttributes.Bold,
+						BackgroundColor = Color.White,
+						YAlign = TextAlignment.End
+					},
 					MapLV
 				}
 			};

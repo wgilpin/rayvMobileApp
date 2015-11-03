@@ -19,9 +19,9 @@ namespace RayvMobileApp
 		ServerPicker Servers;
 		Label LoadingMessage;
 		ProgressBar progBar;
-
-
-
+		RayvButton loginButton;
+		RayvButton Register;
+		RayvButton Reset;
 
 		public void SetProgress (string message, Double progress)
 		{
@@ -47,7 +47,11 @@ namespace RayvMobileApp
 		{
 			Spinner.IsRunning = true;
 			LoadingMessage.IsVisible = true;
+			loginButton.IsEnabled = false;
 			progBar.IsVisible = true;
+			// remove leading & trailing whitespace #780
+			UserName.Text = UserName.Text.Trim ();
+			Password.Text = Password.Text.Trim ();
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
 					Persist.Instance.SetConfig (settings.SERVER,  $"https://{settings.SERVER_DEFAULT}");
@@ -69,6 +73,7 @@ namespace RayvMobileApp
 									Error.Text = "Bad Login";
 									Persist.Instance.SetConfig (settings.USERNAME, null);
 									Persist.Instance.SetConfig (settings.PASSWORD, null);
+									loginButton.IsEnabled = true;
 									ShowLogin ();
 								});
 							},
@@ -82,6 +87,7 @@ namespace RayvMobileApp
 							onFailVersion: () => {
 								Device.BeginInvokeOnMainThread (() => {
 									Error.Text = "Wrong Server Version";
+									loginButton.IsEnabled = true;
 									ShowLogin ();
 								});
 							},
@@ -95,17 +101,20 @@ namespace RayvMobileApp
 						Device.BeginInvokeOnMainThread (() => {
 							Error.IsVisible = true;
 							Spinner.IsRunning = false;
+							loginButton.IsEnabled = true;
 						});
 					}
 				} catch (ProtocolViolationException) {
 					Device.BeginInvokeOnMainThread (() => {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 						Spinner.IsRunning = false;
+						loginButton.IsEnabled = true;
 					});
 				} catch (UnauthorizedAccessException) {
 					Device.BeginInvokeOnMainThread (() => {
 						Error.IsVisible = true;
 						Spinner.IsRunning = false;
+						loginButton.IsEnabled = true;
 					});
 				}
 
@@ -126,108 +135,65 @@ namespace RayvMobileApp
 
 			try {
 				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
-				DisplayAlert ("Password", "An email has been sent to your registered account", "OK");
+				DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				DisplayAlert ("Password", "Unable to contact server - try later", "OK");
 			}
 		}
 
-		void AskForEmail ()
+		void AskForEmail (string email)
 		{
 			// no password - ask for it
 			var emailEd = new Entry {
-				Placeholder = "Email Address"
+				Placeholder = "Email Address",
+				Text = email
 			};
-			var emailSend = new Button {
-				Text = "Reset Password",
-				BackgroundColor = ColorUtil.Lighter (settings.BaseColor),
-				TextColor = ColorUtil.Darker (settings.BaseColor),
+			var emailSend = new DoubleButton {
+				LeftText = "Cancel",
+				RightText = "Reset",
+				LeftSource = "back_1.png",
+				RightSource = "forward_1.png"
 			};
-			Content = new StackLayout {
+			var inner = new StackLayout {
+				Padding = new Thickness (2),
+				Spacing = 15,
+				BackgroundColor = Color.White,
+				VerticalOptions = LayoutOptions.StartAndExpand,
 				Children = {
 					new LabelWide ("Enter your email address"),
 					emailEd,
 					emailSend
 				}
 			};
-			emailSend.Clicked += (sender, ev) => {
+			Content = new StackLayout {
+				Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0),
+				BackgroundColor = settings.BaseColor,
+				VerticalOptions = LayoutOptions.StartAndExpand,
+				Children = {
+					new LabelWide ("Reset Password") {
+						FontSize = settings.FontSizeLabelLarge,
+						TextColor = Color.White,
+						XAlign = TextAlignment.Center,
+					},
+					inner,
+				}
+			};
+			emailSend.RightClick = (sender, ev) => {
 				SendResetEmail (emailEd.Text);
+			};
+			emailSend.LeftClick = (sender, ev) => {
+				ShowLoginView ();
 			};
 		}
 
-		public LoginPage ()
+		void ShowLoginView ()
 		{
-			Analytics.TrackPage ("LoginPage");
-			Console.WriteLine ("LoginPage()");
-			Spinner = new ActivityIndicator { Color = settings.BaseColor, };
-			LoadingMessage = new Label { 
-				Text = "Loading...",
-				TextColor = settings.BaseColor,
-				HorizontalOptions = LayoutOptions.Center,
-				IsVisible = false,
-			};
-			progBar = new ProgressBar () { 
-				HorizontalOptions = LayoutOptions.FillAndExpand, 
-				IsVisible = false 
-			};
-			RayvButton loginButton = new RayvButton {
-				Text = " Login ",
-				FontSize = settings.FontSizeButtonLarge,
-			};
-			loginButton.Clicked += this.DoLogin;
-
-			UserName = new Entry { 
-				Placeholder = "Username",
-				VerticalOptions = LayoutOptions.Start,
-				Text = Persist.Instance.GetConfig (settings.USERNAME),
-			};
-			UserName.TextChanged += (sender, e) => {
-				if (settings.TesterWhitelist.Contains (e.NewTextValue))
-					Servers.IsVisible = true;
-			};
-			Password = new Entry {
-				VerticalOptions = LayoutOptions.Start,
-				Placeholder = "Password", 
-				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
-			};
-			RayvButton Register = new RayvButton {
-				Text = "Sign Up", 
-				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
-				TextColor = ColorUtil.Darker (settings.BaseColor),
-			};
-			Register.Clicked += (s, e) => {
-				this.Navigation.PushModalAsync (
-					new RayvNav (new RegisterPage ()), false);
-			};
-			RayvButton Reset = new RayvButton {
-				Text = "Forgot Password", 
-				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
-				TextColor = ColorUtil.Darker (settings.BaseColor),
-			};
-			Reset.Clicked += (s, e) => {
-				var email = new UserProfile ().Email;
-				if (string.IsNullOrEmpty (email)) {
-					AskForEmail ();
-				}
-				;
-				SendResetEmail (email);
-			};
-			Error = new Label {
-				Text = "User Name & Password Don't match", 
-				TextColor = Color.White, 
-				BackgroundColor = Color.Red, 
-				FontAttributes = FontAttributes.Bold,
-				IsVisible = false,
-				HeightRequest = 30,
-				YAlign = TextAlignment.Center,
-				XAlign = TextAlignment.Center,
-			};
 			Servers = new ServerPicker ();
 			var user = Persist.Instance.GetConfig (settings.USERNAME);
 			if (settings.TesterWhitelist.Contains (user))
 				Servers.IsVisible = true;
-			this.Content = new StackLayout {
+			Content = new StackLayout {
 				Padding = 20,
 				Children = {
 					new Label {
@@ -247,6 +213,71 @@ namespace RayvMobileApp
 					Register,
 				}
 			};
+		}
+
+		public LoginPage ()
+		{
+			Analytics.TrackPage ("LoginPage");
+			Console.WriteLine ("LoginPage()");
+			Spinner = new ActivityIndicator { Color = settings.BaseColor, };
+			LoadingMessage = new Label { 
+				Text = "Loading...",
+				TextColor = settings.BaseColor,
+				HorizontalOptions = LayoutOptions.Center,
+				IsVisible = false,
+			};
+			progBar = new ProgressBar () { 
+				HorizontalOptions = LayoutOptions.FillAndExpand, 
+				IsVisible = false 
+			};
+			loginButton = new RayvButton {
+				Text = " Login ",
+				FontSize = settings.FontSizeButtonLarge,
+			};
+			loginButton.Clicked += this.DoLogin;
+
+			UserName = new Entry { 
+				Placeholder = "Username",
+				VerticalOptions = LayoutOptions.Start,
+				Text = Persist.Instance.GetConfig (settings.USERNAME),
+			};
+			UserName.TextChanged += (sender, e) => {
+				if (settings.TesterWhitelist.Contains (e.NewTextValue))
+					Servers.IsVisible = true;
+			};
+			Password = new Entry {
+				VerticalOptions = LayoutOptions.Start,
+				Placeholder = "Password", 
+				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
+			};
+			Register = new RayvButton {
+				Text = "Sign Up", 
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
+				TextColor = ColorUtil.Darker (settings.BaseColor),
+			};
+			Register.Clicked += (s, e) => {
+				this.Navigation.PushModalAsync (
+					new RayvNav (new RegisterPage ()), false);
+			};
+			Reset = new RayvButton {
+				Text = "Forgot Password", 
+				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
+				TextColor = ColorUtil.Darker (settings.BaseColor),
+			};
+			Reset.Clicked += (s, e) => {
+				var email = new UserProfile ().Email;
+				AskForEmail (email);
+			};
+			Error = new Label {
+				Text = "User Name & Password Don't match", 
+				TextColor = Color.Red, 
+				FontAttributes = FontAttributes.Bold,
+				IsVisible = false,
+				HeightRequest = 30,
+				YAlign = TextAlignment.Center,
+				XAlign = TextAlignment.Center,
+			};
+			ShowLoginView ();
 
 		}
 

@@ -28,6 +28,7 @@ namespace RayvMobileApp
 
 
 			StackLayout Inner = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				Padding = 5,
 				Children = {
 					LogoutBtn,
@@ -46,7 +47,10 @@ namespace RayvMobileApp
 						Text = $"Server: {Persist.Instance.GetConfig (settings.SERVER)}"
 					},
 					new Label {
-						Text = $"UID: {Persist.Instance.MyId}",
+						Text =$"UID: {Persist.Instance.MyId}",
+					},
+					new Label {
+						Text =$"Notify: {Persist.Instance.GetConfig (settings.NOTIFICATIONS_TOKEN)}",
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,

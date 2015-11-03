@@ -34,9 +34,11 @@ namespace RayvMobileApp
 		public const  string LAST_LNG = "LastLng";
 		public const  string SKIP_INTRO = "SkipIntro";
 		public const  string SERVER = "server";
+		public const  string NOTIFICATIONS_TOKEN = "Notifications token";
 		public const  string SERVER_DEFAULT = "rayv-app.appspot.com/";
 		public const  string SERVER_LOCAL = "http://localhost:8080/";
 		public const  string LAST_SYNC = "last_sync";
+		public const  string LAST_OPENED = "last_opened";
 		public const  string MY_ID = "myId";
 		// 30 mins timeout
 		public static  TimeSpan LIST_PAGE_TIMEOUT = new TimeSpan (0, 30, 0);
@@ -44,6 +46,7 @@ namespace RayvMobileApp
 		public const int MAX_INITIAL_LIST_LENGTH = 20;
 		public const Double MAX_LIST_DISTANCE = 5.0;
 		public const int MIN_PWD_LENGTH = 7;
+		public const int NEWS_PAGE_TIMESPAN_DAYS = 14;
 
 
 		public static Color BaseColor = Color.FromHex ("4A90E2");

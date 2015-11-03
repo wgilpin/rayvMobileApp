@@ -433,7 +433,7 @@ namespace RayvMobileApp
 									Console.WriteLine ("Spin down");
 								});
 							},
-							since: null, 
+							since: DateTime.Now - new TimeSpan (settings.NEWS_PAGE_TIMESPAN_DAYS, 0, 0, 0), 
 							incremental: true);
 					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");

@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Reflection;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace RayvMobileApp
 {
@@ -527,6 +528,7 @@ namespace RayvMobileApp
 					parameters ["voteUntried"] = vote.untried.ToString ();
 					parameters ["kind"] = $"{(int)vote.kind}";
 					parameters ["style"] = $"{(int)vote.style}";
+					parameters ["version"] = ServerPicker.GetServerVersion ();
 					if (vote.style == PlaceStyle.None || vote.kind == MealKind.None) {
 						errorMessage = "Style or Kind is None";
 						Insights.Track ("Place.Save Style or Kind is None", parameters);
@@ -540,6 +542,10 @@ namespace RayvMobileApp
 					//			JObject obj = JObject.Parse (result);
 					if (!string.IsNullOrEmpty (result))
 						try {
+							if (result == "BAD VERSION") {
+								errorMessage = "Wrong Version. You need to update you app on the store";
+								return false;
+							}
 							restConnection.LogToServer (LogLevel.DEBUG, $"Place.Save result {result}");
 							JObject obj = null;
 							try {
@@ -625,6 +631,7 @@ namespace RayvMobileApp
 					parameters ["style"] = ((int)vote.style).ToString ();
 					parameters ["voteScore"] = vote.vote.ToString ();
 					parameters ["voteUntried"] = vote.untried.ToString ();
+					parameters ["version"] = ServerPicker.GetServerVersion ();
 					string result = Persist.Instance.GetWebConnection ().post ("/api/vote", parameters);
 					//			JObject obj = JObject.Parse (result);
 					if (result == "OK") {

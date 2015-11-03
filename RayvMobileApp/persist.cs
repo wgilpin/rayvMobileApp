@@ -778,10 +778,6 @@ namespace RayvMobileApp
 					Console.WriteLine ($"StoreUpdatedUserRecord 5 {DateTime.Now - now} ");
 
 					updatePlaces (MyId.ToString ());
-					var updated_dict = new Dictionary<string,string> ();
-					updated_dict.Add ("userId", MyId.ToString ());
-					Console.WriteLine ($"StoreUpdatedUserRecord 6 {DateTime.Now - now} ");
-					Persist.Instance.GetWebConnection ().post ("clear_user_updates", updated_dict);
 					Console.WriteLine ($"StoreUpdatedUserRecord 7 {DateTime.Now - now} ");
 				}
 				Online = true;

@@ -70,6 +70,7 @@ namespace RayvMobileApp
 			innerStack.Children.Add (new Frame { OutlineColor = Color.Gray,
 				HasShadow = false,
 				Content = TextEditor,
+				VerticalOptions = LayoutOptions.FillAndExpand,
 			});
 			innerStack.Children.Add (Spinner);					
 			Children.Add (innerStack);

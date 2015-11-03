@@ -125,7 +125,7 @@ namespace RayvMobileApp
 			EditPlace.setComment (ev.Comment); 
 			EditPlace.IsDraft = false;
 			Saved?.Invoke (sender, null);
-			Debug.WriteLine ("PlaceEditor DoCommappentSaved");
+			Debug.WriteLine ("PlaceEditor DoCommentSaved");
 		}
 
 		void DoVoteRemoved (object sender, EventArgs e)

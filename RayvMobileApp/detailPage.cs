@@ -279,13 +279,13 @@ namespace RayvMobileApp
 						//Img.VerticalOptions = LayoutOptions.Start;
 						Img.Aspect = Aspect.AspectFill;
 						Img.Source = ImageSource.FromUri (new Uri (DisplayPlace.img));
+						Img.WidthRequest = this.Width;
+						Img.HeightRequest = this.Height / 3;
 					} else {
 						Img.HorizontalOptions = LayoutOptions.Center;
 						Img.VerticalOptions = LayoutOptions.Center;
-						Img.Source = settings.DevicifyFilename ("logo.png");
+						Img.Source = settings.DevicifyFilename ("default_image.png");
 					}
-					Img.WidthRequest = this.Width;
-					Img.HeightRequest = this.Height / 3;
 					ImgGrid.HeightRequest = this.Height / 3;
 					CuisineEd.Text = DisplayPlace.vote.cuisineName;
 					string comment;
@@ -357,7 +357,7 @@ namespace RayvMobileApp
 
 		void DoClickComment (object o, EventArgs e)
 		{
-			if (!DisplayPlace.iVoted) {
+			if (DisplayPlace.vote.vote == Vote.VoteNotSetValue && !DisplayPlace.vote.untried) {
 				DisplayAlert ("Comment", "You need to vote if you want to comment", "OK");
 				return;
 			}
@@ -498,19 +498,19 @@ namespace RayvMobileApp
 			tools.IsVisible = true;
 		}
 
-		async void SaveWasBad ()
+		async void SaveWasBad (String msg = null)
 		{
 			ShowSpinner (false);
 			DisplayPlace.IsDraft = true;
+			await DisplayAlert ("Not Saved", msg ?? "Kept as draft", "OK");
 			Navigation.PopAsync ();
-			await DisplayAlert ("Not Saved", "Kept as draft", "OK");
 			Persist.Instance.Places.Add (DisplayPlace);
 			SaveFrame.IsVisible = false;
 		}
 
 		void DoSave (object sender = null, EventArgs e = null)
 		{
-			string Message = "";
+			String Message = null;
 			ShowSpinner ();
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (DisplayPlace.Save (out Message)) {
@@ -519,7 +519,7 @@ namespace RayvMobileApp
 					});
 				} else {
 					Device.BeginInvokeOnMainThread (() => {
-						SaveWasBad ();
+						SaveWasBad (Message);
 					});
 				}
 

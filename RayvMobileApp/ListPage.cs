@@ -248,7 +248,7 @@ namespace RayvMobileApp
 						StartSplashTimer ();
 
 					}
-					Persist.Instance.SetConfig (settings.LAST_SYNC, DateTime.UtcNow);
+					Persist.Instance.SetConfig (settings.LAST_OPENED, DateTime.UtcNow);
 					if (NeedsReload) {
 						Refresh ();
 						Analytics.TrackPage ("ListPage Refreshed");
@@ -266,7 +266,7 @@ namespace RayvMobileApp
 				}
 			};
 			App.Resumed += delegate {
-				DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
+				DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_OPENED);
 				if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
 					StartSplashTimer ();
 
