@@ -86,10 +86,13 @@ namespace RayvMobileApp.iOS
 			if (CrossPushNotification.Current is IPushNotificationHandler) {
 				((IPushNotificationHandler)CrossPushNotification.Current).OnErrorReceived (error);
 			}
+
 		}
 
 		public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
 		{
+			Console.WriteLine ($">>>Device Token {deviceToken.ToString()}");
+			Persist.Instance.SetConfig (settings.NOTIFICATIONS_TOKEN, deviceToken.ToString ());
 			if (CrossPushNotification.Current is IPushNotificationHandler) {
 				((IPushNotificationHandler)CrossPushNotification.Current).OnRegisteredSuccess (deviceToken);
 			}
