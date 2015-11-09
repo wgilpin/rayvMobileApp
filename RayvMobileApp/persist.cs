@@ -53,6 +53,7 @@ namespace RayvMobileApp
 		public Position GpsPosition;
 		private static Persist _instance;
 		public string FilterWhoKey = "";
+		public bool NotificationsReceived = false;
 
 		public Object Lock = new Object ();
 		public List<Place> DisplayList;

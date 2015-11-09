@@ -185,7 +185,6 @@
     <BundleResource Include="Resources\TB default news %281%29.png" />
     <BundleResource Include="Resources\intro page 1.png" />
     <BundleResource Include="Resources\Location.png" />
-    <BundleResource Include="Resources\Share.png" />
     <BundleResource Include="Resources\Dislike.png" />
     <BundleResource Include="Resources\Intro 3 foodie friends.png" />
     <BundleResource Include="Resources\add 2.png" />
@@ -200,16 +199,12 @@
     <BundleResource Include="Resources\TB active news.png" />
     <BundleResource Include="Resources\TB active profile.png" />
     <BundleResource Include="Resources\TB active search.png" />
-    <BundleResource Include="Resources\Big Add.png" />
-    <BundleResource Include="Resources\Big find food.png" />
-    <BundleResource Include="Resources\Big activity.png" />
     <BundleResource Include="Resources\Icon default Phone.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
     <BundleResource Include="Resources\Icon default directions1.png" />
     <BundleResource Include="Resources\Wish1.png" />
     <BundleResource Include="Resources\checkbox_checked.png" />
     <BundleResource Include="Resources\checkbox_unchecked.png" />
-    <BundleResource Include="Resources\arrow.png" />
     <BundleResource Include="Resources\Add friend.png" />
     <BundleResource Include="Resources\Add_Vote.png" />
     <BundleResource Include="Resources\Icon_active_Phone.png" />
@@ -226,7 +221,6 @@
     <BundleResource Include="Resources\Add_friend.png" />
     <BundleResource Include="Resources\Add_place.png" />
     <BundleResource Include="Resources\envelope_2x.png" />
-    <BundleResource Include="Resources\Big_activity_dot.png" />
     <BundleResource Include="Resources\Invite_friend2.png" />
     <BundleResource Include="Resources\Alert_activity2.png" />
     <BundleResource Include="Resources\a_drinks.png" />
@@ -252,6 +246,14 @@
     <BundleResource Include="Resources\Web_white2.png" />
     <BundleResource Include="Resources\default_image.png" />
     <BundleResource Include="Resources\Like.png" />
+    <BundleResource Include="Resources\Share.png" />
+    <BundleResource Include="Resources\arrow.png" />
+    <BundleResource Include="Resources\Big_activity_dot.png" />
+    <BundleResource Include="Resources\Big_activity.png" />
+    <BundleResource Include="Resources\Big_add_place.png" />
+    <BundleResource Include="Resources\Big_find_food.png" />
+    <BundleResource Include="Resources\Wish_Green.png" />
+    <BundleResource Include="Resources\Logo_78.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

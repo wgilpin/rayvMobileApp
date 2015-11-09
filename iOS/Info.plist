@@ -28,13 +28,12 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
+		<string>remote-notification</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.7-ea</string>
-	<key>CFBundleDisplayName</key>
-	<string>Taste 5</string>
+	<string>0.7-ed</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.blueorbit.rayvios</string>
 	<key>NSAllowsArbitraryLoads</key>
@@ -46,6 +45,8 @@
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcons-3.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>ea</string>
+	<string>ed</string>
+	<key>CFBundleDisplayName</key>
+	<string>Sprout</string>
 </dict>
 </plist>

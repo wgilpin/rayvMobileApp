@@ -90,6 +90,7 @@ namespace RayvMobileApp
 		{
 			Console.WriteLine ("AddPage5bDeDup.DoSearch: Activity");
 			Spinner.IsRunning = true;
+			NothingFound.IsVisible = false;
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Console.WriteLine ("AddPage5bDeDup.DoSearch: Thread");
 				Dictionary<string, string> parameters = new Dictionary<string, string> ();
@@ -117,7 +118,7 @@ namespace RayvMobileApp
 						Spinner.IsRunning = false;
 						Console.WriteLine ("AddPage5bDeDup.DoSearch: Activity Over.");
 						listView.DisplayedList.ItemsSource = points;
-						listView.IsVisible = points.Count > 0;
+//						listView.IsVisible = points.Count > 0;
 						NothingFound.IsVisible = points.Count == 0;
 					});
 				} catch (Exception e) {
@@ -167,26 +168,27 @@ namespace RayvMobileApp
 				}
 			};
 					
-			listView = new PlacesListView (false);
+			listView = new PlacesListView (false){ BackgroundColor = Color.Aqua };
 			listView.OnItemTapped = DoEditFromList;
 
 
-			Grid grid = new Grid {
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = GridLength.Auto },
-				}
-			};
+//			Grid grid = new Grid {
+//				VerticalOptions = LayoutOptions.FillAndExpand,
+//				HorizontalOptions = LayoutOptions.FillAndExpand,
+//				RowDefinitions = {
+//					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+//					new RowDefinition { Height = new GridLength (35, GridUnitType.Auto) }
+//				},
+//				ColumnDefinitions = {
+//					new ColumnDefinition { Width = GridLength.Auto },
+//				}
+//			};
 
 			NothingFound = new LabelWide ("Nothing Found") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 			};
 			StackLayout inner = new StackLayout {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Spacing = 5,
 				Children = {
 					ProposedDetails,
@@ -197,10 +199,16 @@ namespace RayvMobileApp
 				}
 			};
 
-			StackLayout tools = new BottomToolbar (this, "add");
-			grid.Children.Add (inner, 0, 0);
-			grid.Children.Add (tools, 0, 1);
-			this.Content = grid;
+//			grid.Children.Add (inner, 0, 0);
+//			grid.Children.Add (tools, 0, 1);
+			Content = new StackLayout {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Children = {
+					inner,
+					new BottomToolbar (this, "settings"),
+				}
+			};
+		
 
 			this.Appearing += (sender, e) => {
 				DoSearch ();

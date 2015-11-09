@@ -414,8 +414,10 @@ namespace RayvMobileApp
 
 		public ImageSource thumb_url {
 			get { 
-				if (String.IsNullOrEmpty (this.thumbnail))
-					return null;
+				if (String.IsNullOrEmpty (this.thumbnail)) {
+					var src = UriImageSource.FromFile (settings.DEFAULT_PLACE_IMAGE_LG);
+					return src;
+				}
 				return UriImageSource.FromUri (new Uri (this.thumbnail));
 			}
 		}

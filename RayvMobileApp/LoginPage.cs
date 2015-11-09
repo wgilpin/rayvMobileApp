@@ -61,10 +61,10 @@ namespace RayvMobileApp
 					if (Persist.Instance.Online) {
 						//Delete Last Sync time to force a full refresh
 						Persist.Instance.SetConfig (settings.LAST_SYNC, null);
-						restConnection.Instance.setCredentials (UserName.Text, Password.Text.ToLowerInvariant (), "");
+						restConnection.Instance.setCredentials (UserName.Text, Password.Text, "");
 						Insights.Identify (UserName.Text, "server", Persist.Instance.GetConfig (settings.SERVER));
 						Persist.Instance.SetConfig (settings.USERNAME, UserName.Text);
-						Persist.Instance.SetConfig (settings.PASSWORD, Password.Text.ToLowerInvariant ());
+						Persist.Instance.SetConfig (settings.PASSWORD, Password.Text);
 						Persist.Instance.Wipe ();
 						Persist.Instance.LoadFromDb ();
 						Persist.Instance.GetUserData (
@@ -128,14 +128,15 @@ namespace RayvMobileApp
 		{
 		}
 
-		void SendResetEmail (string email)
+		async void SendResetEmail (string email)
 		{
 			var cparams = new Dictionary<string,string> ();
 			cparams ["username"] = email;
 
 			try {
 				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
-				DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
+				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
+				ShowLoginView ();
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				DisplayAlert ("Password", "Unable to contact server - try later", "OK");

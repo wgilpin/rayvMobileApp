@@ -107,10 +107,11 @@ namespace RayvMobileApp
 				Label addressLabel = new Label {
 					FontSize = Device.GetNamedSize (NamedSize.Micro, typeof(Label)),
 					FontAttributes = FontAttributes.Italic,
-					TranslationX = 85,
+//					TranslationX = 85,
 					TextColor = Color.Black,
 					BackgroundColor = Color.Transparent,
 				};
+				addressLabel.LineBreakMode = LineBreakMode.TailTruncation;
 				addressLabel.SetBinding (
 					Label.TextProperty, 
 					new Binding ("address", converter: new AddressToShortAddressConverter ()));
@@ -161,7 +162,7 @@ namespace RayvMobileApp
 				grid.Children.Add (nameLabel, 0, 2, 0, 1);
 				grid.Children.Add (distCuisineLine, 0, 2, 1, 2);
 				if (!ShowVotes)
-					grid.Children.Add (addressLabel, 0, 2, 2, 3);
+					grid.Children.Add (addressLabel, 0, 1, 2, 3);
 
 				// votes are shown on the main list, not on the Add lists
 				if (showVotes) {

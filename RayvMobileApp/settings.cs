@@ -40,6 +40,7 @@ namespace RayvMobileApp
 		public const  string LAST_SYNC = "last_sync";
 		public const  string LAST_OPENED = "last_opened";
 		public const  string MY_ID = "myId";
+		public const string DEFAULT_PLACE_IMAGE_LG = "Logo_78.png";
 		// 30 mins timeout
 		public static  TimeSpan LIST_PAGE_TIMEOUT = new TimeSpan (0, 30, 0);
 		public const int MAX_SERVER_TRIES = 1;
@@ -49,7 +50,7 @@ namespace RayvMobileApp
 		public const int NEWS_PAGE_TIMESPAN_DAYS = 14;
 
 
-		public static Color BaseColor = Color.FromHex ("4A90E2");
+		public static Color BaseColor = Color.FromHex ("0F9D58");
 		//		public static Color ColorLight = Color.FromHex ("718CBE");
 		//		public static Color ColorDark = Color.FromHex ("6883B5");
 		//		public static Color ColorVeryDark = Color.FromHex ("4863B5");

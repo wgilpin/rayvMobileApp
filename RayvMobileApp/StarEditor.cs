@@ -174,12 +174,12 @@ namespace RayvMobileApp
 			} else if (_whiteMode) {
 				StarSetSource = settings.DevicifyFilename ("star-selected.png");
 				StarUnsetSource = settings.DevicifyFilename ("star_white.png");
-				WishSetSource = settings.DevicifyFilename ("wish_blue.png");
+				WishSetSource = settings.DevicifyFilename ("Wish_Green.png");
 				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
 			} else {
 				StarSetSource = settings.DevicifyFilename ("star-selected.png");
 				StarUnsetSource = settings.DevicifyFilename ("star_border.png");
-				WishSetSource = settings.DevicifyFilename ("wish_blue.png");
+				WishSetSource = settings.DevicifyFilename ("Wish_Green.png");
 				WishUnsetSource = settings.DevicifyFilename ("wish_grey.png");
 			}
 		}

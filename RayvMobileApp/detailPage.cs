@@ -429,18 +429,32 @@ namespace RayvMobileApp
 				Navigation.PushAsync (page);
 		}
 
+		public void SharePlace (object sender, EventArgs e)
+		{
+			String place_id = 
+				string.IsNullOrEmpty (DisplayPlace.place_id) ? null : DisplayPlace.place_id;
+			var sharer = DependencyService.Get<IShareable> ();
+			var shareBody = 
+				$"Let's go to {DisplayPlace.place_name}\n" +
+				$"{DisplayPlace.address}\n"+
+				$"http://maps.google.com/maps?daddr={DisplayPlace.lat},{DisplayPlace.lng}\n"+
+				"Sent by Sprout";
+			Console.WriteLine (shareBody);
+			sharer.OpenShareIntent (shareBody);
+
+		}
+
 		public void GotoWebPage (object sender, EventArgs e)
 		{
 			if (DisplayPlace.website == null)
 				return;
 			Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
 			var web = new WebPage (
-				          DisplayPlace.place_name,
-				          DisplayPlace.website);
+				DisplayPlace.place_name,
+				DisplayPlace.website);
 			PushWithNavigation (web);
 
 		}
-
 		void DoDirections (object sender, EventArgs e)
 		{
 			if (string.IsNullOrEmpty (DisplayPlace.address))
@@ -596,10 +610,11 @@ namespace RayvMobileApp
 				RowDefinitions = {
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) }
 				}
 			};
-			ImgGrid.Children.Add (Img, 0, 2, 0, 3);
+			ImgGrid.Children.Add (Img, 0, 2, 0, 4);
 			//MainGrid.Children.Add (Img, 0, 2, 0, IMAGE_HEIGHT);
 
 			Place_name = new Label ();
@@ -624,6 +639,11 @@ namespace RayvMobileApp
 				//"Web_white.png"),
 				OnClick = GotoWebPage
 			};
+			var ShareImgBtn = new TopRowBtn { 
+				Source = settings.DevicifyFilename ("Share.png"),
+				//"Web_white.png"),
+				OnClick = SharePlace
+			};
 			TelImgBtn = new TopRowBtn {
 				Source = settings.DevicifyFilename ("phone_white.png"),
 				OnClick = DoMakeCall,
@@ -637,10 +657,11 @@ namespace RayvMobileApp
 			};
 			GreyBar.OutlineColor = Color.Transparent;
 			GreyBar.Content = null;
-			ImgGrid.Children.Add (GreyBar, 1, 2, 0, 3);
+			ImgGrid.Children.Add (GreyBar, 1, 2, 0, 4);
 			ImgGrid.Children.Add (TelImgBtn, 1, 0);
 			ImgGrid.Children.Add (DirectionsImgBtn, 1, 1);
 			ImgGrid.Children.Add (WebImgBtn, 1, 2);
+			ImgGrid.Children.Add (ShareImgBtn, 1, 3);
 
 //			TopRow.Children.Add (TelImgBtn);
 //			TopRow.Children.Add (VoteImgBtn);

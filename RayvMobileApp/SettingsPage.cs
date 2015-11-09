@@ -19,14 +19,25 @@ namespace RayvMobileApp
 			this.Navigation.PushModalAsync (new LoginPage ());
 		}
 
+		void ShareToken (object sender, EventArgs e)
+		{
+			var sharer = DependencyService.Get<IShareable> ();
+			var shareBody = 
+				Persist.Instance.GetConfig (settings.NOTIFICATIONS_TOKEN);
+			sharer.OpenShareIntent (shareBody);
+		}
+
 		public SettingsPage ()
 		{
 			LogoutBtn = new RayvButton {
 				Text = " Logout ",
 			};
 			LogoutBtn.Clicked += DoLogout;
-
-
+			Button token_lbl = new Button {
+				Text = "Share APNS Token"
+			};
+			token_lbl.Clicked += ShareToken;
+			var apns_tok = Persist.Instance.GetConfig (settings.NOTIFICATIONS_TOKEN);
 			StackLayout Inner = new StackLayout {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Padding = 5,
@@ -43,14 +54,12 @@ namespace RayvMobileApp
 							Persist.Instance.GpsPosition.Latitude, 
 							Persist.Instance.GpsPosition.Longitude),
 					},
+					token_lbl,
 					new Label {
-						Text = $"Server: {Persist.Instance.GetConfig (settings.SERVER)}"
+						Text = $"UID: {Persist.Instance.MyId}",
 					},
 					new Label {
-						Text =$"UID: {Persist.Instance.MyId}",
-					},
-					new Label {
-						Text =$"Notify: {Persist.Instance.GetConfig (settings.NOTIFICATIONS_TOKEN)}",
+						Text = $"Notify: {apns_tok}",
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,

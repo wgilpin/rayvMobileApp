@@ -2,6 +2,7 @@
 using PushNotification.Plugin;
 using System.Collections.Generic;
 using PushNotification.Plugin.Abstractions;
+using Foundation;
 
 namespace RayvMobileApp
 {
@@ -11,7 +12,10 @@ namespace RayvMobileApp
 
 		public void OnMessage (IDictionary<string, object> Parameters, DeviceType deviceType)
 		{
-			throw new NotImplementedException ();
+			var data = (Parameters ["aps"] as NSMutableDictionary);
+			Console.Write ("APNS ALERT: ");
+			Console.WriteLine (data ["alert"]);
+			Persist.Instance.NotificationsReceived = true;
 		}
 
 		public void OnRegistered (string Token, DeviceType deviceType)

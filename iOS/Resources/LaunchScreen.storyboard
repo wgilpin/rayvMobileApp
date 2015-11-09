@@ -38,7 +38,7 @@
                                 </constraints>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" colorSpace="calibratedRGB" red="0.2627450980392157" green="0.51764705882352946" blue="0.8901960784313725" alpha="1"/>
+                        <color key="backgroundColor" colorSpace="calibratedRGB" red="0.082352941176470587" green="0.596078431372549" blue="0.29019607843137257" alpha="1"/>
                         <constraints>
                             <constraint firstItem="yd7-JS-zBw" firstAttribute="bottom" secondItem="91" secondAttribute="bottom" constant="11" id="92"/>
                             <constraint firstItem="91" firstAttribute="centerY" secondItem="yd7-JS-zBw" secondAttribute="centerY" constant="217" id="96"/>
@@ -84,7 +84,7 @@
         <image name="filter.png" width="26" height="38"/>
         <image name="Default-Portrait.png" width="1536" height="2008"/>
         <image name="Default-568h.png" width="640" height="1136"/>
-        <image name="Default.png" width="320" height="480"/>
+        <image name="Default.png" width="640" height="960"/>
         <image name="rayvcircle.gif" width="309" height="341"/>
         <image name="icon-add.png" width="50" height="20"/>
         <image name="icon-friends.png" width="50" height="20"/>
@@ -147,9 +147,9 @@
         <image name="Icon default directions1.png" width="72" height="80"/>
         <image name="Icon default Website.png" width="80" height="80"/>
         <image name="intro page 1.png" width="320" height="568"/>
-        <image name="logo.png" width="336" height="336"/>
+        <image name="logo.png" width="378" height="375"/>
         <image name="Location.png" width="28" height="40"/>
-        <image name="Share.png" width="40" height="28"/>
+        <image name="Share.png" width="39" height="59"/>
         <image name="Wish1.png" width="40" height="40"/>
         <image name="Dislike.png" width="40" height="40"/>
         <image name="Intro 2 me.png" width="104" height="146"/>
@@ -175,6 +175,32 @@
         <image name="logo_white.png" width="258" height="306"/>
         <image name="Add_friend.png" width="270" height="270"/>
         <image name="Add_place.png" width="136" height="136"/>
+        <image name="envelope_2x.png" width="48" height="32"/>
+        <image name="Big_activity_dot.png" width="640" height="380"/>
+        <image name="Invite_friend2.png" width="444" height="327"/>
+        <image name="Alert_activity2.png" width="480" height="480"/>
+        <image name="a_drinks.png" width="162" height="180"/>
+        <image name="Find_friend.png" width="204" height="306"/>
+        <image name="star-empty.png" width="50" height="48"/>
+        <image name="star-selected.png" width="50" height="48"/>
+        <image name="wish_grey.png" width="50" height="50"/>
+        <image name="wish_blue.png" width="50" height="50"/>
+        <image name="Wish_dark_grey.png" width="50" height="50"/>
+        <image name="star_border.png" width="50" height="48"/>
+        <image name="star_dark_grey.png" width="50" height="48"/>
+        <image name="star-border.png" width="50" height="48"/>
+        <image name="star_white.png" width="50" height="48"/>
+        <image name="forward_1.png" width="30" height="50"/>
+        <image name="back_1.png" width="31" height="51"/>
+        <image name="Web_white .png" width="50" height="51"/>
+        <image name="directions_white.png" width="44" height="50"/>
+        <image name="phone_white.png" width="50" height="51"/>
+        <image name="directions_black.png" width="44" height="50"/>
+        <image name="phone_black.png" width="50" height="50"/>
+        <image name="Web_black.png" width="50" height="50"/>
+        <image name="Web_white2.png" width="50" height="51"/>
+        <image name="default_image.png" width="120" height="120"/>
+        <image name="Logo_78.png" width="78" height="78"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina4"/>

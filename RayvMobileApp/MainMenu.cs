@@ -60,7 +60,7 @@ namespace RayvMobileApp
 			(grid as GridWithCounter).ShowGrid = true;
 			// ADD
 			Image addImg = new Image {
-				Source = settings.DevicifyFilename ("Big Add.png"),
+				Source = settings.DevicifyFilename ("Big_add_place.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickAdd = new TapGestureRecognizer ();
@@ -75,7 +75,7 @@ namespace RayvMobileApp
 			addImg.GestureRecognizers.Add (clickAdd);
 
 			// NEWS
-			var newsSrc = Persist.Instance.HaveActivity ? "Big_activity_dot.png" : "Big activity.png";
+			var newsSrc = Persist.Instance.HaveActivity ? "Big_activity_dot.png" : "Big_activity.png";
 			Image newsImg = new Image {
 				Source = settings.DevicifyFilename (newsSrc),
 				Aspect = Aspect.AspectFit,
@@ -92,7 +92,7 @@ namespace RayvMobileApp
 
 			//  FIND ME A...
 			Image choiceImg = new Image {
-				Source = settings.DevicifyFilename ("Big find food.png"),
+				Source = settings.DevicifyFilename ("Big_find_food.png"),
 				Aspect = Aspect.AspectFit,
 			};
 			var clickFind = new TapGestureRecognizer ();

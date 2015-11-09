@@ -311,7 +311,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.Start, 
 			};
 			CancelBtn.Clicked += DoCancel;
-			NothingFound = new LabelWide ("Nothing Found") {
+			NothingFound = new LabelWide ("Nothing found within 3 miles of your location") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				IsVisible = false,
 			};
