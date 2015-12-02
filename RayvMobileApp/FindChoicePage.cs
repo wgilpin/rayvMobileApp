@@ -36,7 +36,7 @@ namespace RayvMobileApp
 		string TitleFindMain = "Find...";
 		string TitleMealKind = "Meal Time";
 		LocationListWithHistory _geoLookupBox;
-		Entry FilterSearchBox;
+		EntryClearable FilterSearchBox;
 
 		public static int FilterMimimunStarValue = 0;
 
@@ -197,15 +197,15 @@ namespace RayvMobileApp
 				currentStyle = PlaceStyle.None;
 				ChooseMainMenu ();
 			});
-			AddImgCard (1, "a_quick_bite_place.png", "Quick Bite", (s, e) => {
+			AddImgCard (1, "a_quick_bite_place.png", Vote.STYLE_QUICK, (s, e) => {
 				currentStyle = PlaceStyle.QuickBite;
 				ChooseMainMenu ();
 			});
-			AddImgCard (2, "a_relaxed_place.png", "Relaxed", (s, e) => {
+			AddImgCard (2, "a_relaxed_place.png", Vote.STYLE_RELAXED, (s, e) => {
 				currentStyle = PlaceStyle.Relaxed;
 				ChooseMainMenu ();
 			});
-			AddImgCard (3, "a_fancy_place.png", "Fancy", (s, e) => {
+			AddImgCard (3, "a_fancy_place.png", Vote.STYLE_FANCY, (s, e) => {
 				currentStyle = PlaceStyle.Fancy;
 				ChooseMainMenu ();
 			});
@@ -362,7 +362,7 @@ namespace RayvMobileApp
 			if (currentStyle == PlaceStyle.None)
 				currentStyleStr = anyStyleStr;
 			else {
-				currentStyleStr = currentStyle.ToString ();
+				currentStyleStr = currentStyle.ToFriendlyString ();
 				isFiltered = true;
 			}
 			var nearMeStr = "Near Me";
@@ -599,7 +599,7 @@ namespace RayvMobileApp
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
 				}
 			};
-			FilterSearchBox = new Entry {
+			FilterSearchBox = new EntryClearable {
 				Placeholder = "Search for place",
 				Text = "",
 			};

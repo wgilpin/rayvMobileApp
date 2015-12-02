@@ -72,5 +72,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)TestFormsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PushNotificationsListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ChangePwdPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoginOauthPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseContentPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EntryClearable.cs" />
   </ItemGroup>
 </Project>

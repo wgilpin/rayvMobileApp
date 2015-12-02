@@ -54,6 +54,7 @@ namespace RayvMobileApp
 			TextEditor = new Editor { 
 //				HorizontalOptions = LayoutOptions.Fil, 
 				Text = initialText,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Editor)),
 			};
 			TextEditor.Keyboard = Keyboard.Create (KeyboardFlags.CapitalizeSentence | KeyboardFlags.Spellcheck | KeyboardFlags.Suggestions);
 			Spinner = new ActivityIndicator{ Color = Color.Red, };

@@ -299,7 +299,7 @@ namespace RayvMobileApp
 						Comment.Text = $"\"{DisplayPlace.Comment ()}\"";
 
 
-					WebImgBtn.IsVisible = true;//!string.IsNullOrWhiteSpace (DisplayPlace.website);
+					WebImgBtn.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.website);
 					TelImgBtn.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.telephone);
 					Stars.Untried = DisplayPlace.vote.untried;
 					Stars.Vote = DisplayPlace.vote.vote;
@@ -708,7 +708,7 @@ namespace RayvMobileApp
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Style" }, 0, 1); 
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Meal" }, 0, 2); 
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.cuisineName }, 1, 0); 
-			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.style.ToString () }, 1, 1); 
+			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.style.ToFriendlyString () }, 1, 1); 
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.kind.ToString () }, 1, 2); 
 //			styleGrid.Children.Add (new Frame{ HasShadow = false, OutlineColor = Color.Gray, HeightRequest = 2 }, 0, 2, 3, 4); 
 			ScrollView EditGrid = new ScrollView {

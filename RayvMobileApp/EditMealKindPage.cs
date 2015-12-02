@@ -41,9 +41,7 @@ namespace RayvMobileApp
 		Picker StylePicker;
 		DoubleButton buttons;
 
-		const string STYLE_FANCY = "fancy",
-			STYLE_QUICK = "quick bite",
-			STYLE_RELAXED = "relaxed";
+
 
 
 		public event EventHandler<KindSavedEventArgs> Saved;
@@ -190,9 +188,9 @@ namespace RayvMobileApp
 
 			Styles = new Dictionary<string, PlaceStyle> () {
 				{ "select",PlaceStyle.None },
-				{ "quick bite",PlaceStyle.QuickBite },
-				{ "relaxed",PlaceStyle.Relaxed },
-				{ "fancy",PlaceStyle.Fancy },
+				{ Vote.STYLE_QUICK,PlaceStyle.QuickBite },
+				{ Vote.STYLE_RELAXED,PlaceStyle.Relaxed },
+				{ Vote.STYLE_FANCY,PlaceStyle.Fancy },
 			};
 			StylePicker = new Picker ();
 			foreach (var kvp in Styles) {

@@ -22,6 +22,8 @@ namespace RayvMobileApp
 		RayvButton loginButton;
 		RayvButton Register;
 		RayvButton Reset;
+		ImageButton FbButton;
+		ImageButton GoogleButton;
 
 		public void SetProgress (string message, Double progress)
 		{
@@ -52,6 +54,7 @@ namespace RayvMobileApp
 			// remove leading & trailing whitespace #780
 			UserName.Text = UserName.Text.Trim ();
 			Password.Text = Password.Text.Trim ();
+			Error.Text = "";
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.SERVER)))
 					Persist.Instance.SetConfig (settings.SERVER,  $"https://{settings.SERVER_DEFAULT}");
@@ -71,6 +74,7 @@ namespace RayvMobileApp
 							onFail: () => {
 								Device.BeginInvokeOnMainThread (() => {
 									Error.Text = "Bad Login";
+									Console.WriteLine ("DoLogin: Bad Login, credentials wiped");
 									Persist.Instance.SetConfig (settings.USERNAME, null);
 									Persist.Instance.SetConfig (settings.PASSWORD, null);
 									loginButton.IsEnabled = true;
@@ -211,6 +215,8 @@ namespace RayvMobileApp
 					progBar,
 					loginButton,
 					Reset,
+					FbButton,
+//					GoogleButton,
 					Register,
 				}
 			};
@@ -278,8 +284,22 @@ namespace RayvMobileApp
 				YAlign = TextAlignment.Center,
 				XAlign = TextAlignment.Center,
 			};
+			FbButton = new ImageButton { 
+				Source = "FB_signin.png", 
+				HorizontalOptions = LayoutOptions.FillAndExpand, 
+				IsVisible = settings.USE_OAUTH
+			};
+			GoogleButton = new ImageButton { 
+				Source = "Google_signin.png", 
+				HorizontalOptions = LayoutOptions.FillAndExpand, 
+				IsVisible = settings.USE_OAUTH
+			};
+			FbButton.OnClick = (s, e) => {
+				Persist.Instance.OauthNavPage = this;
+				Console.WriteLine ("Oauth login tapped");
+				Navigation.PushModalAsync (new LoginOauthPage ());
+			};
 			ShowLoginView ();
-
 		}
 
 		public LoginPage (string message) : this ()

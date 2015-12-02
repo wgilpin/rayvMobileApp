@@ -125,19 +125,26 @@ namespace RayvMobileApp
 			};
 			innerStack.Children.Add (stars);
 			innerStack.Children.Add (new Label{ Text = "or", XAlign = TextAlignment.Center });
-			var untriedVoteBtn = new RayvButton ("I want to try this place") { 
+			var untriedVoteBtn = new ButtonWithImage {
+				BackgroundColor = settings.ColorDarkGray,
+				Text = "Want to try",
+				FontSize = settings.FontSizeButtonLarge,
+				ImageSource = "Wish_white.png", 
 				OnClick = VoteUntried,
+				Padding = 10
 			};
+			untriedVoteBtn.ButtonLeft.HorizontalOptions = LayoutOptions.Center;
 			innerStack.Children.Add (untriedVoteBtn);
 			if (vote != Vote.VoteNotSetValue || untried) {
 				// if there's a vote or untried is set, show the remove vote button
 				var removeBtn = new ButtonWithImage () {
 					Text = "Remove my vote",
-					ImageSource = "remove_vote.png",
+					ImageSource = "Delete_white.png",
 					FontSize = settings.FontSizeButtonLarge,
 					OnClick = VoteNone,
 					Padding = 10,
 				};
+				removeBtn.ButtonLeft.HorizontalOptions = LayoutOptions.Center; 
 				// vote is set, add a remove option
 				innerStack.Children.Add (removeBtn);
 			}

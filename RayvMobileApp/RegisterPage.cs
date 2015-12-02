@@ -175,7 +175,8 @@ namespace RayvMobileApp
 				Order = ToolbarItemOrder.Default,
 				Command = new Command (() => {
 					Debug.WriteLine ("RegisterPage - toolbar back to login");
-					this.Navigation.PushModalAsync (new LoginPage ());
+					var login = new LoginPage ();
+					this.Navigation.PushModalAsync (login);
 				})
 			});
 		}

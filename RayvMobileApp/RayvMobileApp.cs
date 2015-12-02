@@ -26,6 +26,8 @@ namespace RayvMobileApp
 				if (Persist.Instance.GetConfig (settings.PASSWORD).Length * Persist.Instance.GetConfig (settings.USERNAME).Length * Persist.Instance.GetConfig (settings.SERVER).Length > 0) {
 					return new LoadingPage ();
 				}
+				var login = new LoginPage ();
+
 				return new LoginPage ();
 			} else
 				return new IntroPage ();
@@ -63,6 +65,22 @@ namespace RayvMobileApp
 		}
 
 		public static event EventHandler Resumed = delegate {};
+
+		public static bool IsLoggedInOauth {
+			get { return !string.IsNullOrWhiteSpace (Persist.Instance.OauthToken); }
+		}
+
+		public static Action SuccessfulLoginAction {
+			get {
+				return new Action (() => {
+					var token = Persist.Instance.OauthToken;
+					Console.WriteLine ($"OAUTH LOGGED IN {token}");
+					//do stuff
+					if (Persist.Instance.OauthNavPage != null)
+						Persist.Instance.OauthNavPage.Navigation.PushModalAsync (new MainMenu ());
+				});
+			}
+		}
 	}
 }
 

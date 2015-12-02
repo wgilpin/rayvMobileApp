@@ -32,7 +32,6 @@ namespace RayvMobileApp
 		//		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
-		Frame filters;
 		Label FilterDescr;
 
 		EntryWithButton FilterSearchBox;
@@ -45,6 +44,7 @@ namespace RayvMobileApp
 		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		public bool NeedsReload = true;
 		string _FilterSearchText;
+		RayvButton addNewButton;
 
 
 		public static List<Place> ItemsSource {
@@ -107,201 +107,93 @@ namespace RayvMobileApp
 				listView.ShowFriend = voter.Key;
 		}
 
+		#region timer
 
-		#region Constructors
+		// splash creen timer
+		private System.Timers.Timer _splashTimer;
 
-		public ListPage ()
+		public void  StopSplashTimer (object sender, EventArgs e)
 		{
-			Analytics.TrackPage ("ListPage");
-			Console.WriteLine ("ListView()");
-			this.Icon = settings.DevicifyFilename ("bars-black.png");
-			FilterPlaceKind = MealKind.None;
-			FilterPlaceStyle = PlaceStyle.None;
-			FilterVoteKind = VoteFilterKind.All;
-			FilterCuisine = "";
-			FilterShowWho = "";
-			SplashImage = new Label { 
-				Text = "Checking Location",
-				BackgroundColor = settings.BaseColor,
-				TextColor = Color.White,
-				XAlign = TextAlignment.Center,
-				YAlign = TextAlignment.Center,
-				FontSize = settings.FontSizeLabelLarge,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				IsVisible = false,
-			};
-			IsFiltered = false;
+			Console.WriteLine ("Disabling ListPage Splash Timer due to location update");
+			_splashTimer.Close ();
+			SplashImage.IsVisible = false;
+			App.locationMgr.RemoveLocationUpdateHandler (StopSplashTimer);
+		}
 
-			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
-			listView.OnItemTapped = DoSelectListItem;
-			listView.DisplayedList.Refreshing += DoServerRefresh;
-			listView.DisplayedList.IsPullToRefreshEnabled = true;
-			listView.SearchCentre = FilterSearchCenter;
-			StackLayout tools = new BottomToolbar (this, "list");
-			NothingFound = new LabelWide ("Nothing Found") {
-				HorizontalOptions = LayoutOptions.CenterAndExpand,
-			};
-			Grid grid = new Grid {
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.StartAndExpand,
-				ColumnSpacing = 0,
-				RowSpacing = 0,
-				RowDefinitions = {
-					new RowDefinition { Height = new GridLength (35, Device.OnPlatform (GridUnitType.Absolute, GridUnitType.Auto, GridUnitType.Auto)) },
-					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
-				},
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-				}
-			};
+		void StartSplashTimer ()
+		{
+			Console.WriteLine ("StartSplashTimer START");
+			if (_splashTimer != null)
+				_splashTimer.Close ();
+			_splashTimer = new System.Timers.Timer ();
+			//Trigger event every 5 second
+			_splashTimer.Interval = 5000;
+			_splashTimer.Elapsed += OnSplashTimerTrigger;
+			_splashTimer.Enabled = true;
+			App.locationMgr.AddLocationUpdateHandler (StopSplashTimer);
+			Thread.Sleep (500);
+			if (_splashTimer.Enabled)
+				SplashImage.IsVisible = true;
+		}
 
-			FilterDescr = new Label { 
-				Text = "All Places", 
-				HorizontalOptions = LayoutOptions.CenterAndExpand, 
-				BackgroundColor = settings.BaseColor, 
-				TextColor = Color.White, 
-				FontAttributes = FontAttributes.Bold 
-			};
-			var tapFilterDescr = new TapGestureRecognizer ();
-			tapFilterDescr.Tapped += (sender, e) => {
-				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (this)), false);
-			};
-			FilterDescr.GestureRecognizers.Add (tapFilterDescr);
-			filters = new Frame { 
-				Padding = 4,
-				HasShadow = false,
-				OutlineColor = settings.BaseColor,
-				BackgroundColor = settings.BaseColor,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				Content = FilterDescr,
-			};
-			StackLayout inner = new StackLayout {
-				Children = {
-					filters,
-					listView,
-					NothingFound,
-				}
-			};
-			Spinner = new ActivityIndicator {
-				IsVisible = true,
-				IsRunning = true,
-				Color = Color.Red,
-			};
-			BoxView bg0 = new BoxView { 
-				BackgroundColor = settings.BaseColor,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
-			};
-			FilterSearchBox = new EntryWithButton {
-				Placeholder = "Search for place",
-				Source = settings.DevicifyFilename ("TB active search.png"),
-				OnClick = DoTextSearch,
-				Text = "",
-			};
-			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
-			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
-				_FilterSearchText = FilterSearchBox.Text;
-				DoTextSearch (sender, e);
-				FilterSearchBox.TextEntry.Focus ();
-			};
-			FilterSearchBox.TextEntry.Completed += (sender, e) => {
-				FilterSearchBox.TextEntry.Unfocus ();
-			};
-
-
-			grid.Children.Add (bg0, 0, 0);
-			grid.Children.Add (FilterSearchBox, 0, 0);
-			grid.Children.Add (Spinner, 0, 1);
-			grid.Children.Add (inner, 0, 2);
-			grid.Children.Add (SplashImage, 0, 1, 0, 3);
-			filters.IsVisible = false;
-			MainContent = new StackLayout {
-				Children = {
-					grid,
-					tools
-				},
-				Padding = 0,
-			};
-			Content = MainContent;
-
-			ToolbarItems.Add (new ToolbarItem {
-				Text = "  Map  ",
-//				Icon = "icon-map.png",
-				Order = ToolbarItemOrder.Primary,
-				Command = new Command (ShowMap),
-			});
-
-			NeedsReload = true;
-			DisplayPosition = Persist.Instance.GpsPosition;
-			Console.WriteLine ($"ListPage ctor. set posn to {DisplayPosition.Latitude},{DisplayPosition.Longitude}");
-
-			this.Disappearing += (sender, e) => {
-				if (_timer != null)
-					_timer.Close ();
-			};
-			this.Appearing += (sender, e) => {
+		private void OnSplashTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			Console.WriteLine ("OnSplashTimerTrigger");
+			Device.BeginInvokeOnMainThread (() => {
+				_splashTimer.Close ();
 				try {
-					App.locationMgr.StartLocationUpdates ();
-					DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
-					if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
-						StartSplashTimer ();
-
-					}
-					Persist.Instance.SetConfig (settings.LAST_OPENED, DateTime.UtcNow);
-					if (NeedsReload) {
-						Refresh ();
-						Analytics.TrackPage ("ListPage Refreshed");
-						return;
-					}
-					Double deviation = Place.approx_distance (Persist.Instance.GpsPosition, DisplayPosition);
-					if (deviation > 0.05) {
-						Analytics.TrackPage ("ListPage Moved");
-						Console.WriteLine ("ListPage Moved");
-						DisplayPosition = Persist.Instance.GpsPosition;
-						Refresh ();
-					}
+					SplashImage.IsVisible = false;
+					Refresh ();
 				} catch (Exception ex) {
-					Insights.Report (ex);
-				}
-			};
-			App.Resumed += delegate {
-				DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_OPENED);
-				if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
-					StartSplashTimer ();
-
-				}
-			};
+					Console.WriteLine ("OnSplashTimerTrigger Exception {0}", ex);
+				} 
+			});
 		}
 
-		/**
-		 * Constructor when a cuisine is supplied
-		 */
-		// Todo: this should be setting a property, not a ctor
-		public ListPage (string cuisine) : this ()
+		// gps timer
+		private System.Timers.Timer _timer;
+
+		void StartTimerIfNoGPS ()
 		{
-			FilterCuisine = cuisine;
+			if (Persist.Instance.Online && Persist.Instance.GpsPosition.Latitude != 0.0)
+				return;
+			Console.WriteLine ("StartTimerIfNoGPS START");
+			if (_timer != null)
+				_timer.Close ();
+			_timer = new System.Timers.Timer ();
+			//Trigger event every 5 second
+			_timer.Interval = 5000;
+			_timer.Elapsed += OnTimerTrigger;
+			_timer.Enabled = true;
 		}
 
-		/**
-		 * Constructor when a kind & style is supplied
-		 */
-		// Todo: this should be setting a property, not a ctor
-		//		public ListPage (
-		//			MealKind kind, 
-		//			PlaceStyle style, 
-		//			Position? location = null, 
-		//			string cuisine = null, 
-		//			string showWho = "",
-		//			string filterByPlaceName = "",
-		//			VoteFilterWhat voteKind = VoteFilterWhat.All
-		//		) : this ()
-		//		{
-			
-		//			FilterList ();
-		//		}
+		private void OnTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
+		{
+			try {
+				if (!Persist.Instance.Online) {
+					// not ready yet
+					//Debug.WriteLine ("OnTimerTrigger - not live");
+					return;
+				}
+				Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
+				lock (Persist.Instance.Lock) {
+					try {
+						Device.BeginInvokeOnMainThread (() => SetList (Persist.Instance.Places));
+					} catch (Exception ex) {
+						Insights.Report (ex);
+						restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
+					}
+				}
+				_timer.Close ();
+			} catch (UnauthorizedAccessException) {
+				// login failed - stop
+				_timer.Close ();
+			}
+		}
 
 		#endregion
+
+
 
 		#region Events
 
@@ -354,7 +246,8 @@ namespace RayvMobileApp
 						listView.DisplayedList.EndRefresh ();
 					},
 					onFailVersion: () => {
-						Navigation.PushModalAsync (new LoginPage ());
+						var login = new LoginPage ();
+						Navigation.PushModalAsync (login);
 					},
 					since: DateTime.UtcNow, 
 					incremental: true);
@@ -379,7 +272,7 @@ namespace RayvMobileApp
 			DisplayPosition = Persist.Instance.GpsPosition;
 			IsFiltered = false;
 			FilterList ();
-			filters.IsVisible = false;
+			FilterDescr.IsVisible = false;
 		}
 
 
@@ -399,7 +292,7 @@ namespace RayvMobileApp
 			Spinner.IsRunning = true;
 			Content = MainContent;
 			FilterList ();
-			filters.IsVisible = false;
+			FilterDescr.IsVisible = false;
 		}
 
 		#endregion
@@ -581,6 +474,8 @@ namespace RayvMobileApp
 					styleDescriptionItems.Add ($"Name is '{text}'");
 					Console.WriteLine ("ListPage filter text");
 				}
+				addNewButton.IsVisible = text.Length > 0;
+
 				if (FilterSearchCenter != null) {
 //					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
 					DisplayPosition = (Position)FilterSearchCenter;
@@ -619,7 +514,7 @@ namespace RayvMobileApp
 			SetList (Persist.Instance.DisplayList);
 			FilterSearchBox.Unfocus ();
 			FilterDescr.Text = string.Join (", ", styleDescriptionItems);
-			filters.IsVisible = IsFiltered;
+			FilterDescr.IsVisible = IsFiltered;
 		}
 
 	
@@ -667,7 +562,8 @@ namespace RayvMobileApp
 							InnerSetList (Persist.Instance.Places);
 						},
 						onFailVersion: () => {
-							Navigation.PushModalAsync (new LoginPage ());
+							var login = new LoginPage ();
+							Navigation.PushModalAsync (login);
 						}, 
 						incremental: false);
 				} catch (ProtocolViolationException) {
@@ -679,88 +575,183 @@ namespace RayvMobileApp
 
 		#endregion
 
-		#region timer
+		#region Constructors
 
-		// splash creen timer
-		private System.Timers.Timer _splashTimer;
-
-		public void  StopSplashTimer (object sender, EventArgs e)
+		public ListPage ()
 		{
-			Console.WriteLine ("Disabling ListPage Splash Timer due to location update");
-			_splashTimer.Close ();
-			SplashImage.IsVisible = false;
-			App.locationMgr.RemoveLocationUpdateHandler (StopSplashTimer);
-		}
+			Analytics.TrackPage ("ListPage");
+			Console.WriteLine ("ListView()");
+			this.Icon = settings.DevicifyFilename ("bars-black.png");
+			FilterPlaceKind = MealKind.None;
+			FilterPlaceStyle = PlaceStyle.None;
+			FilterVoteKind = VoteFilterKind.All;
+			FilterCuisine = "";
+			FilterShowWho = "";
+			SplashImage = new Label { 
+				Text = "Checking Location",
+				BackgroundColor = settings.BaseColor,
+				TextColor = Color.White,
+				XAlign = TextAlignment.Center,
+				YAlign = TextAlignment.Center,
+				FontSize = settings.FontSizeLabelLarge,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				IsVisible = false,
+			};
+			IsFiltered = false;
 
-		void StartSplashTimer ()
-		{
-			Console.WriteLine ("StartSplashTimer START");
-			if (_splashTimer != null)
-				_splashTimer.Close ();
-			_splashTimer = new System.Timers.Timer ();
-			//Trigger event every 5 second
-			_splashTimer.Interval = 5000;
-			_splashTimer.Elapsed += OnSplashTimerTrigger;
-			_splashTimer.Enabled = true;
-			App.locationMgr.AddLocationUpdateHandler (StopSplashTimer);
-			Thread.Sleep (500);
-			if (_splashTimer.Enabled)
-				SplashImage.IsVisible = true;
-		}
+			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
+			listView.OnItemTapped = DoSelectListItem;
+			listView.DisplayedList.Refreshing += DoServerRefresh;
+			listView.DisplayedList.IsPullToRefreshEnabled = true;
+			listView.SearchCentre = FilterSearchCenter;
+			StackLayout tools = new BottomToolbar (this, "list");
+			NothingFound = new LabelWide ("Nothing Found") {
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+			};
+			Grid grid = new Grid {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.StartAndExpand,
+				ColumnSpacing = 0,
+				RowSpacing = 0,
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (35, Device.OnPlatform (GridUnitType.Absolute, GridUnitType.Auto, GridUnitType.Auto)) },
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) },
+				},
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+				}
+			};
 
-		private void OnSplashTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
-		{
-			Console.WriteLine ("OnSplashTimerTrigger");
-			Device.BeginInvokeOnMainThread (() => {
-				_splashTimer.Close ();
-				try {
-					SplashImage.IsVisible = false;
-					Refresh ();
-				} catch (Exception ex) {
-					Console.WriteLine ("OnSplashTimerTrigger Exception {0}", ex);
-				} 
+			FilterDescr = new Label { 
+				Text = "All Places", 
+				HorizontalOptions = LayoutOptions.FillAndExpand, 
+				BackgroundColor = settings.BaseColor, 
+				TextColor = Color.White, 
+				FontAttributes = FontAttributes.Bold,
+				HorizontalTextAlignment = TextAlignment.Center
+			};
+			var tapFilterDescr = new TapGestureRecognizer ();
+			tapFilterDescr.Tapped += (sender, e) => {
+				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (this)), false);
+			};
+			FilterDescr.GestureRecognizers.Add (tapFilterDescr);
+
+			StackLayout inner = new StackLayout {
+				Children = {
+					FilterDescr,
+					listView,
+					NothingFound,
+				}
+			};
+			Spinner = new ActivityIndicator {
+				IsVisible = true,
+				IsRunning = true,
+				Color = Color.Red,
+			};
+			BoxView bg0 = new BoxView { 
+				BackgroundColor = settings.BaseColor,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+			};
+			FilterSearchBox = new EntryWithButton {
+				Placeholder = "Search for place",
+				Source = settings.DevicifyFilename ("TB active search.png"),
+				OnClick = DoTextSearch,
+				Text = "",
+			};
+			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
+			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
+				_FilterSearchText = FilterSearchBox.Text;
+				DoTextSearch (sender, e);
+				FilterSearchBox.TextEntry.Focus ();
+			};
+			FilterSearchBox.TextEntry.Completed += (sender, e) => {
+				FilterSearchBox.TextEntry.Unfocus ();
+			};
+			FilterSearchBox.OnClick = (s, e) => {
+				_FilterSearchText = FilterSearchBox.Text;
+				DoTextSearch (s, e);
+			};
+
+
+			grid.Children.Add (bg0, 0, 0);
+			grid.Children.Add (FilterSearchBox, 0, 0);
+			grid.Children.Add (Spinner, 0, 1);
+			grid.Children.Add (inner, 0, 2);
+			grid.Children.Add (SplashImage, 0, 1, 0, 3);
+			FilterDescr.IsVisible = false;
+			addNewButton = new RayvButton ("Add New Place");
+			addNewButton.OnClick = (sender, e) => {
+				Navigation.PushAsync (new AddPage1 (false){ SearchText = FilterSearchBox.Text });
+			};
+
+			MainContent = new StackLayout {
+				Children = {
+					grid,
+					addNewButton,
+					tools
+				},
+				Padding = 0,
+			};
+			Content = MainContent;
+
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "  Map  ",
+				//				Icon = "icon-map.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (ShowMap),
 			});
-		}
 
-		// gps timer
-		private System.Timers.Timer _timer;
+			NeedsReload = true;
+			DisplayPosition = Persist.Instance.GpsPosition;
+			Console.WriteLine ($"ListPage ctor. set posn to {DisplayPosition.Latitude},{DisplayPosition.Longitude}");
 
-		void StartTimerIfNoGPS ()
-		{
-			if (Persist.Instance.Online && Persist.Instance.GpsPosition.Latitude != 0.0)
-				return;
-			Console.WriteLine ("StartTimerIfNoGPS START");
-			if (_timer != null)
-				_timer.Close ();
-			_timer = new System.Timers.Timer ();
-			//Trigger event every 5 second
-			_timer.Interval = 5000;
-			_timer.Elapsed += OnTimerTrigger;
-			_timer.Enabled = true;
-		}
+			this.Disappearing += (sender, e) => {
+				if (_timer != null)
+					_timer.Close ();
+			};
+			this.Appearing += (sender, e) => {
+				try {
+					App.locationMgr.StartLocationUpdates ();
+					DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
+					if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
+						StartSplashTimer ();
 
-		private void OnTimerTrigger (object sender, System.Timers.ElapsedEventArgs e)
-		{
-			try {
-				if (!Persist.Instance.Online) {
-					// not ready yet
-					//Debug.WriteLine ("OnTimerTrigger - not live");
-					return;
-				}
-				Console.WriteLine ("StartTimerIfNoGPS OnTimerTrigger ONLINE");
-				lock (Persist.Instance.Lock) {
-					try {
-						Device.BeginInvokeOnMainThread (() => SetList (Persist.Instance.Places));
-					} catch (Exception ex) {
-						Insights.Report (ex);
-						restConnection.LogErrorToServer ("ListPage.OnTimerTrigger Exception {0}", ex);
 					}
+					Persist.Instance.SetConfig (settings.LAST_OPENED, DateTime.UtcNow);
+					if (NeedsReload) {
+						Refresh ();
+						Analytics.TrackPage ("ListPage Refreshed");
+						return;
+					}
+					Double deviation = Place.approx_distance (Persist.Instance.GpsPosition, DisplayPosition);
+					if (deviation > 0.05) {
+						Analytics.TrackPage ("ListPage Moved");
+						Console.WriteLine ("ListPage Moved");
+						DisplayPosition = Persist.Instance.GpsPosition;
+						Refresh ();
+					}
+				} catch (Exception ex) {
+					Insights.Report (ex);
 				}
-				_timer.Close ();
-			} catch (UnauthorizedAccessException) {
-				// login failed - stop
-				_timer.Close ();
-			}
+			};
+			App.Resumed += delegate {
+				DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_OPENED);
+				if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
+					StartSplashTimer ();
+
+				}
+			};
+		}
+
+		/**
+		 * Constructor when a cuisine is supplied
+		 */
+		// Todo: this should be setting a property, not a ctor
+		public ListPage (string cuisine) : this ()
+		{
+			FilterCuisine = cuisine;
 		}
 
 		#endregion

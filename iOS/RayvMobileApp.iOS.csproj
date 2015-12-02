@@ -9,7 +9,7 @@
     <RootNamespace>RayvMobileApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>RayvMobileApp.iOS</AssemblyName>
-    <ReleaseVersion>0.7</ReleaseVersion>
+    <ReleaseVersion>0.7-f0</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -24,7 +24,7 @@
     <MtouchArch>i386</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Distribution</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <MtouchI18n>
     </MtouchI18n>
@@ -81,13 +81,12 @@
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <IpaIncludeArtwork>true</IpaIncludeArtwork>
-    <CodesignKey>iPhone Distribution</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <BuildIpa>true</BuildIpa>
-    <MtouchI18n>
-    </MtouchI18n>
     <IpaPackageName>
     </IpaPackageName>
     <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <CodesignProvision>54c3106a-93a3-4a5e-bf56-59dbeda30a80</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
     <DebugType>full</DebugType>
@@ -118,35 +117,41 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Auth.iOS">
+      <HintPath>..\Components\xamarin.auth-1.2.3.1\lib\ios-unified\Xamarin.Auth.iOS.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook">
+      <HintPath>..\packages\Xamarin.Facebook.iOS.4.5.1.0\lib\Xamarin.iOS10\Facebook.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Insights">
-      <HintPath>..\packages\Xamarin.Insights.1.11.1\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.11.2\lib\Xamarin.iOS10\Xamarin.Insights.dll</HintPath>
     </Reference>
     <Reference Include="PLCrashReporterUnifiedBinding">
-      <HintPath>..\packages\Xamarin.Insights.1.11.1\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
-    </Reference>
-    <Reference Include="PushNotification.Plugin.Abstractions">
-      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.8\lib\Xamarin.iOS10\PushNotification.Plugin.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="PushNotification.Plugin">
-      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.8\lib\Xamarin.iOS10\PushNotification.Plugin.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Insights.1.11.2\lib\Xamarin.iOS10\PLCrashReporterUnifiedBinding.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform.iOS">
-      <HintPath>..\packages\Xamarin.Forms.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Platform.iOS.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Platform.iOS.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Core">
-      <HintPath>..\packages\Xamarin.Forms.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
-      <HintPath>..\packages\Xamarin.Forms.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform">
-      <HintPath>..\packages\Xamarin.Forms.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Maps.iOS">
-      <HintPath>..\packages\Xamarin.Forms.Maps.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Maps.iOS.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Maps.iOS.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Maps">
-      <HintPath>..\packages\Xamarin.Forms.Maps.1.5.1.6471\lib\Xamarin.iOS10\Xamarin.Forms.Maps.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6482\lib\Xamarin.iOS10\Xamarin.Forms.Maps.dll</HintPath>
+    </Reference>
+    <Reference Include="PushNotification.Plugin.Abstractions">
+      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.9\lib\Xamarin.iOS10\PushNotification.Plugin.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="PushNotification.Plugin">
+      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.9\lib\Xamarin.iOS10\PushNotification.Plugin.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -244,16 +249,21 @@
     <BundleResource Include="Resources\phone_black.png" />
     <BundleResource Include="Resources\Web_black.png" />
     <BundleResource Include="Resources\Web_white2.png" />
-    <BundleResource Include="Resources\default_image.png" />
     <BundleResource Include="Resources\Like.png" />
     <BundleResource Include="Resources\Share.png" />
     <BundleResource Include="Resources\arrow.png" />
-    <BundleResource Include="Resources\Big_activity_dot.png" />
-    <BundleResource Include="Resources\Big_activity.png" />
-    <BundleResource Include="Resources\Big_add_place.png" />
-    <BundleResource Include="Resources\Big_find_food.png" />
     <BundleResource Include="Resources\Wish_Green.png" />
     <BundleResource Include="Resources\Logo_78.png" />
+    <BundleResource Include="Resources\Twitter_signin.png" />
+    <BundleResource Include="Resources\Google_signin.png" />
+    <BundleResource Include="Resources\FB_signin.png" />
+    <BundleResource Include="Resources\Big_activity_dot.png" />
+    <BundleResource Include="Resources\Big_find_food.png" />
+    <BundleResource Include="Resources\Big_add_place.png" />
+    <BundleResource Include="Resources\Big_activity.png" />
+    <BundleResource Include="Resources\Wish_white.png" />
+    <BundleResource Include="Resources\Delete_white.png" />
+    <BundleResource Include="Resources\default_image.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -277,12 +287,14 @@
     <Compile Include="AppDataIos.cs" />
     <Compile Include="DeviceSpecificIos.cs" />
     <Compile Include="ShareIntent.cs" />
+    <Compile Include="LoginOauthPageRenderer.cs" />
+    <Compile Include="EntryClearableRenderer.cs" />
   </ItemGroup>
   <Import Project="..\RayvMobileApp\RayvMobileApp.projitems" Label="Shared" Condition="Exists('..\RayvMobileApp\RayvMobileApp.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.1.3.1.6296\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.1.3.1.6296\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
-  <Import Project="..\packages\Xamarin.Insights.1.11.1\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.11.1\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
-  <Import Project="..\packages\Xamarin.Forms.1.5.1.6471\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.1.5.1.6471\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Xamarin.Insights.1.11.2\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.11.2\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
+  <Import Project="..\packages\Xamarin.Forms.2.0.0.6482\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.0.0.6482\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
   <ItemGroup>
     <XamarinComponentReference Include="restsharp">
       <Version>105.0.1.0</Version>
@@ -298,6 +310,10 @@
     </XamarinComponentReference>
     <XamarinComponentReference Include="json.net">
       <Version>6.0.8.1</Version>
+      <Visible>False</Visible>
+    </XamarinComponentReference>
+    <XamarinComponentReference Include="xamarin.auth">
+      <Version>1.2.3.1</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>
   </ItemGroup>

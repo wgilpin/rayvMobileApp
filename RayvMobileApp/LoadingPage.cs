@@ -40,7 +40,8 @@ namespace RayvMobileApp
 						Console.WriteLine ("loadDataFromServer: Fail Login");
 
 						Device.BeginInvokeOnMainThread (() => {
-							Navigation.PushModalAsync (new LoginPage ("Login failed"));
+							var login = new LoginPage ("Login Failed");
+							Navigation.PushModalAsync (login);
 						});
 					}, 
 					onSucceed: () => {
@@ -54,7 +55,8 @@ namespace RayvMobileApp
 					onFailVersion: () => {
 						Console.WriteLine ("loadDataFromServer: Fail Version");
 						Device.BeginInvokeOnMainThread (() => {
-							Navigation.PushModalAsync (new LoginPage ("Wrong Server Version"));
+							var login = new LoginPage ("Wrong Server Version");
+							Navigation.PushModalAsync (login);
 							Persist.Instance.SetConfig (settings.SERVER, null);
 						});
 					}, 
@@ -63,9 +65,10 @@ namespace RayvMobileApp
 				
 			} else
 				Device.BeginInvokeOnMainThread (() => {
-					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD)))
-						Navigation.PushModalAsync (new LoginPage ());
-					else {
+					if (string.IsNullOrEmpty (Persist.Instance.GetConfig (settings.PASSWORD))) {
+						var login = new LoginPage ();
+						Navigation.PushModalAsync (login);
+					} else {
 						DisplayAlert ("Offline", "Unable to contact server", "OK");
 						Navigation.PushModalAsync (new RayvNav (new MainMenu ()));
 					}

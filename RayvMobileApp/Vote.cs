@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace RayvMobileApp
 {
+	
 	public enum VoteFilterWho
 	{
 		Mine,
@@ -46,8 +47,27 @@ namespace RayvMobileApp
 		Fancy = 3,
 	}
 
+	public static class PlaceStyleExtensions
+	{
+		public static string ToFriendlyString (this PlaceStyle me)
+		{
+			switch (me) {
+				case PlaceStyle.Fancy:
+					return Vote.STYLE_FANCY;
+				case PlaceStyle.QuickBite:
+					return Vote.STYLE_QUICK;
+				case PlaceStyle.Relaxed:
+					return Vote.STYLE_RELAXED;
+			}
+			return "None";
+		}
+	}
+
 	public class Vote: IComparable<Vote>
 	{
+		public static string STYLE_FANCY = "fancy - £££";
+		public static string STYLE_QUICK = "quick bite - £";
+		public static string STYLE_RELAXED = "relaxed - ££";
 		public static int VoteNotSetValue = 0;
 		public const int MAX_MEALKIND = 0 + 1 + 2 + 4 + 8 + 16;
 

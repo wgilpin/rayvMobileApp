@@ -16,7 +16,7 @@ namespace RayvMobileApp
 	public class LocationListWithHistory: StackLayout
 	{
 		ListView _lv;
-		Entry _placeName;
+		EntryClearable _placeName;
 		Button _btn;
 		List<GeoLocation> LocationList;
 		PersistantQueueWithPosition SearchHistory;
@@ -59,7 +59,7 @@ namespace RayvMobileApp
 		{
 			SearchHistory = new PersistantQueueWithPosition (3, "Search-History");
 			HorizontalOptions = LayoutOptions.FillAndExpand;
-			_placeName = new Entry (){ Placeholder = "Place (town, region)" };
+			_placeName = new EntryClearable (){ Placeholder = "Place (town, region)" };
 			_placeName.Completed += DoLookup;
 			_btn = new ButtonWide () { 
 				Text = "    Search    ", 
@@ -342,7 +342,7 @@ namespace RayvMobileApp
 
 	public class EntryWithButton : Grid
 	{
-		Entry _entry;
+		EntryClearable _entry;
 		Image _img;
 		TapGestureRecognizer _clickImage;
 
@@ -355,7 +355,7 @@ namespace RayvMobileApp
 			set { _entry.Text = value; }
 		}
 
-		public Entry TextEntry {
+		public EntryClearable TextEntry {
 			get { return _entry; }
 		}
 
@@ -371,7 +371,7 @@ namespace RayvMobileApp
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (25.0) });
 			HorizontalOptions = LayoutOptions.FillAndExpand;
-			_entry = new Entry { TextColor = Color.Black };
+			_entry = new EntryClearable { TextColor = Color.Black };
 			_img = new Image ();
 			_clickImage = new TapGestureRecognizer ();
 			_img.GestureRecognizers.Add (_clickImage);
@@ -513,7 +513,7 @@ namespace RayvMobileApp
 	public class EntryWithChangeButton: Grid
 	{
 		private Button ButtonChange;
-		Entry TextEntry;
+		EntryClearable TextEntry;
 		private TapGestureRecognizer ClickLabel;
 
 
@@ -543,7 +543,7 @@ namespace RayvMobileApp
 			set { ButtonChange.Text = value; }
 		}
 
-		public Entry Entry {
+		public EntryClearable Entry {
 			get { return TextEntry; }
 		}
 
@@ -557,7 +557,7 @@ namespace RayvMobileApp
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor)
 			};
 			ButtonChange.HeightRequest = 30;
-			TextEntry = new Entry {
+			TextEntry = new EntryClearable {
 				Text = "",
 				TextColor = Color.FromHex ("#666"),
 				HorizontalOptions = LayoutOptions.FillAndExpand
@@ -688,8 +688,8 @@ namespace RayvMobileApp
 
 	public class ButtonWithImage: Grid
 	{
-		private Button ButtonLeft;
-		Image ImageRight;
+		public Button ButtonLeft;
+		public Image ImageRight;
 		private TapGestureRecognizer ClickImage;
 
 

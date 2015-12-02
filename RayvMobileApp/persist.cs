@@ -54,6 +54,8 @@ namespace RayvMobileApp
 		private static Persist _instance;
 		public string FilterWhoKey = "";
 		public bool NotificationsReceived = false;
+		public string OauthToken = "";
+		public  Page OauthNavPage;
 
 		public Object Lock = new Object ();
 		public List<Place> DisplayList;
@@ -727,32 +729,30 @@ namespace RayvMobileApp
 						ExtractInvites (obj);
 						Console.WriteLine ($"StoreUpdatedUserRecord 2 {DateTime.Now - now} ");
 
-						List<Vote> vote_list = obj ["votes"].ToObject<List<Vote> > ();
-						Console.WriteLine ($"StoreUpdatedUserRecord 2a {DateTime.Now - now} ");
-						if (vote_list != null) {
-							foreach (Vote v in vote_list) {
-								var p = GetPlace (v.key);
-								var existing_vote = Votes
-									.Where (old_vote => 
-										old_vote.key == v.key &&
-								                    old_vote.voter == v.voter)
-									.SingleOrDefault ();
-								if (existing_vote == null) {
-									Votes.Add (v);
-									p.vote = v;
-								} else {
-									existing_vote.comment = v.comment;
-									existing_vote.vote = v.vote;
-									existing_vote.when = v.when;
-									existing_vote.kind = v.kind;
-									existing_vote.style = v.style;
-									existing_vote.cuisine = v.cuisine;
-									existing_vote.place_name = v.place_name;
-								}
-								if (v.voter == MyId.ToString ()) {
-									p.vote = v;
-									p.setComment (v.comment);
-								}
+						List<Vote> vote_list = new List<Vote> ();
+						List<string> vote_list_strings = JsonConvert.DeserializeObject<List<string>> (obj ["votes"].ToString ());
+						foreach (string vote_string in vote_list_strings) {
+							Vote v = JsonConvert.DeserializeObject<Vote> (vote_string);
+							var p = GetPlace (v.key);
+							var vote_q = Votes.Where (old_vote => 
+			                     old_vote.key == v.key &&
+							             old_vote.voter == v.voter);
+							var existing_vote = vote_q.SingleOrDefault ();
+							if (existing_vote == null) {
+								Votes.Add (v);
+								p.vote = v;
+							} else {
+								existing_vote.comment = v.comment;
+								existing_vote.vote = v.vote;
+								existing_vote.when = v.when;
+								existing_vote.kind = v.kind;
+								existing_vote.style = v.style;
+								existing_vote.cuisine = v.cuisine;
+								existing_vote.place_name = v.place_name;
+							}
+							if (v.voter == MyId.ToString ()) {
+								p.vote = v;
+								p.setComment (v.comment);
 							}
 						}
 						Console.WriteLine ($"StoreUpdatedUserRecord 3 {DateTime.Now - now} ");
@@ -933,6 +933,24 @@ namespace RayvMobileApp
 					Device.BeginInvokeOnMainThread (() => {
 						onSucceed?.DynamicInvoke ();
 					});
+			}
+		}
+
+		public void SetNotificationToken (string token)
+		{
+			// write the notification token to the server and to app config
+			try {
+				Persist.Instance.SetConfig (settings.NOTIFICATIONS_TOKEN, token);
+				restConnection webReq = GetWebConnection ();
+				var values = new Dictionary<string,string> {
+					{ "token", token },
+					{ "kind",Device.OnPlatform ("iOS", "Android", "WinPhone") }
+				};
+				webReq.post ("/apns/register", values);
+				Console.WriteLine ("SetNotificationToken");
+			} catch (Exception ex) {
+				Console.WriteLine ($"ERROR SetNotificationToken {ex}");
+				Insights.Report (ex);
 			}
 		}
 
@@ -1194,7 +1212,7 @@ namespace RayvMobileApp
 
 		#endregion
 
-
+			
 		#region Config Methods
 
 		/// <summary>
@@ -1284,8 +1302,8 @@ namespace RayvMobileApp
 						Application.Current.Properties.Remove (key);
 				} else {
 					Application.Current.Properties [key] = value;
-					var show_value = key == settings.PASSWORD ? "***" : value;
-					Debug.WriteLine ($"SetConfig {key}={show_value}");
+//					var show_value = key == settings.PASSWORD ? "***" : value;
+//					Debug.WriteLine ($"SetConfig {key}={show_value}");
 				}
 				Application.Current.SavePropertiesAsync ();
 			} catch (System.NotSupportedException) {

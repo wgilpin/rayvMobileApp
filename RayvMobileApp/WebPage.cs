@@ -31,7 +31,9 @@ namespace RayvMobileApp
 				Source = new UrlWebViewSource {
 					Url = url,
 				},
-				VerticalOptions = LayoutOptions.FillAndExpand
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				BackgroundColor = Color.Blue,
+
 			};
 
 			webView.Navigating += (sender, e) => {

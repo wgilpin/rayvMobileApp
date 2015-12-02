@@ -16,7 +16,8 @@ namespace RayvMobileApp
 			Persist.Instance.Wipe ();
 			restConnection.Instance.ClearCredentials ();
 			Debug.WriteLine ("SettingsPage.DoLogout: Push LoginPage");
-			this.Navigation.PushModalAsync (new LoginPage ());
+			var login = new LoginPage ();
+			this.Navigation.PushModalAsync (login);
 		}
 
 		void ShareToken (object sender, EventArgs e)

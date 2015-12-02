@@ -204,6 +204,7 @@ namespace RayvMobileApp
 		// Search for a place at a location
 		void DoSearch (String searchLocation)
 		{
+			Console.WriteLine ($"DoSearch for {searchLocation}");
 			Spinner.IsRunning = true;
 			Spinner.IsVisible = true;
 			PlaceNameBox.Entry.Unfocus ();
@@ -235,14 +236,29 @@ namespace RayvMobileApp
 						JObject obj = JObject.Parse (result);
 						points = new List<Place> ();
 						List<Place> pointsIn = JsonConvert.DeserializeObject<List<Place>> (obj.SelectToken ("local.points").ToString ());
-						string search_text = parameters.ContainsKey ("place_name") ? parameters ["place_name"].ToLower () : "";
+						string search_text = parameters.ContainsKey ("place_name") ? parameters ["place_name"].ToLowerInvariant () : "";
+						var search_text_without_chars = search_text.Trim (settings.IgnoreChars);
+						var possible_search_words = search_text_without_chars.Split ();
+						List<string> search_words = new List<string> ();
+						if (!string.IsNullOrEmpty (search_text_without_chars))
+							foreach (var w in possible_search_words)
+								if (!settings.IgnoreWords.Contains (w))
+									search_words.Add (w);
 						foreach (Place point in pointsIn) {
 							if (point == null)
 								continue;
-							if (search_text.Length > 0)
-							if (!point.place_name.ToLower ().Contains (search_text))
-								// place name was asked for, not found
-								continue;
+							if (search_words.Count > 0) {
+								var invariantText = point.place_name.ToLowerInvariant ().Trim (settings.IgnoreChars);
+								var split_words = invariantText.Split ();
+								bool matches = search_words.All (kw => {
+									foreach (string w in split_words)
+										if (w.IndexOf (kw) > -1)
+											return true;
+									return false;
+								});
+								if (!matches)
+									continue;
+							}
 							point.CalculateDistanceFromPlace (SearchPosition);
 							points.Add (point);
 						}
@@ -284,6 +300,13 @@ namespace RayvMobileApp
 
 		#region Properties
 
+		public string SearchText {
+			set {
+				Console.WriteLine ($"Set SearchText to {value}");
+				PlaceNameBox.Text = value;
+				DoSearch (value);
+			}
+		}
 
 		#endregion
 
@@ -295,22 +318,17 @@ namespace RayvMobileApp
 				Cancelled?.Invoke (null, null);
 		}
 
-		StackLayout GetSearchContent ()
+		StackLayout GetSearchContent (bool showCancelBtn = true)
 		{
 			BackgroundColor = settings.BaseColor;
-			var AddBtn = new Label {
-				Text = "Add", 
-				TextColor = Color.White, 
-				FontSize = settings.FontSizeLabelLarge,
-				HorizontalOptions = LayoutOptions.Center, 
-			};
-			var CancelBtn = new Button {
-				Text = "Cancel", 
-				TextColor = Color.White, 
-				FontSize = settings.FontSizeLabelMedium,
-				HorizontalOptions = LayoutOptions.Start, 
-			};
-			CancelBtn.Clicked += DoCancel;
+			Title = "Add";
+//			var AddBtn = new Label {
+//				Text = "Add", 
+//				TextColor = Color.White, 
+//				FontSize = settings.FontSizeLabelLarge,
+//				HorizontalOptions = LayoutOptions.Center, 
+//			};
+
 			NothingFound = new LabelWide ("Nothing found within 3 miles of your location") {
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				IsVisible = false,
@@ -382,8 +400,7 @@ namespace RayvMobileApp
 				Padding = 4,
 				BackgroundColor = settings.BaseColor,
 				Children = {
-					CancelBtn,
-					AddBtn,
+//					AddBtn,
 					PlaceNameBox,
 					LocationSearchedBox,
 					ResetLocationBtn,
@@ -471,9 +488,21 @@ namespace RayvMobileApp
 			Title = "";
 			Padding = new Thickness (2, Device.OnPlatform (20, 0, 0), 0, 0);
 
-			SearchContent = GetSearchContent ();
+			SearchContent = GetSearchContent (hasBackButton);
 			Content = SearchContent;
 			this.Appearing += DoSearchForPlace;
+			if (hasBackButton) {
+				var BackBtn = new ToolbarItem {
+					Text = "Back ",
+					//				Icon = "icon-map.png",
+					Order = ToolbarItemOrder.Primary,
+					Command = new Command (() => {
+//					Navigation.PopModalAsync ();
+						DoCancel (null, null);
+					}),
+				};
+				ToolbarItems.Add (BackBtn);
+			}
 		}
 	}
 }

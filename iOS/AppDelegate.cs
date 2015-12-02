@@ -92,7 +92,7 @@ namespace RayvMobileApp.iOS
 		public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
 		{
 			Console.WriteLine ($">>>Device Token {deviceToken.ToString()}");
-			Persist.Instance.SetConfig (settings.NOTIFICATIONS_TOKEN, deviceToken.ToString ());
+			Persist.Instance.SetNotificationToken (deviceToken.ToString ());
 			if (CrossPushNotification.Current is IPushNotificationHandler) {
 				((IPushNotificationHandler)CrossPushNotification.Current).OnRegisteredSuccess (deviceToken);
 			}

@@ -227,6 +227,11 @@ namespace RayvMobileApp
 			};
 			// number then anything
 			string addressPattern = @"^(\d+[-\d+]* )(.*)";
+			if (vote.Place == null) {
+				Console.WriteLine ($"CreateNewsItem No Place for {vote.key}" );
+				Insights.Report (null, "No Place for vote.key", vote.key);
+				return null;
+			}
 			MatchCollection matches = Regex.Matches (vote.Place.address, addressPattern);
 			AddressLbl.Text = matches.Count < 1 ? 
 				vote.Place.address : 
@@ -356,7 +361,8 @@ namespace RayvMobileApp
 					DisplayAlert ("Error", "Couldn't contact server", "OK");
 				},
 				onFailVersion: () => {
-					Navigation.PushModalAsync (new LoginPage ());
+					var login = new LoginPage ();
+					Navigation.PushModalAsync (login);
 				},
 				onSucceed: () => {
 					string name = ((sender as Button).CommandParameter as string);
@@ -396,8 +402,10 @@ namespace RayvMobileApp
 			clickVote.Tapped += DoListItemTap;
 			foreach (Vote v in newsList) {
 				var view = CreateNewsItem (v);
-				list.Children.Add (view);
-				view.GestureRecognizers.Add (clickVote);
+				if (view != null) {
+					list.Children.Add (view);
+					view.GestureRecognizers.Add (clickVote);
+				}
 			}
 		}
 
@@ -421,7 +429,8 @@ namespace RayvMobileApp
 							},
 							onFailVersion: () => {
 								Device.BeginInvokeOnMainThread (() => {
-									Navigation.PushModalAsync (new LoginPage ());
+									var login = new LoginPage ();
+									Navigation.PushModalAsync (login);
 								});
 							},
 							onSucceed: () => {
@@ -434,7 +443,10 @@ namespace RayvMobileApp
 								});
 							},
 							since: DateTime.Now - new TimeSpan (settings.NEWS_PAGE_TIMESPAN_DAYS, 0, 0, 0), 
-							incremental: true);
+							incremental: true,
+							timeoutMs: DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator () ?
+								settings.WEB_TIMEOUT_TEST :
+								settings.WEB_TIMEOUT);
 					} catch (ProtocolViolationException) {
 						DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
 					} catch (Exception ex) {

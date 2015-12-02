@@ -208,14 +208,15 @@ namespace RayvMobileApp
 		public static void LogErrorToServer (string format, params object[] args)
 		{
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
+				String msg = String.Format (format, args);
+				Console.WriteLine ("LOG ERROR: {0}", msg);
 				try {
-					String msg = String.Format (format, args);
-					Console.WriteLine ("LOG ERROR: {0}", msg);
 					LogToServer (LogLevel.ERROR, msg);
 				} catch (Exception ex) {
+					Console.WriteLine ($"LOG FATAL ERROR: {ex}");
 					Insights.Report (ex);
 				}
-			}));
+			})).Start ();
 		}
 
 		public static void LogErrorToServer (string message)

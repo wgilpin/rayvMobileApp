@@ -10,7 +10,7 @@ namespace RayvMobileApp
 	{
 		Map map;
 		EntryWithChangeButton AddressEd;
-		Entry NameEd;
+		EntryClearable NameEd;
 		Button SaveBtn;
 
 		public event EventHandler Succeeded;
@@ -57,7 +57,7 @@ namespace RayvMobileApp
 				},
 			};
 
-			NameEd = new Entry {
+			NameEd = new EntryClearable {
 				Placeholder = "Place name",
 			};
 			AddressEd = new EntryWithChangeButton { 

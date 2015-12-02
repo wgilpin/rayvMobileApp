@@ -8,6 +8,9 @@ namespace RayvMobileApp
 		public static string[] TesterWhitelist = { "Will", "pegah", "georgia" };
 		// milliseconds
 		public const int WEB_TIMEOUT = 10000;
+		public const int WEB_TIMEOUT_TEST = 60000;
+		public const bool USE_OAUTH = false;
+		public const string FACEBOOK_EMAIL = "FB_EMAIL";
 		public const string FILTER_WHEN = "FILTER_WHEN";
 		public const string FILTER_STYLE = "FILTER_STYLE";
 		public const string FILTER_KIND = "FILTER_KIND";
@@ -48,6 +51,8 @@ namespace RayvMobileApp
 		public const Double MAX_LIST_DISTANCE = 5.0;
 		public const int MIN_PWD_LENGTH = 7;
 		public const int NEWS_PAGE_TIMESPAN_DAYS = 14;
+		public static string[] IgnoreWords = { "the", "and", "of", "in" };
+		public static Char[] IgnoreChars = { '\'', ',', '.', ':' };
 
 
 		public static Color BaseColor = Color.FromHex ("0F9D58");

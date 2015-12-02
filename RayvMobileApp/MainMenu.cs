@@ -60,6 +60,7 @@ namespace RayvMobileApp
 			(grid as GridWithCounter).ShowGrid = true;
 			// ADD
 			Image addImg = new Image {
+				
 				Source = settings.DevicifyFilename ("Big_add_place.png"),
 				Aspect = Aspect.AspectFit,
 			};
@@ -103,11 +104,12 @@ namespace RayvMobileApp
 			};
 			choiceImg.GestureRecognizers.Add (clickFind);
 
+			int TEXT_X_TRANS = -25;
 			var FindText =
 				new Label {
 					Text = "Find Food",
 					FontSize = 35,
-					TranslationY = -30,
+					TranslationY = TEXT_X_TRANS,
 					VerticalOptions = LayoutOptions.Start,
 					HorizontalOptions = LayoutOptions.Center,
 					TextColor = Color.White,
@@ -118,7 +120,7 @@ namespace RayvMobileApp
 			var AddText = new Label {
 				Text = "Add Place",
 				FontSize = 35,
-				TranslationY = -30,
+				TranslationY = TEXT_X_TRANS,
 
 				VerticalOptions = LayoutOptions.Start,
 				HorizontalOptions = LayoutOptions.Center,
@@ -133,7 +135,7 @@ namespace RayvMobileApp
 				new Label {
 					Text = "Activity",
 					FontSize = 35,
-					TranslationY = -30,
+					TranslationY = TEXT_X_TRANS,
 					VerticalOptions = LayoutOptions.Start,
 					HorizontalOptions = LayoutOptions.Center,
 					TextColor = Color.White,
@@ -141,6 +143,7 @@ namespace RayvMobileApp
 			NewsText.GestureRecognizers.Add (clickNews);
 
 			// SHARE
+			grid.RowSpacing = 30;
 			grid.Children.Add (choiceImg, 0, 0);
 			grid.Children.Add (FindText, 0, 1);
 			grid.Children.Add (addImg, 0, 2);
