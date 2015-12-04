@@ -75,5 +75,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LoginOauthPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BaseContentPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EntryClearable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlacesTableView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlaceCell.cs" />
   </ItemGroup>
 </Project>

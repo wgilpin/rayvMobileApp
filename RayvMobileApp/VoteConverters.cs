@@ -226,6 +226,21 @@ namespace RayvMobileApp
 
 	public class PlaceKeyToCorrectUntriedForList: IValueConverter
 	{
+		public static bool KeyToUntriedValue (string key)
+		{
+			try {
+				if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
+					Place p = Persist.Instance.GetPlace (key);
+					return p.vote.untried;
+				} else {
+					Vote vote = Persist.Instance.Votes.Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).First ();
+					return vote.untried;
+				}
+			} catch (Exception ex) {
+				return false;
+			}
+		}
+
 		// for a given place key, return the roght vote - mine normally,
 		//   but if FilterWhoKey is a friend's key, theirs
 		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
@@ -233,15 +248,7 @@ namespace RayvMobileApp
 			var key = value as string;
 			if (String.IsNullOrEmpty (key))
 				return null;
-			if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
-				Place p = Persist.Instance.GetPlace (key);
-				return p?.vote.untried;
-			} else {
-				Vote vote = Persist.Instance.Votes.
-				Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).
-				First ();
-				return vote?.untried;
-			}
+			return KeyToUntriedValue (key);
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -251,30 +258,37 @@ namespace RayvMobileApp
 		}
 	}
 
+
 	public class PlaceKeyToCorrectVoteScoreForList: IValueConverter
 	{
 		// for a given place key, return the roght vote - mine normally,
 		//   but if FilterWhoKey is a friend's key, theirs
-		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		public object Convert (object value, Type targetType, object parameter = null, CultureInfo culture = null)
 		{
 			var key = value as string;
 			if (String.IsNullOrEmpty (key))
 				return null;
-			if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
-				Place p = Persist.Instance.GetPlace (key);
-				return p?.vote.vote;
-			} else {
-				Vote vote = Persist.Instance.Votes.
-				Where (v => v.key == key & v.voter == Persist.Instance.FilterWhoKey).
-				FirstOrDefault ();
-				return vote?.vote;
-			}
+			return KeyToVote (key);
 		}
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			Debug.WriteLine (value.ToString (), new []{ "PlaceKeyToCorrectVoteScoreForList.ConvertBack" });
 			throw new NotImplementedException ();
+		}
+
+		static public int? KeyToVote (string placeKey)
+		{
+			if (string.IsNullOrEmpty (Persist.Instance.FilterWhoKey)) {
+				Place p = Persist.Instance.GetPlace (placeKey);
+//				Console.WriteLine ($"KeyToVote {p?.vote.vote}");
+				return p?.vote.vote;
+			} else {
+				Vote vote = Persist.Instance.Votes.
+					Where (v => v.key == placeKey & v.voter == Persist.Instance.FilterWhoKey).
+					FirstOrDefault ();
+				return vote?.vote;
+			}
 		}
 	}
 

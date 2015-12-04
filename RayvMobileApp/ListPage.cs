@@ -28,11 +28,10 @@ namespace RayvMobileApp
 	{
 		#region Fields
 
-		static PlacesListView listView;
+		static PlacesTableView listView;
 		//		StackLayout FilterCuisinePicker;
 		StackLayout MainContent;
 		Label SplashImage;
-		Label FilterDescr;
 
 		EntryWithButton FilterSearchBox;
 		//		Entry AreaBox;
@@ -51,7 +50,7 @@ namespace RayvMobileApp
 			set {
 				lock (Persist.Instance.Lock) {
 					var nearby = value.Where (p => p.distance_for_search < settings.MAX_LIST_DISTANCE).ToList ();
-					listView.SetMainItemSource (nearby);
+					listView.SetMainList (nearby);
 				}
 			}
 		}
@@ -197,11 +196,11 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void DoSelectListItem (object sender, ItemTappedEventArgs e)
+		void DoSelectListItem (object sender, EventArgs e)
 		{
 			try {
 				Console.WriteLine ("Listpage.DoSelectListItem");
-				var place = e.Item as Place;
+				var place = (sender as PlaceCell).Place;
 				if (place.IsDraft) {
 					NeedsReload = true;
 					var editPage = new PlaceEditor (place);
@@ -235,25 +234,25 @@ namespace RayvMobileApp
 
 		public void DoServerRefresh (object s, EventArgs e)
 		{
-			try {
-				Persist.Instance.GetUserData (
-					onFail: () => {
-						Spinner.IsVisible = false;
-						DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
-					},
-					onSucceed: () => {
-						Refresh ();
-						listView.DisplayedList.EndRefresh ();
-					},
-					onFailVersion: () => {
-						var login = new LoginPage ();
-						Navigation.PushModalAsync (login);
-					},
-					since: DateTime.UtcNow, 
-					incremental: true);
-			} catch (ProtocolViolationException) {
-				DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
-			}
+//			try {
+//				Persist.Instance.GetUserData (
+//					onFail: () => {
+//						Spinner.IsVisible = false;
+//						DisplayAlert ("Offline", "Unable to contact server - try later", "OK");
+//					},
+//					onSucceed: () => {
+//						Refresh ();
+//						listView.DisplayedList.EndRefresh ();
+//					},
+//					onFailVersion: () => {
+//						var login = new LoginPage ();
+//						Navigation.PushModalAsync (login);
+//					},
+//					since: DateTime.UtcNow, 
+//					incremental: true);
+//			} catch (ProtocolViolationException) {
+//				DisplayAlert ("Server Error", "The app is designed for another version of the server", "OK");
+//			}
 		}
 
 
@@ -272,7 +271,6 @@ namespace RayvMobileApp
 			DisplayPosition = Persist.Instance.GpsPosition;
 			IsFiltered = false;
 			FilterList ();
-			FilterDescr.IsVisible = false;
 		}
 
 
@@ -292,7 +290,6 @@ namespace RayvMobileApp
 			Spinner.IsRunning = true;
 			Content = MainContent;
 			FilterList ();
-			FilterDescr.IsVisible = false;
 		}
 
 		#endregion
@@ -513,8 +510,7 @@ namespace RayvMobileApp
 			}
 			SetList (Persist.Instance.DisplayList);
 			FilterSearchBox.Unfocus ();
-			FilterDescr.Text = string.Join (", ", styleDescriptionItems);
-			FilterDescr.IsVisible = IsFiltered;
+			listView.SummaryText = string.Join (", ", styleDescriptionItems);
 		}
 
 	
@@ -600,10 +596,11 @@ namespace RayvMobileApp
 			};
 			IsFiltered = false;
 
-			listView = new PlacesListView (showDistance: FilterSearchCenter.Equals (null));
-			listView.OnItemTapped = DoSelectListItem;
-			listView.DisplayedList.Refreshing += DoServerRefresh;
-			listView.DisplayedList.IsPullToRefreshEnabled = true;
+			listView = new PlacesTableView (showDistance: FilterSearchCenter.Equals (null));
+			listView.OnPlaceTapped = DoSelectListItem;
+			listView.OnErrorMessage = (s, e) => DisplayAlert ("Places", e.Message, "OK");
+//			listView.DisplayedList.Refreshing += DoServerRefresh;
+//			listView.DisplayedList.IsPullToRefreshEnabled = true;
 			listView.SearchCentre = FilterSearchCenter;
 			StackLayout tools = new BottomToolbar (this, "list");
 			NothingFound = new LabelWide ("Nothing Found") {
@@ -623,23 +620,8 @@ namespace RayvMobileApp
 				}
 			};
 
-			FilterDescr = new Label { 
-				Text = "All Places", 
-				HorizontalOptions = LayoutOptions.FillAndExpand, 
-				BackgroundColor = settings.BaseColor, 
-				TextColor = Color.White, 
-				FontAttributes = FontAttributes.Bold,
-				HorizontalTextAlignment = TextAlignment.Center
-			};
-			var tapFilterDescr = new TapGestureRecognizer ();
-			tapFilterDescr.Tapped += (sender, e) => {
-				this.Navigation.PushModalAsync (new RayvNav (new FindChoicePage (this)), false);
-			};
-			FilterDescr.GestureRecognizers.Add (tapFilterDescr);
-
 			StackLayout inner = new StackLayout {
 				Children = {
-					FilterDescr,
 					listView,
 					NothingFound,
 				}
@@ -680,7 +662,6 @@ namespace RayvMobileApp
 			grid.Children.Add (Spinner, 0, 1);
 			grid.Children.Add (inner, 0, 2);
 			grid.Children.Add (SplashImage, 0, 1, 0, 3);
-			FilterDescr.IsVisible = false;
 			addNewButton = new RayvButton ("Add New Place");
 			addNewButton.OnClick = (sender, e) => {
 				Navigation.PushAsync (new AddPage1 (false){ SearchText = FilterSearchBox.Text });

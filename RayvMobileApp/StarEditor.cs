@@ -101,7 +101,7 @@ namespace RayvMobileApp
 			// friends get grey stars
 			get { return _whiteMode; }
 			set {
-				Console.WriteLine ($"StarEditor: WhiteMode {value}");
+//				Console.WriteLine ($"StarEditor: WhiteMode {value}");
 				_whiteMode = value;
 				LoadSources ();
 				SetVote (_vote);
@@ -116,7 +116,7 @@ namespace RayvMobileApp
 		{
 			if (ReadOnly || IsSpinnerRunning)
 				return;
-			Console.WriteLine ("Star tapped");
+//			Console.WriteLine ("Star tapped");
 			_vote = Convert.ToInt32 ((sender as Image).StyleId);
 			_untried = _vote == 0;
 			Console.WriteLine ($"Star {_vote} tapped");
@@ -217,7 +217,7 @@ namespace RayvMobileApp
 			tapped.Tapped += DoStarTapped;
 			AddImage (showUntried ? "wish_grey.png" : "", 0);
 			//five star columns
-			Console.WriteLine ($"StarEditor: set Grey");
+//			Console.WriteLine ($"StarEditor: set Grey");
 			for (int i = 1; i < 6; i++) {
 				AddImage ("star-empty.png", i);
 			}

@@ -36,23 +36,28 @@ namespace RayvMobileApp
 
 	public class AddressToShortAddressConverter: IValueConverter
 	{
-		public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
+		public static string AddressToShortAddress (string address)
+		{
+			string res;
+			// number then anything
+			string pattern = @"^(\d+[-\d+]* )(.*)";
+			MatchCollection matches = Regex.Matches (address, pattern);
+			if (matches.Count < 1) {
+				res = address;
+			} else {
+				res = matches [0].Groups [2].ToString ();
+			}
+			return res;
+		}
+
+		public object Convert (object value, Type targetType, object parameter = null, CultureInfo culture = null)
 		{
 			try {
 				var address = value as string;
 				if (String.IsNullOrEmpty (address))
 					return null;
 
-				string res;
-				// number then anything
-				string pattern = @"^(\d+[-\d+]* )(.*)";
-				MatchCollection matches = Regex.Matches (address, pattern);
-				if (matches.Count < 1) {
-					res = address;
-				} else {
-					res = matches [0].Groups [2].ToString ();
-				}
-				return res;
+				return AddressToShortAddress (address);
 			} catch (Exception ex) {
 				Insights.Report (ex);
 				return null;
