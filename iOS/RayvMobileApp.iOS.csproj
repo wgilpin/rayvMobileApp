@@ -162,7 +162,6 @@
     <BundleResource Include="Resources\left32x32.png" />
     <BundleResource Include="Resources\RayvTopSplash.png" />
     <BundleResource Include="Resources\right32x32.png" />
-    <BundleResource Include="Resources\star-lg.png" />
     <BundleResource Include="..\..\art\filter.png">
       <Link>Resources\filter.png</Link>
     </BundleResource>
@@ -175,7 +174,6 @@
     <BundleResource Include="..\..\art\Default%402x.png">
       <Link>Resources\Default%402x.png</Link>
     </BundleResource>
-    <BundleResource Include="Resources\rayvcircle.gif" />
     <BundleResource Include="Resources\19-gear.png" />
     <BundleResource Include="Resources\111-user%402x.png" />
     <BundleResource Include="Resources\259-list%402x.png" />
@@ -186,11 +184,7 @@
     <BundleResource Include="Resources\icon-06-magnify%402x.png" />
     <BundleResource Include="Resources\26-checkmark%402x.png" />
     <BundleResource Include="Resources\centre-button.png" />
-    <BundleResource Include="Resources\Add Select right button.png" />
-    <BundleResource Include="Resources\TB default news %281%29.png" />
-    <BundleResource Include="Resources\intro page 1.png" />
     <BundleResource Include="Resources\Location.png" />
-    <BundleResource Include="Resources\Dislike.png" />
     <BundleResource Include="Resources\Intro 3 foodie friends.png" />
     <BundleResource Include="Resources\add 2.png" />
     <BundleResource Include="Resources\Intro head 2a.png" />
@@ -207,14 +201,10 @@
     <BundleResource Include="Resources\Icon default Phone.png" />
     <BundleResource Include="Resources\Icon default Website.png" />
     <BundleResource Include="Resources\Icon default directions1.png" />
-    <BundleResource Include="Resources\Wish1.png" />
     <BundleResource Include="Resources\checkbox_checked.png" />
     <BundleResource Include="Resources\checkbox_unchecked.png" />
-    <BundleResource Include="Resources\Add friend.png" />
-    <BundleResource Include="Resources\Add_Vote.png" />
     <BundleResource Include="Resources\Icon_active_Phone.png" />
     <BundleResource Include="Resources\Icon_active_Website.png" />
-    <BundleResource Include="Resources\remove_vote.png" />
     <BundleResource Include="Resources\a_breakfast.png" />
     <BundleResource Include="Resources\a_coffee.png" />
     <BundleResource Include="Resources\a_dinner.png" />
@@ -234,7 +224,6 @@
     <BundleResource Include="Resources\star-empty.png" />
     <BundleResource Include="Resources\star-selected.png" />
     <BundleResource Include="Resources\wish_grey.png" />
-    <BundleResource Include="Resources\wish_blue.png" />
     <BundleResource Include="Resources\Wish_dark_grey.png" />
     <BundleResource Include="Resources\star_border.png" />
     <BundleResource Include="Resources\star_dark_grey.png" />
@@ -264,6 +253,11 @@
     <BundleResource Include="Resources\Wish_white.png" />
     <BundleResource Include="Resources\Delete_white.png" />
     <BundleResource Include="Resources\default_image.png" />
+    <BundleResource Include="Resources\stars_example.png" />
+    <BundleResource Include="Resources\Friends_green.png" />
+    <BundleResource Include="Resources\Share_green2.png" />
+    <BundleResource Include="Resources\directions_green2.png" />
+    <BundleResource Include="Resources\Cancel_button.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -328,5 +322,7 @@
     <ImageAsset Include="Resources\Images.xcassets\AppIcons-3.appiconset\Icon.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons-3.appiconset\Icon-60%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons-3.appiconset\Icon-72.png" />
+    <ImageAsset Include="Resources\directions_green.png" />
+    <ImageAsset Include="Resources\Share_green.png" />
   </ItemGroup>
 </Project>

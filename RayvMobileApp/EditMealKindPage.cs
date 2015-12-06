@@ -187,7 +187,7 @@ namespace RayvMobileApp
 			grid.Children.Add (PlaceType, 0, 3, 6, 7);
 
 			Styles = new Dictionary<string, PlaceStyle> () {
-				{ "select",PlaceStyle.None },
+				{ "select price",PlaceStyle.None },
 				{ Vote.STYLE_QUICK,PlaceStyle.QuickBite },
 				{ Vote.STYLE_RELAXED,PlaceStyle.Relaxed },
 				{ Vote.STYLE_FANCY,PlaceStyle.Fancy },

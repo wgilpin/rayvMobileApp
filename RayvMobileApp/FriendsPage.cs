@@ -8,7 +8,7 @@ namespace RayvMobileApp
 	public class FriendsPage : ContentPage
 	{
 		ListView listView;
-		const int BUTTON_SIZE = 80;
+		const int BUTTON_SIZE = 50;
 		int roundButtonSize = Device.OnPlatform (30, 50, 30);
 		StackLayout innerContent;
 
@@ -108,7 +108,7 @@ namespace RayvMobileApp
 						ItemsSource = Persist.Instance.Friends,
 						SeparatorColor = settings.ColorDarkGray,
 						SeparatorVisibility = SeparatorVisibility.Default,
-						RowHeight = Device.OnPlatform (100, 120, 120),
+						RowHeight = Device.OnPlatform (60, 80, 60),
 						// Define template for displaying each item.
 						ItemTemplate = GetDataTemplate (),
 						VerticalOptions = LayoutOptions.FillAndExpand,

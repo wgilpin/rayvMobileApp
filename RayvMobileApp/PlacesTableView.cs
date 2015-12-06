@@ -33,7 +33,6 @@ namespace RayvMobileApp
 		public EventHandler<EventArgsMessage> OnErrorMessage;
 
 		public Position? SearchCentre;
-		public string ShowFriend = "";
 
 		public bool IsShowingDistance = true;
 		public bool IsShowingVotes = true;
@@ -42,6 +41,8 @@ namespace RayvMobileApp
 			get { return OurSection.Title; }
 			set { OurSection.Title = value; }
 		}
+
+		public FilterParameters Filter { get; set; }
 
 		public void DoItemTapped (Object sender, EventArgs e)
 		{
@@ -65,28 +66,37 @@ namespace RayvMobileApp
 				OnErrorMessage?.Invoke (this, new EventArgsMessage ("No more places found"));
 				Root.Remove (StrangerSection);
 			} else {
+				Root.Remove (StrangerSection);
+				Root.Add (StrangerSection);
+				OurSection.Remove (StrangerBtn);
 				//ShowStrangerBtn.IsVisible = false;
 				JObject obj = JObject.Parse (result);
 				string placesStr = obj ["points"].ToString ();
 				List<Place> place_list = JsonConvert.DeserializeObject<List<Place>> (placesStr);
 				List<Place> strangerPlaces = new List<Place> ();
 				foreach (Place p in place_list) {
-					if (Persist.Instance.GetPlace (p.key) != null) {
+					if (Persist.Instance.GetPlace (p.key) != null) 
 						// we already had it
 						continue;
-					}
+					if (string.IsNullOrEmpty (p.vote.voter))
+						continue;
 					p.CalculateDistanceFromPlace (SearchCentre);
 					strangerPlaces.Add (p);
 				}
-				if (strangerPlaces.Count == 0) {
+				string descr = "";
+				bool isFiltered = false;
+				Position displayPosn = Persist.Instance.DisplayPosition;
+				var filtered_stranger_places = ListPage.FilterPlaceList (strangerPlaces, out descr, out isFiltered, Filter, ref displayPosn);
+				
+				if (filtered_stranger_places.Count == 0) {
 					Console.WriteLine ("DoShowStrangers NONE FOUND");
 					OnErrorMessage?.Invoke (this, new EventArgsMessage ("No more places found"));
 				} else {
 					//SecondListHeaderLbl.Text = "Other nearby places";
-					strangerPlaces.Sort ();
+					filtered_stranger_places.Sort ();
 					StrangerSection.Remove (StrangerBtn);
-					for (int i = 0; (i < PAGE_SIZE) && (i < strangerPlaces.Count); i++) {
-						Place p = strangerPlaces [i];
+					for (int i = 0; (i < PAGE_SIZE) && (i < filtered_stranger_places.Count); i++) {
+						Place p = filtered_stranger_places [i];
 						StrangerSection.Add (new PlaceCell (p, IsShowingDistance, IsShowingVotes, DoItemTapped));
 					}
 
@@ -111,25 +121,25 @@ namespace RayvMobileApp
 		public void SetMainList (PlacesList list)
 		{
 			MainList = list;
-			PlacesShown = 0;
-			OurSection.Remove (NoPlacesMessage);
+			PlacesShown = -1;
+			OurSection.Clear ();
+			StrangerSection.Clear ();
 			DoShowMore ();
-			if (list.Count < 10) {
-				Root.Remove (StrangerSection);
-				Root.Add (StrangerSection);
-			}
 			if (list.Count == 0)
 				OurSection.Add (NoPlacesMessage);
+			if (list.Count < 10 && StrangerSection.Count == 0) {
+				OurSection.Add (StrangerBtn);
+			}
 		}
 
-		public PlacesTableView (bool showVotes = true, bool showDistance = true)
+		public PlacesTableView (bool showVotes = true, bool showDistance = true, bool showSecondList = true)
 		{
 			IsShowingVotes = showVotes;
 			IsShowingDistance = showDistance;
 			MoreBtn = new ButtonCell ("More...", DoShowMore);
 			StrangerBtn = new ButtonCell ("Show Strangers' Places", DoShowStrangers);
 			Intent = TableIntent.Data;
-			OurSection = new TableSection ("All Places");
+			OurSection = new TableSection (showSecondList ? "All Places" : "");
 //			{
 //				HorizontalOptions = LayoutOptions.FillAndExpand, 
 //				BackgroundColor = settings.BaseColor, 
@@ -138,12 +148,11 @@ namespace RayvMobileApp
 //				HorizontalTextAlignment = TextAlignment.Center
 //			};
 			StrangerSection = new TableSection ("Strangers' Places");
-			StrangerSection.Add (StrangerBtn);
 			Root = new TableRoot {
 				OurSection,
 			};
 			HasUnevenRows = true;
-			RowHeight = showVotes ? 100 : 90;
+//			RowHeight = showVotes ? 100 : 90;
 			NoPlacesMessage = new TextCell{ Text = "No Places Found", TextColor = settings.ColorDarkGray };
 		}
 	}

@@ -411,6 +411,12 @@ namespace RayvMobileApp
 
 		void CheckForUpdates (object sender, EventArgs e)
 		{
+			var lastUpdate = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
+			// don't update if we did in last 5 mins
+			if (lastUpdate > DateTime.UtcNow - new TimeSpan (0, 5, 0)) {
+				SetSource ();
+				return;
+			}
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
 			Console.WriteLine ("Spin up");

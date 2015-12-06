@@ -111,6 +111,23 @@ namespace RayvMobileApp
 		#region properties
 
 		[Ignore]
+		public string ShortPrice {
+			get {
+				switch (this.style) {
+					case PlaceStyle.Fancy:
+						return "£££";
+					case PlaceStyle.QuickBite:
+						return "£";
+					case PlaceStyle.Relaxed:
+						return "££";
+					default:
+						return "";
+				}
+			}
+		}
+
+
+		[Ignore]
 		public string IsSynced {
 			get;
 			set;

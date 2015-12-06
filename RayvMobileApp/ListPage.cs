@@ -73,7 +73,12 @@ namespace RayvMobileApp
 			}
 		}
 
-		public Position DisplayPosition { get; set; }
+		Position _displayPosition;
+
+		public Position DisplayPosition { 
+			get { return _displayPosition; } 
+			set{ _displayPosition = value; } 
+		}
 
 		public string FilterCuisine { get; set; }
 
@@ -100,10 +105,6 @@ namespace RayvMobileApp
 			if (!string.IsNullOrEmpty (FilterByPlaceName)) {
 				FilterSearchBox.Text = FilterByPlaceName;
 			}
-			Friend voter;
-			if (FilterShowWho != Persist.Instance.MyId.ToString ())
-			if (Persist.Instance.Friends.TryGetValue (FilterShowWho, out voter))
-				listView.ShowFriend = voter.Key;
 		}
 
 		#region timer
@@ -228,7 +229,7 @@ namespace RayvMobileApp
 		void Refresh ()
 		{
 			Console.WriteLine ("ListPage.Refresh");
-			FilterList ();
+			DoFilterList ();
 			StartTimerIfNoGPS ();
 		}
 
@@ -270,7 +271,7 @@ namespace RayvMobileApp
 			FilterSearchCenter = null;
 			DisplayPosition = Persist.Instance.GpsPosition;
 			IsFiltered = false;
-			FilterList ();
+			DoFilterList ();
 		}
 
 
@@ -278,7 +279,7 @@ namespace RayvMobileApp
 		{
 			FilterSearchBox.TextEntry.Unfocus ();
 			Console.WriteLine ("Listpage.DoTextSearch");
-			FilterList ();
+			DoFilterList ();
 		}
 
 		void UpdateCuisine (Object sender, ItemTappedEventArgs e)
@@ -289,7 +290,7 @@ namespace RayvMobileApp
 			Spinner.IsVisible = true;
 			Spinner.IsRunning = true;
 			Content = MainContent;
-			FilterList ();
+			DoFilterList ();
 		}
 
 		#endregion
@@ -317,7 +318,7 @@ namespace RayvMobileApp
 			Debug.WriteLine ("Listpage.ResetCuisinePicker");
 		}
 
-		void DebugList (string step, IEnumerable<Vote> filteredList, Dictionary<string,Vote> myVotes)
+		static void DebugList (string step, IEnumerable<Vote> filteredList, Dictionary<string,Vote> myVotes)
 		{
 			//debug
 			if (false)
@@ -330,12 +331,183 @@ namespace RayvMobileApp
 				}
 		}
 
-
-		void FilterList ()
+		public static List<Place> FilterPlaceList (
+			List<Place> list, 
+			out string description,
+			out bool isFiltered,
+			FilterParameters filter,
+			ref Position displayPosition
+		)
 		{
-			Console.WriteLine ("Listpage.FilterList");
-			LoadFilterValues ();
+			isFiltered = false;
+			listView.Filter = filter;
+			description = "";
+			Console.WriteLine ("Listpage.FilterPlaceList");
+			List<Place> results = new List<Place> ();
 			List<string> styleDescriptionItems = new List<string> ();
+			var filteredList = from v in Persist.Instance.Votes
+			                   join p in list on v.key equals p.key
+			                   select v;
+//			IEnumerable<Vote> filteredList = list.Select (p=
+			// dict mapping vote place key to vote
+			Dictionary<string,Vote> myVotes = Persist.Instance.Votes
+					.Where (v => v.voter == Persist.Instance.MyId.ToString ())
+					.ToDictionary (v => v.key, v => v);
+			String text = filter.Text?.ToLower ();
+
+			// VOTE FILTERS
+			// - Cuisine
+			// - Mine
+			var myKey = Persist.Instance.MyId.ToString ();
+			Persist.Instance.FilterWhoKey = "";
+			if (filter.Who == myKey) {
+				filteredList = filteredList.Where (v => v.voter == myKey);
+				isFiltered = true;
+				styleDescriptionItems.Add ("My votes only");
+				Console.WriteLine ("FilterPlaceList filter text");
+
+			} else {
+				// - chosen friends
+				if (!string.IsNullOrEmpty (filter.Who)) {
+					filteredList = filteredList.Where (v => v.voter == filter.Who && v.vote > 0);
+					// as I am not the chosen friend, clear my vote dict so my votes don't override theirs
+					myVotes.Clear ();
+					isFiltered = true;
+					Friend voter;
+					if (Persist.Instance.Friends.TryGetValue (filter.Who, out voter)) {
+						styleDescriptionItems.Add ($"{voter.Name}'s Places");
+						Persist.Instance.FilterWhoKey = filter.Who;
+						Console.WriteLine ("ListPage filter chosen friends (no override for my votes)");
+					} else
+						Console.WriteLine ("List Page - Friend not found (Bad Key)");
+				}
+			}
+			if (!string.IsNullOrEmpty (filter.Cuisine)) {
+				filteredList = filteredList.Where (v => 
+					                                   myVotes.ContainsKey (v.key) ?
+					                                   myVotes [v.key].cuisineName == filter.Cuisine :
+					                                   v.cuisineName == filter.Cuisine);
+				isFiltered = true;
+				styleDescriptionItems.Add ($"Cuisine is {filter.Cuisine}");
+				Console.WriteLine ("ListPage filter cuisine");
+			}
+
+			// - vote value
+			switch (filter.Kind) {
+				case VoteFilterKind.Stars:
+					{
+						filteredList = filteredList.Where (v =>
+							                                   myVotes.ContainsKey (v.key) ?
+							                                   myVotes [v.key].vote >= FindChoicePage.FilterMimimunStarValue :
+							                                   v.vote >= FindChoicePage.FilterMimimunStarValue);
+						isFiltered = true;
+						styleDescriptionItems.Add ("liked places");
+						DebugList ("Vote Like", filteredList, myVotes);
+
+						break;
+					}
+				case VoteFilterKind.Try:
+					{
+						filteredList = filteredList.Where (v =>
+							                                   myVotes.ContainsKey (v.key) ?
+							                                   myVotes [v.key].untried || myVotes [v.key].vote > 3 :
+							                                   v.untried || v.vote > 3);
+						//							filteredList = filteredList.Where (v => v.untried || v.vote >3);
+						isFiltered = true;
+						styleDescriptionItems.Add ("places to try");
+						DebugList ("Vote Try", filteredList, myVotes);
+						break;
+					}
+				case VoteFilterKind.Wish:
+					{
+						filteredList = filteredList.Where (v =>
+							                                   myVotes.ContainsKey (v.key) ?
+							                                   myVotes [v.key].untried :
+							                                   v.untried);
+						isFiltered = true;
+						styleDescriptionItems.Add ("wishlist places");
+						DebugList ("Vote Wish", filteredList, myVotes);
+						break;
+					}
+				default:
+					break;
+			}
+			// - meal kind
+			if (filter.MealKind != MealKind.None && (int)filter.MealKind != Vote.MAX_MEALKIND) {
+				filteredList = filteredList.Where (v => 
+					                                   myVotes.ContainsKey (v.key) ?
+					                                   (myVotes [v.key].kind & filter.MealKind) != MealKind.None :
+					                                   (v.kind & filter.MealKind) != MealKind.None);
+				isFiltered = true;
+				styleDescriptionItems.Add ($"{filter.MealKind}");
+				DebugList ("Kind", filteredList, myVotes);
+				Console.WriteLine ("ListPage filter Kind");
+			}
+			// - place style
+			if (filter.Style != PlaceStyle.None) {
+				DebugList ("pre", filteredList, myVotes);
+				filteredList = filteredList.Where (v => 
+					                                   (myVotes.ContainsKey (v.key) ?
+					                                    myVotes [v.key].style == filter.Style :
+					                                    v.style == filter.Style));
+				DebugList ("post", filteredList, myVotes);
+				isFiltered = true;
+				styleDescriptionItems.Add ($"{filter.Style}");
+				DebugList ("Style", filteredList, myVotes);
+				Console.WriteLine ("ListPage filter style");
+			}
+
+			// turn vote list into place list
+			IEnumerable<Place> placeList = filteredList.Select (v => Persist.Instance.GetPlace (v.key)).Distinct ();
+
+			// PLACE FILTERS
+			if (!string.IsNullOrEmpty (text)) {
+				Console.WriteLine ($"ListPage filter text BEFORE {placeList.ToList ().Count}");
+				placeList = placeList.Where (p => p.place_name.ToLower ().Contains (text));
+				isFiltered = true;
+				styleDescriptionItems.Add ($"Name is '{text}'");
+				Console.WriteLine ($"ListPage filter text {placeList.ToList ().Count}");
+			}
+
+			description = string.Join (", ", styleDescriptionItems);
+			if (filter.Centre != null) {
+				//					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
+				displayPosition = (Position)filter.Centre;
+				List<Place> distance_list = placeList.Where (p => p != null).ToList ();
+				foreach (var p in distance_list) {
+					if (p == null)
+						Console.WriteLine ("p = null");
+
+					p.distance_for_search = p.distance_from (displayPosition);
+					if (p.distance_for_search < 0.1)
+						Console.WriteLine ($"{p.place_name} is {p.distance_for_search}");
+				}
+				distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
+				Console.WriteLine ("ListPage filter location");
+				var savedLocation = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
+				if (string.IsNullOrEmpty (savedLocation))
+					styleDescriptionItems.Add ("Near location specified");
+				else
+					styleDescriptionItems.Add ($"Near {savedLocation}");
+				isFiltered = true;
+				return distance_list;
+			} else {
+				//reset the list distance in case it was modified by a previous, cleared, geo search #757
+				foreach (var p in placeList) {
+					p.CalculateDistanceFromPlace (displayPosition);
+					p.distance_for_search = 0;
+				}
+				List<Place> result_list = placeList.ToList ();
+				result_list.Sort ();
+				return result_list;
+			}
+		}
+
+		void DoFilterList ()
+		{
+			Console.WriteLine ("Listpage.DoFilterList");
+			LoadFilterValues ();
+			string styleDescription = "";
 			try {
 				Persist.Instance.DisplayList = Persist.Instance.GetData ();
 				IEnumerable<Vote> filteredList = Persist.Instance.Votes;
@@ -345,172 +517,34 @@ namespace RayvMobileApp
 					.ToDictionary (v => v.key, v => v);
 				String text = _FilterSearchText?.ToLower ();
 
-				// VOTE FILTERS
-				// - Cuisine
-				// - Mine
-				var myKey = Persist.Instance.MyId.ToString ();
-				Persist.Instance.FilterWhoKey = "";
-				if (FilterShowWho == myKey) {
-					filteredList = filteredList.Where (v => v.voter == myKey);
-					IsFiltered = true;
-					styleDescriptionItems.Add ("My votes only");
-					Console.WriteLine ("ListPage filter text");
-					DebugList ("Mine", filteredList, myVotes);
+				var filterParams = new FilterParameters () {
+					Text = _FilterSearchText,
+					Who = FilterShowWho,
+					Cuisine = FilterCuisine,
+					Kind = FilterVoteKind,
+					MealKind = FilterPlaceKind,
+					Style = FilterPlaceStyle,
+					Centre = FilterSearchCenter
+				};
 
-				} else {
-					// - chosen friends
-					if (!string.IsNullOrEmpty (FilterShowWho)) {
-						filteredList = filteredList.Where (v => v.voter == FilterShowWho && v.vote > 0);
-						// as I am not the chosen friend, clear my vote dict so my votes don't override theirs
-						myVotes.Clear ();
-						IsFiltered = true;
-						Friend voter;
-						if (Persist.Instance.Friends.TryGetValue (FilterShowWho, out voter)) {
-							styleDescriptionItems.Add ($"{voter.Name}'s Places");
-							Persist.Instance.FilterWhoKey = FilterShowWho;
-							Console.WriteLine ("ListPage filter chosen friends (no override for my votes)");
-							DebugList ("Friends", filteredList, myVotes);
-						} else
-							Console.WriteLine ("List Page - Friend not found (Bad Key)");
-
-					}
-				}
-				if (!string.IsNullOrEmpty (FilterCuisine)) {
-					filteredList = filteredList.Where (v => 
-						myVotes.ContainsKey (v.key) ?
-						myVotes [v.key].cuisineName == FilterCuisine :
-						v.cuisineName == FilterCuisine);
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Cuisine is {FilterCuisine}");
-					Console.WriteLine ("ListPage filter cuisine");
-					DebugList ("Cuisine", filteredList, myVotes);
-				}
-
-				// - vote value
-				switch (FilterVoteKind) {
-					case VoteFilterKind.Stars:
-						{
-							filteredList = filteredList.Where (v =>
-                                myVotes.ContainsKey (v.key) ?
-							                                   myVotes [v.key].vote >= FindChoicePage.FilterMimimunStarValue :
-							                                   v.vote >= FindChoicePage.FilterMimimunStarValue);
-							IsFiltered = true;
-							styleDescriptionItems.Add ("liked places");
-							DebugList ("Vote Like", filteredList, myVotes);
-
-							break;
-						}
-					case VoteFilterKind.Try:
-						{
-							filteredList = filteredList.Where (v =>
-                                myVotes.ContainsKey (v.key) ?
-								myVotes [v.key].untried || myVotes [v.key].vote > 3 :
-							                                   v.untried || v.vote > 3);
-//							filteredList = filteredList.Where (v => v.untried || v.vote >3);
-							IsFiltered = true;
-							styleDescriptionItems.Add ("places to try");
-							DebugList ("Vote Try", filteredList, myVotes);
-							break;
-						}
-					case VoteFilterKind.Wish:
-						{
-							filteredList = filteredList.Where (v =>
-                               myVotes.ContainsKey (v.key) ?
-                               myVotes [v.key].untried :
-                               v.untried);
-							IsFiltered = true;
-							styleDescriptionItems.Add ("wishlist places");
-							DebugList ("Vote Wish", filteredList, myVotes);
-							break;
-						}
-					default:
-						break;
-				}
-				// - meal kind
-				if (FilterPlaceKind != MealKind.None && (int)FilterPlaceKind != Vote.MAX_MEALKIND) {
-					filteredList = filteredList.Where (v => 
-					                                   myVotes.ContainsKey (v.key) ?
-					                                   (myVotes [v.key].kind & FilterPlaceKind) != MealKind.None :
-					                                   (v.kind & FilterPlaceKind) != MealKind.None);
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"{FilterPlaceKind}");
-					DebugList ("Kind", filteredList, myVotes);
-					Console.WriteLine ("ListPage filter Kind");
-				}
-				// - place style
-				if (FilterPlaceStyle != PlaceStyle.None) {
-					DebugList ("pre", filteredList, myVotes);
-					filteredList = filteredList.Where (v => 
-					                                   (myVotes.ContainsKey (v.key) ?
-					                                   myVotes [v.key].style == FilterPlaceStyle :
-					                                   v.style == FilterPlaceStyle));
-					DebugList ("post", filteredList, myVotes);
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"{FilterPlaceStyle}");
-					DebugList ("Style", filteredList, myVotes);
-					Console.WriteLine ("ListPage filter style");
-				}
-
-				// turn vote list into place list
-				IEnumerable<Place> placeList = filteredList.Select (v => Persist.Instance.GetPlace (v.key)).Distinct ();
-//				List<string> placeKeyList = new List<string> ();
-//				foreach (Vote v in filteredList) {
-//					if (!placeKeyList.Contains (v.key)) {
-//						placeKeyList.Add (v.key);
-//					}
-//				}
-//				List<Place> placeList = new List<Place> ();
-//				foreach (string key in placeKeyList) {
-//					placeList.Add (Persist.Instance.GetPlace (key));
-//				}
-
-				// PLACE FILTERS
-				if (!string.IsNullOrEmpty (text)) {
-					placeList = placeList.Where (p => p.place_name.ToLower ().Contains (text));
-					IsFiltered = true;
-					styleDescriptionItems.Add ($"Name is '{text}'");
-					Console.WriteLine ("ListPage filter text");
-				}
+				Persist.Instance.DisplayList = FilterPlaceList (
+					Persist.Instance.DisplayList, 
+					out styleDescription,
+					out IsFiltered,
+					filterParams,
+					ref _displayPosition
+				);
 				addNewButton.IsVisible = text.Length > 0;
 
-				if (FilterSearchCenter != null) {
-//					var delta = settings.GEO_FILTER_BOX_SIZE_DEG;
-					DisplayPosition = (Position)FilterSearchCenter;
-					List<Place> distance_list = placeList.Where (p => p != null).ToList ();
-					foreach (var p in distance_list) {
-						if (p == null)
-							Console.WriteLine ("p = null");
-						
-						p.distance_for_search = p.distance_from (DisplayPosition);
-						if (p.distance_for_search < 0.1)
-							Console.WriteLine ($"{p.place_name} is {p.distance_for_search}");
-					}
-					distance_list.Sort ((a, b) => a.distance_for_search.CompareTo (b.distance_for_search));
-					Persist.Instance.DisplayList = distance_list;
-					Console.WriteLine ("ListPage filter location");
-					var savedLocation = Persist.Instance.GetConfig (settings.FILTER_WHERE_NAME);
-					if (string.IsNullOrEmpty (savedLocation))
-						styleDescriptionItems.Add ("Near location specified");
-					else
-						styleDescriptionItems.Add ($"Near {savedLocation}");
-					IsFiltered = true;
-				} else {
-					Persist.Instance.DisplayList = placeList.ToList ();
-					//reset the list distance in case it was modified by a previous, cleared, geo search #757
-					foreach (var p in Persist.Instance.DisplayList) {
-						p.CalculateDistanceFromPlace (DisplayPosition);
-						p.distance_for_search = 0;
-					}
-					Persist.Instance.DisplayList.Sort ();
-				}
+
 			} catch (Exception ex) {
 				Insights.Report (ex);
-				Console.WriteLine ($"FilterList ERROR {ex}");
-				restConnection.LogErrorToServer ("DoSearch: Exception {0}", ex);
+				Console.WriteLine ($"DoFilterList ERROR {ex}");
+				restConnection.LogErrorToServer ("DoFilterList: Exception {0}", ex);
 			}
 			SetList (Persist.Instance.DisplayList);
 			FilterSearchBox.Unfocus ();
-			listView.SummaryText = string.Join (", ", styleDescriptionItems);
+			listView.SummaryText = styleDescription;
 		}
 
 	
@@ -643,11 +677,7 @@ namespace RayvMobileApp
 				Text = "",
 			};
 			FilterSearchBox.TextEntry.BackgroundColor = settings.ColorLightGray;
-			FilterSearchBox.TextEntry.TextChanged += (sender, e) => {
-				_FilterSearchText = FilterSearchBox.Text;
-				DoTextSearch (sender, e);
-				FilterSearchBox.TextEntry.Focus ();
-			};
+
 			FilterSearchBox.TextEntry.Completed += (sender, e) => {
 				FilterSearchBox.TextEntry.Unfocus ();
 			};
@@ -694,6 +724,14 @@ namespace RayvMobileApp
 			};
 			this.Appearing += (sender, e) => {
 				try {
+					FilterSearchBox.TextEntry.TextChanged += (s, ev) => {
+						_FilterSearchText = FilterSearchBox.Text;
+						DoTextSearch (sender, e);
+						FilterSearchBox.TextEntry.Focus ();
+						Console.WriteLine ("FilterSearchBox TextChanged");
+					};
+					Console.WriteLine ("FilterSearchBox Unfocus");
+					FilterSearchBox.TextEntry.Unfocus ();
 					App.locationMgr.StartLocationUpdates ();
 					DateTime? last_access = Persist.Instance.GetConfigDateTime (settings.LAST_SYNC);
 					if (last_access != null && last_access + settings.LIST_PAGE_TIMEOUT < DateTime.UtcNow) {
@@ -709,7 +747,7 @@ namespace RayvMobileApp
 					Double deviation = Place.approx_distance (Persist.Instance.GpsPosition, DisplayPosition);
 					if (deviation > 0.05) {
 						Analytics.TrackPage ("ListPage Moved");
-						Console.WriteLine ("ListPage Moved");
+						Console.WriteLine ($"ListPage Moved {deviation}");
 						DisplayPosition = Persist.Instance.GpsPosition;
 						Refresh ();
 					}

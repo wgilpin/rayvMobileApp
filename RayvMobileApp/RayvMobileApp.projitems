@@ -14,7 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Vote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Place.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PersistantQueue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AddMapPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AddPage5bDeDup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Analytics.cs" />
@@ -77,5 +76,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)EntryClearable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlacesTableView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlaceCell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterParameters.cs" />
   </ItemGroup>
 </Project>

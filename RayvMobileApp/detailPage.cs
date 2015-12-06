@@ -705,7 +705,7 @@ namespace RayvMobileApp
 			};
 
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Cuisine" }, 0, 0); 
-			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Style" }, 0, 1); 
+			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Price" }, 0, 1); 
 			styleGrid.Children.Add (new Label{ FontAttributes = FontAttributes.Bold, Text = "Meal" }, 0, 2); 
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.cuisineName }, 1, 0); 
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.style.ToFriendlyString () }, 1, 1); 

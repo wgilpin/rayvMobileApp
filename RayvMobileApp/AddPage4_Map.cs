@@ -9,7 +9,7 @@ namespace RayvMobileApp
 	public class AddPage4_Map : ContentPage
 	{
 		Map map;
-		EntryWithChangeButton AddressEd;
+		EntryWithButton AddressEd;
 		EntryClearable NameEd;
 		Button SaveBtn;
 
@@ -42,6 +42,14 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 			};
 			map.IsShowingUser = true;
+			Appearing += (se, ev) => {
+				map.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) => {
+					if (e.PropertyName == "VisibleRegion") {
+						GetAddressFromMap (sender, null);
+						Console.WriteLine ("AddPage4_Map Dragged");
+					}
+				};
+			};
 
 			Grid grid = new Grid {
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -53,22 +61,16 @@ namespace RayvMobileApp
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (500, GridUnitType.Star) },
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 				},
 			};
 
 			NameEd = new EntryClearable {
 				Placeholder = "Place name",
 			};
-			AddressEd = new EntryWithChangeButton { 
-				PlaceHolder = "Find address on map", 
-				ButtonText = " Find ",
+			AddressEd = new EntryWithButton ("Find address on map", "TB active search.png") { 
 				OnClick = SetMapFromAddress,
 			};
-			Button HereBtn = new RayvButton { 
-				Text = "Use this location",
-				OnClick = GetAddressFromMap,
-			};
+
 			SaveBtn = new ButtonWide { 
 				BackgroundColor = Color.Blue,
 				TextColor = Color.White,
@@ -133,8 +135,7 @@ namespace RayvMobileApp
 			}, 0, 0);
 			grid.Children.Add (AddressEd, 0, 1);
 			grid.Children.Add (relativeLayout, 0, 2);
-			grid.Children.Add (HereBtn, 0, 3);
-			grid.Children.Add (SaveBtn, 0, 4);
+			grid.Children.Add (SaveBtn, 0, 3);
 			this.Content = grid;
 
 		}
@@ -172,15 +173,16 @@ namespace RayvMobileApp
 			}
 			if (firstPosition != null) {
 				map.MoveToRegion (MapSpan.FromCenterAndRadius ((Position)firstPosition, Distance.FromMiles (0.3)));
-				AddressEd.Entry.Unfocus ();
+				AddressEd.Unfocus ();
 				SaveBtn.IsVisible = true;
 			}
 		}
 
-		public void DoAdd (object sender, EventArgs e)
+		public async void DoAdd (object sender, EventArgs e)
 		{
 			if (String.IsNullOrWhiteSpace (NameEd.Text)) {
-				DisplayAlert ("Error", "You must give a place name", "OK");
+				await DisplayAlert ("Save", "You need to enter a place name", "OK");
+				NameEd.Focus ();
 				return;
 			}
 			Console.WriteLine ("AddPage4.DoAdd Push DedupPage");

@@ -36,7 +36,7 @@ namespace RayvMobileApp
 
 		//Search Content
 		LocationListWithHistory LocationsListBox;
-		PlacesListView PlacesLV;
+		PlacesTableView PlacesTV;
 		Label NothingFound;
 		ActivityIndicator Spinner;
 		public Position SearchPosition;
@@ -55,12 +55,13 @@ namespace RayvMobileApp
 
 		#region Events
 
-		void DoTapItem (object sender, ItemTappedEventArgs e)
+		void DoTapItem (object sender, EventArgs e)
 		{
-			Console.WriteLine ($"tapped {(e.Item as Place).place_name}");
+			
+			SelectedPlace = (sender as PlaceCell).Place;
+			Console.WriteLine ($"tapped {SelectedPlace.place_name}");
 			SetDisplayMode (IsMapMode: true);
 			map.Pins.Clear ();
-			SelectedPlace = (e.Item as Place);
 			var tappedPlacePosition = SelectedPlace.GetPosition ();
 			placeLabel.Text = SelectedPlace.place_name;
 			addressLabel.Text = SelectedPlace.address;
@@ -85,7 +86,7 @@ namespace RayvMobileApp
 			LocationSearchedBox.IsVisible = false;
 			ResetLocationBtn.IsVisible = false;
 			PlaceNameBox.ButtonText = " ";
-			PlacesLV.IsVisible = false;
+			PlacesTV.IsVisible = false;
 		}
 
 		void DoSearchForPlace (object s, EventArgs e) => DoSearch ( "");
@@ -132,7 +133,7 @@ namespace RayvMobileApp
 									showSave: true, 
 									showToolbar: true)));
 						} else {
-							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK");
+							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK"); 
 						}
 					});
 				};
@@ -162,7 +163,7 @@ namespace RayvMobileApp
 			ResetLocationBtn.IsVisible = true;
 			SearchPosition = new Position (loc.Lat, loc.Lng);
 			DoSearch (LocationSearchedBox.Text);
-			PlacesLV.IsVisible = true;
+			PlacesTV.IsVisible = true;
 			LocationsListBox.IsVisible = false;
 			PlaceNameBox.ButtonText = " Search ";
 		}
@@ -274,12 +275,10 @@ namespace RayvMobileApp
 							SetupSearchHistory ();
 							Spinner.IsRunning = false;
 							Console.WriteLine ("AddPage1.DoSearch: Activity Over. source set");
-							PlacesLV.DisplayedList.ItemsSource = null;
-							PlacesLV.DisplayedList.ItemsSource = points;
-
+							PlacesTV.SetMainList (points);
 							NothingFound.IsVisible = points.Count == 0;
-							PlacesLV.IsVisible = !NothingFound.IsVisible;
-							Console.WriteLine ($"AddPage1.DoSearch Visible {PlacesLV.IsVisible}");
+							PlacesTV.IsVisible = !NothingFound.IsVisible;
+							Console.WriteLine ($"AddPage1.DoSearch Visible {PlacesTV.IsVisible}");
 							AddManualAddress.IsVisible = true;
 							Spinner.IsRunning = false;
 							Spinner.IsVisible = false;
@@ -347,12 +346,13 @@ namespace RayvMobileApp
 			};
 			ResetLocationBtn.Clicked += DoResetLocation;
 
-			PlacesLV = new PlacesListView (showVotes: false) {
+			PlacesTV = new PlacesTableView (showVotes: false, showSecondList: false) {
 				//				ItemsSource = Persist.Instance.Places,
 				IsVisible = false,
-				BackgroundColor = Color.White
+				BackgroundColor = Color.White,
+		
 			};
-			PlacesLV.OnItemTapped = DoTapItem;
+			PlacesTV.OnPlaceTapped = DoTapItem;
 			LocationsListBox = new LocationListWithHistory {
 				IsVisible = false,
 			};
@@ -382,7 +382,7 @@ namespace RayvMobileApp
 				OnClick = DoChangeLocation,
 			};
 			AddManualAddress = new RayvButton {
-				HeightRequest = 30,
+				HeightRequest = 40,
 				Text = "Add unlisted place",
 				OnClick = (s, e) => {
 					AddPage4_Map addMapPage = new AddPage4_Map (SearchPosition);
@@ -413,7 +413,7 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					menu,
-					PlacesLV,
+					PlacesTV,
 					AddManualAddress,
 				}
 			};
@@ -493,7 +493,7 @@ namespace RayvMobileApp
 			this.Appearing += DoSearchForPlace;
 			if (hasBackButton) {
 				var BackBtn = new ToolbarItem {
-					Text = "Back ",
+					Text = "Cancel ",
 					//				Icon = "icon-map.png",
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => {

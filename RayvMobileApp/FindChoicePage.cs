@@ -24,7 +24,7 @@ namespace RayvMobileApp
 		VoteFilterKind currentVoteKindFilter;
 		string currentVoteByWho;
 
-		const string ALL_CUISINES = "All Cuisines";
+		const string ALL_CUISINES = "All cuisines";
 		Grid _grid;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
@@ -225,16 +225,17 @@ namespace RayvMobileApp
 		void ChooseWho ()
 		{
 			Title = TitleWho;
-			RowCount = 3;
-			AddImgCard (0, "", "My Places Only", (s, e) => {
+			RowCount = 4;
+			AddTextCard (0, "Whose places?", "", onClick: null, highlight: true);
+			AddImgCard (1, "", "My Places Only", (s, e) => {
 				currentVoteByWho = Persist.Instance.MyId.ToString ();
 				ChooseMainMenu ();
 			});
-			AddImgCard (1, "", "All Places", (s, e) => {
+			AddImgCard (2, "", "All Places", (s, e) => {
 				currentVoteByWho = "";
 				ChooseMainMenu ();
 			});
-			AddImgCard (2, "", "Friend's Places", (s, e) => {
+			AddImgCard (3, "", "Friend's Places", (s, e) => {
 				currentVoteByWho = "";
 				ChooseFriends ();
 			});
@@ -358,7 +359,7 @@ namespace RayvMobileApp
 				isFiltered = true;
 			}
 			string currentStyleStr;
-			var anyStyleStr = "Any style";
+			var anyStyleStr = "Any price";
 			if (currentStyle == PlaceStyle.None)
 				currentStyleStr = anyStyleStr;
 			else {
@@ -381,7 +382,7 @@ namespace RayvMobileApp
 			AddTextCard (1, "Meal Time?", currentKindStr, (s, e) => {
 				ChooseMealTime ();
 			}, highlight: kindFiltered);
-			AddTextCard (2, "Style?", currentStyleStr, (s, e) => {
+			AddTextCard (2, "Price?", currentStyleStr, (s, e) => {
 				ChooseStyle ();
 			}, highlight: currentStyleStr != anyStyleStr);
 			AddTextCard (3, "Where?", currentLocationStr, (s, e) => {
@@ -405,9 +406,9 @@ namespace RayvMobileApp
 			}, highlight: currentVoteKindFilter != VoteFilterKind.All);
 			var goBtn = new RayvButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
-				BackgroundColor = settings.BaseColor,
-				BorderColor = Color.White,
-				BorderWidth = 1,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				BorderColor = BackgroundColor,
+				BorderWidth = 0,
 				BorderRadius = 0,
 			};
 			goBtn.Clicked += Done;
@@ -618,10 +619,9 @@ namespace RayvMobileApp
 				}),
 			};
 			ToolbarItems.Add (ClearBtn);
-			
 			BackBtn = new ToolbarItem {
-				Text = "Back ",
-				//				Icon = "icon-map.png",
+				Text = "Cancel ",
+//				Icon = "Cancel_button.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (() => {
 					DoBackBtn ();

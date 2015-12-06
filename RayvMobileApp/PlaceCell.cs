@@ -76,7 +76,16 @@ namespace RayvMobileApp
 
 			var distCuisineLine = new StackLayout { Orientation = StackOrientation.Horizontal };
 			distCuisineLine.Children.Add (distLabel);
-			distCuisineLine.Children.Add (new Label{ Text = " " });
+
+			Label priceLabel = new Label { 
+				Text = $"• {p.vote.ShortPrice} •",
+				TextColor = ColorUtil.Darker (settings.BaseColor),
+				FontSize = settings.FontSizeLabelSmall,
+				FontFamily = "Arial"
+			}; 
+			if (p.vote.style == PlaceStyle.None)
+				priceLabel.Text = "";
+			distCuisineLine.Children.Add (priceLabel);
 			distCuisineLine.Children.Add (catLabel);
 			Grid grid = new Grid {
 				VerticalOptions = LayoutOptions.FillAndExpand,

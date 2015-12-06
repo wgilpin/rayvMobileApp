@@ -30,6 +30,7 @@ namespace RayvMobileApp
 
 	public class Persist
 	{
+		// 5 seconds
 		public TimeSpan DbTimeout = new TimeSpan (0, 0, 5);
 
 		#region Fields
