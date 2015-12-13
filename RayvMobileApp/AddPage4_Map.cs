@@ -12,6 +12,7 @@ namespace RayvMobileApp
 		EntryWithButton AddressEd;
 		EntryClearable NameEd;
 		Button SaveBtn;
+		Grid MainGrid;
 
 		public event EventHandler Succeeded;
 		public event EventHandler Failed;
@@ -30,7 +31,7 @@ namespace RayvMobileApp
 				Failed (this, e);
 		}
 
-		public AddPage4_Map (Position searchPosition)
+		public AddPage4_Map (Position searchPosition, string place_name)
 		{
 			Padding = new Thickness (0, Device.OnPlatform (20, 0, 0), 0, 0);
 			BackgroundColor = settings.BaseColor;
@@ -51,7 +52,7 @@ namespace RayvMobileApp
 				};
 			};
 
-			Grid grid = new Grid {
+			MainGrid = new Grid {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				ColumnDefinitions = {
 					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
@@ -60,21 +61,25 @@ namespace RayvMobileApp
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
 					new RowDefinition { Height = new GridLength (500, GridUnitType.Star) },
-					new RowDefinition { Height = new GridLength (30, GridUnitType.Absolute) },
+					new RowDefinition { Height = new GridLength (40, GridUnitType.Absolute) },
 				},
 			};
 
 			NameEd = new EntryClearable {
 				Placeholder = "Place name",
+				Text = place_name
 			};
 			AddressEd = new EntryWithButton ("Find address on map", "TB active search.png") { 
 				OnClick = SetMapFromAddress,
 			};
+			AddressEd.TextEntry.Completed += SetMapFromAddress;
 
 			SaveBtn = new ButtonWide { 
-				BackgroundColor = Color.Blue,
+				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
 				TextColor = Color.White,
+				HeightRequest = 40,
 				FontAttributes = FontAttributes.Bold,
+				FontSize = settings.FontSizeButtonLarge,
 				Text = "Save",
 				OnClick = DoAdd,
 				IsVisible = false,
@@ -127,16 +132,21 @@ namespace RayvMobileApp
 				}),
 				heightConstraint: Constraint.Constant (1));
 
-			grid.Children.Add (new Frame { 
+			MainGrid.Children.Add (new Frame { 
 				BackgroundColor = settings.BaseColor,
 				HasShadow = false, 
 				Content = NameEd, 
 				Padding = new Thickness (5, 2),
 			}, 0, 0);
-			grid.Children.Add (AddressEd, 0, 1);
-			grid.Children.Add (relativeLayout, 0, 2);
-			grid.Children.Add (SaveBtn, 0, 3);
-			this.Content = grid;
+			MainGrid.Children.Add (AddressEd, 0, 1);
+			MainGrid.Children.Add (relativeLayout, 0, 2);
+			MainGrid.Children.Add (SaveBtn, 0, 3);
+			BackgroundColor = settings.ColorDarkGray;
+			this.Appearing += async (sender, e) => {
+				await DisplayAlert ("Add", "Drag the map, or enter an address", "OK");
+				BackgroundColor = settings.BaseColor;
+				Content = MainGrid;
+			};
 
 		}
 

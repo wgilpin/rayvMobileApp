@@ -133,7 +133,7 @@ namespace RayvMobileApp
 									showSave: true, 
 									showToolbar: true)));
 						} else {
-							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK"); 
+							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK");
 						}
 					});
 				};
@@ -385,7 +385,7 @@ namespace RayvMobileApp
 				HeightRequest = 40,
 				Text = "Add unlisted place",
 				OnClick = (s, e) => {
-					AddPage4_Map addMapPage = new AddPage4_Map (SearchPosition);
+					AddPage4_Map addMapPage = new AddPage4_Map (SearchPosition, PlaceNameBox.Text);
 					addMapPage.Succeeded += DoSuccess;
 					addMapPage.Failed += DoFail;
 					this.Navigation.PushAsync (addMapPage);

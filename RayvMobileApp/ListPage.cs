@@ -534,7 +534,7 @@ namespace RayvMobileApp
 					filterParams,
 					ref _displayPosition
 				);
-				addNewButton.IsVisible = text.Length > 0;
+				addNewButton.IsVisible = string.IsNullOrEmpty (text) ? false : text.Length > 0;
 
 
 			} catch (Exception ex) {

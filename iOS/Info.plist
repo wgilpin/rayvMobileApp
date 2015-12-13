@@ -33,7 +33,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rayv needs access to your location</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.7-f8</string>
+	<string>0.8-fc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.blueorbit.rayvios</string>
 	<key>NSAllowsArbitraryLoads</key>
@@ -47,7 +47,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Sprout</string>
 	<key>CFBundleVersion</key>
-	<string>f8</string>
+	<string>fc</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

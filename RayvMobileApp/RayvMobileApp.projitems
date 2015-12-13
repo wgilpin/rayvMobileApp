@@ -77,5 +77,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)PlacesTableView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlaceCell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FilterParameters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommentReplyPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommentViewGrid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VoteComment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommentReplyGrid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RoundButton.cs" />
   </ItemGroup>
 </Project>

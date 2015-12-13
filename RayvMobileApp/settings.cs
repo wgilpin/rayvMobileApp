@@ -5,6 +5,7 @@ namespace RayvMobileApp
 {
 	public class settings
 	{
+		
 		public static string[] TesterWhitelist = { "Will", "pegah", "georgia" };
 		// milliseconds
 		public const int WEB_TIMEOUT = 10000;
@@ -53,9 +54,11 @@ namespace RayvMobileApp
 		public const int NEWS_PAGE_TIMESPAN_DAYS = 14;
 		public static string[] IgnoreWords = { "the", "and", "of", "in" };
 		public static Char[] IgnoreChars = { '\'', ',', '.', ':' };
+		public const int CurrentDbVersion = 10;
 
 
 		public static Color BaseColor = Color.FromHex ("0F9D58");
+		public static Color BaseDarkColor = ColorUtil.Darker (Color.FromHex ("0F9D58"));
 		//		public static Color ColorLight = Color.FromHex ("718CBE");
 		//		public static Color ColorDark = Color.FromHex ("6883B5");
 		//		public static Color ColorVeryDark = Color.FromHex ("4863B5");

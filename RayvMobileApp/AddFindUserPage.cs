@@ -43,7 +43,7 @@ namespace RayvMobileApp
 							if (await DisplayAlert ("Not Found", "That user could not be found. Send them an invite email?", "Send", "Cancel")) {
 								String emailResult = Persist.Instance.GetWebConnection ().post ("api/email_friend", "email", emailEd.Text);
 								if (emailResult == "OK") {
-									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK");
+									await DisplayAlert ("Sent", $"Email sent to {emailEd.Text}", "OK"); 
 									Succeeded?.Invoke (this, null);
 									return;
 								}
@@ -63,7 +63,7 @@ namespace RayvMobileApp
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					new Label {
-						Text = "Find someone who uses Taste5", 
+						Text = "Find someone who uses Sprout", 
 						TextColor = Color.White,
 						FontSize = settings.FontSizeLabelLarge
 					},

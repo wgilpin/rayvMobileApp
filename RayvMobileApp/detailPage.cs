@@ -60,7 +60,7 @@ namespace RayvMobileApp
 		ActivityIndicator Spinner;
 		Label distance;
 		Label Address;
-		LabelWithImageButton Comment;
+		Label Comment;
 		EditCommentView CommentEditor;
 		//		private bool ShowToolbar;
 		public bool Dirty;
@@ -73,93 +73,24 @@ namespace RayvMobileApp
 		StarEditor Stars;
 		View MainContent;
 
-		static int letterButtonSize = Device.OnPlatform (30, 50, 30);
 
 		#endregion
 
 		#region Logic
 
 
-		Grid GetFriendCommentGrid (Vote vote)
+		public void DoCommentTapped(Object sender, EventArgs e)
 		{
-			int StarSize = 15;
-			Grid grid = new Grid {
-				ColumnDefinitions = {
-					new ColumnDefinition { Width = new GridLength (letterButtonSize + 1) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
-					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) },
-				},
-				RowDefinitions = {
-					new RowDefinition { Height = GridLength.Auto },
-					new RowDefinition { Height = GridLength.Auto },
-				}
-			};
-			var letterFontSize = Device.OnPlatform (
-				                     settings.FontSizeButtonLarge,
-				                     settings.FontSizeButtonMedium,
-				                     settings.FontSizeButtonLarge);
-			try {
-				
-				Button LetterBtn = new Button {
-					WidthRequest = letterButtonSize,
-					HeightRequest = letterButtonSize,
-					FontSize = letterFontSize,
-					BorderRadius = letterButtonSize / 2,
-					BackgroundColor = Vote.RandomColor (vote.VoterName),
-					Text = Vote.FirstLetter (vote.VoterName),
-					TextColor = Color.White,
-					VerticalOptions = LayoutOptions.Start,
-				};
-
-
-				LetterBtn.Text = Vote.FirstLetter (vote.VoterName);
-				LetterBtn.BackgroundColor = Vote.RandomColor (vote.VoterName);
-				grid.Children.Add (LetterBtn, 0, 0);
-				var FriendLine = new FormattedString ();
-
-				string voter = "";
-				try {
-					voter = Persist.Instance.Friends [vote.voter].Name;
-				} catch (Exception ex) {
-					var data = new Dictionary<string,string> { 
-						{ "Friend", $"{vote.voter}" },
-						{ "Vote",$"{vote.Id}" }
-					};
-					Insights.Report (ex, data);
-					throw new KeyNotFoundException ();
-				}
-				var friendStars = new StarEditor (false) { ReadOnly = true, Height = StarSize, Vote = vote.vote,  };
-				grid.Children.Add (friendStars, 2, 0);
-				FriendLine.Spans.Add (new Span{ Text = voter, });
-				FriendLine.Spans.Add (new Span{ Text = " " });
-				FriendLine.Spans.Add (new Span {
-					Text = vote.PrettyHowLongAgo,
-					FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
-					FontAttributes = FontAttributes.Italic,
-					ForegroundColor = Color.FromHex ("#606060"),
-				});
-				grid.Children.Add (new Label { FormattedText = FriendLine }, 1, 0);
-				String comment_text = vote.PrettyComment;
-				if (!String.IsNullOrEmpty (comment_text)) {
-					grid.Children.Add (new Label {
-						Text = comment_text,
-						TextColor = settings.ColorDarkGray,
-						FontAttributes = FontAttributes.Italic,
-					}, 0, 3, 1, 2);
-				}
-			} catch (KeyNotFoundException) {
-				// already handled
-			} catch (Exception ex) {
-				Console.WriteLine ("detailPage.AddFriendCommentToGrid {0}", ex);
-				Insights.Report (ex);
-			}
-			return grid;
+			var voteKey = (sender as Element).StyleId;
+			var vote = Persist.Instance.Votes.Where (v => v.Id.ToString () == voteKey).FirstOrDefault ();
+			if (vote != null)
+				Navigation.PushAsync (new CommentReplyPage(vote));
 		}
 
 		StackLayout GetFriendsComments ()
 		{
-			var stack = new StackLayout { HorizontalOptions = LayoutOptions.FillAndExpand };
-
+			var commentList = new StackLayout () { HorizontalOptions = LayoutOptions.FillAndExpand };
+			commentList.Children.Add (new LabelWide ("Comments"));
 			try {
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				Persist.Instance.Votes
@@ -167,18 +98,14 @@ namespace RayvMobileApp
 					.OrderBy (x => x.when)
 					.ToList ()
 					.ForEach (vote => {
-					var entry = GetFriendCommentGrid (vote);
-					stack.Children.Add (new StackLayout {
-						BackgroundColor = settings.ColorDarkGray,
-						HeightRequest = 1, 
-						HorizontalOptions = LayoutOptions.FillAndExpand
-					});
-					stack.Children.Add (entry);
+					CommentViewGrid entry = new CommentViewGrid (vote, onReply:DoCommentTapped, showReplyBtn:true);
+
+					commentList.Children.Add (entry);
 				});
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
-			return stack;
+			return commentList;
 		}
 
 		async void SetVote (object sender, EventArgs e)
@@ -446,45 +373,63 @@ namespace RayvMobileApp
 
 		public void GotoWebPage (object sender, EventArgs e)
 		{
-			if (DisplayPlace.website == null)
-				return;
-			Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
-			var web = new WebPage (
-				DisplayPlace.place_name,
-				DisplayPlace.website);
-			PushWithNavigation (web);
+			try {
+				if (DisplayPlace.website == null)
+					return;
+				Debug.WriteLine ("DetailPage.GotoWebPage: Push WebPage");
+				var web = new WebPage (
+					          DisplayPlace.place_name,
+					          DisplayPlace.website);
+				PushWithNavigation (web);
+			} catch (Exception ex) {
+				DisplayAlert ("Internal Error", "Unable to show web page", "OK");
+				Console.WriteLine ($"GotoWebPage ERROR {ex}");
+				Insights.Report (ex);
+			}
 
 		}
 		void DoDirections (object sender, EventArgs e)
 		{
-			if (string.IsNullOrEmpty (DisplayPlace.address))
-				return;
-			if (Device.OS == TargetPlatform.iOS) {
-				//https://developer.apple.com/library/ios/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html
-				string uriString = String.Format ("http://maps.google.com/maps?daddr={0}", DisplayPlace.address);
-				uriString = new Regex ("\\s+").Replace (uriString, "+");
-				Device.OpenUri (new Uri (uriString));
-
-			} else if (Device.OS == TargetPlatform.Android) {
-				// opens the 'task chooser' so the user can pick Maps, Chrome or other mapping app
-				Device.OpenUri (new Uri ("http://maps.google.com/?daddr=San+Francisco,+CA&saddr=Mountain+View"));
-
-			} else if (Device.OS == TargetPlatform.WinPhone) {
-				DisplayAlert ("To Do", "Not yet implemented", "OK");
+			try {
+				if (string.IsNullOrEmpty (DisplayPlace.address))
+					return;
+				if (Device.OS == TargetPlatform.iOS) {
+					//https://developer.apple.com/library/ios/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html
+					string uriString = String.Format ("http://maps.google.com/maps?daddr={0}", DisplayPlace.address);
+					uriString = new Regex ("\\s+").Replace (uriString, "+");
+					Device.OpenUri (new Uri (uriString));
+				
+				} else if (Device.OS == TargetPlatform.Android) {
+					// opens the 'task chooser' so the user can pick Maps, Chrome or other mapping app
+					Device.OpenUri (new Uri ("http://maps.google.com/?daddr=San+Francisco,+CA&saddr=Mountain+View"));
+				
+				} else if (Device.OS == TargetPlatform.WinPhone) {
+					DisplayAlert ("To Do", "Not yet implemented", "OK");
+				}
+			} catch (Exception ex) {
+				DisplayAlert ("Internal Error", "Unable to get directions", "OK");
+				Console.WriteLine ($"DoDirections ERROR {ex}");
+				Insights.Report (ex);
 			}
 		}
 
 		async void DoMakeCall (object sender, EventArgs e)
 		{
-			if (DisplayPlace.telephone == null)
-				return;
-			if (!await DisplayAlert (DisplayPlace.telephone, "Call this number?", "Yes", "No"))
-				return;
-			String EscapedNo = "";
-			EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
-			if (!DependencyService.Get<IDeviceSpecific> ().MakeCall (EscapedNo)) {
-				// Url is not able to be opened.
-				await DisplayAlert ("Error", "Unable to call", "OK");
+			try {
+				if (DisplayPlace.telephone == null)
+					return;
+				if (!await DisplayAlert (DisplayPlace.telephone, "Call this number?", "Yes", "No"))
+					return;
+				String EscapedNo = "";
+				EscapedNo = Regex.Replace (DisplayPlace.telephone, @"[^0-9]+", "");
+				if (!DependencyService.Get<IDeviceSpecific> ().MakeCall (EscapedNo)) {
+					// Url is not able to be opened.
+					await DisplayAlert ("Error", "Unable to call", "OK");
+				}
+			} catch (Exception ex) {
+				await DisplayAlert ("Internal Error", "Unable to call", "OK");
+				Console.WriteLine ($"DoMakeCall ERROR {ex}");
+				Insights.Report (ex);
 			}
 		}
 
@@ -541,6 +486,26 @@ namespace RayvMobileApp
 		}
 
 		#endregion
+		Grid GetCommentLine(Label comment, int count)
+		{
+			var grid = new Grid {
+				ColumnDefinitions = {
+					new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) },
+					new ColumnDefinition { Width = new GridLength (RoundButton.letterButtonSize) },
+				},
+				RowDefinitions = {
+					new RowDefinition { Height = new GridLength (1, GridUnitType.Star) }
+				},
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+			};
+			RoundButton CountIndicator = new RoundButton() {
+				BackgroundColor = settings.BaseDarkColor,
+				Text = count.ToString (),
+			};
+			grid.Children.Add (comment,0,0);
+			grid.Children.Add (CountIndicator,1,0);
+			return grid;
+		}
 
 		Label GetVoteCountLabel ()
 		{
@@ -553,7 +518,7 @@ namespace RayvMobileApp
 				Insights.Report (ex);
 				score = 0;
 			}
-			return new Label{ Text = $"Rating: {score:F1} stars"}; 
+			return new Label{ Text = $"({score:F1})", FontSize = settings.FontSizeLabelMedium, TextColor = settings.ColorDarkGray, TranslationY = 5}; 
 		}
 
 		public DetailPage (
@@ -668,15 +633,22 @@ namespace RayvMobileApp
 //			TopRow.Children.Add (DirectionsImgBtn);
 //			TopRow.Children.Add (WebImgBtn);
 
-			Comment = new LabelWithImageButton {
-				Source = settings.DevicifyFilename ("187-pencil@2x.png"),
-				OnClick = DoClickComment,
+			Comment = new Label {
 				FontAttributes = FontAttributes.Italic,
 			};
+			var tapComment = new TapGestureRecognizer ();
+			tapComment.Tapped += DoClickComment;
+			Comment.GestureRecognizers.Add (tapComment);
 
 			var VoteCountLbl = GetVoteCountLabel ();
 			Stars = new StarEditor (true) { HorizontalOptions = LayoutOptions.FillAndExpand };
 			Stars.ChangedNotUI += DoSaveVote;
+			var StarLine = new StackLayout {
+				Orientation = StackOrientation.Horizontal,
+				HorizontalOptions = LayoutOptions.Start
+			};
+			StarLine.Children.Add (Stars);
+			StarLine.Children.Add (VoteCountLbl);
 			Label DraftText = new Label {
 				Text = "DRAFT",
 				TextColor = Color.Red,
@@ -723,12 +695,10 @@ namespace RayvMobileApp
 						Address,
 						ImgGrid,
 						TopRow,
-						Stars,
+						StarLine,
 						styleGrid,
-						Comment,
+						GetCommentLine(Comment,0),
 						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
-						VoteCountLbl,
-						new Label { Text = "Comments", FontAttributes = FontAttributes.Bold }, 
 						GetFriendsComments (),
 					}
 				},

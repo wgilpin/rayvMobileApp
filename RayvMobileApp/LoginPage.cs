@@ -139,7 +139,7 @@ namespace RayvMobileApp
 
 			try {
 				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
-				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
+				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK"); 
 				ShowLoginView ();
 			} catch (Exception ex) {
 				Insights.Report (ex);

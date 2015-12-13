@@ -44,7 +44,7 @@ namespace RayvMobileApp
 				GoTo2
 			);
 			p2 = new IntroSlide (
-				settings.DevicifyFilename ("Intro head 2a.png"),
+				settings.DevicifyFilename ("Intro_page2.png"),
 				"Add places to your list",
 				settings.DevicifyFilename ("stars_example.png"),
 				"Stars show how you rate a place'",
@@ -55,9 +55,9 @@ namespace RayvMobileApp
 				GoTo3
 			);
 			p3 = new IntroSlide (
-				settings.DevicifyFilename ("Intro 3 foodie friends.png"),
+				settings.DevicifyFilename ("Intro_page3.png"),
 				"Follow Foodie Friends for Trusted Reviews",
-				settings.DevicifyFilename ("friends_green.png"),
+				settings.DevicifyFilename ("Friends_green.png"),
 				"Connect to friends to share your trusted reviews",
 				settings.DevicifyFilename ("Share_green2.png"),
 				"Tell your friends where to meet you",

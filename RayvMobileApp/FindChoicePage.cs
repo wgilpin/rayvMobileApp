@@ -30,7 +30,7 @@ namespace RayvMobileApp
 		ActivityIndicator Spinner;
 		RayvButton SearchLocationBtn;
 		ToolbarItem BackBtn;
-		string TitlePlaceStyle = "Style of Place";
+		string TitlePlaceStyle = "Price";
 		string TitleWho = "Who?";
 		string TitleVote = "Votes...";
 		string TitleFindMain = "Find...";
@@ -280,6 +280,7 @@ namespace RayvMobileApp
 		void ChooseCuisine ()
 		{
 			var cuisinePage = new EditCuisineView (null, inFlow: false, showAllButton: true);
+			Title = "Cuisine";
 			cuisinePage.Saved += (sender, e) => {
 				if (e.ShowAll)
 					currentCuisine = null;
@@ -406,7 +407,7 @@ namespace RayvMobileApp
 			}, highlight: currentVoteKindFilter != VoteFilterKind.All);
 			var goBtn = new RayvButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
-				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				BackgroundColor = settings.BaseDarkColor,
 				BorderColor = BackgroundColor,
 				BorderWidth = 0,
 				BorderRadius = 0,

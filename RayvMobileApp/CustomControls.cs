@@ -317,7 +317,7 @@ namespace RayvMobileApp
 			get { return _checked; }
 			set { 
 				_checked = value;
-				this.Source = _checked ? "checkbox_checked.png" : "checkbox_unchecked.png";
+				this.Source = _checked ? "Check_tick.png" : "Check_empty.png";
 			}
 		}
 
@@ -486,7 +486,7 @@ namespace RayvMobileApp
 				Text = " Change ",
 				HorizontalOptions = LayoutOptions.End,
 				TextColor = Color.White,
-				BackgroundColor = ColorUtil.Darker (settings.BaseColor),
+				BackgroundColor = settings.BaseDarkColor,
 				HeightRequest = Device.OnPlatform (30, 50, 50)
 			};
 			ButtonLabel = new Label {
@@ -654,6 +654,8 @@ namespace RayvMobileApp
 
 	public class ImageButton : Image
 	{
+		public string data { get; set; }
+
 		TapGestureRecognizer Gesture;
 
 		public EventHandler OnClick {

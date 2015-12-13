@@ -166,15 +166,15 @@ namespace RayvMobileApp
 					if (!int.TryParse (GetConfig (settings.DB_VERSION), out db_version)) {
 						db_version = 0;
 					}
-					if (db_version < 9) {
+					if (db_version < settings.CurrentDbVersion) {
 						//Migration  -  plus wipe
 						Db.BeginTransaction ();
 						try {
 							deleteDb ();
 							createDb ();
 							//SetConfig (settings.SERVER, null);
-							db_version = 9;
-							Console.WriteLine ("Schema updated to 9");
+							db_version = settings.CurrentDbVersion;
+							Console.WriteLine ($"Schema updated to {settings.CurrentDbVersion}");
 							Db.Commit ();
 							SetConfig (settings.DB_VERSION, db_version);
 							var server_url = "https://" +
@@ -184,7 +184,7 @@ namespace RayvMobileApp
 							return;
 						} catch (Exception ex) {
 							Insights.Report (ex);
-							restConnection.LogErrorToServer ("UpdateSchema to 8 failed {0}", ex);
+							restConnection.LogErrorToServer ($"UpdateSchema to {settings.CurrentDbVersion} failed {ex}");
 							Db.Rollback ();
 							return;
 						}
@@ -496,6 +496,36 @@ namespace RayvMobileApp
 		#endregion
 
 		#region Sync Methods
+
+		public List<VoteComment> GetComments (Vote vote)
+		{
+			var p = new Dictionary<string, string> {
+				{ "author",Persist.Instance.MyId.ToString () },
+				{ "vote", vote.voteId.ToString () },
+			};
+			var resp = Persist.Instance.GetWebConnection ().get ("api/comments", p);
+			if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
+				return null;
+			}
+			JObject obj = JObject.Parse (resp.Content);
+			var commentStr = obj ["comments"].ToString ();
+			List<VoteComment> comments = JsonConvert.DeserializeObject<List<VoteComment>> (commentStr);
+			if (comments == null)
+				return new List<VoteComment> ();
+			return comments;
+		}
+
+		public bool SetComment (Vote Vote, string comment)
+		{
+			var p = new Dictionary<string, string> {
+				{ "author",Persist.Instance.MyId.ToString () },
+				{ "when",DateTime.UtcNow.ToString () },
+				{ "comment", comment },
+				{ "vote",Vote.voteId.ToString () }
+			};
+			var res = Persist.Instance.GetWebConnection ().post ("api/comment", p);
+			return res == "OK";
+		}
 
 		public List<Place> GetData ()
 		{

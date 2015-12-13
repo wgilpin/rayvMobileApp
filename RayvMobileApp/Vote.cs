@@ -76,6 +76,9 @@ namespace RayvMobileApp
 		[PrimaryKey, AutoIncrement]
 		public int Id { get; set; }
 
+		//ID of the key of this vote
+		public long voteId { get; set; }
+
 		// the key of the place
 		public string key { get; set; }
 
@@ -90,6 +93,8 @@ namespace RayvMobileApp
 		public string comment { get; set; }
 
 		public DateTime when { get; set; }
+
+		public int replies { get; set; }
 
 		[Ignore]
 		public Cuisine cuisine { get; set; }
