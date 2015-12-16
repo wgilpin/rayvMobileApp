@@ -162,7 +162,7 @@ namespace RayvMobileApp
 				if (firstAddress.Length == 0)
 					firstAddress = addr;
 			}
-			AddressEd.Text = firstAddress;
+			AddressEd.Text = firstAddress.Replace ("\n", ", ");
 			SaveBtn.IsVisible = true;
 		}
 

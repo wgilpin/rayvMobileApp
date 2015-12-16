@@ -65,7 +65,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextStrings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlaceSavedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditCommentView.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DoubleButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditCuisineView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgsMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestFormsPage.cs" />
@@ -83,5 +82,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CommentReplyGrid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoundButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DoubleImageButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DoubleButton.cs" />
   </ItemGroup>
 </Project>

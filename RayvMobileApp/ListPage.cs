@@ -222,6 +222,7 @@ namespace RayvMobileApp
 					Navigation.PushAsync (detailPage);
 				}
 			} catch (Exception ex) {
+				Console.WriteLine (ex);
 				Insights.Report (ex);
 			}
 		}

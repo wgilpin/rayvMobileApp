@@ -133,7 +133,7 @@ namespace RayvMobileApp
 									showSave: true, 
 									showToolbar: true)));
 						} else {
-							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK");
+							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK"); 
 						}
 					});
 				};
@@ -452,7 +452,7 @@ namespace RayvMobileApp
 				BackgroundColor = Color.White
 			};
 			MapLV.OnItemTapped = DoTapItem;
-			var buttons = new DoubleButton { 
+			var buttons = new DoubleImageButton { 
 				LeftText = "Back", 
 				RightText = "Next",
 				LeftSource = "back_1.png",

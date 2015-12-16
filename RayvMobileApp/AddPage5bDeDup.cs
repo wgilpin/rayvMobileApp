@@ -54,7 +54,25 @@ namespace RayvMobileApp
 			Debug.WriteLine ("AddPage5bDeDup.DoEdit Push EditPage");
 			var editor = new PlaceEditor (addingPlace);
 			editor.Cancelled += (s, ev) => Navigation.PopModalAsync ();
-			editor.Saved += (s, ev) => Navigation.PopModalAsync ();
+			editor.Saved += (s, ev) => {
+				Console.WriteLine ("DoEditFromList: Editor Returned - Saving");
+				string errorMessage = "";
+				addingPlace.Save (out errorMessage);
+				Device.BeginInvokeOnMainThread (() => {
+					if (string.IsNullOrEmpty (errorMessage)) {
+						Console.WriteLine ($"Editor Returned - Loading DetailPage for {addingPlace.place_name}");
+						Navigation.PushModalAsync (
+							new RayvNav (new DetailPage (
+								place: addingPlace, 
+								showSave: true, 
+								showToolbar: true)));
+					} else {
+						DisplayAlert ("Error",$"Couldn't save {addingPlace.place_name}","OK");
+						Spinner.IsRunning = false;
+					}
+				});
+//				Navigation.PopModalAsync ();
+			};
 			Navigation.PushModalAsync (editor);
 		}
 

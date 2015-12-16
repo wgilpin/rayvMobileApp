@@ -570,13 +570,8 @@ namespace RayvMobileApp
 					GridUnitType.Auto, 
 					GridUnitType.Auto)) 
 			});
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) });
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (
-					Device.OnPlatform (
-						60,
-						100,
-						100), GridUnitType.Absolute)
-			});
 			Children.Add (TextEntry, 0, 1, 0, 1);
 			Children.Add (ButtonChange, 1, 2, 0, 1);
 		}
@@ -740,8 +735,9 @@ namespace RayvMobileApp
 			Padding = new Thickness (5, 5, 2, 5);
 			HorizontalOptions = LayoutOptions.StartAndExpand;
 			RowDefinitions.Add (new RowDefinition { Height = new GridLength (20, GridUnitType.Absolute) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1000, GridUnitType.Star) });
-			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (60, GridUnitType.Absolute) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Auto) });
+			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (1, GridUnitType.Star) });
+			ColumnSpacing = 1;
 			Children.Add (ButtonLeft, 0, 1, 0, 1);
 			Children.Add (ImageRight, 1, 2, 0, 1);
 		}

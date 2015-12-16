@@ -58,7 +58,6 @@ namespace RayvMobileApp
 		Label CuisineEd;
 
 		ActivityIndicator Spinner;
-		Label distance;
 		Label Address;
 		Label Comment;
 		EditCommentView CommentEditor;
@@ -69,9 +68,9 @@ namespace RayvMobileApp
 		TopRowBtn TelImgBtn;
 		Frame SaveFrame;
 		StackLayout tools;
-		EditVoteView VoteView;
 		StarEditor Stars;
 		View MainContent;
+		StackLayout FriendComments;
 
 
 		#endregion
@@ -79,18 +78,11 @@ namespace RayvMobileApp
 		#region Logic
 
 
-		public void DoCommentTapped(Object sender, EventArgs e)
+		// set the list of friends' comments into the FriendsComments StackLayout
+		void SetupFriendsComments ()
 		{
-			var voteKey = (sender as Element).StyleId;
-			var vote = Persist.Instance.Votes.Where (v => v.Id.ToString () == voteKey).FirstOrDefault ();
-			if (vote != null)
-				Navigation.PushAsync (new CommentReplyPage(vote));
-		}
-
-		StackLayout GetFriendsComments ()
-		{
-			var commentList = new StackLayout () { HorizontalOptions = LayoutOptions.FillAndExpand };
-			commentList.Children.Add (new LabelWide ("Comments"));
+			FriendComments.Children.Clear ();
+			FriendComments.Children.Add (new LabelWide ("Comments"));
 			try {
 				string MyStringId = Persist.Instance.MyId.ToString ();
 				Persist.Instance.Votes
@@ -98,75 +90,27 @@ namespace RayvMobileApp
 					.OrderBy (x => x.when)
 					.ToList ()
 					.ForEach (vote => {
-					CommentViewGrid entry = new CommentViewGrid (vote, onReply:DoCommentTapped, showReplyBtn:true);
-
-					commentList.Children.Add (entry);
-				});
+					try {
+						Persist.Instance.CommentCache[vote.voteId] = Persist.Instance.LoadComments (vote);
+						int replies = Persist.Instance.CommentCache[vote.voteId].Count;
+						if (vote.replies != replies){
+							vote.replies = replies;
+							Persist.Instance.SaveVoteToDb (vote);
+						}
+						CommentViewGrid entry = new CommentViewGrid (vote, onReply:DoCommentTapped, showReplyBtn:true);
+						FriendComments.Children.Add (entry);
+					} catch (Exception ex) {
+						Debug.Fail ("SetupFriendsComments inner Exception {ex.Message}");
+					}
+					});
 			} catch (Exception ex) {
 				Insights.Report (ex);
 			}
-			return commentList;
-		}
-
-		async void SetVote (object sender, EventArgs e)
-		{
-			SetVoteButton (sender as ButtonWide);
-			// should NOT reference UILabel on background thread!
-			int previousVote = DisplayPlace.vote.vote;
-			DisplayPlace.vote.vote = Stars.Vote;
-			string Message = "";
-			if (previousVote == DisplayPlace.vote.vote) {
-				// have set to curren tsetting = unset
-				var answer = await DisplayAlert (
-					             "Remove Vote",
-					             "If you remove your vote the place will not be on ANY of your lists",
-					             "OK",
-					             "Cancel");
-				if (answer) {
-					Insights.Track ("EditPage.DeletePlace", "Place", DisplayPlace.place_name);
-					DisplayPlace.Delete ();
-					Dirty = true;
-					if (Navigation.NavigationStack.Count > 0)
-						await Navigation.PopToRootAsync ();
-					else {
-						tools.IsVisible = true;
-					}
-				}
-			} else {
-				new System.Threading.Thread (new System.Threading.ThreadStart (() => {
-					Device.BeginInvokeOnMainThread (() => {
-						ShowSpinner ();
-					});
-					if (DisplayPlace.SaveVote (out Message)) {
-						Dirty = true;
-						var details = new Dictionary<string, string> {
-							{ "PlaceName", DisplayPlace.place_name },
-							{ "Vote", DisplayPlace.vote.ToString () },
-						};
-						Insights.Track ("DetailPage.SetVote", details);
-						Debug.WriteLine ("UpdateVote {0}", details.ToString ());
-					}
-					Device.BeginInvokeOnMainThread (() => {
-						// manipulate UI controls
-						SetVoteButton (sender as ButtonWide);
-						ShowSpinner (false);
-						if (string.IsNullOrWhiteSpace (DisplayPlace.Comment ())) {
-							DisplayAlert ("No Comment", "Please add a comment to explain your vote", "OK");
-							DoClickComment (null, null);
-							EditComment ();
-						}
-					});
-				})).Start ();
-			}
-		}
-
-		void SetVoteButton (Button voteBtn)
-		{
-			voteBtn.BackgroundColor = ColorUtil.Darker (settings.BaseColor);
-			voteBtn.TextColor = Color.White;
 		}
 
 
+
+		// load the Place DisplayPlace into the page UI
 		void LoadPage (Place place)
 		{
 			lock (DisplayPlace) {
@@ -241,31 +185,41 @@ namespace RayvMobileApp
 
 		#region Events
 
+		// Event handler afet comments are edited to reload the lsit
+		void DoCommentsSaved (object sender, EventArgs e)
+		{
+			SetupFriendsComments ();
+		}
+
+		//Event handler when a comment ios tapped, opens the comment list page for reply / browse
+		public void DoCommentTapped(Object sender, EventArgs e)
+		{
+			var voteKey = (sender as Element).StyleId;
+			var vote = Persist.Instance.Votes.Where (v => v.voteId.ToString () == voteKey).FirstOrDefault ();
+			if (vote != null) {
+				var commentsPage = new CommentReplyPage (vote);
+				commentsPage.Finished += DoCommentsSaved;
+				Navigation.PushAsync (commentsPage);
+			}
+		}
+
+
+
+		// Event handler for when a StarEditor has been clicked
 		void DoSaveVote (object sender, StarEditorEventArgs voteArgs)
 		{
 			if (voteArgs.Vote == DisplayPlace.vote.vote && voteArgs.Untried == DisplayPlace.vote.untried)
 				return;
 			DisplayPlace.vote.vote = voteArgs.Vote;
 			DisplayPlace.vote.untried = voteArgs.Vote == 0 ? voteArgs.Untried : false;
-//			Stars.Vote = voteArgs.Vote;
 			if (!string.IsNullOrEmpty (DisplayPlace.key)) {
 				string msg = "";
 				DisplayPlace.SaveVote (out msg);
 			}
 			Dirty = true;
-//			VotePage.Navigation.PopModalAsync ();
 		}
 
-		//		void DoVote (object o, EventArgs e)
-		//		{
-		//			VotePage = new EditVotePage (DisplayPlace.vote.vote, DisplayPlace.vote.untried, inFlow: false);
-		//			VotePage.Saved += VoteSaved;
-		//			VotePage.Cancelled += (sender, ev) => {
-		//				VotePage.Navigation.PopModalAsync ();
-		//			};
-		//			Navigation.PushModalAsync (new RayvNav (VotePage));
-		//		}
-
+		// Edit the comment for the current user (new page content)
 		void EditComment ()
 		{
 			CommentEditor = new EditCommentView (
@@ -274,23 +228,27 @@ namespace RayvMobileApp
 				vote: DisplayPlace.vote.vote);
 			CommentEditor.Saved += DoSaveComment;
 			CommentEditor.NoComment += (sender, e) => {
+				// alert when a comment is missing
 				DisplayAlert ("No Comment", "You have to comment", "OK");
 			};
 			CommentEditor.Cancelled += (s, e) => {
+				// cnacelled edit, re-display the page
 				Content = MainContent;
 			};
 			Content = CommentEditor;
 		}
 
+		// Event handler when the comment is clicked. Either force a vote if there isn't one, or edit comment if there is
 		void DoClickComment (object o, EventArgs e)
 		{
 			if (DisplayPlace.vote.vote == Vote.VoteNotSetValue && !DisplayPlace.vote.untried) {
-				DisplayAlert ("Comment", "You need to vote if you want to comment", "OK");
+				DoEdit ();
 				return;
 			}
 			EditComment ();
 		}
 
+		// save comment to server
 		void DoSaveComment (object o, CommentSavedEventArgs e)
 		{
 			try {
@@ -319,6 +277,7 @@ namespace RayvMobileApp
 			}
 		}
 
+		// remove my vote for this place
 		void DoRemove (object sender, EventArgs e)
 		{
 			int votesCount = Persist.Instance.Votes.Where (v => v.key == DisplayPlace.key).Count ();
@@ -332,6 +291,7 @@ namespace RayvMobileApp
 			}
 		}
 
+		// edit the DisplayPlace via the PlaceEditor
 		void DoEdit ()
 		{
 			Debug.WriteLine ("Detail.DoEdit: Push EditPage");
@@ -343,6 +303,7 @@ namespace RayvMobileApp
 			Navigation.PushAsync (editor);
 		}
 
+		// event handler to load the DisplayPlace into the UI. Called in the Page Appearing event
 		public void DoLoadPage (object sender, EventArgs e)
 		{
 			LoadPage (DisplayPlace);
@@ -358,8 +319,6 @@ namespace RayvMobileApp
 
 		public void SharePlace (object sender, EventArgs e)
 		{
-			String place_id = 
-				string.IsNullOrEmpty (DisplayPlace.place_id) ? null : DisplayPlace.place_id;
 			var sharer = DependencyService.Get<IShareable> ();
 			var shareBody = 
 				$"Let's go to {DisplayPlace.place_name}\n" +
@@ -486,7 +445,7 @@ namespace RayvMobileApp
 		}
 
 		#endregion
-		Grid GetCommentLine(Label comment, int count)
+		Grid GetCommentLine(Label comment, int count, long voteId)
 		{
 			var grid = new Grid {
 				ColumnDefinitions = {
@@ -501,7 +460,9 @@ namespace RayvMobileApp
 			RoundButton CountIndicator = new RoundButton() {
 				BackgroundColor = settings.BaseDarkColor,
 				Text = count.ToString (),
+				StyleId = voteId.ToString (),
 			};
+			CountIndicator.OnClick = DoCommentTapped;
 			grid.Children.Add (comment,0,0);
 			grid.Children.Add (CountIndicator,1,0);
 			return grid;
@@ -587,10 +548,7 @@ namespace RayvMobileApp
 //			Place_name.FontSize = settings.FontSizeLabelLarge;
 //			Place_name.XAlign = TextAlignment.Center;
 			CuisineEd = new LabelWide { };
-			distance = new LabelWide {
-				FontAttributes = FontAttributes.Italic,
-				HorizontalOptions = LayoutOptions.End,
-			};
+
 			Address = new Label {
 				TextColor = Color.FromHex ("707070"),
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -683,6 +641,32 @@ namespace RayvMobileApp
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.style.ToFriendlyString () }, 1, 1); 
 			styleGrid.Children.Add (new Label{ Text = DisplayPlace.vote.kind.ToString () }, 1, 2); 
 //			styleGrid.Children.Add (new Frame{ HasShadow = false, OutlineColor = Color.Gray, HeightRequest = 2 }, 0, 2, 3, 4); 
+			Vote myVote = null;
+			Vote votersVote = null;
+			var voter = Persist.Instance.FilterWhoKey;
+			Persist.Instance.Votes.Where (v => v.key == place.key).ToList ().ForEach (vo => {
+				Console.WriteLine ($"{place.place_name} {vo.VoterName}");
+				if (vo.voter == Persist.Instance.MyId.ToString ())
+					myVote = vo	;
+				else if (!string.IsNullOrEmpty (voter) && vo.voter == voter)
+					votersVote = vo;
+				else if (votersVote == null)
+					votersVote = vo;
+			});
+//			Persist.Instance.Votes.ForEach (v=>{
+//				try{
+//					Console.WriteLine ($"{v.place_name} {v.key}");
+//					if(v.key == place.key)
+//						if (v.voter == voter)
+//							myVote = v;
+//				}
+//				catch (Exception ex){
+//					Console.WriteLine (ex);
+//				}
+//			});
+			Vote theVote = votersVote ?? myVote;
+			FriendComments = new StackLayout ();
+			SetupFriendsComments ();
 			ScrollView EditGrid = new ScrollView {
 				Padding = 2,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -697,9 +681,9 @@ namespace RayvMobileApp
 						TopRow,
 						StarLine,
 						styleGrid,
-						GetCommentLine(Comment,0),
+						GetCommentLine(Comment,myVote?.replies??0,myVote?.voteId??-1),
 						new Frame{ HasShadow = false, OutlineColor = settings.ColorMidGray, Padding = 0, HeightRequest = 1 }, 
-						GetFriendsComments (),
+						FriendComments,
 					}
 				},
 			};
@@ -738,6 +722,6 @@ namespace RayvMobileApp
 //				}
 				OnClose (e);
 			};
-		}
+		} 
 	}
 }

@@ -582,7 +582,7 @@ namespace RayvMobileApp
 									// delete the old one
 									Persist.RemovePlaceKeyFromDb (wasDraftKey);
 								}
-								if (!Persist.Instance.UpdateVote (place)) {
+								if (!Persist.Instance.UpdateVoteForPlace (place)) {
 									errorMessage = "Failed to update vote";
 									return false;
 								}
@@ -637,7 +637,7 @@ namespace RayvMobileApp
 					if (result == "OK") {
 						lock (Persist.Instance.Lock) {
 							// no try..catch as it's inside one
-							if (!Persist.Instance.UpdateVote (this)) {
+							if (!Persist.Instance.UpdateVoteForPlace (this)) {
 								errorMessage = "Failed to update";
 								return false;
 							}
@@ -649,7 +649,7 @@ namespace RayvMobileApp
 				} else {
 					lock (Persist.Instance.Lock) {
 						// no try..catch as it's inside one
-						if (!Persist.Instance.UpdateVote (this)) {
+						if (!Persist.Instance.UpdateVoteForPlace (this)) {
 							errorMessage = "Can't vote offline";
 							return false;
 						}

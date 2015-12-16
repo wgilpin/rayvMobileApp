@@ -142,7 +142,7 @@ namespace RayvMobileApp
 			} else {
 				// update the place to remove the vote details
 				EditPlace.vote = null;
-				Persist.Instance.UpdateVote (EditPlace);
+				Persist.Instance.UpdateVoteForPlace (EditPlace);
 			}
 			Removed?.Invoke (this, null);
 		}

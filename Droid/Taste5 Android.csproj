@@ -56,12 +56,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PushNotification.Plugin.Abstractions">
-      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.9\lib\MonoAndroid10\PushNotification.Plugin.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="PushNotification.Plugin">
-      <HintPath>..\packages\Xam.Plugin.PushNotification.1.0.9\lib\MonoAndroid10\PushNotification.Plugin.dll</HintPath>
-    </Reference>
     <Reference Include="Xamarin.Android.Support.v4">
       <HintPath>..\packages\Xamarin.Android.Support.v4.23.0.1.3\lib\MonoAndroid403\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
@@ -95,6 +89,15 @@
     <Reference Include="Xamarin.Insights">
       <HintPath>..\packages\Xamarin.Insights.1.11.2\lib\MonoAndroid10\Xamarin.Insights.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.GooglePlayServices.Maps">
+      <HintPath>..\packages\Xamarin.GooglePlayServices.Maps.26.0.0.0\lib\MonoAndroid41\Xamarin.GooglePlayServices.Maps.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Maps.Android">
+      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6490\lib\MonoAndroid10\Xamarin.Forms.Maps.Android.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Maps">
+      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6490\lib\MonoAndroid10\Xamarin.Forms.Maps.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.GooglePlayServices.Basement">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Basement.27.0.0.0\lib\MonoAndroid41\Xamarin.GooglePlayServices.Basement.dll</HintPath>
     </Reference>
@@ -104,14 +107,11 @@
     <Reference Include="Xamarin.GooglePlayServices.Gcm">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Gcm.27.0.0.0\lib\MonoAndroid41\Xamarin.GooglePlayServices.Gcm.dll</HintPath>
     </Reference>
-    <Reference Include="Xamarin.GooglePlayServices.Maps">
-      <HintPath>..\packages\Xamarin.GooglePlayServices.Maps.26.0.0.0\lib\MonoAndroid41\Xamarin.GooglePlayServices.Maps.dll</HintPath>
+    <Reference Include="PushNotification.Plugin.Abstractions">
+      <HintPath>..\packages\Xam.Plugin.PushNotification.1.1.1\lib\MonoAndroid10\PushNotification.Plugin.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Xamarin.Forms.Maps.Android">
-      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6490\lib\MonoAndroid10\Xamarin.Forms.Maps.Android.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Maps">
-      <HintPath>..\packages\Xamarin.Forms.Maps.2.0.0.6490\lib\MonoAndroid10\Xamarin.Forms.Maps.dll</HintPath>
+    <Reference Include="PushNotification.Plugin">
+      <HintPath>..\packages\Xam.Plugin.PushNotification.1.1.1\lib\MonoAndroid10\PushNotification.Plugin.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -137,106 +137,109 @@
     <Folder Include="Resources\drawable-xxhdpi\" />
     <Folder Include="Resources\drawable-xhdpi\" />
     <Folder Include="Resources\drawable-hdpi\" />
+    <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="..\..\art\Default-568h%402x.png">
-      <Link>Resources\drawable\Default_568h_2x.png</Link>
-    </AndroidResource>
-    <AndroidResource Include="..\..\art\Default-Portrait%402x.png">
-      <Link>Resources\drawable\Default_Portrait_2x.png</Link>
-    </AndroidResource>
-    <AndroidResource Include="Resources\drawable\Dislike.png" />
-    <AndroidResource Include="..\..\art\filter.png">
-      <Link>Resources\drawable\filter.png</Link>
-    </AndroidResource>
-    <AndroidResource Include="Resources\drawable\Like.png" />
-    <AndroidResource Include="Resources\drawable\Location.png" />
-    <AndroidResource Include="Resources\drawable\logo.png" />
-    <AndroidResource Include="Resources\drawable\rayvcircle.gif" />
-    <AndroidResource Include="Resources\drawable\RayvTopSplash.png" />
-    <AndroidResource Include="Resources\drawable\Share.png" />
-    <AndroidResource Include="..\..\art\two-smileys-lg.png">
-      <Link>Resources\drawable\two_smileys_lg.png</Link>
-    </AndroidResource>
-    <AndroidResource Include="Resources\drawable\toolbar_right_profile_pressed.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_right_profile.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_right_news_pressed.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_right_news.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_left_list_pressed.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_left_list.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_left_friends_pressed.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_left_friends.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_centre_add_pressed.png" />
-    <AndroidResource Include="Resources\drawable\toolbar_centre_add.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_search.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_profile.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_news_1.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_news.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_friends.png" />
-    <AndroidResource Include="Resources\drawable\TB_default_add.png" />
-    <AndroidResource Include="Resources\drawable\TB_active_search.png" />
-    <AndroidResource Include="Resources\drawable\TB_active_profile.png" />
-    <AndroidResource Include="Resources\drawable\TB_active_news.png" />
-    <AndroidResource Include="Resources\drawable\TB_active_friends.png" />
-    <AndroidResource Include="Resources\drawable\TB_active_add.png" />
-    <AndroidResource Include="Resources\drawable\star_lg.png" />
-    <AndroidResource Include="Resources\drawable\right32_32.png" />
-    <AndroidResource Include="Resources\drawable\no_entry_lg.png" />
-    <AndroidResource Include="Resources\drawable\left32_32.png" />
-    <AndroidResource Include="Resources\drawable\Intro_head_2a.png" />
-    <AndroidResource Include="Resources\drawable\Intro_3_foodie_friends.png" />
-    <AndroidResource Include="Resources\drawable\Icon_76_2x.png" />
-    <AndroidResource Include="Resources\drawable\Icon_default_Website.png" />
-    <AndroidResource Include="Resources\drawable\Icon_default_Phone.png" />
-    <AndroidResource Include="Resources\drawable\Icon_default_directions1.png" />
-    <AndroidResource Include="Resources\drawable\heart_lg.png" />
-    <AndroidResource Include="Resources\drawable\icon_profile_pressed.png" />
-    <AndroidResource Include="Resources\drawable\icon_profile.png" />
-    <AndroidResource Include="Resources\drawable\icon_news_pressed.png" />
-    <AndroidResource Include="Resources\drawable\icon_news.png" />
-    <AndroidResource Include="Resources\drawable\icon_grid_pressed.png" />
-    <AndroidResource Include="Resources\drawable\icon_grid.png" />
-    <AndroidResource Include="Resources\drawable\icon_friends_pressed.png" />
-    <AndroidResource Include="Resources\drawable\icon_friends.png" />
-    <AndroidResource Include="Resources\drawable\icon_add_pressed.png" />
-    <AndroidResource Include="Resources\drawable\icon_add.png" />
-    <AndroidResource Include="Resources\drawable\Icon_76.png" />
-    <AndroidResource Include="Resources\drawable\Icon_60_2x.png" />
-    <AndroidResource Include="Resources\drawable\icon_06_magnify_2x.png" />
-    <AndroidResource Include="Resources\drawable\Default_2x.png" />
-    <AndroidResource Include="Resources\drawable\centre_button.png" />
-    <AndroidResource Include="Resources\drawable\big_btn_add_place.png" />
-    <AndroidResource Include="Resources\drawable\Big_find_food.png" />
-    <AndroidResource Include="Resources\drawable\Big_Add.png" />
-    <AndroidResource Include="Resources\drawable\Big_activity.png" />
-    <AndroidResource Include="Resources\drawable\Add_Select_right_button.png" />
-    <AndroidResource Include="Resources\drawable\Add_place.png" />
-    <AndroidResource Include="Resources\drawable\Add_friend.png" />
-    <AndroidResource Include="Resources\drawable\add_2.png" />
-    <AndroidResource Include="Resources\drawable\intro_page_1.png" />
-    <AndroidResource Include="Resources\drawable\big_btn_add_friend.png" />
-    <AndroidResource Include="Resources\drawable\i01_refresh_2x.png" />
-    <AndroidResource Include="Resources\drawable\i111_user_2x.png" />
-    <AndroidResource Include="Resources\drawable\i18_envelope_2x.png" />
-    <AndroidResource Include="Resources\drawable\i187_pencil.png" />
-    <AndroidResource Include="Resources\drawable\i187_pencil_2x.png" />
-    <AndroidResource Include="Resources\drawable\i19_gear.png" />
-    <AndroidResource Include="Resources\drawable\i216_compose.png" />
-    <AndroidResource Include="Resources\drawable\i259_list_2x.png" />
-    <AndroidResource Include="Resources\drawable\i26_checkmark_2x.png" />
-    <AndroidResource Include="Resources\drawable\i287_at_2x.png" />
-    <AndroidResource Include="Resources\drawable\i298_circlex_2x.png" />
-    <AndroidResource Include="Resources\drawable\i54_lock_2x.png" />
     <AndroidResource Include="Resources\values\styles.xml" />
     <AndroidResource Include="Resources\values-v21\styles.xml" />
     <AndroidResource Include="Resources\values-v21\colors.xml" />
     <AndroidResource Include="Resources\values\colors.xml" />
+    <AndroidResource Include="Resources\drawable\18-envelope%402x.png" />
+    <AndroidResource Include="Resources\drawable\187-pencil.png" />
+    <AndroidResource Include="Resources\drawable\187-pencil%402x.png" />
+    <AndroidResource Include="Resources\drawable\19-gear.png" />
+    <AndroidResource Include="Resources\drawable\216-compose.png" />
+    <AndroidResource Include="Resources\drawable\259-list%402x.png" />
+    <AndroidResource Include="Resources\drawable\26-checkmark%402x.png" />
+    <AndroidResource Include="Resources\drawable\287-at%402x.png" />
+    <AndroidResource Include="Resources\drawable\298-circlex%402x.png" />
+    <AndroidResource Include="Resources\drawable\54-lock%402x.png" />
+    <AndroidResource Include="Resources\drawable\Add_friend.png" />
+    <AndroidResource Include="Resources\drawable\Add_place.png" />
     <AndroidResource Include="Resources\drawable\Alert_activity2.png" />
-    <AndroidResource Include="Resources\drawable\icon.png" />
-    <AndroidResource Include="Resources\drawable\Wish1.png" />
+    <AndroidResource Include="Resources\drawable\Big_activity.png" />
+    <AndroidResource Include="Resources\drawable\Big_activity_dot.png" />
+    <AndroidResource Include="Resources\drawable\Big_add_place.png" />
+    <AndroidResource Include="Resources\drawable\Big_find_food.png" />
+    <AndroidResource Include="Resources\drawable\Cancel_button.png" />
+    <AndroidResource Include="Resources\drawable\Check_empty.png" />
+    <AndroidResource Include="Resources\drawable\Check_tick.png" />
+    <AndroidResource Include="Resources\drawable\Delete_white.png" />
+    <AndroidResource Include="Resources\drawable\FB_signin.png" />
+    <AndroidResource Include="Resources\drawable\Find_friend.png" />
+    <AndroidResource Include="Resources\drawable\Friends_green.png" />
+    <AndroidResource Include="Resources\drawable\Google_signin.png" />
+    <AndroidResource Include="Resources\drawable\Icon default Phone.png" />
+    <AndroidResource Include="Resources\drawable\Icon default Website.png" />
+    <AndroidResource Include="Resources\drawable\Icon default directions1.png" />
+    <AndroidResource Include="Resources\drawable\Icon_active_Phone.png" />
+    <AndroidResource Include="Resources\drawable\Icon_active_Website.png" />
+    <AndroidResource Include="Resources\drawable\Intro_page2.png" />
+    <AndroidResource Include="Resources\drawable\Intro_page3.png" />
+    <AndroidResource Include="Resources\drawable\Invite_friend2.png" />
+    <AndroidResource Include="Resources\drawable\LaunchScreen.storyboard" />
+    <AndroidResource Include="Resources\drawable\Like.png" />
+    <AndroidResource Include="Resources\drawable\Location.png" />
+    <AndroidResource Include="Resources\drawable\Logo_78.png" />
+    <AndroidResource Include="Resources\drawable\RayvTopSplash.png" />
+    <AndroidResource Include="Resources\drawable\Share.png" />
+    <AndroidResource Include="Resources\drawable\Share_green.png" />
+    <AndroidResource Include="Resources\drawable\Share_green2.png" />
+    <AndroidResource Include="Resources\drawable\TB active add.png" />
+    <AndroidResource Include="Resources\drawable\TB active friends.png" />
+    <AndroidResource Include="Resources\drawable\TB active news.png" />
+    <AndroidResource Include="Resources\drawable\TB active profile.png" />
+    <AndroidResource Include="Resources\drawable\TB active search.png" />
+    <AndroidResource Include="Resources\drawable\TB default add.png" />
+    <AndroidResource Include="Resources\drawable\TB default friends.png" />
+    <AndroidResource Include="Resources\drawable\TB default news.png" />
+    <AndroidResource Include="Resources\drawable\TB default profile.png" />
+    <AndroidResource Include="Resources\drawable\TB default search.png" />
+    <AndroidResource Include="Resources\drawable\Twitter_signin.png" />
+    <AndroidResource Include="Resources\drawable\Web_black.png" />
+    <AndroidResource Include="Resources\drawable\Web_white .png" />
+    <AndroidResource Include="Resources\drawable\Web_white2.png" />
+    <AndroidResource Include="Resources\drawable\Wish_Green.png" />
+    <AndroidResource Include="Resources\drawable\Wish_dark_grey.png" />
+    <AndroidResource Include="Resources\drawable\Wish_white.png" />
+    <AndroidResource Include="Resources\drawable\a_breakfast.png" />
+    <AndroidResource Include="Resources\drawable\a_coffee.png" />
+    <AndroidResource Include="Resources\drawable\a_dinner.png" />
+    <AndroidResource Include="Resources\drawable\a_drinks.png" />
+    <AndroidResource Include="Resources\drawable\a_fancy_place.png" />
+    <AndroidResource Include="Resources\drawable\a_lunch.png" />
+    <AndroidResource Include="Resources\drawable\a_quick_bite_place.png" />
+    <AndroidResource Include="Resources\drawable\a_relaxed_place.png" />
+    <AndroidResource Include="Resources\drawable\add 2.png" />
     <AndroidResource Include="Resources\drawable\arrow.png" />
-    <AndroidResource Include="Resources\drawable\checkbox_checked.png" />
-    <AndroidResource Include="Resources\drawable\checkbox_unchecked.png" />
+    <AndroidResource Include="Resources\drawable\back_1.png" />
+    <AndroidResource Include="Resources\drawable\centre-button.png" />
+    <AndroidResource Include="Resources\drawable\default_image.png" />
+    <AndroidResource Include="Resources\drawable\directions_black.png" />
+    <AndroidResource Include="Resources\drawable\directions_green.png" />
+    <AndroidResource Include="Resources\drawable\directions_green2.png" />
+    <AndroidResource Include="Resources\drawable\directions_white.png" />
+    <AndroidResource Include="Resources\drawable\envelope_2x.png" />
+    <AndroidResource Include="Resources\drawable\forward_1.png" />
+    <AndroidResource Include="Resources\drawable\icon-06-magnify%402x.png" />
+    <AndroidResource Include="Resources\drawable\left32x32.png" />
+    <AndroidResource Include="Resources\drawable\logo.png" />
+    <AndroidResource Include="Resources\drawable\logo_white.png" />
+    <AndroidResource Include="Resources\drawable\phone_black.png" />
+    <AndroidResource Include="Resources\drawable\phone_white.png" />
+    <AndroidResource Include="Resources\drawable\reply_green.png" />
+    <AndroidResource Include="Resources\drawable\reply_white.png" />
+    <AndroidResource Include="Resources\drawable\right32x32.png" />
+    <AndroidResource Include="Resources\drawable\star-border.png" />
+    <AndroidResource Include="Resources\drawable\star-empty.png" />
+    <AndroidResource Include="Resources\drawable\star-selected.png" />
+    <AndroidResource Include="Resources\drawable\star_border.png" />
+    <AndroidResource Include="Resources\drawable\star_dark_grey.png" />
+    <AndroidResource Include="Resources\drawable\star_white.png" />
+    <AndroidResource Include="Resources\drawable\stars_example.png" />
+    <AndroidResource Include="Resources\drawable\wish_grey.png" />
+    <AndroidResource Include="Resources\drawable\01_refresh%402x.png" />
+    <AndroidResource Include="Resources\drawable\111_user%402x.png" />
   </ItemGroup>
   <Import Project="..\RayvMobileApp\RayvMobileApp.projitems" Label="Shared" Condition="Exists('..\RayvMobileApp\RayvMobileApp.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

@@ -39,7 +39,7 @@ namespace RayvMobileApp
 		CheckBox[] checks;
 		Dictionary<string, PlaceStyle> Styles;
 		Picker StylePicker;
-		DoubleButton buttons;
+		DoubleImageButton buttons;
 
 
 
@@ -201,7 +201,7 @@ namespace RayvMobileApp
 			StylePicker.SelectedIndex = Styles.Values.ToList ().IndexOf (_style);
 			StylePicker.SelectedIndexChanged += DoStyleChanged;
 
-			buttons = new DoubleButton { 
+			buttons = new DoubleImageButton { 
 				LeftText = "Back", 
 				RightText = "Next",
 				LeftSource = "back_1.png",

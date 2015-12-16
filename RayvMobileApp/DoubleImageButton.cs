@@ -4,7 +4,7 @@ using Xamarin.Forms;
 
 namespace RayvMobileApp
 {
-	public class DoubleButton : ContentView
+	public class DoubleImageButton : ContentView
 	{
 		bool _isEnabledRight;
 
@@ -48,11 +48,20 @@ namespace RayvMobileApp
 		ButtonWithImage LeftBtn;
 		ButtonWithImage RightBtn;
 
-		public DoubleButton ()
+		public DoubleImageButton ()
 		{
-			LeftBtn = new ButtonWithImage { Padding = 10, FontSize = settings.FontSizeButtonLarge };
-			RightBtn = new ButtonWithImage { Padding = 10, FontSize = settings.FontSizeButtonLarge };
+			LeftBtn = new ButtonWithImage {
+				Padding = 10,
+				FontSize = settings.FontSizeButtonLarge,
+				HorizontalOptions = LayoutOptions.FillAndExpand
+			};
+			RightBtn = new ButtonWithImage {
+				Padding = 10,
+				FontSize = settings.FontSizeButtonLarge,
+				HorizontalOptions = LayoutOptions.FillAndExpand
+			};
 			Content = new StackLayout {
+				Padding = 1,
 				Children = { LeftBtn, RightBtn },
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Orientation = StackOrientation.Horizontal,

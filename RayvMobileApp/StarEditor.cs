@@ -159,9 +159,12 @@ namespace RayvMobileApp
 		void SetUntried (bool untried)
 		{
 			_untried = untried;
-			_stars [UNTRIED_IMG_IDX].Source = _untried ? WishSetSource : WishUnsetSource;
-			_vote = 0;
-			SetVote (0);	
+			if (_showUntried)
+				_stars [UNTRIED_IMG_IDX].Source = _untried ? WishSetSource : WishUnsetSource;
+			if (untried) {
+				_vote = 0;
+				SetVote (0);
+			}	
 		}
 
 		public void LoadSources ()

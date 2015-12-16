@@ -70,7 +70,7 @@ namespace RayvMobileApp
 			Children.Add (list);
 			Children.Add (AllBtn);
 			if (inFlow) {
-				var buttons = new DoubleButton { 
+				var buttons = new DoubleImageButton { 
 					LeftText = "Back", 
 					RightText = "Next",
 					LeftSource = "back_1.png",

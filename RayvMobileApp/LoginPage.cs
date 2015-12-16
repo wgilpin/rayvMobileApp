@@ -139,7 +139,7 @@ namespace RayvMobileApp
 
 			try {
 				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
-				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK"); 
+				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
 				ShowLoginView ();
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -154,7 +154,7 @@ namespace RayvMobileApp
 				Placeholder = "Email Address",
 				Text = email
 			};
-			var emailSend = new DoubleButton {
+			var emailSend = new DoubleImageButton {
 				LeftText = "Cancel",
 				RightText = "Reset",
 				LeftSource = "back_1.png",

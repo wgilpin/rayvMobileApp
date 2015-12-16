@@ -76,7 +76,7 @@ namespace RayvMobileApp
 			innerStack.Children.Add (Spinner);					
 			Children.Add (innerStack);
 			if (inFlow) {
-				var buttons = new DoubleButton { 
+				var buttons = new DoubleImageButton { 
 					LeftText = "Back", 
 					RightText = "Save",
 					LeftSource = "back_1.png",

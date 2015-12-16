@@ -21,7 +21,7 @@ namespace RayvMobileApp
 
 		EventHandler DoReply;
 
-		public CommentViewGrid (Vote vote, EventHandler onReply, bool showReplyBtn) : base ()
+		public CommentViewGrid (Vote vote, EventHandler onReply, bool showReplyBtn, bool showUntried = false) : base ()
 		{
 			DoReply = onReply;
 			ColumnDefinitions.Add (new ColumnDefinition { Width = new GridLength (RoundButton.letterButtonSize + 1) });
@@ -49,17 +49,29 @@ namespace RayvMobileApp
 				var FriendLine = new FormattedString ();
 
 				string voter = "";
-				try {
-					voter = Persist.Instance.Friends [vote.voter].Name;
-				} catch (Exception ex) {
-					var data = new Dictionary<string,string> { 
-						{ "Friend", $"{vote.voter}" },
-						{ "Vote",$"{vote.Id}" }
-					};
-					Insights.Report (ex, data);
-					throw new KeyNotFoundException ();
-				}
-				var friendStars = new StarEditor (false) { ReadOnly = true, Height = StarSize, Vote = vote.vote,  };
+				if (vote.voter == Persist.Instance.MyId.ToString ()) {
+					LetterBtn.BackgroundColor = Color.Black;
+					LetterBtn.FontSize = settings.FontSizeButtonMedium;
+					LetterBtn.Roundness = Roundness.Rectangular;
+					LetterBtn.Text = "Me";
+				} else
+					try {
+						voter = Persist.Instance.Friends [vote.voter].Name;
+					} catch (Exception ex) {
+						var data = new Dictionary<string,string> { 
+							{ "Friend", $"{vote.voter}" },
+							{ "Vote",$"{vote.Id}" }
+						};
+						Insights.Report (ex, data);
+						throw new KeyNotFoundException ();
+					}
+
+				var friendStars = new StarEditor (showUntried) {
+					ReadOnly = true,
+					Height = StarSize,
+					Vote = vote.vote,
+					Untried = vote.untried
+				};
 				Children.Add (friendStars, 2, 4, 0, 1);
 				FriendLine.Spans.Add (new Span{ Text = voter, });
 				FriendLine.Spans.Add (new Span{ Text = " " });
@@ -83,14 +95,14 @@ namespace RayvMobileApp
 				}
 				if (showReplyBtn) {
 					var replyBtn = new RoundButton (vote.replies == 0) {
-						StyleId = vote.Id.ToString (), 
+						StyleId = vote.voteId.ToString (), 
 						Text = vote.replies.ToString (),
 						BackgroundColor = settings.BaseDarkColor
 					};
 					Children.Add (replyBtn, left: 3, top: 1);
 				}
 				//styleId is theSQLlite ID of the vote, for use in the event handler
-				StyleId = vote.Id.ToString ();
+				StyleId = vote.voteId.ToString ();
 				var click = new TapGestureRecognizer ();
 				click.Tapped += onReply;
 				GestureRecognizers.Add (click);

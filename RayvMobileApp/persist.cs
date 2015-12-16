@@ -16,6 +16,8 @@ using System.Threading;
 
 namespace RayvMobileApp
 {
+	using CommentList = List<VoteComment>;
+
 	public class StatusMessageEventArgs : EventArgs
 	{
 		public string Message;
@@ -27,6 +29,7 @@ namespace RayvMobileApp
 			Progress = progress;
 		}
 	}
+
 
 	public class Persist
 	{
@@ -57,6 +60,10 @@ namespace RayvMobileApp
 		public bool NotificationsReceived = false;
 		public string OauthToken = "";
 		public  Page OauthNavPage;
+
+		// store the list of comments for a vote
+		// voteId -> List<VoteComment>
+		public Dictionary<long, CommentList> CommentCache;
 
 		public Object Lock = new Object ();
 		public List<Place> DisplayList;
@@ -455,6 +462,20 @@ namespace RayvMobileApp
 			}
 		}
 
+		//save a single vote into the Db
+		public void SaveVoteToDb (Vote v)
+		{
+			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
+				Db.BusyTimeout = DbTimeout;
+				try {
+					Db.InsertOrReplace (v);
+				} catch (Exception ex) {
+					Debug.Fail ("SaveVoteToDb ** FAIL **", ex.Message);
+					Insights.Report (ex);
+				}
+			}
+		}
+
 		public void saveVotesToDb ()
 		{
 			using (SQLiteConnection Db = new SQLiteConnection (DbPath)) {
@@ -467,6 +488,7 @@ namespace RayvMobileApp
 					}
 					Db.Commit ();
 				} catch (Exception ex) {
+					Debug.Fail ("saveVotesToDb ** ROLLBACK **");
 					Db.Rollback ();
 					Insights.Report (ex);
 				}
@@ -497,22 +519,33 @@ namespace RayvMobileApp
 
 		#region Sync Methods
 
-		public List<VoteComment> GetComments (Vote vote)
+		public List<VoteComment> LoadComments (Vote vote)
 		{
-			var p = new Dictionary<string, string> {
-				{ "author",Persist.Instance.MyId.ToString () },
-				{ "vote", vote.voteId.ToString () },
-			};
-			var resp = Persist.Instance.GetWebConnection ().get ("api/comments", p);
-			if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
-				return null;
+			try {
+				var p = new Dictionary<string, string> {
+					{ "author",Persist.Instance.MyId.ToString () },
+					{ "vote", vote.voteId.ToString () },
+				};
+				var resp = Persist.Instance.GetWebConnection ().get ("api/comments", p);
+				if (resp == null || resp.ResponseStatus == ResponseStatus.Error) {
+					return null;
+				}
+				JObject obj = JObject.Parse (resp.Content);
+				var commentStr = obj ["comments"].ToString ();
+				CommentList comments = JsonConvert.DeserializeObject<CommentList> (commentStr);
+				if (comments == null) {
+					if (vote.replies != 0)
+						SaveVoteToDb (vote);
+					vote.replies = 0;
+					return new CommentList ();
+				}
+				if (vote.replies != comments.Count)
+					SaveVoteToDb (vote);
+				return comments;
+			} catch (Exception ex) {
+				Debug.Fail ($"LoadComments {ex.Message}");
+				return new CommentList ();
 			}
-			JObject obj = JObject.Parse (resp.Content);
-			var commentStr = obj ["comments"].ToString ();
-			List<VoteComment> comments = JsonConvert.DeserializeObject<List<VoteComment>> (commentStr);
-			if (comments == null)
-				return new List<VoteComment> ();
-			return comments;
 		}
 
 		public bool SetComment (Vote Vote, string comment)
@@ -587,6 +620,18 @@ namespace RayvMobileApp
 			string appVersion = ServerPicker.GetServerVersion ();
 			string serverVersion = "None";
 			try {
+
+				try {
+					double minServerVersion = Convert.ToDouble (obj ["min_version"]);
+					double currentAppVersion = Convert.ToDouble (appVersion);
+					if (minServerVersion > 0 && currentAppVersion >= minServerVersion) {
+						//good
+						Console.WriteLine ("CheckServerVersionCorrect > Min {0}", serverVersion);
+						return;
+					}
+				} catch (Exception ex) {
+					// no min version
+				}
 				serverVersion = obj ["version"].ToString ();
 				if (appVersion == serverVersion) {
 					//good
@@ -675,8 +720,8 @@ namespace RayvMobileApp
 						for (int i = 0; i < count; i++) {
 							try {
 								Vote v = obj ["votes"] [i].ToObject<Vote> ();
-								if (v.place_name == "Meatliquor")
-									Console.WriteLine ("Meatliquor");
+								if (v.cuisine == null)
+									Console.WriteLine ($"{v.place_name} no cuisine");
 								var matchedVotes = Votes.Where (v2 => v2.key == v.key && v2.voter == v.voter);
 								if (matchedVotes.Count () > 0)
 									Insights.Track ("Duplicate vote", "key", v.key);
@@ -705,7 +750,8 @@ namespace RayvMobileApp
 				Online = true;
 				Console.WriteLine ($"StoreFullUserRecord 7 {DateTime.Now - now} ");
 
-			} catch (ProtocolViolationException) {
+			} catch (ProtocolViolationException pvEx) {
+				Debug.Fail ($"Wrong Server Version {pvEx.Message}");
 				throw;
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -1187,7 +1233,7 @@ namespace RayvMobileApp
 				if (Places [i].key == place.key) {
 					try {
 						StorePlace (place, removePlace: Places [i]);
-						return UpdateVote (place);
+						return UpdateVoteForPlace (place);
 					} catch (Exception e) { 
 						Insights.Report (e);
 						restConnection.LogErrorToServer ("** UpdatePlace ROLLBACK : '{0}'", e);
@@ -1196,10 +1242,10 @@ namespace RayvMobileApp
 				}
 			}
 			StorePlace (place);
-			return UpdateVote (place);
+			return UpdateVoteForPlace (place);
 		}
 
-		public bool UpdateVote (Place place)
+		public bool UpdateVoteForPlace (Place place)
 		{
 			Debug.WriteLine ("UpdateVote");
 			string myIdString = MyId.ToString ();
@@ -1400,6 +1446,7 @@ namespace RayvMobileApp
 			Double Lat = GetConfigDouble ("LastLat");
 			Double Lng = GetConfigDouble ("LastLng");
 			GpsPosition = new Position (Lat, Lng);
+			CommentCache = new Dictionary<long, List<VoteComment>> ();
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace RayvMobileApp
 		public const int NEWS_PAGE_TIMESPAN_DAYS = 14;
 		public static string[] IgnoreWords = { "the", "and", "of", "in" };
 		public static Char[] IgnoreChars = { '\'', ',', '.', ':' };
-		public const int CurrentDbVersion = 10;
+		public const int CurrentDbVersion = 11;
 
 
 		public static Color BaseColor = Color.FromHex ("0F9D58");

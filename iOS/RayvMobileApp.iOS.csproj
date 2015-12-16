@@ -219,8 +219,6 @@
     <BundleResource Include="Resources\logo.png" />
     <BundleResource Include="Resources\star-empty.png" />
     <BundleResource Include="Resources\star-selected.png" />
-    <BundleResource Include="Resources\wish_grey.png" />
-    <BundleResource Include="Resources\Wish_dark_grey.png" />
     <BundleResource Include="Resources\star_border.png" />
     <BundleResource Include="Resources\star_dark_grey.png" />
     <BundleResource Include="Resources\star-border.png" />
@@ -237,7 +235,6 @@
     <BundleResource Include="Resources\Like.png" />
     <BundleResource Include="Resources\Share.png" />
     <BundleResource Include="Resources\arrow.png" />
-    <BundleResource Include="Resources\Wish_Green.png" />
     <BundleResource Include="Resources\Logo_78.png" />
     <BundleResource Include="Resources\Twitter_signin.png" />
     <BundleResource Include="Resources\Google_signin.png" />
@@ -246,7 +243,6 @@
     <BundleResource Include="Resources\Big_find_food.png" />
     <BundleResource Include="Resources\Big_add_place.png" />
     <BundleResource Include="Resources\Big_activity.png" />
-    <BundleResource Include="Resources\Wish_white.png" />
     <BundleResource Include="Resources\Delete_white.png" />
     <BundleResource Include="Resources\default_image.png" />
     <BundleResource Include="Resources\stars_example.png" />
@@ -260,6 +256,10 @@
     <BundleResource Include="Resources\Check_tick.png" />
     <BundleResource Include="Resources\reply_green.png" />
     <BundleResource Include="Resources\reply_white.png" />
+    <BundleResource Include="Resources\Wish_dark_grey.png" />
+    <BundleResource Include="Resources\Wish_Green.png" />
+    <BundleResource Include="Resources\wish_grey.png" />
+    <BundleResource Include="Resources\Wish_white.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

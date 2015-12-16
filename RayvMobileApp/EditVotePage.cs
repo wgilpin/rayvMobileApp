@@ -151,7 +151,7 @@ namespace RayvMobileApp
 			Spinner = new ActivityIndicator{ Color = Color.Red, IsRunning = false };
 			innerStack.Children.Add (Spinner);
 
-			var buttons = new DoubleButton { 
+			var buttons = new DoubleImageButton { 
 				LeftText = "Back", 
 				RightText = "Next",
 				LeftSource = "back_1.png",

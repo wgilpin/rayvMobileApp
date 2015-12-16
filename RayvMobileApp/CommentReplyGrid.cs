@@ -45,6 +45,7 @@ namespace RayvMobileApp
 					
 					string voter = "";
 					try {
+						voter = Persist.Instance.Friends [reply.Author].Name;
 					} catch (Exception ex) {
 						var data = new Dictionary<string,string> { 
 							{ "Friend", $"{author}" },
