@@ -103,7 +103,7 @@ namespace RayvMobileApp
 				Text = heading,
 			};
 			grid.Children.Add (Heading, 1, 4, 1, 2);
-			RayvButton Btn = new RayvButton {
+			ColouredButton Btn = new ColouredButton {
 				Text = buttonLabel,
 				OnClick = buttonAction
 			};

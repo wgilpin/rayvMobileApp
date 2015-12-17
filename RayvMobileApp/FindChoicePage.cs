@@ -28,7 +28,7 @@ namespace RayvMobileApp
 		Grid _grid;
 		Position? SearchCentre;
 		ActivityIndicator Spinner;
-		RayvButton SearchLocationBtn;
+		ColouredButton SearchLocationBtn;
 		ToolbarItem BackBtn;
 		string TitlePlaceStyle = "Price";
 		string TitleWho = "Who?";
@@ -405,7 +405,7 @@ namespace RayvMobileApp
 			AddTextCard (6, "Rating?", RatingText, (s, e) => {
 				ChooseVote ();
 			}, highlight: currentVoteKindFilter != VoteFilterKind.All);
-			var goBtn = new RayvButton { 
+			var goBtn = new ColouredButton { 
 				Text = isFiltered ? "Search" : "Show All Places", 
 				BackgroundColor = settings.BaseDarkColor,
 				BorderColor = BackgroundColor,
@@ -462,7 +462,7 @@ namespace RayvMobileApp
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Auto) });
 			_grid.RowDefinitions.Add (new RowDefinition { Height = new GridLength (1, GridUnitType.Star) });
 			_grid.Children.Add (new LabelWide ("Search near..."){ TextColor = Color.White }, 0, 3, 0, 1);
-			SearchLocationBtn = new RayvButton { 
+			SearchLocationBtn = new ColouredButton { 
 				Text = "Lookup Place", 
 				BackgroundColor = settings.BaseColor,
 				BorderColor = Color.White,

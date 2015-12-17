@@ -143,7 +143,7 @@ namespace RayvMobileApp
 					});
 						
 					Place_name.FormattedText = pn;
-					Address.Text = DisplayPlace.address;
+					Address.Text = DisplayPlace.address.Replace ("\n",", ");
 					Address.IsVisible = !string.IsNullOrWhiteSpace (DisplayPlace.address);
 					if (!string.IsNullOrWhiteSpace (DisplayPlace.img)) {
 						Img.HorizontalOptions = LayoutOptions.FillAndExpand;

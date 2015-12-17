@@ -12,7 +12,7 @@ namespace RayvMobileApp
 
 	public class CommentReplyPage : ContentPage
 	{
-		RayvButton ReplyBtn;
+		ColouredButton ReplyBtn;
 		DoubleButton SaveBtn;
 		Vote CurrentVote;
 		Editor textEditor;
@@ -111,7 +111,7 @@ namespace RayvMobileApp
 		{
 			Padding = 5;
 			CurrentVote = vote;
-			ReplyBtn = new RayvButton ("Reply"){ BackgroundColor = settings.BaseDarkColor };
+			ReplyBtn = new ColouredButton ("Reply"){ BackgroundColor = settings.BaseDarkColor };
 			ReplyBtn.Clicked += DoStartReply;
 			SaveBtn = new DoubleButton {
 				LeftText = "Save",

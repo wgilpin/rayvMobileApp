@@ -19,9 +19,9 @@ namespace RayvMobileApp
 		ServerPicker Servers;
 		Label LoadingMessage;
 		ProgressBar progBar;
-		RayvButton loginButton;
-		RayvButton Register;
-		RayvButton Reset;
+		ColouredButton loginButton;
+		ColouredButton Register;
+		ColouredButton Reset;
 		ImageButton FbButton;
 		ImageButton GoogleButton;
 
@@ -139,7 +139,7 @@ namespace RayvMobileApp
 
 			try {
 				Persist.Instance.GetWebConnection ().post ("/forgot", cparams);
-				await DisplayAlert ("Password", $"An email has been sent to {email}", "OK");
+				await DisplayAlert ("Password", $"An email has been sent to {email}. Please check your Spam folder if it doesn't appear", "OK");
 				ShowLoginView ();
 			} catch (Exception ex) {
 				Insights.Report (ex);
@@ -237,7 +237,7 @@ namespace RayvMobileApp
 				HorizontalOptions = LayoutOptions.FillAndExpand, 
 				IsVisible = false 
 			};
-			loginButton = new RayvButton {
+			loginButton = new ColouredButton {
 				Text = " Login ",
 				FontSize = settings.FontSizeButtonLarge,
 			};
@@ -257,7 +257,7 @@ namespace RayvMobileApp
 				Placeholder = "Password", 
 				Text = Persist.Instance.GetConfig (settings.PASSWORD), 
 			};
-			Register = new RayvButton {
+			Register = new ColouredButton {
 				Text = "Sign Up", 
 				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
 				TextColor = ColorUtil.Darker (settings.BaseColor),
@@ -266,7 +266,7 @@ namespace RayvMobileApp
 				this.Navigation.PushModalAsync (
 					new RayvNav (new RegisterPage ()), false);
 			};
-			Reset = new RayvButton {
+			Reset = new ColouredButton {
 				Text = "Forgot Password", 
 				BackgroundColor = ColorUtil.Lighter (settings.BaseColor), 
 				TextColor = ColorUtil.Darker (settings.BaseColor),

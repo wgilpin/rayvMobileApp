@@ -577,14 +577,14 @@ namespace RayvMobileApp
 		}
 	}
 
-	public class RayvButton : Button
+	public class ColouredButton : Button
 	{
 		public EventHandler OnClick {
 			get { return null; }
 			set { Clicked += value; }
 		}
 
-		public RayvButton (String text = null) : base ()
+		public ColouredButton (String text = null) : base ()
 		{
 			//BorderWidth = 2;
 			//BorderColor = Color.FromHex ("#4444AA");
@@ -743,6 +743,37 @@ namespace RayvMobileApp
 		}
 	}
 
+	public class ButtonWithCheckbox: ButtonWithImage
+	{
+		static string UNCHECKED_IMG = "Check_empty_white.png";
+		static string CHECKED_IMG = "Check_tick_white.png";
+
+		public EventHandler Changed;
+
+		bool _checked;
+
+		void DoClick (Object o, EventArgs e)
+		{
+			_checked = !_checked;
+			ImageSource = _checked ? CHECKED_IMG : UNCHECKED_IMG;
+			Changed?.Invoke (this, null);
+		}
+
+		public bool Checked {
+			get { return _checked; }
+			set {  
+				_checked = value;
+				ImageSource = _checked ? CHECKED_IMG : UNCHECKED_IMG;
+				Changed?.Invoke (this, null);
+			}
+		}
+
+		public ButtonWithCheckbox () : base ()
+		{
+			Checked = false;
+			OnClick += DoClick;
+		}
+	}
 }
 
 

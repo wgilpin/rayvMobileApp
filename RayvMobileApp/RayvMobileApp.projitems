@@ -84,5 +84,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)RoundButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DoubleImageButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DoubleButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FeedbackPage.cs" />
   </ItemGroup>
 </Project>

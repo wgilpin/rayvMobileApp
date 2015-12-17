@@ -13,7 +13,7 @@ namespace RayvMobileApp
 	{
 		public ButtonCell (string text, EventHandler onClick) : base ()
 		{
-			View = new RayvButton (text){ OnClick = onClick };
+			View = new ColouredButton (text){ OnClick = onClick };
 		}
 	}
 

@@ -245,9 +245,9 @@ namespace RayvMobileApp
 			SecondList = new ListView { IsVisible = false, VerticalOptions = LayoutOptions.FillAndExpand };
 			SecondListHeaderLbl = new Label{ Text = "Other nearby places" };
 			SecondList.Header = SecondListHeaderLbl;
-			ShowStrangerBtn = new RayvButton ("Show strangers' places"){ IsVisible = false };
+			ShowStrangerBtn = new ColouredButton ("Show strangers' places"){ IsVisible = false };
 			ShowStrangerBtn.Clicked += DoShowStrangers;
-			ShowMoreBtn = new RayvButton ("More..."){ IsVisible = false };
+			ShowMoreBtn = new ColouredButton ("More..."){ IsVisible = false };
 			ShowMoreBtn.Clicked += DoShowMore;
 			ShowStrangerLbl = new Label {
 				Text = "No more places listed by your friends",

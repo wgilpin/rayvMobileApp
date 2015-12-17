@@ -81,8 +81,8 @@ namespace RayvMobileApp
 		Entry ScreenNameEd;
 		Label EmailEd;
 		Picker GenderEd;
-		RayvButton PwdBtn;
-		RayvButton SaveBtn;
+		ColouredButton PwdBtn;
+		ColouredButton SaveBtn;
 		Xamarin.Forms.Switch PushSw;
 		Xamarin.Forms.Switch EmailsSw;
 		StackLayout stack;
@@ -157,7 +157,7 @@ namespace RayvMobileApp
 				SaveBtnGrid.IsVisible = true;
 			};
 
-			PwdBtn = new RayvButton ("Change Password");
+			PwdBtn = new ColouredButton ("Change Password");
 			PwdBtn.Clicked += (sender, e) => {
 				var changePage = new ChangePwdPage ();
 				changePage.Done += (s, ev) => {
@@ -185,7 +185,7 @@ namespace RayvMobileApp
 				null, 
 				GenderEd));
 
-			SaveBtn = new RayvButton ("Save");
+			SaveBtn = new ColouredButton ("Save");
 			SaveBtn.Clicked += DoSaveProfile;
 			SaveBtnGrid = new LineGrid3 (null, SaveBtn){ IsVisible = false };
 			stack.Children.Add (SaveBtnGrid);
@@ -224,6 +224,12 @@ namespace RayvMobileApp
 					new BottomToolbar (this, "profile")
 				}
 			};
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Feedback",
+				Icon = "59_flag_white.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new FeedbackPage ())),
+			});
 			DoGetProfile ();
 		}
 	}

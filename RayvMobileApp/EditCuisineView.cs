@@ -61,7 +61,7 @@ namespace RayvMobileApp
 			list.ItemTapped += DoListChoice;
 			list.SelectedItem = Persist.Instance.Cuisines.Where (c => c.Title == cuisine).FirstOrDefault ();
 			list.ScrollTo (list.SelectedItem, ScrollToPosition.Center, true);
-			RayvButton AllBtn = new RayvButton ("All Kinds") {
+			ColouredButton AllBtn = new ColouredButton ("All Kinds") {
 				IsVisible = showAllButton
 			};
 			AllBtn.OnClick += (s, e) => {

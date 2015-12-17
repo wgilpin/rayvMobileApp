@@ -51,7 +51,7 @@ namespace RayvMobileApp
 		protected virtual void OnSaved ()
 		{
 			if (_kind == MealKind.None || _style == PlaceStyle.None) {
-				ShowMessage?.Invoke (this, new EventArgsMessage ("You must select a style and a meal time"));
+				ShowMessage?.Invoke (this, new EventArgsMessage ("You must select a price and a meal time"));
 			} else {
 				if (Saved != null)
 					Saved (this, new KindSavedEventArgs (_kind, _style));
@@ -180,7 +180,7 @@ namespace RayvMobileApp
 
 			Label PlaceType = new Label { 
 				BackgroundColor = ColorUtil.Darker (settings.BaseColor), 
-				Text = "Style", 
+				Text = "Price", 
 				TextColor = Color.White,
 				FontSize = settings.FontSizeLabelLarge
 			};

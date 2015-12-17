@@ -39,7 +39,7 @@ namespace RayvMobileApp
 //				LetterBtn.SetBinding (Button.BackgroundColorProperty, "Value.Name.RandomColor");
 
 
-				Button delBtn = new RayvButton {
+				Button delBtn = new ColouredButton {
 					Text = "  Unfriend  ",
 					IsVisible = false,
 					FontSize = settings.FontSizeButtonMedium
@@ -129,7 +129,7 @@ namespace RayvMobileApp
 			Title = "Friends";
 			BackgroundColor = Color.White;
 
-			var addFriendBtn = new RayvButton ("Add New Friend");
+			var addFriendBtn = new ColouredButton ("Add New Friend");
 			addFriendBtn.OnClick = (s, e) => {
 				Navigation.PushAsync (new AddFriendPage ());
 			};
@@ -143,6 +143,12 @@ namespace RayvMobileApp
 					tools
 				}
 			};
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Feedback",
+				Icon = "59_flag_white.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new FeedbackPage ())),
+			});
 		}
 	}
 }

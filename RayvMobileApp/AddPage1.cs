@@ -133,7 +133,7 @@ namespace RayvMobileApp
 									showSave: true, 
 									showToolbar: true)));
 						} else {
-							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK"); 
+							DisplayAlert ("Error",$"Couldn't save {SelectedPlace.place_name}","OK");
 						}
 					});
 				};
@@ -381,7 +381,7 @@ namespace RayvMobileApp
 				Text = "Searching current location",
 				OnClick = DoChangeLocation,
 			};
-			AddManualAddress = new RayvButton {
+			AddManualAddress = new ColouredButton {
 				HeightRequest = 40,
 				Text = "Add unlisted place",
 				OnClick = (s, e) => {
@@ -474,7 +474,7 @@ namespace RayvMobileApp
 						TextColor = ColorUtil.Darker (settings.BaseColor),
 						FontAttributes = FontAttributes.Bold,
 						BackgroundColor = Color.White,
-						YAlign = TextAlignment.End
+						VerticalTextAlignment = TextAlignment.End
 					},
 					MapLV
 				}
@@ -490,19 +490,25 @@ namespace RayvMobileApp
 
 			SearchContent = GetSearchContent (hasBackButton);
 			Content = SearchContent;
-			this.Appearing += DoSearchForPlace;
+			Appearing += DoSearchForPlace;
+
 			if (hasBackButton) {
 				var BackBtn = new ToolbarItem {
 					Text = "Cancel ",
 					//				Icon = "icon-map.png",
 					Order = ToolbarItemOrder.Primary,
 					Command = new Command (() => {
-//					Navigation.PopModalAsync ();
 						DoCancel (null, null);
 					}),
 				};
 				ToolbarItems.Add (BackBtn);
 			}
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Feedback",
+				Icon = "59_flag_white.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new FeedbackPage ())),
+			});
 		}
 	}
 }

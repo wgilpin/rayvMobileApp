@@ -58,7 +58,7 @@ namespace RayvMobileApp
 				Console.WriteLine ("MainMenu: Add button - push AddMenu");
 				var addPage = new AddFindUserPage ();
 				addPage.Failed += async (o, ev) => {
-					Navigation.PopAsync ();
+					await Navigation.PopAsync ();
 					if (await DisplayAlert ("Failed", "Message could not be sent. Try with a phone app?", "Yes", "Cancel")) {
 						DoSendInvite (this, null);
 					}

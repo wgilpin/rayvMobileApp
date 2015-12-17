@@ -8,7 +8,7 @@ namespace RayvMobileApp
 {
 	public class SettingsPage : ContentPage
 	{
-		RayvButton LogoutBtn;
+		ColouredButton LogoutBtn;
 
 		void DoLogout (object sender, EventArgs e)
 		{
@@ -30,7 +30,7 @@ namespace RayvMobileApp
 
 		public SettingsPage ()
 		{
-			LogoutBtn = new RayvButton {
+			LogoutBtn = new ColouredButton {
 				Text = " Logout ",
 			};
 			LogoutBtn.Clicked += DoLogout;
@@ -57,10 +57,10 @@ namespace RayvMobileApp
 					},
 					token_lbl,
 					new Label {
-						Text = $"UID: {Persist.Instance.MyId}",
+						Text =$"UID: {Persist.Instance.MyId}",
 					},
 					new Label {
-						Text = $"Notify: {apns_tok}",
+						Text =$"Notify: {apns_tok}",
 					},
 					new ButtonWide {
 						BackgroundColor = Color.Red,

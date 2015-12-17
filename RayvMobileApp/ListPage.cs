@@ -43,7 +43,7 @@ namespace RayvMobileApp
 		//		bool DEBUG_ON_SIMULATOR = DependencyService.Get<IDeviceSpecific> ().RunningOnIosSimulator ();
 		public bool NeedsReload = true;
 		string _FilterSearchText;
-		RayvButton addNewButton;
+		ColouredButton addNewButton;
 
 
 		public static List<Place> ItemsSource {
@@ -322,14 +322,10 @@ namespace RayvMobileApp
 		static void DebugList (string step, IEnumerable<Vote> filteredList, Dictionary<string,Vote> myVotes)
 		{
 			//debug
-			if (false)
-				foreach (var v in filteredList.ToList ()) {
-					bool res = (myVotes.ContainsKey (v.key));
-//						?
-//					            myVotes [v.key].style == FilterPlaceStyle :
-//					            v.style == FilterPlaceStyle);
-					Console.WriteLine ($"[{step}]{v.key} {v.place_name} by {v.VoterName} style {res}");
-				}
+//				foreach (var v in filteredList.ToList ()) {
+//					bool res = (myVotes.ContainsKey (v.key));
+//					Console.WriteLine ($"[{step}]{v.key} {v.place_name} by {v.VoterName} style {res}");
+//				}
 		}
 
 		public static List<Place> FilterPlaceList (
@@ -344,7 +340,6 @@ namespace RayvMobileApp
 			listView.Filter = filter;
 			description = "";
 			Console.WriteLine ("Listpage.FilterPlaceList");
-			List<Place> results = new List<Place> ();
 			List<string> styleDescriptionItems = new List<string> ();
 			var filteredList = from v in Persist.Instance.Votes
 			                   join p in list on v.key equals p.key
@@ -511,11 +506,7 @@ namespace RayvMobileApp
 			string styleDescription = "";
 			try {
 				Persist.Instance.DisplayList = Persist.Instance.GetData ();
-				IEnumerable<Vote> filteredList = Persist.Instance.Votes;
 				// dict mapping vote place key to vote
-				Dictionary<string,Vote> myVotes = Persist.Instance.Votes
-					.Where (v => v.voter == Persist.Instance.MyId.ToString ())
-					.ToDictionary (v => v.key, v => v);
 				String text = _FilterSearchText?.ToLower ();
 
 				var filterParams = new FilterParameters () {
@@ -554,7 +545,6 @@ namespace RayvMobileApp
 		{
 			lock (Persist.Instance.Lock) {
 				try {
-					List<Place> nearestList = new List<Place> ();
 					Console.WriteLine ("SetList {0}", list.Count);
 					if (list.Count == 0) {
 						listView.IsVisible = false;
@@ -622,8 +612,8 @@ namespace RayvMobileApp
 				Text = "Checking Location",
 				BackgroundColor = settings.BaseColor,
 				TextColor = Color.White,
-				XAlign = TextAlignment.Center,
-				YAlign = TextAlignment.Center,
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center,
 				FontSize = settings.FontSizeLabelLarge,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -693,7 +683,7 @@ namespace RayvMobileApp
 			grid.Children.Add (Spinner, 0, 1);
 			grid.Children.Add (inner, 0, 2);
 			grid.Children.Add (SplashImage, 0, 1, 0, 3);
-			addNewButton = new RayvButton ("Add New Place");
+			addNewButton = new ColouredButton ("Add New Place");
 			addNewButton.OnClick = (sender, e) => {
 				Navigation.PushAsync (new AddPage1 (false){ SearchText = FilterSearchBox.Text });
 			};
@@ -713,6 +703,13 @@ namespace RayvMobileApp
 				//				Icon = "icon-map.png",
 				Order = ToolbarItemOrder.Primary,
 				Command = new Command (ShowMap),
+			});
+
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Feedback",
+				Icon = "59_flag_white.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new FeedbackPage ())),
 			});
 
 			NeedsReload = true;

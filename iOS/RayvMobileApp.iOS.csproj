@@ -260,6 +260,9 @@
     <BundleResource Include="Resources\Wish_Green.png" />
     <BundleResource Include="Resources\wish_grey.png" />
     <BundleResource Include="Resources\Wish_white.png" />
+    <BundleResource Include="Resources\59_flag_white.png" />
+    <BundleResource Include="Resources\Check_tick_white.png" />
+    <BundleResource Include="Resources\Check_empty_white.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

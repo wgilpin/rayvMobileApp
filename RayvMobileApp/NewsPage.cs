@@ -46,6 +46,7 @@ namespace RayvMobileApp
 		BottomToolbar Toolbar;
 		ActivityIndicator Spinner;
 		NewsFilterKind Filter = NewsFilterKind.All;
+		ButtonWithCheckbox myPlacesOnlyFilterCheck;
 
 		#endregion
 
@@ -256,40 +257,7 @@ namespace RayvMobileApp
 
 		#endregion
 
-		public NewsPage ()
-		{
-			Title = "Activity";
-			Insights.Track ("News Page");
-			BackgroundColor = Color.White;
-			list = new StackLayout () {
-				Padding = 5,
-				Spacing = 10,
-				BackgroundColor = Color.FromHex ("EEE"),
 
-			};
-			Spinner = new ActivityIndicator { Color = Color.Red, };
-			Toolbar = new BottomToolbar (this, "news");
-			ShowRows = PAGE_SIZE;
-			MoreBtn = new RayvButton ("Show More...");
-			MoreBtn.Clicked += DoShowMore;
-			this.Content = new StackLayout {
-				Children = {
-					Spinner,
-					new ScrollView {
-						VerticalOptions = LayoutOptions.FillAndExpand,
-						Content = new StackLayout {
-							Children = {
-								list,
-								MoreBtn,
-							}
-						}
-					},
-					Toolbar
-				}
-			};
-			Clicked = false;
-			this.Appearing += CheckForUpdates;
-		}
 
 		#region Events
 
@@ -401,12 +369,20 @@ namespace RayvMobileApp
 			var clickVote = new TapGestureRecognizer ();
 			clickVote.Tapped += DoListItemTap;
 			foreach (Vote v in newsList) {
-				var view = CreateNewsItem (v);
-				if (view != null) {
-					list.Children.Add (view);
-					view.GestureRecognizers.Add (clickVote);
+				if (!myPlacesOnlyFilterCheck.Checked || v.voter == Persist.Instance.MyId.ToString ()) {
+					var view = CreateNewsItem (v);
+					if (view != null) {
+						list.Children.Add (view);
+						view.GestureRecognizers.Add (clickVote);
+					}
 				}
 			}
+		}
+
+		void SetSpinner (bool state)
+		{
+			Spinner.IsVisible = state;
+			Spinner.IsRunning = state;
 		}
 
 		void CheckForUpdates (object sender, EventArgs e)
@@ -417,8 +393,7 @@ namespace RayvMobileApp
 				SetSource ();
 				return;
 			}
-			Spinner.IsVisible = true;
-			Spinner.IsRunning = true;
+			SetSpinner (true);
 			Console.WriteLine ("Spin up");
 			new System.Threading.Thread (new System.Threading.ThreadStart (() => {
 				Clicked = false;
@@ -428,8 +403,7 @@ namespace RayvMobileApp
 						Persist.Instance.GetUserData (
 							onFail: () => {
 								Device.BeginInvokeOnMainThread (() => {
-									Spinner.IsRunning = false;
-									Spinner.IsVisible = false;
+									SetSpinner (false);
 									SetSource ();
 								});
 							},
@@ -443,8 +417,7 @@ namespace RayvMobileApp
 								Device.BeginInvokeOnMainThread (() => {
 									SetSource ();
 									LastUpdate = DateTime.UtcNow;
-									Spinner.IsRunning = false;
-									Spinner.IsVisible = false;
+									SetSpinner (false);
 									Console.WriteLine ("Spin down");
 								});
 							},
@@ -502,5 +475,59 @@ namespace RayvMobileApp
 		}
 
 		#endregion
+
+		void DoChangeFilter (object sender, EventArgs e)
+		{
+			SetSource ();
+		}
+
+		public NewsPage ()
+		{
+			Title = "Activity";
+			Insights.Track ("News Page");
+			BackgroundColor = Color.White;
+			list = new StackLayout () {
+				Padding = 5,
+				Spacing = 10,
+				BackgroundColor = Color.FromHex ("EEE"),
+
+			};
+			Spinner = new ActivityIndicator { Color = Color.Red, IsVisible = false };
+			Toolbar = new BottomToolbar (this, "news");
+			ShowRows = PAGE_SIZE;
+			MoreBtn = new ColouredButton ("Show More...");
+			MoreBtn.Clicked += DoShowMore;
+			myPlacesOnlyFilterCheck = new ButtonWithCheckbox {
+				Text = "Show My Places Only",
+				Checked = false,
+				Changed = DoChangeFilter,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				Padding = 5
+			};
+			this.Content = new StackLayout {
+				Children = {
+					Spinner,
+					myPlacesOnlyFilterCheck,
+					new ScrollView {
+						VerticalOptions = LayoutOptions.FillAndExpand,
+						Content = new StackLayout {
+							Children = {
+								list,
+								MoreBtn,
+							}
+						}
+					},
+					Toolbar
+				}
+			};
+			ToolbarItems.Add (new ToolbarItem {
+				Text = "Feedback",
+				Icon = "59_flag_white.png",
+				Order = ToolbarItemOrder.Primary,
+				Command = new Command (() => Navigation.PushAsync (new FeedbackPage ())),
+			});
+			Clicked = false;
+			Appearing += CheckForUpdates;
+		}
 	}
 }

@@ -16,7 +16,7 @@ namespace RayvMobileApp
 			Title = "Find a User";
 			BackgroundColor = settings.BaseColor;
 			var emailEd = new Entry { Placeholder = "Email" };
-			var searchBtn = new RayvButton ("Invite as Friend");
+			var searchBtn = new ColouredButton ("Invite as Friend");
 			string result = null;
 			searchBtn.Clicked += async (sender, e) => {
 				var param = new Dictionary<string, string> () {
@@ -35,7 +35,6 @@ namespace RayvMobileApp
 							await DisplayAlert ("Sent", "Invite Sent", "OK");
 							Succeeded?.Invoke (this, null);
 							return;
-							break; 
 						case "EMAIL TO SELF":
 							DisplayAlert ("Errr..", "You have invited yourself. Does not compute!", "OK");
 							break;

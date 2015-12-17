@@ -200,7 +200,7 @@ namespace RayvMobileApp
 			var deDupPage = new AddPage5bDeDup (NameEd.Text, AddressEd.Text, span.Center);
 			deDupPage.Cancelled += Failed;
 			deDupPage.Confirmed += Succeeded;
-			this.Navigation.PushAsync (deDupPage);
+			await Navigation.PushAsync (deDupPage);
 		}
 
 		#endregion

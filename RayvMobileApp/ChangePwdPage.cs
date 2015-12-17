@@ -9,7 +9,7 @@ namespace RayvMobileApp
 	{
 		public event EventHandler Done;
 
-		RayvButton ChangeBtn;
+		ColouredButton ChangeBtn;
 		Entry OldPwdEntry;
 		Entry NewPwdEntry;
 		Entry ConfirmPwnEntry;
@@ -27,7 +27,7 @@ namespace RayvMobileApp
 				return;
 			}
 			if (string.IsNullOrEmpty (newPwd) || newPwd.Length < settings.MIN_PWD_LENGTH) {
-				DisplayAlert ("Error",$"Password must be at least {settings.MIN_PWD_LENGTH} characters long","OK"); 
+				DisplayAlert ("Error",$"Password must be at least {settings.MIN_PWD_LENGTH} characters long","OK");
 				return;
 			}
 			var conn = Persist.Instance.GetWebConnection ();
@@ -48,7 +48,7 @@ namespace RayvMobileApp
 		{
 			this.Title = "Change Password";
 			Padding = 10;
-			ChangeBtn = new RayvButton ("Change");
+			ChangeBtn = new ColouredButton ("Change");
 			ChangeBtn.Clicked += DoChangePassword;
 			OldPwdEntry = new Entry { Placeholder = "OldPassword" };
 			NewPwdEntry = new Entry { Placeholder = "New Password" };

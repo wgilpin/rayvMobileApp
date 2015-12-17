@@ -83,6 +83,7 @@ namespace RayvMobileApp
 				lat = LatLng.Latitude,
 				lng = LatLng.Longitude,
 				place_name = PlaceName,
+				address = Address
 			};
 			var editor = new PlaceEditor (addingPlace, false);
 			editor.Saved += (s, ev) => {
@@ -179,7 +180,7 @@ namespace RayvMobileApp
 						FontAttributes = FontAttributes.Italic,
 					},
 
-					new RayvButton {
+					new ColouredButton {
 						Text = "Confirm",
 						OnClick = DoConfirmedManualDetails,
 					},

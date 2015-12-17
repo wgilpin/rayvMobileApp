@@ -17,7 +17,7 @@ namespace RayvMobileApp
 		Entry Pwd2Ed;
 		Entry EmailEd;
 		Entry ScreenNameEd;
-		RayvButton GoBtn;
+		ColouredButton GoBtn;
 		ActivityIndicator Spinner;
 
 		async void  DoRegister (object sender, EventArgs e)
@@ -151,7 +151,7 @@ namespace RayvMobileApp
 				Placeholder = "E-mail Address",
 				Text = "",
 			};
-			GoBtn = new RayvButton ("Register");
+			GoBtn = new ColouredButton ("Register");
 			GoBtn.OnClick = DoRegister;
 			Content = new StackLayout { 
 				VerticalOptions = LayoutOptions.Start,
